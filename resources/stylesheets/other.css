@@ -62,9 +62,8 @@ body {
 .titlebar > .titlebar-buttons > button {
     background: none;
     border: none;
-    color: var(--dracula-white);
-    cursor: pointer;
-    
+    color: var(--dracula-grey-lighter);
+
     width: 42px;
     height: 42px;
 
@@ -73,13 +72,32 @@ body {
     justify-content: space-around;
 }
 
-.titlebar > .titlebar-buttons > button > img {
-    width: 25px;
-    height: 25px;
+.titlebar > .titlebar-buttons > button.alive-button {
+    color: var(--dracula-white);
 }
 
-.titlebar > .titlebar-buttons > button:hover {
+.titlebar > .titlebar-buttons > button.alive-button:hover {
     background-color: var(--dracula-grey);
+}
+
+.titlebar > .titlebar-buttons > button.alive-button > img {
+    width: 25px;
+    height: 25px;
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(333deg) brightness(106%) contrast(101%);
+}
+
+.titlebar > .titlebar-buttons > button.dead-button {
+    color: gray;
+}
+
+.titlebar > .titlebar-buttons > button.dead-button:hover {
+    background-color: none;
+}
+
+.titlebar > .titlebar-buttons > button.dead-button > img {
+    width: 25px;
+    height: 25px;
+    filter: invert(56%) sepia(0%) saturate(1175%) hue-rotate(136deg) brightness(89%) contrast(96%);
 }
 
 *:focus {
@@ -365,10 +383,19 @@ br {
     filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(333deg) brightness(106%) contrast(101%);
 }
 
+.filter-gray {
+    filter: invert(56%) sepia(0%) saturate(1175%) hue-rotate(136deg) brightness(89%) contrast(96%);
+}
+
 #logo {
     width: 36px;
     height: 36px;
-    margin: 0 10px;
+    margin: 0 18px;
+}
+
+.titlebar .ghost-button {
+    width: 36px;
+    height: 36px;
 }
 
 .no-select {
