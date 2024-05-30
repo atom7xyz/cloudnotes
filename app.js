@@ -22,7 +22,6 @@ function configureIPC(window) {
 }
 
 function createWindow() {
-    console.log(path.join(__dirname, '/dist/preload.js'))
     window = new BrowserWindow({
         width: 1366,
         height: 768,
