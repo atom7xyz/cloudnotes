@@ -1,0 +1,26 @@
+{
+    "name": "cloudnotes",
+    "productName": "CloudNotes App",
+    "description": "UniCA CS project for Human-Computer Interaction course.",
+    "version": "1.0.0",
+    "private": true,
+    "author": "Antonio Masala & Davide Flore & Marco La Civita",
+    "license": "GPL-3.0-only",
+    "main": "app.js",
+    "scripts": {
+        "drystart": "npm run build:typescript && electron .",
+        "start": "npm run build:css && npm run drystart",
+        "build:css": "npx postcss src/stylesheets/tailwind.css -o dist/stylesheets/tailwind.css",
+        "build:typescript": "npx tsc -p tsconfig.json"
+    },
+    "devDependencies": {
+        "autoprefixer": "^10.4.19",
+        "electron": "^30.0.8",
+        "postcss": "^8.4.38",
+        "tailwindcss": "^3.4.3",
+        "typescript": "^5.4.5"
+    },
+    "dependencies": {
+        "postcss-cli": "^11.0.0"
+    }
+}

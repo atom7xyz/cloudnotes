@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CloudNotes - Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Davide Flore & Marco La Civita & Antonio Masala">
+    <meta name="description" content="UniCA CS project for Human-Computer Interaction course.">
+    <meta name="keywords" content="UNICA, IUM, HUMAN-COMPUTER-INTERACTION, CS, COMPUTER-SCIENCE">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="identifier" content="login">
+
+    <link href="../dist/stylesheets/tailwind.css" rel="stylesheet" media="screen">
+    <link href="./stylesheets/other.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+    <main class="login-container no-select blurred-background">
+        <section>
+            <div class="title">
+                <h1>CloudNotes</h1>
+            </div>
+            <div class="title-end">
+                <p>Your virtual oasis of knowledge.</p>
+            </div>
+            <h1 class="title-form">Log In</h1>
+            <form action="login" method="post">
+                <input type="email" id="email" name="email" placeholder="Email" required>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+
+                <div class="checkbox-container">
+                    <input type="checkbox" id="custom-checkbox">
+                    <label for="custom-checkbox">Remember me</label>
+                </div>
+
+                <button type="submit" class="encourage">LOG IN</button>
+                <a href="forgot-password.html">Forgot your password?</a>
+                <br>
+                <a href="register.html">Need an account? Create one!</a>
+            </form>
+        </section>
+    </main>
+</body>
+
+</html>
