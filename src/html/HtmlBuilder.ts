@@ -87,7 +87,6 @@ class HtmlBuilder {
         let matches: RegExpExecArray[];
         do {
             matches = Array.from(content.matchAll(HtmlBuilder.htmlRule));
-            console.log(matches)
             matches.forEach((value) => {
                 mapping.set(value[1], [value.index, value.index + value[0].length]);
             });

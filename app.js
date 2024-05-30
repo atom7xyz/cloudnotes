@@ -1,17 +1,35 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const url = require('url');
 const path = require('path');
 const { HtmlBuilder } = require('./dist/html/HtmlBuilder');
 
 let window = null;
 
+function configureIPC(window) {
+    ipcMain.on('minimize', () => {
+        window.minimize();
+    });
+    ipcMain.on('resize', () => {
+        if (window.isMaximized()) {
+            window.unmaximize();
+        } else {
+            window.maximize();
+        }
+    });
+    ipcMain.on('close', () => {
+        window.close();
+    });
+}
+
 function createWindow() {
+    console.log(path.join(__dirname, '/dist/preload.js'))
     window = new BrowserWindow({
         width: 1366,
         height: 768,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: true,
+            preload: path.join(__dirname, '/dist/preload.js')
         },
         frame: false,
         resizable: true,
@@ -21,6 +39,8 @@ function createWindow() {
     window.setMinimumSize(1366, 768);
     window.setMenuBarVisibility(false);
     window.maximize();
+
+    configureIPC(window);
 
     let htmlContent = HtmlBuilder.getInstance().onDemandBuild("terms-of-service");
     window.loadFile(htmlContent);
