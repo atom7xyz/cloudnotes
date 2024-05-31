@@ -3,7 +3,7 @@ const url = require('url');
 const path = require('path');
 const { HtmlBuilder } = require('./dist/html/HtmlBuilder');
 
-let window = null, window2 = null;
+let window = null;
 
 function configureIPC(window) {
     ipcMain.on('minimize', () => {
