@@ -12,11 +12,14 @@
     <meta name="identifier" content="login">
 
     <link href="../dist/stylesheets/tailwind.css" rel="stylesheet" media="screen">
+    <link href="./stylesheets/common.css" rel="stylesheet" media="screen">
+    <link href="./stylesheets/titlebar.css" rel="stylesheet" media="screen">
     <link href="./stylesheets/other.css" rel="stylesheet" media="screen">
 </head>
 
-<body>
-    <main class="login-container no-select blurred-background">
+<body id="body-background">
+    <include>toolbar-no-session</include>
+    <main class="centered-container login-container blurred-background no-select col-4">
         <section>
             <div class="title">
                 <h1>CloudNotes</h1>

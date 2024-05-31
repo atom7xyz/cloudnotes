@@ -1,34 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-    --deep-black: #000000;
-    --deep-white: #ffffff;
-
-    --dracula-white: rgb(248, 248, 242);
-    --dracula-black: rgb(40, 42, 54);
-    --dracula-black-2: rgb(32, 32, 32);
-    --dracula-grey: rgb(65, 69, 88);
-    --dracula-grey-2: rgb(64, 64, 64);
-    --dracula-purple: rgb(149, 128, 255);
-    --dracula-pink: rgb(255, 121, 198);
-    --dracula-orange: rgb(255, 184, 108);
-    --dracula-green: rgb(80, 250, 123);
-    --dracula-yellow: rgb(241, 250, 140);
-    --dracula-cyan: rgb(139, 233, 253);
-    --dracula-red: rgb(255, 85, 85);
-
-    /* other */
-    --dracula-grey-lighter: rgb(120, 120, 135);
-    --dracula-grey-lighter-lighter: rgb(153, 153, 162);
-
-    --gray-feels: #414558;
-    --black-feels: #21222C;
-    --white-feels: #F8F8F2;
-
-    --purple-feels: rgba(149, 128, 255);
-    --black-secondary-feels: rgba(65, 69, 88, 0.05);
-    --egg-white-feels: rgb(236, 236, 215);
-    --gray-contaminated-feels: #3a4e7a;
-}

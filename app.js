@@ -35,7 +35,6 @@ function createWindow() {
         titleBarStyle: "hidden"
     });
 
-    window.setMinimumSize(1366, 768);
     window.setMenuBarVisibility(false);
     window.maximize();
 
@@ -43,7 +42,6 @@ function createWindow() {
 
     let htmlContent = HtmlBuilder.getInstance().onDemandBuild("terms-of-service");
     window.loadFile(htmlContent);
-
 
     /*
     window.loadURL(

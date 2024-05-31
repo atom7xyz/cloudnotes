@@ -1,0 +1,267 @@
+html {
+    --deep-black: #000000;
+    --deep-white: #ffffff;
+
+    --deep-almost-black: #121212;
+
+    --dracula-white: rgb(248, 248, 242);
+    --dracula-black: rgb(40, 42, 54);
+    --dracula-black-2: rgb(32, 32, 32);
+    --dracula-grey: rgb(65, 69, 88);
+    --dracula-grey-2: rgb(64, 64, 64);
+    --dracula-purple: rgb(149, 128, 255);
+    --dracula-pink: rgb(255, 121, 198);
+    --dracula-orange: rgb(255, 184, 108);
+    --dracula-green: rgb(80, 250, 123);
+    --dracula-yellow: rgb(241, 250, 140);
+    --dracula-cyan: rgb(139, 233, 253);
+    --dracula-red: rgb(255, 85, 85);
+
+    /* other */
+    --dracula-grey-lighter: rgb(120, 120, 135);
+    --dracula-grey-lighter-lighter: rgb(153, 153, 162);
+
+    --gray-feels: #414558;
+    --black-feels: #21222C;
+    --white-feels: #F8F8F2;
+
+    --purple-feels: rgba(149, 128, 255);
+    --black-secondary-feels: rgba(65, 69, 88, 0.05);
+    --egg-white-feels: rgb(236, 236, 215);
+    --gray-contaminated-feels: #3a4e7a;
+}
+
+
+/*
+ * Title applied in multiple pages:
+ * [register, login, terms-of-service]
+ */
+
+.title {
+    font-family: 'Bigshot One';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.title > h1 {
+    font-size: 3.4em;
+    margin: 0;
+    font-style: italic;
+}
+
+.title-end {
+    color: var(--dracula-grey-lighter);
+    font-style: italic;
+    display: block;
+    text-align: center;
+}
+
+.title-end::after {
+    margin: 5px 20% 4em 20%;
+}
+
+/* 
+ * Page body customization.
+ */
+
+body#body-background {
+    background-image: url('../assets/clouds.jpg');
+    background-position-y: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    overflow: hidden;
+}
+
+body > .centered-container {
+    margin: auto;
+    max-height: calc(100% - var(--titlebar-height));
+    overflow: auto;
+}
+
+
+/* 
+ * Utils.
+ */
+
+.no-select {
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+a {
+    color: var(--dracula-purple);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+a:hover {
+    color: var(--dracula-pink);
+}
+
+.blurred-background {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+br {
+    user-select: none;
+}
+
+.filter-white {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(333deg) brightness(106%) contrast(101%);
+}
+
+.filter-gray {
+    filter: invert(56%) sepia(0%) saturate(1175%) hue-rotate(136deg) brightness(89%) contrast(96%);
+}
+
+*:focus {
+    outline-color: var(--dracula-purple);
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, .95);
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--dracula-grey-lighter);
+}
+
+
+/*
+ * Fonts.
+ */
+
+@font-face {
+    font-family: 'Bigshot One';
+    src: url('../assets/fonts/BigshotOne-Regular.ttf') format('truetype');
+}
+
+
+/* 
+ * Structure.
+ */
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
+.col-0 {
+    width: 4.165%;
+}
+
+.col-1 {
+    width: 8.33%;
+}
+
+.col-2 {
+    width: 16.66%;
+}
+
+.col-3 {
+    width: 25%;
+}
+
+.col-4 {
+    width: 33.33%;
+}
+
+.col-5 {
+    width: 41.66%;
+}
+
+.col-6 {
+    width: 50%;
+}
+
+.col-7 {
+    width: 58.33%;
+}
+
+.col-8 {
+    width: 66.66%;
+}
+
+.col-9 {
+    width: 75%;
+}
+
+.col-10 {
+    width: 83.33%;
+}
+
+.col-11 {
+    width: 91.66%;
+}
+
+.col-12 {
+    width: 100%;
+}
+
+.col-0 {
+    width: 4.165%;
+}
+
+.row-1 {
+    height: 8.33%;
+}
+
+.row-2 {
+    height: 16.66%;
+}
+
+.row-3 {
+    height: 25%;
+}
+
+.row-4 {
+    height: 33.33%;
+}
+
+.row-5 {
+    height: 41.66%;
+}
+
+.row-6 {
+    height: 50%;
+}
+
+.row-7 {
+    height: 58.33%;
+}
+
+.row-8 {
+    height: 66.66%;
+}
+
+.row-9 {
+    height: 75%;
+}
+
+.row-10 {
+    height: 83.33%;
+}
+
+.row-11 {
+    height: 91.66%;
+}
+
+.row-12 {
+    height: 100%;
+}

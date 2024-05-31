@@ -1,0 +1,109 @@
+/*
+ * Titlebar styles.
+ */
+
+html {
+    --titlebar-height: 42px;
+    --titlebar-search-height: 30px;
+    --titlebar-image-height: 25px;
+    --titlebar-logo-height: 36px;
+}
+
+.titlebar {
+    background-color: var(--deep-almost-black);
+    color: var(--dracula-white);
+
+    height: var(--titlebar-height);
+
+    display: flex;
+    align-items: center;
+
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+}
+
+.titlebar > .titlebar-spacer {
+    flex-grow: 1;
+}
+
+.titlebar > .titlebar-search {
+    display: flex;
+    width: 500px;
+    max-width: 100%;
+
+    -webkit-app-region: no-drag;
+}
+
+.titlebar > .titlebar-search > input {
+    background-color: inherit;
+    border: 1px solid var(--dracula-grey-2);
+    color: var(--dracula-white);
+
+    padding: 0 5%;
+    margin: 0 5px;
+    width: 100%;
+
+    height: var(--titlebar-search-height);
+
+    background: url(../assets/icons/search-1.svg) no-repeat left;
+    background-size: 20px;
+}
+
+.titlebar > .titlebar-buttons {
+    -webkit-app-region: no-drag;
+    display: inherit;
+    align-items: center;
+}
+
+.titlebar > .titlebar-buttons > button {
+    background: none;
+    border: none;
+    color: var(--dracula-grey-lighter);
+
+    width: var(--titlebar-height);
+    height: var(--titlebar-height);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.titlebar > .titlebar-buttons > button > img {
+    height: var(--titlebar-image-height);
+    width: var(--titlebar-image-height);
+}
+
+.titlebar > .titlebar-buttons > button.alive-button {
+    color: var(--dracula-white);
+}
+
+.titlebar > .titlebar-buttons > button.alive-button:hover {
+    background-color: var(--dracula-grey);
+}
+
+.titlebar > .titlebar-buttons > button.alive-button > img {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(333deg) brightness(106%) contrast(101%);
+}
+
+.titlebar > .titlebar-buttons > button.dead-button {
+    color: gray;
+}
+
+.titlebar > .titlebar-buttons > button.dead-button:hover {
+    background-color: none;
+}
+
+.titlebar > .titlebar-buttons > button.dead-button > img {
+    filter: invert(56%) sepia(0%) saturate(1175%) hue-rotate(136deg) brightness(89%) contrast(96%);
+}
+
+.titlebar > img#logo {
+    width: var(--titlebar-logo-height);
+    height: var(--titlebar-logo-height);
+    margin: 0 calc(var(--titlebar-height) - (var(--titlebar-height) / 4)) 0 calc(var(--titlebar-height) / 4);
+}
+
+.titlebar > .ghost-button {
+    width: var(--titlebar-height);
+    height: var(--titlebar-height);
+}
