@@ -3,7 +3,7 @@ const url = require('url');
 const path = require('path');
 const { HtmlBuilder } = require('./dist/html/HtmlBuilder');
 
-let window = null;
+let window = null, window2 = null;
 
 function configureIPC(window) {
     ipcMain.on('minimize', () => {
@@ -40,7 +40,7 @@ function createWindow() {
 
     configureIPC(window);
 
-    let htmlContent = HtmlBuilder.getInstance().onDemandBuild("terms-of-service");
+    let htmlContent = HtmlBuilder.getInstance().onDemandBuild("register");
     window.loadFile(htmlContent);
 
     /*

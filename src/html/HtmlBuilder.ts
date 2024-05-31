@@ -66,7 +66,10 @@ class HtmlBuilder {
             name = matches[0].groups?.name;
             content = content.replace(matches[0][0], "")
         }
-        if (name == undefined) throw new Error("HTML name not found or not valid!");
+        
+        if (name == undefined)
+            return name
+
         return [name, content];
     }
 
@@ -107,15 +110,19 @@ class HtmlBuilder {
             if (path.join(this.outDir, this.outFile) === dir) continue;
             if (dir.startsWith(this.componentDir)) continue;
             let data = fs.readFileSync(fs.openSync(dir, "r"), "utf-8");
+            
             let declaration = this.getHtmlName(data);
-            if (declaration == undefined) continue;
-            else {
-                if (declaration[0] === name) {
-                    html = {
-                        content: this.getHtmlComponents(declaration[1], components)
-                    } as HTMLFile;
-                    break;
-                }
+
+            if (declaration == undefined)
+            {
+                throw new Error("HTML name not found in file: `" + dir + "`");    
+            }
+
+            if (declaration[0] === name) {
+                html = {
+                    content: this.getHtmlComponents(declaration[1], components)
+                } as HTMLFile;
+                break;
             }
         }
 
