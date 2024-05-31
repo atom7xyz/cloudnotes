@@ -136,19 +136,13 @@ class HtmlBuilder {
         fs.closeSync(file);
     }
 
-    public build() {
-        let components = this.getComponents();
-        //let html = this.getHtml()
-        //this.writeHtml(html)
-    }
-
-    public onDemandBuild(name: string): string {
+    public onDemandBuild(name: string, output?: string): string {
         let components = this.getComponents();
         if (components == undefined) throw new Error("Components not found!");
         let html = this.getHtml(name, components);
         if (html == undefined) throw new Error("HTML not found!");
         fs.mkdirSync(this.outDir, { recursive: true });
-        let fpath = path.join(this.outDir, this.outFile);
+        let fpath = path.join(this.outDir, output ?? this.outFile);
         fs.writeFileSync(fpath, html.content);
         return fpath;
     }
