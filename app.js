@@ -40,7 +40,7 @@ function createWindow() {
 
     configureIPC(window);
 
-    let htmlContent = HtmlBuilder.getInstance().onDemandBuild("terms-of-service");
+    let htmlContent = HtmlBuilder.getInstance().onDemandBuild("register");
     window.loadFile(htmlContent);
 
     /*

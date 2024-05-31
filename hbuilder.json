@@ -1,6 +1,6 @@
 {
     "componentDirectory": "./resources/components/",
     "htmlDirectory": "./resources/",
-    "outDirectory": "./resources/",
+    "outDirectory": "./dist/out/",
     "outFile": "index.html"
 }

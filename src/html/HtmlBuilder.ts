@@ -66,7 +66,10 @@ class HtmlBuilder {
             name = matches[0].groups?.name;
             content = content.replace(matches[0][0], "")
         }
-        if (name == undefined) throw new Error("HTML name not found or not valid!");
+        
+        if (name == undefined)
+            return name
+
         return [name, content];
     }
 
@@ -107,15 +110,19 @@ class HtmlBuilder {
             if (path.join(this.outDir, this.outFile) === dir) continue;
             if (dir.startsWith(this.componentDir)) continue;
             let data = fs.readFileSync(fs.openSync(dir, "r"), "utf-8");
+            
             let declaration = this.getHtmlName(data);
-            if (declaration == undefined) continue;
-            else {
-                if (declaration[0] === name) {
-                    html = {
-                        content: this.getHtmlComponents(declaration[1], components)
-                    } as HTMLFile;
-                    break;
-                }
+
+            if (declaration == undefined)
+            {
+                throw new Error("HTML name not found in file: `" + dir + "`");    
+            }
+
+            if (declaration[0] === name) {
+                html = {
+                    content: this.getHtmlComponents(declaration[1], components)
+                } as HTMLFile;
+                break;
             }
         }
 
@@ -136,19 +143,13 @@ class HtmlBuilder {
         fs.closeSync(file);
     }
 
-    public build() {
-        let components = this.getComponents();
-        //let html = this.getHtml()
-        //this.writeHtml(html)
-    }
-
-    public onDemandBuild(name: string): string {
+    public onDemandBuild(name: string, output?: string): string {
         let components = this.getComponents();
         if (components == undefined) throw new Error("Components not found!");
         let html = this.getHtml(name, components);
         if (html == undefined) throw new Error("HTML not found!");
         fs.mkdirSync(this.outDir, { recursive: true });
-        let fpath = path.join(this.outDir, this.outFile);
+        let fpath = path.join(this.outDir, output ?? this.outFile);
         fs.writeFileSync(fpath, html.content);
         return fpath;
     }
