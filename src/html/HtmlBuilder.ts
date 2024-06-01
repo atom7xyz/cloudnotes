@@ -60,7 +60,7 @@ class HtmlBuilder {
         return components;
     }
 
-    private getHtmlName(content: string): Array<undefined | string> {
+    private getHtmlName(content: string): Array<undefined | string> | undefined {
         let name: string | undefined = undefined;
         let file: string | undefined = undefined;
         let matches = Array.from(content.matchAll(HtmlBuilder.htmlNameRule));
@@ -68,7 +68,7 @@ class HtmlBuilder {
             name = matches[0].groups?.name;
             file = matches[0].groups?.file;
         }
-        if (name == undefined) throw new Error("HTML name not found or not valid!");
+        if (name == undefined) return name;
         return [name, content, file];
     }
 
@@ -110,15 +110,17 @@ class HtmlBuilder {
             if (dir.startsWith(this.componentDir)) continue;
             let data = fs.readFileSync(fs.openSync(dir, "r"), "utf-8");
             let declaration = this.getHtmlName(data);
-            if (declaration == undefined) continue;
-            else {
-                if (declaration[0] === name) {
-                    html = {
-                        file: declaration[2],
-                        content: this.getHtmlComponents(declaration[1] as string, components)
-                    } as HTMLFile;
-                    break;
-                }
+            if (declaration == undefined)
+            {
+                throw new Error("HTML name not found in file: `" + dir + "`");
+            }
+
+            if (declaration[0] === name) {
+                html = {
+                    file: declaration[2],
+                    content: this.getHtmlComponents(declaration[1] as string, components)
+                } as HTMLFile;
+                break;
             }
         }
 
