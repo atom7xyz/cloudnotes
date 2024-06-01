@@ -7,16 +7,16 @@ window.addEventListener('DOMContentLoaded', () => {
     if (minimize != null) minimize.onclick = () => {
         console.log("minimize");
         // @ts-ignore
-        window.backend.send("minimize", "renderer")
+        window.backend.send("minimize")
     };
     if (resize != null) resize.onclick = () => {
         console.log("resize");
         // @ts-ignore
-        window.backend.send("resize", "renderer")
+        window.backend.send("resize")
     };
     if (close != null) close.onclick = () => {
         console.log("close");
         // @ts-ignore
-        window.backend.send("close", "renderer")
+        window.backend.send("close")
     };
 })

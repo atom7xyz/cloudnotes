@@ -12,6 +12,7 @@ interface Component {
 }
 
 interface HTMLFile {
+    file?: string;
     content: string;
 }
 
@@ -29,7 +30,7 @@ class HtmlBuilder {
 
     private static readonly componentRule = /<\s*component\s+name\s*=\s*"(?<name>[\w-]+)"\s*>(?<content>[^\0]*)<\s*\/\s*component\s*>/g;
 
-    private static readonly htmlNameRule = /<\s*meta\s+name\s*=\s*"identifier"\s+content\s*=\s*"(?<name>[\w-]+)"\s*>/g;
+    private static readonly htmlNameRule = /<\s*meta\s+name\s*=\s*"identifier"\s+content\s*=\s*"\s*(?<name>[\w-]+)(,\s*(?<file>[\w-]*\.html))?\s*"\s*>/g;
     private static readonly htmlRule = /<\s*include\s*>\s*([\w-]+)\s*<\s*\/\s*include\s*>/g;
 
 
@@ -59,15 +60,16 @@ class HtmlBuilder {
         return components;
     }
 
-    private getHtmlName(content: string): string[] | undefined {
+    private getHtmlName(content: string): Array<undefined | string> {
         let name: string | undefined = undefined;
+        let file: string | undefined = undefined;
         let matches = Array.from(content.matchAll(HtmlBuilder.htmlNameRule));
         if (matches.length == 1) {
             name = matches[0].groups?.name;
-            content = content.replace(matches[0][0], "")
+            file = matches[0].groups?.file;
         }
         if (name == undefined) throw new Error("HTML name not found or not valid!");
-        return [name, content];
+        return [name, content, file];
     }
 
     private compileHtml(html: string, mapping: Map<string, [number, number]>, components: Component[]) {
@@ -112,7 +114,8 @@ class HtmlBuilder {
             else {
                 if (declaration[0] === name) {
                     html = {
-                        content: this.getHtmlComponents(declaration[1], components)
+                        file: declaration[2],
+                        content: this.getHtmlComponents(declaration[1] as string, components)
                     } as HTMLFile;
                     break;
                 }
@@ -136,13 +139,13 @@ class HtmlBuilder {
         fs.closeSync(file);
     }
 
-    public onDemandBuild(name: string, output?: string): string {
+    public onDemandBuild(name: string): string {
         let components = this.getComponents();
         if (components == undefined) throw new Error("Components not found!");
         let html = this.getHtml(name, components);
         if (html == undefined) throw new Error("HTML not found!");
         fs.mkdirSync(this.outDir, { recursive: true });
-        let fpath = path.join(this.outDir, output ?? this.outFile);
+        let fpath = path.join(this.outDir, html.file ?? this.outFile);
         fs.writeFileSync(fpath, html.content);
         return fpath;
     }
