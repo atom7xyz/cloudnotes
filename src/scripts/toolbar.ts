@@ -5,27 +5,27 @@ window.addEventListener('DOMContentLoaded', () =>
         sendToBackend("minimize");
     });
 
-    bindClickEvent('button-fullscreen', () => 
+    bindClickEvent('button-fullscreen', () =>
     {
         sendToBackend("resize");
     });
 
-    bindClickEvent('button-close', (event) => 
+    bindClickEvent('button-close', (event) =>
     {
         handleDestructiveModalClick(event, 'close');
     });
 
-    bindClickEvent('button-reload', (event) => 
+    bindClickEvent('button-reload', (event) =>
     {
         handleDestructiveModalClick(event, 'reload');
     });
 
-    bindClickEvent('button-goback', (event) => 
+    bindClickEvent('button-goback', (event) =>
     {
         handleDestructiveModalClick(event, 'goback');
     });
 
-    bindClickEvent('button-goforward', (event) => 
+    bindClickEvent('button-goforward', (event) =>
     {
         handleDestructiveModalClick(event, 'goforward');
     });
