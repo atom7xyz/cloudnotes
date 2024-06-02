@@ -59,30 +59,15 @@ function createWindow() {
         titleBarStyle: "hidden"
     });
 
-    var time = new Date().getTime();
-
-    console.log("Window created -> " + (new Date().getTime() - time));
-
     window.setMenuBarVisibility(false);
     window.maximize();
 
-    console.log("Window maximized -> " + (new Date().getTime() - time));
-
     configureIPC();
-
-    console.log("IPC configured -> " + (new Date().getTime() - time));
-
     configureLinkHandlers();
-
-    console.log("Link handlers configured -> " + (new Date().getTime() - time));
 
     WindowMaker.createWindow(HtmlBuilder.getInstance().onDemandBuild("login"), window);
 
-    console.log("Window created 2 -> " + (new Date().getTime() - time));
-
     window.on('closed', () => window = null);
-
-    console.log("Window DONE -> " + (new Date().getTime() - time));
 }
 
 app.whenReady().then(() => {
