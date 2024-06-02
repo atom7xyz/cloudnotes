@@ -19,38 +19,43 @@
 
 <body id="body-background">
     <include>toolbar-no-session</include>
-    <main class="centered-container login-container blurred-background no-select col-4">
-        <section>
-            <div class="title">
-                <h1>CloudNotes</h1>
-            </div>
-            <div class="title-end">
-                <p>Your virtual oasis of knowledge.</p>
-            </div>
-            <h1 class="title-form">Create an Account</h1>
-            <form action="register" method="post">
-                <input type="email" id="email" name="email" placeholder="Email" required>
 
-                <div class="name-surname">
-                    <input class="half" type="text" id="name" name="name" placeholder="Name" required>
-                    <input class="half" type="text" id="surname" name="surname" placeholder="Surname" required>
+    <div id="wrapper-main" class="center-panel">
+        <main class="col-4 login-container blurred-background no-select">
+            <section>
+                <div class="title">
+                    <h1>CloudNotes</h1>
                 </div>
-
-                <input type="password" id="password" name="password" placeholder="Password" required>
-                <input type="password" id="password-repeat" name="password-repeat" placeholder="Repeat Password"
-                    required>
-
-                <div class="checkbox-container">
-                    <input type="checkbox" id="custom-checkbox" required>
-                    <label for="custom-checkbox">I've read and accept the <a class="file-reference" href="terms-of-service">Terms Of
-                            Service</a></label>
+                <div class="title-end">
+                    <p>Your virtual oasis of knowledge.</p>
                 </div>
+                <h1 class="title-form">Create an Account</h1>
+                <form action="register" method="post">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
 
-                <button type="submit" class="encourage">CREATE AN ACCOUNT</button>
-                <a class="file-reference" href="login">Already have an account? Log In</a>
-            </form>
-        </section>
-    </main>
+                    <div class="name-surname">
+                        <input class="half" type="text" id="name" name="name" placeholder="Name" required>
+                        <input class="half" type="text" id="surname" name="surname" placeholder="Surname" required>
+                    </div>
+
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                    <input type="password" id="password-repeat" name="password-repeat" placeholder="Repeat Password"
+                        required>
+
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="custom-checkbox" required>
+                        <label for="custom-checkbox">I've read and accept the <a class="file-reference"
+                                href="terms-of-service">Terms Of
+                                Service</a></label>
+                    </div>
+
+                    <button type="submit" class="encourage">CREATE AN ACCOUNT</button>
+                    <a class="file-reference" href="login">Already have an account? Log In</a>
+                </form>
+            </section>
+        </main>
+    </div>
+    
     <script src="../scripts/references.js"></script>
 </body>
 

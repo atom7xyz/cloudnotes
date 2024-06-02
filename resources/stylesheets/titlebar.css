@@ -100,7 +100,7 @@ html {
 .titlebar > img#logo {
     width: var(--titlebar-logo-height);
     height: var(--titlebar-logo-height);
-    margin: 0 calc(var(--titlebar-height) - (var(--titlebar-height) / 4)) 0 calc(var(--titlebar-height) / 4);
+    margin: 0 calc(var(--titlebar-height) / 2) 0 calc(var(--titlebar-height) / 2);
 }
 
 .titlebar > .ghost-button {

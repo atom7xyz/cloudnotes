@@ -61,6 +61,7 @@ html {
     margin: 5px 20% 4em 20%;
 }
 
+
 /* 
  * Page body customization.
  */
@@ -74,10 +75,22 @@ body#body-background {
     overflow: hidden;
 }
 
-body > .centered-container {
-    margin: auto;
-    max-height: calc(100% - var(--titlebar-height));
-    overflow: auto;
+body > div#wrapper-main {
+    display: flex;
+    height: calc(100% - var(--titlebar-height));
+    width: 100%;
+    overflow: hidden;
+}
+
+body > div#wrapper-main.center-panel {
+    align-items: center;
+    justify-content: center;
+}
+
+body > div#wrapper-main.center-panel > .flex-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 
