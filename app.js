@@ -26,10 +26,12 @@ function configureLinkHandlers() {
     });
 }
 
-function configureIPC() {
+function configureIPC()
+{
     ipcMain.on('minimize', (event, args) => {
         BrowserWindow.fromWebContents(event.sender).minimize();
     });
+    
     ipcMain.on('resize', (event, args) => {
         let window = BrowserWindow.fromWebContents(event.sender);
         if (window.isMaximized()) {
@@ -38,10 +40,28 @@ function configureIPC() {
             window.maximize();
         }
     });
+    
     ipcMain.on('close', (event, args) => {
         let window = BrowserWindow.fromWebContents(event.sender);
         WindowMaker.removeWindow(window);
         window.close();
+    });
+
+    ipcMain.on('reload', (event, args) => {
+        BrowserWindow.fromWebContents(event.sender).reload();
+        console.log("reload");
+    });
+
+    // TODO FIX
+    ipcMain.on('goback', (event, args) => {
+        BrowserWindow.fromWebContents(event.sender).webContents.goBack();
+        console.log("goback");
+    });
+
+    // TODO FIX
+    ipcMain.on('goforward', (event, args) => {
+        BrowserWindow.fromWebContents(event.sender).webContents.goForward();
+        console.log("goforward");
     });
 }
 

@@ -145,7 +145,7 @@
     display: flex;
 }
 
-.login-container > section {
+.tos-container > section {
     margin: auto;
 }
 
@@ -163,10 +163,6 @@
 .tos-container > section > p, .tos-container > section > address {
     padding: 0 2% 0 2%;
     color: var(--dracula-grey-lighter-lighter);
-}
-
-.tos-container > section > address {
-    padding-bottom: 3%;
 }
 
 .tos-container > section > .in {

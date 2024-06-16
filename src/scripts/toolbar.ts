@@ -1,22 +1,47 @@
 
-window.addEventListener('DOMContentLoaded', () => {
-    const minimize = document.getElementById('button-minimize');
-    const resize = document.getElementById('button-fullscreen');
-    const close = document.getElementById('button-close');
+window.addEventListener('DOMContentLoaded', () =>
+{
+    bindClickEvent('button-minimize', () => {
+        sendToBackend("minimize")
+    });
 
-    if (minimize != null) minimize.onclick = () => {
-        console.log("minimize");
-        // @ts-ignore
-        window.backend.send("minimize")
-    };
-    if (resize != null) resize.onclick = () => {
-        console.log("resize");
-        // @ts-ignore
-        window.backend.send("resize")
-    };
-    if (close != null) close.onclick = () => {
-        console.log("close");
-        // @ts-ignore
-        window.backend.send("close")
-    };
+    bindClickEvent('button-fullscreen', () => {
+        sendToBackend("resize")
+    });
+
+    bindClickEvent('button-close', () => {
+        sendToBackend("close")
+    });
+
+    bindClickEvent('button-reload', () => {
+        sendToBackend("reload")
+    });
+
+    bindClickEvent('button-goback', () => {
+        sendToBackend("goback")
+    });
+
+    bindClickEvent('button-goforward', () => {
+        sendToBackend("goforward")
+    });
 })
+
+function bindClickEvent(from: string, callback: () => void)
+{
+    bindEvent(from, 'click', callback);
+}
+
+function bindEvent(from: string, event: string, callback: () => void)
+{
+    const element = document.getElementById(from);
+
+    if (element != null)
+    {
+        element.addEventListener(event, callback);
+    }
+}
+
+function sendToBackend(message: string) {
+    // @ts-ignore
+    window.backend.send(message)
+}

@@ -22,9 +22,3 @@ export class WindowMaker {
         WindowMaker.windows.delete(window);
     }
 }
-
-
-
-
-
-
