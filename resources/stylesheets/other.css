@@ -156,7 +156,7 @@
 .login-container > section > form > .email-container > .email-input,
 .login-container > section > form > .name-surname > .name-surname-input {
     width: 100%;
-    padding-left: 34px;
+    padding-left: calc(1.8% + 34px);
     box-sizing: border-box;
     border: var(--dracula-grey-lighter) 1px solid;
 }
@@ -190,11 +190,12 @@
     color: var(--dracula-grey-lighter-lighter);
     cursor: pointer;
     margin-top: 2%;
+    margin-left: 1%;
     cursor: default;
 }
 
 .login-container > section > form > .name-surname > .surname-descriptor {
-    margin-left: 52%;
+    margin-left: 53%;
 }
 
 .login-container > section > form > .email-container > .email-descriptor {
