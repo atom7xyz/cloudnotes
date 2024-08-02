@@ -52,13 +52,11 @@ function configureIPC()
         console.log("reload");
     });
 
-    // TODO FIX
     ipcMain.on('goback', (event, args) => {
         BrowserWindow.fromWebContents(event.sender).webContents.goBack();
         console.log("goback");
     });
 
-    // TODO FIX
     ipcMain.on('goforward', (event, args) => {
         BrowserWindow.fromWebContents(event.sender).webContents.goForward();
         console.log("goforward");
@@ -85,7 +83,13 @@ function createWindow() {
     configureIPC();
     configureLinkHandlers();
 
-    WindowMaker.createWindow(HtmlBuilder.getInstance().onDemandBuild("login"), window);
+    window.loadURL(
+        url.format({
+            pathname: path.join(__dirname, "/resources/register.html"),
+            protocol: "file:",
+            slashes: true
+        })
+    );
 
     window.on('closed', () => window = null);
 }

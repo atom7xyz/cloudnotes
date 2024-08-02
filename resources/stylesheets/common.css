@@ -10,6 +10,9 @@ html {
     --dracula-grey: rgb(65, 69, 88);
     --dracula-grey-2: rgb(64, 64, 64);
     --dracula-purple: rgb(149, 128, 255);
+    --dracula-purple-darker-1: rgb(108, 92, 231);
+    --dracula-purple-darker-2: rgb(92, 75, 196);
+    --dracula-purple-darker-3: rgb(76, 62, 157);
     --dracula-pink: rgb(255, 121, 198);
     --dracula-orange: rgb(255, 184, 108);
     --dracula-green: rgb(80, 250, 123);
@@ -29,6 +32,8 @@ html {
     --black-secondary-feels: rgba(65, 69, 88, 0.05);
     --egg-white-feels: rgb(236, 236, 215);
     --gray-contaminated-feels: #3a4e7a;
+
+    font-family: 'Inter', 'Segoe UI', 'Arial', 'Helvetica', sans-serif;
 }
 
 
@@ -152,6 +157,21 @@ br {
     background-color: var(--dracula-grey-lighter);
 }
 
+img.filter-white {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(333deg) brightness(106%) contrast(101%);
+}
+
+img.filter-gray {
+    filter: invert(56%) sepia(0%) saturate(1175%) hue-rotate(136deg) brightness(89%) contrast(96%);
+}
+
+img.filter-red {
+    filter: invert(42%) sepia(11%) saturate(6901%) hue-rotate(326deg) brightness(110%) contrast(105%);
+}
+
+img.filter-green {
+    filter: invert(46%) sepia(58%) saturate(491%) hue-rotate(100deg) brightness(100%) contrast(95%);
+}
 
 /*
  * Fonts.
@@ -162,6 +182,25 @@ br {
     src: url('../assets/fonts/BigshotOne-Regular.ttf') format('truetype');
 }
 
+@font-face {
+    font-family: 'Arial';
+    src: url('../assets/fonts/ARIAL.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Helvetica';
+    src: url('../assets/fonts/Helvetica.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Segoe UI';
+    src: url('../assets/fonts/Segoe UI.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../assets/fonts/Inter.ttf') format('truetype');
+}
 
 /* 
  * Structure.

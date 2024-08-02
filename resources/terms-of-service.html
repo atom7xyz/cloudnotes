@@ -11,14 +11,55 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
     <meta name="identifier" content="terms-of-service">
 
+    <link href="../resources/stylesheets/normalize.css" rel="stylesheet" media="screen">
     <link href="../stylesheets/tailwind.css" rel="stylesheet" media="screen">
-    <link href="../../resources/stylesheets/common.css" rel="stylesheet" media="screen">
-    <link href="../../resources/stylesheets/titlebar.css" rel="stylesheet" media="screen">
-    <link href="../../resources/stylesheets/other.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/common.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/titlebar.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/other.css" rel="stylesheet" media="screen">
 </head>
 
 <body id="body-background">
-    <include>toolbar-no-session</include>
+    <header>
+        <div class="titlebar">
+
+            <img id="logo" src="../resources/assets/logo.png" alt="Logo">
+
+            <div class="ghost-button"></div>
+
+            <div class="titlebar-spacer">
+            </div>
+
+            <div class="titlebar-buttons">
+                <button id="button-goback" class="alive-button">
+                    <img src="../resources/assets/icons/arrow-left.svg">
+                </button>
+                <button id="button-goforward" class="alive-button">
+                    <img src="../resources/assets/icons/arrow-right.svg">
+                </button>
+                <button id="button-reload" class="alive-button">
+                    <img src="../resources/assets/icons/reload.svg">
+                </button>
+            </div>
+
+            <div class="titlebar-spacer">
+            </div>
+
+            <div class="titlebar-buttons">
+                <button id="button-minimize" class="alive-button">
+                    <img src="../resources/assets/icons/minus.svg">
+                </button>
+                <button id="button-fullscreen" class="alive-button">
+                    <img src="../resources/assets/icons/fullscreen.svg">
+                </button>
+                <button id="button-close" class="alive-button">
+                    <img src="../resources/assets/icons/close.svg">
+                </button>
+            </div>
+
+        </div>
+        <script src="../dist/scripts/toolbar.js"></script>
+    </header>
+
     <div id="wrapper-main" class="center-panel">
         <main class="col-10 tos-container blurred-background">
             <section>

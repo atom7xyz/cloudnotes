@@ -11,14 +11,56 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
     <meta name="identifier" content="login">
 
-    <link href="../stylesheets/tailwind.css" rel="stylesheet" media="screen">
-    <link href="../../resources/stylesheets/common.css" rel="stylesheet" media="screen">
-    <link href="../../resources/stylesheets/titlebar.css" rel="stylesheet" media="screen">
-    <link href="../../resources/stylesheets/other.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/normalize.css" rel="stylesheet" media="screen">
+    <link href="../src/stylesheets/tailwind.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/common.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/titlebar.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/other.css" rel="stylesheet" media="screen">
 </head>
 
+<script src="../dist/scripts/auth_utils.js"></script>
+
 <body id="body-background">
-    <include>toolbar-no-session</include>
+    <header>    
+        <script src="../dist/scripts/toolbar.js"></script>
+        <div class="titlebar">
+
+            <img id="logo" src="../resources/assets/logo.png" alt="Logo">
+
+            <div class="ghost-button"></div>
+
+            <div class="titlebar-spacer">
+            </div>
+
+            <div class="titlebar-buttons">
+                <button id="button-goback" class="alive-button">
+                    <img src="../resources/assets/icons/arrow-left.svg">
+                </button>
+                <button id="button-goforward" class="alive-button">
+                    <img src="../resources/assets/icons/arrow-right.svg">
+                </button>
+                <button id="button-reload" class="alive-button">
+                    <img src="../resources/assets/icons/reload.svg">
+                </button>
+            </div>
+
+            <div class="titlebar-spacer">
+            </div>
+
+            <div class="titlebar-buttons">
+                <button id="button-minimize" class="alive-button">
+                    <img src="../resources/assets/icons/minus.svg">
+                </button>
+                <button id="button-fullscreen" class="alive-button">
+                    <img src="../resources/assets/icons/fullscreen.svg">
+                </button>
+                <button id="button-close" class="alive-button">
+                    <img src="../resources/assets/icons/close.svg">
+                </button>
+            </div>
+
+        </div>
+    </header>
     
     <div id="wrapper-main" class="center-panel">
         <main class="col-4 login-container blurred-background no-select">
@@ -30,25 +72,40 @@
                     <p>Your virtual oasis of knowledge.</p>
                 </div>
                 <h1 class="title-form">Log In</h1>
+
                 <form action="login" method="post">
-                    <input type="email" id="email" name="email" placeholder="Email" required>
-                    <input type="password" id="password" name="password" placeholder="Password" required>
+                    <div class="email-container">
+                        <input type="email" id="email" class="email-input" name="email" placeholder="Email" required>
+                        <button type="button" class="email-descriptor">
+                            <img class="filter-gray" src="../resources/assets/icons/mail.svg">
+                        </button>
+                    </div>
+
+                    <div class="password-container">
+                        <input type="password" id="password" class="password-input" name="password" 
+                                placeholder="Password" required>
+                        <button type="button" class="password-descriptor">
+                            <img class="filter-gray" src="../resources/assets/icons/lock.svg">
+                        </button>
+                        <button type="button" id="toggle-password-1" class="toggle-password">Show</button>
+                    </div>
 
                     <div class="checkbox-container">
                         <input type="checkbox" id="custom-checkbox">
                         <label for="custom-checkbox">Remember me</label>
                     </div>
 
-                    <button type="submit" class="encourage">LOG IN</button>
-                    <a href="forgot-password.html">Forgot your password?</a>
-                    <br>
-                    <a class="file-reference" href="register">Need an account? Create one!</a>
+                    <button type="submit" class="encourage">Log In</button>
+                    <div class="login-footer-links">
+                        <a href="forgot-password.html">Forgot your password?</a>
+                        <br>
+                        <a href="register.html">Need an account? Create one!</a>
+                    </div>
                 </form>
             </section>
         </main>
     </div>
     
-    <script src="../scripts/references.js"></script>
 </body>
 
 </html>

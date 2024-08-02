@@ -45,7 +45,7 @@ html {
 
     height: var(--titlebar-search-height);
 
-    background: url(../assets/icons/search-1.svg) no-repeat left;
+    background: url('../assets/icons/search-1.svg') no-repeat left;
     background-size: 20px;
 }
 
