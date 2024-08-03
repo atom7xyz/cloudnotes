@@ -18,6 +18,7 @@ html {
     --dracula-green: rgb(80, 250, 123);
     --dracula-yellow: rgb(241, 250, 140);
     --dracula-cyan: rgb(139, 233, 253);
+    --dracula-blue: rgb(68, 147, 248);
     --dracula-red: rgb(255, 85, 85);
 
     /* other */
@@ -116,7 +117,7 @@ body > div#wrapper-main.center-panel > .flex-container {
 }
 
 a {
-    color: var(--dracula-purple);
+    color: var(--dracula-blue);
     text-decoration: underline;
     text-underline-offset: 3px;
 }
@@ -127,6 +128,10 @@ a:hover {
 
 .blurred-background {
     background: rgba(0, 0, 0, 0.8);
+}
+
+.blurred-background-heavy {
+    background: rgba(0, 0, 0, 0.92);
 }
 
 br {

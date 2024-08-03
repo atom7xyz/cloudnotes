@@ -125,8 +125,7 @@
 .login-container > section > form > .checkbox-container > input[type="checkbox"]:checked::after {
     content: "";
     position: absolute;
-    top: 2px;
-    left: 5px;
+    left: 4px;
     width: 6px;
     height: 10px;
     border: solid var(--dracula-black);
@@ -242,9 +241,14 @@
     margin-bottom: .6em;
 }
 
-.tos-container > section > p, .tos-container > section > address {
+.tos-container > section > p, 
+.tos-container > section > .contact-us {
     padding: 0 2% 0 2%;
     color: var(--dracula-grey-lighter-lighter);
+}
+
+.tos-container > section > .contact-us > p {
+   margin: 0; 
 }
 
 .tos-container > section > .in {
@@ -268,4 +272,35 @@
 .tos-container > section > .in > ol {
     list-style: decimal;
     padding: 0 5.4% 0 5.4%;
+}
+
+.tos-container > section li,
+.tos-nav-container > section li {
+    margin-bottom: 0.5em;
+}
+
+.tos-nav-container {
+    color: var(--dracula-grey-lighter-lighter);
+    height: calc(100vh - var(--titlebar-height));
+    display: flex;
+    border-right: 2px dotted var(--dracula-grey-2);
+    overflow: auto;
+}
+
+.tos-nav-container > section {
+    margin: auto 5% auto 5%;
+}
+
+.tos-nav-container > section > h2 {
+    text-align: center;
+    color: var(--dracula-white);
+}
+
+.tos-nav-container > section li {
+    list-style: bullet;
+    margin-bottom: 1em;
+}
+
+.tos-nav-container > section li a {
+    text-decoration: none;
 }
