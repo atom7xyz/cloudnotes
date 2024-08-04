@@ -1,3 +1,14 @@
+window.addEventListener('DOMContentLoaded', () =>
+{
+    bindClickEvent('toggle-password-1', () => {
+        togglePasswordVisibilityIndex(0);
+    });
+
+    bindClickEvent('toggle-password-2', () => {
+        togglePasswordVisibilityIndex(1);
+    });
+});
+
 function togglePasswordVisibilityIndex(int : number): void 
 {
     const passwordInputs = document.getElementsByName('password') as NodeListOf<HTMLInputElement>;
@@ -17,14 +28,3 @@ function togglePasswordVisibilityIndex(int : number): void
         }
     }
 }
-
-window.addEventListener('DOMContentLoaded', () =>
-{
-    bindClickEvent('toggle-password-1', () => {
-        togglePasswordVisibilityIndex(0);
-    });
-
-    bindClickEvent('toggle-password-2', () => {
-        togglePasswordVisibilityIndex(1);
-    });
-});
