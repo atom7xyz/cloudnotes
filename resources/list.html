@@ -1,1 +1,110 @@
-<meta name="identifier" content="list">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fake reCAPTCHA v2</title>
+</head>
+<body>
+  <div class="recaptcha-container">
+    <div class="recaptcha-checkbox" id="recaptchaCheckbox">
+      <div class="recaptcha-spinner" id="recaptchaSpinner"></div>
+      <div class="recaptcha-checkmark" id="recaptchaCheckmark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M20.285 6.428L9.857 16.857l-6.142-6.143 1.428-1.428 4.714 4.714 9.428-9.429z"/>
+        </svg>
+      </div>
+    </div>
+    <label class="recaptcha-label">I'm not a robot</label>
+  </div>
+
+    <style>
+    
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.recaptcha-container {
+  display: flex;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.recaptcha-checkbox {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #d3d3d3;
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+  background-color: white;
+}
+
+.recaptcha-spinner {
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-top: 2px solid #4285f4;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: spin 1s linear infinite;
+  display: none;
+}
+
+.recaptcha-checkmark {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.recaptcha-checkmark svg {
+  fill: #34a853;
+  width: 18px;
+  height: 18px;
+}
+
+.recaptcha-label {
+  margin-left: 10px;
+  font-size: 16px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+    </style>
+
+    <script>
+        
+document.addEventListener('DOMContentLoaded', () => {
+  const recaptchaCheckbox = document.getElementById('recaptchaCheckbox');
+  const recaptchaSpinner = document.getElementById('recaptchaSpinner');
+  const recaptchaCheckmark = document.getElementById('recaptchaCheckmark');
+
+  recaptchaCheckbox.addEventListener('click', () => {
+    recaptchaSpinner.style.display = 'block';
+
+    setTimeout(() => {
+      recaptchaSpinner.style.display = 'none';
+      recaptchaCheckmark.style.opacity = '1';
+      recaptchaCheckbox.style.borderColor = '#34a853';
+    }, 2000);
+  });
+});
+    </script>
+</body>
+</html>
