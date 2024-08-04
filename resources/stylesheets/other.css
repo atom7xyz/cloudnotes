@@ -284,6 +284,7 @@
     height: calc(100vh - var(--titlebar-height));
     display: flex;
     overflow: auto;
+    min-width: 220px;
 }
 
 .tos-nav-container > section {
@@ -360,5 +361,26 @@
     }
     to {
         transform: rotate(360deg);
+    }
+}
+
+.tos-container > section .tos-highlighted {
+    border-radius: 3px;
+    display: inline;
+    animation: fadeInOut 2s forwards;
+}
+
+@keyframes fadeInOut {
+    0% {
+        background-color: transparent;
+    }
+    25% {
+        background-color: var(--dracula-red-opaque);
+    }
+    75% {
+        background-color: var(--dracula-red-opaque);
+    }
+    100% {
+        background-color: transparent;
     }
 }

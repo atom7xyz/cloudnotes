@@ -19,7 +19,10 @@ html {
     --dracula-yellow: rgb(241, 250, 140);
     --dracula-cyan: rgb(139, 233, 253);
     --dracula-blue: rgb(68, 147, 248);
+
     --dracula-red: rgb(255, 85, 85);
+    --dracula-red-darker-1: rgb(255, 51, 51);
+    --dracula-red-opaque: rgba(255, 85, 85, 0.7);
 
     /* other */
     --dracula-grey-lighter: rgb(120, 120, 135);
