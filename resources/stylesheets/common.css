@@ -118,12 +118,14 @@ body > div#wrapper-main.center-panel > .flex-container {
 
 a {
     color: var(--dracula-blue);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    /*text-decoration: underline;*/
+    /*text-underline-offset: 3px;*/
+    text-decoration: none;
 }
 
 a:hover {
-    color: var(--dracula-pink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 .blurred-background {

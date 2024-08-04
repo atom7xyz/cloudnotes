@@ -283,12 +283,11 @@
     color: var(--dracula-grey-lighter-lighter);
     height: calc(100vh - var(--titlebar-height));
     display: flex;
-    border-right: 2px dotted var(--dracula-grey-2);
     overflow: auto;
 }
 
 .tos-nav-container > section {
-    margin: auto 5% auto 5%;
+    margin: auto 5%;
 }
 
 .tos-nav-container > section > h2 {
@@ -301,6 +300,6 @@
     margin-bottom: 0.7em;
 }
 
-.tos-nav-container > section li a {
-    text-decoration: none;
-}
+/*.tos-nav-container > section li a {*/
+/*    text-decoration: none;*/
+/*}*/

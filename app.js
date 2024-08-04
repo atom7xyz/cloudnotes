@@ -28,38 +28,56 @@ function configureLinkHandlers() {
 
 function configureIPC()
 {
-    ipcMain.on('minimize', (event, args) => {
+    ipcMain.on('minimize', (event) => 
+    {
         BrowserWindow.fromWebContents(event.sender).minimize();
     });
     
-    ipcMain.on('resize', (event, args) => {
+    ipcMain.on('resize', (event) => 
+    {
         let window = BrowserWindow.fromWebContents(event.sender);
-        if (window.isMaximized()) {
+
+        if (window.isMaximized()) 
+        {
             window.unmaximize();
-        } else {
+        } 
+        else 
+        {
             window.maximize();
         }
     });
     
-    ipcMain.on('close', (event, args) => {
+    ipcMain.on('close', (event) => 
+    {
         let window = BrowserWindow.fromWebContents(event.sender);
-        WindowMaker.removeWindow(window);
+
+        //WindowMaker.removeWindow(window);
         window.close();
     });
 
-    ipcMain.on('reload', (event, args) => {
+    ipcMain.on('reload', (event) => 
+    {
         BrowserWindow.fromWebContents(event.sender).reload();
-        console.log("reload");
     });
 
-    ipcMain.on('goback', (event, args) => {
+    ipcMain.on('goback', (event) => 
+    {
         BrowserWindow.fromWebContents(event.sender).webContents.goBack();
-        console.log("goback");
     });
 
-    ipcMain.on('goforward', (event, args) => {
+    ipcMain.on('goforward', (event) => 
+    {
         BrowserWindow.fromWebContents(event.sender).webContents.goForward();
-        console.log("goforward");
+    });
+
+    ipcMain.on('check-nav-state', (event) =>
+    {
+        let window = BrowserWindow.fromWebContents(event.sender);
+        
+        const canGoBack = window.webContents.canGoBack();
+        const canGoForward = window.webContents.canGoForward();
+
+        event.sender.send('result-nav-state', { canGoBack, canGoForward });
     });
 }
 
