@@ -37,27 +37,95 @@ function setupValidation()
 {
     let emailValidator      = new InputValidator('email', 5, 50, 
                                                 null, 
-                                                'Email is required', 'Email must be between 5 and 50 characters', 'Invalid email format');
+                                                'Please fill out this field', 'Email must be between 5 and 80 characters', 'Invalid email format');
 
     let nameValidator       = new InputValidator('name', 2, 32,
                                                 /^[a-zA-Z]+$/, 
-                                                'Name is required', 'Name must be between 2 and 32 characters', 'Name must contain only letters');
+                                                'Please fill out this field', 'Name must be between 2 and 32 characters', 'Name must contain only letters');
 
     let surnameValidator    = new InputValidator('surname', 2, 32,
                                                 /^[a-zA-Z]+$/, 
-                                                'Surname is required', 'Surname must be between 2 and 32 characters', 'Name must contain only letters');
+                                                'Please fill out this field', 'Surname must be between 2 and 32 characters', 'Surname must contain only letters');
 
     let passwordValidator   = new InputValidator('password', 8, 32,
                                                 /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/, 
-                                                'Password is required', 'Password must be between 8 and 32 characters', 
-                                                'Password must contain at least: one uppercase letter, one lowercase letter and one number');
+                                                'Please fill out this field', 'Password must be between 8 and 32 characters', 
+                                                'Password must contain at least one uppercase letter, one lowercase letter and one number');
      
     const form = document.getElementById('form') as HTMLFormElement;
 
-    form.addEventListener('input', () =>
+    const email = document.getElementById('email') as HTMLInputElement;
+    const name = document.getElementById('name') as HTMLInputElement | null;
+    const surname = document.getElementById('surname') as HTMLInputElement | null;
+    const password = document.getElementById('password') as HTMLInputElement;
+    const passwordRepeat = document.getElementById('password-repeat') as HTMLInputElement | null;
+
+    function validatePasswordRepeat(): void
     {
-        clearInputCustomValidity();
+        if (passwordRepeat === null)
+        {
+            return;
+        }
+
+        if (passwordRepeat.value !== password.value) 
+        {
+            passwordRepeat.setCustomValidity('Passwords do not match');
+            passwordRepeat.reportValidity();
+            applyErrorColor(passwordRepeat);
+        } 
+        else 
+        {
+            removeErrorColor(passwordRepeat);
+        }
+    }
+
+    let timeout: NodeJS.Timeout | null;
+    let currentTypingElement: HTMLInputElement | null;
+
+    function internalValidation()
+    {
+        let validationResult = new ValidationResult();
+
+        switch (currentTypingElement)
+        {
+            case email:
+                validationResult.add(emailValidator.validate(validationResult));
+                break;
+            case name:
+                validationResult.add(nameValidator.validate(validationResult));
+                break;
+            case surname:
+                validationResult.add(surnameValidator.validate(validationResult));
+                break;
+            case password:
+                validationResult.add(passwordValidator.validate(validationResult));
+                break;
+            case passwordRepeat:
+                validatePasswordRepeat();
+                break;
+        }
+    }
+
+    form.addEventListener('input', (event) =>
+    {
+        clearInputCustomValidity(); 
+        clearTimeout(timeout as NodeJS.Timeout);
+        currentTypingElement = event.target as HTMLInputElement;
+
+        timeout = setTimeout(() =>
+        {
+            internalValidation();
+            timeout = null;
+        }, 250);
     });
+
+    form.addEventListener('focusout', () =>
+    {
+        if (timeout !== null)
+        {
+            internalValidation();
+        }
+    }); 
 
     form.addEventListener('submit', (event) =>
     {
@@ -71,18 +139,10 @@ function setupValidation()
         if (validationResult.isDone())
         {
             event.preventDefault();
-            return false;
+            return;
         }
                 
-        let passwordElement = document.getElementById('password') as HTMLInputElement;
-        let repeatPasswordElement = document.getElementById('password-repeat') as HTMLInputElement;
-
-        if (repeatPasswordElement.value !== passwordElement.value) 
-        {
-            repeatPasswordElement.setCustomValidity('Passwords do not match');
-            repeatPasswordElement.reportValidity();
-            event.preventDefault();
-        } 
+        validatePasswordRepeat();
     });
 }
 
@@ -187,9 +247,60 @@ class InputValidator
         {
             element.setCustomValidity(result);
             element.reportValidity();
-        } 
+
+            applyErrorColor(element);
+        }
+        else
+        {
+            removeErrorColor(element);
+        }
 
         return result !== '';
     }
 }
 
+function applyErrorColor(element: HTMLElement): void
+{
+    element.style.border = 'var(--dracula-red) 1px solid';
+
+    const parentElement = element.parentElement;
+
+    if (!parentElement) 
+    {
+        return; 
+    }
+
+    const images = parentElement.querySelectorAll<HTMLImageElement>('img');
+    let index = element.id === 'surname' ? 1 : 0;
+
+    if (images && images.length > 0)
+    {
+        let singleElement = images[index];
+
+        singleElement.classList.remove('filter-gray');
+        singleElement.classList.add('filter-red');
+    }
+}
+
+function removeErrorColor(element: HTMLElement): void
+{
+    element.style.border = '';
+
+    const parentElement = element.parentElement;
+    
+    if (!parentElement) 
+    {
+        return; 
+    }
+
+    const images = parentElement.querySelectorAll<HTMLImageElement>('img');
+    let index = element.id === 'surname' ? 1 : 0;
+
+    if (images && images.length > 0)
+    {
+        let singleElement = images[index];
+
+        singleElement.classList.remove('filter-red');
+        singleElement.classList.add('filter-gray');
+    }
+}

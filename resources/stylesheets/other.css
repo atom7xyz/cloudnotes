@@ -208,11 +208,6 @@
     height: 24px;
 } 
 
-/* todo remove */
-#password-repeat {
-    border: var(--dracula-red) 1px solid;
-}
-
 /* 
  * Terms of service page.
  */
