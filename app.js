@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, webContents } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const url = require('url');
 const path = require('path');
 const { HtmlBuilder } = require('./dist/html/HtmlBuilder');

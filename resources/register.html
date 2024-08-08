@@ -71,8 +71,8 @@
                 </div>
                 <h1 class="title-form">Create an Account</h1>
 
-                <form action="register" method="post">
-                    <div class="email-container">
+                <form action="register.html" method="post" id="form">
+                    <div class="email-container popup">
                         <input type="email" id="email" class="email-input" name="email" placeholder="Email" required>
                         <button type="button" class="email-descriptor" tabindex="-1">
                             <img class="filter-gray" src="../resources/assets/icons/mail.svg">
@@ -116,7 +116,7 @@
                         <label for="custom-checkbox">I've read and accept the <a href="terms-of-service.html">Terms Of Service</a></label>
                     </div>
 
-                    <button type="submit" class="encourage">Create an account</button>
+                    <button type="submit" class="encourage" id="submit-button">Create an account</button>
                     <a class="file-reference" href="login.html">Already have an account? Log In</a>
                 </form>
             </section>
