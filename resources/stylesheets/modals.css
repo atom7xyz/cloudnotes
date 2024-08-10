@@ -1,0 +1,65 @@
+.overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    display: block;
+}
+
+.overlay > .load-container {
+    margin: 35vh 0 0 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    user-select: none;
+}
+
+.overlay > .load-container > .load-box {
+    width: 16em;
+    height: 16em;
+    background-color: var(--dracula-black);
+    border-radius: 0.5em;
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 1em;
+    box-sizing: border-box;
+}
+
+.overlay > .load-container > .load-box > .load-spinner {
+    width: 3.2em;
+    height: 3.2em;
+    border: 0.5em solid var(--dracula-white);
+    border-top: 0.5em solid transparent;
+    border-radius: 50%;
+    animation: rotate 1s linear infinite;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.overlay > .load-container > .load-box > p {
+    color: var(--dracula-white);
+    font-size: 1.2em;
+    font-weight: 500;
+    margin-bottom: 1em;
+}
+
+@keyframes rotate {
+    from { 
+        transform: rotate(0deg); 
+    }
+    to { 
+        transform: rotate(360deg); 
+    }
+}

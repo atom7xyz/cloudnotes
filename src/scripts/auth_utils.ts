@@ -35,7 +35,7 @@ function togglePasswordVisibilityIndex(int : number): void
 
 function setupValidation()
 {
-    let emailValidator      = new InputValidator('email', 5, 50, 
+    let emailValidator      = new InputValidator('email', 5, 80, 
                                                 /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/, 
                                                 'Please fill out this field', 'Email must be between 5 and 80 characters', 'Invalid email format');
 
