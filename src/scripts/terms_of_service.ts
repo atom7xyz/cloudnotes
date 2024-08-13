@@ -32,13 +32,26 @@ function bindClickEvents()
     });
 }
 
-function highlightBlock(block: HTMLElement)
-{
-    block.innerHTML = `<span class="tos-highlighted">${block.innerHTML}</span>`;
+let latestHighlightedList: HTMLElement[] = [];
 
-    setTimeout(() =>
+function highlightBlock(block: HTMLElement): void 
+{
+    if (latestHighlightedList.includes(block))
     {
-        block.innerHTML = block.innerHTML.replace('<span class="tos-highlighted">', '')
-                                         .replace('</span>', '');
+        return;
+    }
+
+    latestHighlightedList.push(block);
+
+    const span = document.createElement('span');
+    span.classList.add('tos-highlighted');
+    span.innerHTML = block.innerHTML;
+
+    block.innerHTML = '';
+    block.appendChild(span);
+
+    setTimeout(() => {
+        block.innerHTML = span.innerHTML;
+        latestHighlightedList.splice(latestHighlightedList.indexOf(block), 1);
     }, 2000);
 }
