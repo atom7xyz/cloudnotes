@@ -2,29 +2,30 @@
 <html>
 
 <head>
-    <title>CloudNotes - Login</title>
+    <title>CloudNotes - Password Recovery Code</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Davide Flore & Marco La Civita & Antonio Masala">
     <meta name="description" content="UniCA CS project for Human-Computer Interaction course.">
     <meta name="keywords" content="UNICA, IUM, HUMAN-COMPUTER-INTERACTION, CS, COMPUTER-SCIENCE">
     <meta name="referrer" content="no-referrer-when-downgrade">
-    <meta name="identifier" content="login">
-
+    <meta name="identifier" content="register">
+    
     <link href="../resources/stylesheets/normalize.css" rel="stylesheet" media="screen">
     <link href="../src/stylesheets/tailwind.css" rel="stylesheet" media="screen">
     <link href="../resources/stylesheets/common.css" rel="stylesheet" media="screen">
     <link href="../resources/stylesheets/titlebar.css" rel="stylesheet" media="screen">
     <link href="../resources/stylesheets/other.css" rel="stylesheet" media="screen">
     <link href="../resources/stylesheets/modals.css" rel="stylesheet" media="screen">
-
+    
     <script src="../dist/scripts/toolbar.js"></script>
-    <script src="../dist/scripts/auth_utils.js"></script>
+    <script src="../dist/scripts/password_recovery.js"></script>
     <script src="../dist/scripts/modals.js"></script>
+    <script src="../dist/scripts/auth_utils.js"></script>
 </head>
 
 <body id="body-background">
-    <header>    
+    <header>
         <div class="titlebar">
             <img id="logo" src="../resources/assets/logo.png" alt="Logo">
 
@@ -34,10 +35,10 @@
             </div>
 
             <div class="titlebar-buttons">
-                <button id="button-goback" class="alive-button">
+                <button id="button-goback">
                     <img src="../resources/assets/icons/arrow-left.svg">
                 </button>
-                <button id="button-goforward" class="alive-button">
+                <button id="button-goforward">
                     <img src="../resources/assets/icons/arrow-right.svg">
                 </button>
                 <button id="button-reload" class="alive-button">
@@ -61,7 +62,7 @@
             </div>
         </div>
     </header>
-    
+
     <div id="wrapper-main" class="center-panel">
         <main class="col-4 login-container blurred-background no-select">
             <section>
@@ -71,40 +72,30 @@
                 <div class="title-end">
                     <p>Your virtual oasis of knowledge.</p>
                 </div>
-                <h1 class="title-form">Log In</h1>
+                <h1 class="title-form">Reset password</h1>
 
-                <form action="login.html" method="post" id="form">
-                    <div class="email-container">
-                        <input type="email" id="email" class="email-input" name="email" placeholder="Email" required>
-                        <button type="button" class="email-descriptor" tabindex="-1">
-                            <img class="filter-gray" src="../resources/assets/icons/mail.svg">
-                        </button>
+                <form action="login.html" id="form" method="post">
+                    <p>
+                        We sent the recovery code to: <b>email@example.com</b>
+                        <br>
+                        Please check your inbox.
+                    </p>
+                    <div class="pw-code-container">
+                        <input type="text" id="recovery-code" class="pw-code-input" name="code" 
+                                placeholder="Insert the recovery code here" maxlength="6" required>
                     </div>
 
-                    <div class="password-container">
-                        <input type="password" id="password" class="password-input" name="password" 
-                                placeholder="Password" required>
-                        <button type="button" class="password-descriptor" tabindex="-1">
-                            <img class="filter-gray" src="../resources/assets/icons/lock.svg">
-                        </button>
-                        <button type="button" id="toggle-password-1" class="toggle-password" tabindex="-1">Show</button>
-                    </div>
-
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="custom-checkbox">
-                        <label for="custom-checkbox">Remember me</label>
-                    </div>
-
-                    <button id="login-button" type="submit" class="encourage">Log In</button>
+                    <button type="submit" class="encourage">Reset password</button>
                     <div class="login-footer-links">
-                        <a href="password-recovery.html">Forgot your password?</a>
-                        <a href="register.html">Create an account</a>
+                        <!--TODO MODAL-->
+                        <a href="password-recovery.html">Wrong email?</a>
+                        <!--TODO MODAL-->
+                        <a href="password-recovery.html">Resend the code</a>
                     </div>
                 </form>
             </section>
         </main>
     </div>
-    
 </body>
 
 </html>

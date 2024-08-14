@@ -1,6 +1,6 @@
 window.addEventListener('DOMContentLoaded', () =>
 {
-   bindClickEvents(); 
+    bindClickEvents(); 
 });
 
 function bindClickEvents() 

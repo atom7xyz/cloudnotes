@@ -183,6 +183,15 @@ img.filter-green {
     filter: invert(46%) sepia(58%) saturate(491%) hue-rotate(100deg) brightness(100%) contrast(95%);
 }
 
+.center {
+    display: block;
+    text-align: center;
+}
+
+.highlight {
+    color: var(--dracula-red);
+}
+
 /*
  * Fonts.
  */

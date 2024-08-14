@@ -51,7 +51,11 @@ function setupValidation()
                                                 /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/, 
                                                 'Please fill out this field', 'Password must be between 8 and 32 characters', 
                                                 'Password must contain at least one uppercase letter, one lowercase letter and one number');
-     
+
+    let recoveryCodeValidator = new InputValidator('recovery-code', 6, 6,
+                                                /^[0-9]+$/, 
+                                                'Please fill out this field', 'Recovery code must be 6 characters long', 'Recovery code must contain only numbers');
+
     const form = document.getElementById('form') as HTMLFormElement;
 
     const email = document.getElementById('email') as HTMLInputElement;
@@ -59,12 +63,13 @@ function setupValidation()
     const surname = document.getElementById('surname') as HTMLInputElement | null;
     const password = document.getElementById('password') as HTMLInputElement;
     const passwordRepeat = document.getElementById('password-repeat') as HTMLInputElement | null;
+    const recoveryCode = document.getElementById('recovery-code') as HTMLInputElement | null;
 
-    function validatePasswordRepeat(): void
+    function validatePasswordRepeat(): boolean | null 
     {
         if (passwordRepeat === null)
         {
-            return;
+            return null;
         }
 
         if (passwordRepeat.value !== password.value) 
@@ -77,6 +82,8 @@ function setupValidation()
         {
             removeErrorColor(passwordRepeat);
         }
+
+        return passwordRepeat.value === password.value;
     }
 
     let timeout: NodeJS.Timeout | null;
@@ -103,12 +110,15 @@ function setupValidation()
             case passwordRepeat:
                 validatePasswordRepeat();
                 break;
+            case recoveryCode:
+                validationResult.add(recoveryCodeValidator.validate(validationResult));
+                break;
         }
     }
 
     form.addEventListener('input', (event) =>
     {
-        clearInputCustomValidity(); 
+        clearInputCustomValidity(' '); 
         clearTimeout(timeout as NodeJS.Timeout);
         currentTypingElement = event.target as HTMLInputElement;
 
@@ -116,11 +126,13 @@ function setupValidation()
         {
             internalValidation();
             timeout = null;
-        }, 250);
+        }, 1000);
     });
 
     form.addEventListener('focusout', () =>
     {
+        clearInputCustomValidity('');
+        
         if (timeout !== null)
         {
             internalValidation();
@@ -135,24 +147,33 @@ function setupValidation()
         validationResult.add(nameValidator.validate(validationResult));
         validationResult.add(surnameValidator.validate(validationResult));
         validationResult.add(passwordValidator.validate(validationResult));
+        validationResult.add(recoveryCodeValidator.validate(validationResult));
 
         if (validationResult.isDone())
         {
             event.preventDefault();
             return;
         }
-                
-        validatePasswordRepeat();
+
+        let repeatResult = validatePasswordRepeat();
+        
+        if (repeatResult === null || repeatResult)
+        {
+            const validationCompletedEvent = new CustomEvent('validation-completed', { detail: { form } });
+            document.dispatchEvent(validationCompletedEvent);
+
+            event.preventDefault();
+        }
     });
 }
 
-function clearInputCustomValidity(): void
+function clearInputCustomValidity(value: string): void
 {
     let inputs = document.getElementsByTagName('input');
 
     for (let element of inputs)
     {
-        element.setCustomValidity(' ');
+        element.setCustomValidity(value);
     }
 }
 

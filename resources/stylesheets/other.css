@@ -37,7 +37,8 @@
 }
 
 .login-container > section > form > div.login-footer-links {
-    display: unset;
+    display: display;
+    justify-content: space-between;
     line-height: 1.5em;
 }
 
@@ -53,7 +54,7 @@
 }
 
 .login-container > section > form > button.encourage {
-    background-color: var(--dracula-purple-darker-2);
+    background-color: var(--dracula-purple-darker-1);
     color: var(--dracula-white);
     margin: 1em auto 1.5em;
 }
@@ -70,11 +71,15 @@
     border: 1px solid var(--dracula-grey);
 }
 
-.login-container > section > form > button:hover.encourage {
+.login-container > section > form > button.encourage:hover {
+    background-color: var(--dracula-purple-darker-2);
+}
+
+.login-container > section > form > button.encourage:active {
     background-color: var(--dracula-purple-darker-3);
 }
 
-.login-container > section > form > button:hover.sneaky {
+.login-container > section > form > button.sneaky:hover {
     background-color: var(--dracula-grey);
     color: var(--dracula-white);
     text-decoration: none;
@@ -83,11 +88,16 @@
 .login-container > section > form > input,
 .login-container > section > form > .password-container > input,
 .login-container > section > form > .email-container > input,
-.login-container > section > form > .name-surname > input {
+.login-container > section > form > .name-surname > input,
+.login-container > section > form > .pw-code-container > input {
     background-color: var(--dracula-black);
     color: var(--dracula-white);
     padding: 3% 4%;
     border-radius: 5px;
+}
+
+.login-container > section > form > .pw-code-container > input {
+    text-align: center;
 }
 
 .login-container > section > h1::after, .title-end::after {
@@ -153,11 +163,17 @@
 
 .login-container > section > form > .password-container > .password-input,
 .login-container > section > form > .email-container > .email-input,
-.login-container > section > form > .name-surname > .name-surname-input {
+.login-container > section > form > .name-surname > .name-surname-input,
+.login-container > section > form > .pw-code-container > .pw-code-input {
     width: 100%;
     padding-left: calc(1.8% + 34px);
     box-sizing: border-box;
     border: var(--dracula-grey-lighter) 1px solid;
+}
+
+.login-container > section > form > .pw-code-container > .pw-code-input {
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .login-container > section > form > .password-container > .password-input {
@@ -207,6 +223,10 @@
     width: 24px;
     height: 24px;
 } 
+
+.login-container > section > form > p {
+    margin-bottom: 2em;
+}
 
 /* 
  * Terms of service page.
@@ -302,19 +322,16 @@
 
 .login-container .recaptcha-container {
     align-items: center;
-    padding: 28px;
-    padding-left: 23px;
-    background: url('../assets/captcha.png') no-repeat center center;
-    background-size: cover;
-    margin-top: 0.1em;
-    margin-bottom: 1.8em;
+    margin-bottom: 2em;
 }
 
 .login-container .recaptcha-container > .recaptcha-checkbox {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     position: relative;
     cursor: pointer;
+    z-index: 1;
+    margin-left: -290px;
 }
 
 .login-container .recaptcha-container > .recaptcha-checkbox > .recaptcha-spinner {
@@ -324,8 +341,6 @@
     border-top: 3px solid #4285f4;
     border-radius: 50%;
     position: absolute;
-    right: 5px;
-    top: -1px;
     animation: spin 1s linear infinite;
     display: none;
 }

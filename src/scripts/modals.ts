@@ -1,18 +1,19 @@
 window.addEventListener('DOMContentLoaded', () =>
 {
-    // todo do after authentication
-    bindClickEvent('login-button', () =>
+    document.addEventListener('validation-completed', (event) =>
     {
         createLoadingModal(); 
 
         setTimeout(() =>
         {
-            removeLoadingModal();
+            // @ts-ignore
+            const form = event.detail.form as HTMLFormElement;
+            form.submit();
         }, 3000);
     });
 });
 
-const randomMessage = [ 'Getting ready...', 'Loading...', 'Please wait...', 'Almost there...', 'Just a moment...'];
+const randomMessage = [ 'Getting ready ...', 'Loading ...', 'Please wait ...', 'Almost there ...', 'Just a moment ...'];
 
 function createLoadingModal() 
 {
