@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>CloudNotes - Password Recovery Code</title>
+    <title>CloudNotes - Password Recovery Set New</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Davide Flore & Marco La Civita & Antonio Masala">
@@ -72,25 +72,32 @@
                 <div class="title-end">
                     <p>Your virtual oasis of knowledge.</p>
                 </div>
-                <h1 class="title-form">Reset Password</h1>
+                <h1 class="title-form">Set your new Password</h1>
 
-                <form action="pw-recovery-setnew.html" id="form" method="post">
+                <form action="login.html" id="form" method="post">
                     <p>
-                        We sent the recovery code to: <b>email@example.com</b>
-                        <br>
-                        Please check your inbox.
+                        Please set a new password for your account.
                     </p>
-                    <div class="pw-code-container">
-                        <input type="text" id="recovery-code" class="pw-code-input" name="code" 
-                                placeholder="Insert the recovery code here" maxlength="6" required>
+                    <div class="password-container">
+                        <input type="password" id="password" class="password-input" name="password" 
+                                placeholder="Insert your new Password" required>
+                        <button type="button" class="password-descriptor" tabindex="-1">
+                            <img class="filter-gray" id="descriptor-icon" src="../resources/assets/icons/lock.svg">
+                        </button>
+                        <button type="button" id="toggle-password-1" class="toggle-password" tabindex="-1">Show</button>
+                    </div>
+
+                    <div class="password-container">
+                        <input type="password" id="password-repeat" class="password-input" name="password" 
+                                placeholder="Repeat your new Password" required>
+                        <button type="button" class="password-descriptor" tabindex="-1">
+                            <img class="filter-gray" id="descriptor-icon" src="../resources/assets/icons/lock.svg">
+                        </button>
+                        <button type="button" id="toggle-password-2" class="toggle-password" tabindex="-1">Show</button>
                     </div>
 
                     <button type="submit" class="encourage">Reset password</button>
                     <div class="login-footer-links">
-                        <!--TODO MODAL-->
-                        <a href="password-recovery.html">Wrong email?</a>
-                        <!--TODO MODAL-->
-                        <a href="password-recovery.html">Resend the code</a>
                     </div>
                 </form>
             </section>

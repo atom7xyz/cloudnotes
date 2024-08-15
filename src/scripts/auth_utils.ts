@@ -57,6 +57,8 @@ function setupValidation()
                                                 'Please fill out this field', 'Recovery code must be 6 characters long', 'Recovery code must contain only numbers');
 
     const form = document.getElementById('form') as HTMLFormElement;
+    const inputs = form.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
+    const submitButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
 
     const email = document.getElementById('email') as HTMLInputElement;
     const name = document.getElementById('name') as HTMLInputElement | null;
@@ -83,13 +85,13 @@ function setupValidation()
             removeErrorColor(passwordRepeat);
         }
 
-        return passwordRepeat.value === password.value;
+        return passwordRepeat.value !== password.value;
     }
 
     let timeout: NodeJS.Timeout | null;
     let currentTypingElement: HTMLInputElement | null;
 
-    function internalValidation()
+    function internalValidation(): ValidationResult
     {
         let validationResult = new ValidationResult();
 
@@ -108,39 +110,83 @@ function setupValidation()
                 validationResult.add(passwordValidator.validate(validationResult));
                 break;
             case passwordRepeat:
-                validatePasswordRepeat();
+                let result = validatePasswordRepeat();
+                if (result !== null)
+                {
+                    validationResult.add(result);
+                }
                 break;
             case recoveryCode:
                 validationResult.add(recoveryCodeValidator.validate(validationResult));
                 break;
         }
+
+        return validationResult;
     }
 
-    form.addEventListener('input', (event) =>
+    form.addEventListener('input', () =>
     {
-        clearInputCustomValidity(' '); 
         clearTimeout(timeout as NodeJS.Timeout);
-        currentTypingElement = event.target as HTMLInputElement;
+        clearInputCustomValidity(' '); 
 
         timeout = setTimeout(() =>
         {
             internalValidation();
-            timeout = null;
         }, 1000);
     });
 
-    form.addEventListener('focusout', () =>
+    inputs.forEach((input) =>
     {
-        clearInputCustomValidity('');
-        
-        if (timeout !== null)
+        input.addEventListener('focus', () =>
         {
-            internalValidation();
-        }
-    }); 
+            currentTypingElement = input;
+        });
 
+        input.addEventListener('keydown', (event) =>
+        {
+            if (event.key !== 'Enter')
+            {
+                return;
+            }
+            
+            clearTimeout(timeout as NodeJS.Timeout);
+
+            let index = Array.from(inputs).indexOf(input);
+            let result = internalValidation();
+            
+            if (result.isDone())
+            {
+                event.preventDefault();
+                return;
+            }
+            
+            if (index === -1)
+            {
+                return;
+            }
+
+            if (index === inputs.length - 1)
+            {
+                if (input.type === 'checkbox')
+                {
+                    input.checked = true;
+                }
+
+                clearInputCustomValidity('');
+                event.preventDefault();
+                submitButton.focus();
+                return;
+            }
+
+            event.preventDefault();
+            inputs[index + 1].focus();
+        });
+    });
+    
     form.addEventListener('submit', (event) =>
     {
+        clearInputCustomValidity('');
+
         let validationResult = new ValidationResult();
 
         validationResult.add(emailValidator.validate(validationResult));
@@ -157,7 +203,7 @@ function setupValidation()
 
         let repeatResult = validatePasswordRepeat();
         
-        if (repeatResult === null || repeatResult)
+        if (repeatResult === null || !repeatResult)
         {
             const validationCompletedEvent = new CustomEvent('validation-completed', { detail: { form } });
             document.dispatchEvent(validationCompletedEvent);
