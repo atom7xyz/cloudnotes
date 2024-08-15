@@ -1,31 +1,61 @@
 window.addEventListener('DOMContentLoaded', () =>
 {
-    bindClickEvent('button-minimize', () => {
-        sendToBackend("minimize")
+    bindClickEvent('button-minimize', () =>
+    {
+        sendToBackend("minimize");
     });
 
-    bindClickEvent('button-fullscreen', () => {
-        sendToBackend("resize")
+    bindClickEvent('button-fullscreen', () => 
+    {
+        sendToBackend("resize");
     });
 
-    bindClickEvent('button-close', () => {
-        sendToBackend("close")
+    bindClickEvent('button-close', () => 
+    {
+        checkFormsAndSendModal(() => sendToBackend("close"));
     });
 
-    bindClickEvent('button-reload', () => {
-        sendToBackend("reload")
+    bindClickEvent('button-reload', () => 
+    {
+        checkFormsAndSendModal(() => sendToBackend("reload"));
     });
 
-    bindClickEvent('button-goback', () => {
-        sendToBackend("goback")
+    bindClickEvent('button-goback', () => 
+    {
+        checkFormsAndSendModal(() => sendToBackend("goback"));
     });
 
-    bindClickEvent('button-goforward', () => {
-        sendToBackend("goforward")
+    bindClickEvent('button-goforward', () => 
+    {
+        checkFormsAndSendModal(() => sendToBackend("goforward"));
     });
 
     manageNavigationButtons();
-})
+});
+
+function checkFormsAndSendModal(okAction: () => void)
+{
+    if (!isThereAnyForm())
+    {
+        return;
+    }
+
+    if (!isFormPartiallyFilled())
+    {
+        return;
+    }
+    
+    createDestructiveModal('You have unsaved changes. Do you want to discard them?',
+    () => // ok
+    {
+        console.log('Discarding changes');
+        okAction();
+    }, 
+    () => // cancel
+    {
+        console.log('Cancelled');
+    });
+}
 
 function manageNavigationButtons()
 {

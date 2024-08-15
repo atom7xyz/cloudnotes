@@ -63,3 +63,69 @@
         transform: rotate(360deg); 
     }
 }
+
+.overlay > .destructive-container {
+    margin: 35vh 0 0 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    user-select: none;
+}
+
+.overlay > .destructive-container > .destructive-box {
+    width: 21em;
+    background-color: var(--dracula-black);
+    border-radius: 0.5em;
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 2em;
+    box-sizing: border-box;
+}
+
+.overlay > .destructive-container > .destructive-box > p {
+    color: var(--dracula-white);
+    font-size: 1.2em;
+    font-weight: 500;
+    margin-bottom: 1.5em;
+}
+
+.overlay > .destructive-container > .destructive-box > .destructive-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5em;
+}
+
+.destructive-buttons .ok-button,
+.destructive-buttons .cancel-button {
+    padding: 0.8em 1.5em;
+    border: none;
+    border-radius: 0.4em;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+}
+
+.destructive-buttons .ok-button {
+    background-color: var(--dracula-red);
+    color: var(--dracula-white);
+}
+
+.destructive-buttons .cancel-button {
+    background-color: var(--dracula-grey);
+    color: var(--dracula-white);
+}
+
+.destructive-buttons .ok-button:hover {
+    background-color: var(--dracula-red-darker-1);
+}
+
+.destructive-buttons .cancel-button:hover {
+    background-color: var(--dracula-grey-darker-1);
+}

@@ -36,3 +36,41 @@ function throwEvent(eventName: string, detail: any)
 {
     document.dispatchEvent(new CustomEvent(eventName, { detail }));
 }
+
+function isThereAnyForm(): boolean
+{
+    return document.querySelectorAll('form').length > 0;
+}
+
+function isFormPartiallyFilled(): boolean
+{
+    const form = document.querySelector('form') as HTMLFormElement;
+
+    if (!form) 
+    {
+        return false;
+    }
+
+    for (let i = 0; i < form.elements.length; i++) 
+    {
+        const element = form.elements[i] as HTMLInputElement;
+
+        if (element.type === 'text' || element.type === 'textarea' || element.type === 'password' || element.type === 'email') 
+        {
+            if (element.value !== '') 
+            {
+                return true;
+            }
+        }
+
+        if (element.type === 'checkbox' || element.type === 'radio') 
+        {
+            if (element.checked) 
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

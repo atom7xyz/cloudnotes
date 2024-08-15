@@ -68,7 +68,9 @@ function createLoadingModal(message: string, afterTimeout: () => void, timeout: 
     }, timeout);
 }
 
-function createDestructiveModal(message: string, ok: () => void, cancel: () => void)
+function createDestructiveModal(message: string,
+                                ok: () => void, cancel: () => void,
+                                okButtonName: string = 'OK', cancelButtonName: string = 'Cancel')
 {
     const modal = document.createElement('div');
     modal.id = 'destructive-modal';
@@ -87,7 +89,8 @@ function createDestructiveModal(message: string, ok: () => void, cancel: () => v
     buttonContainer.classList.add('destructive-buttons');
 
     const okButton = document.createElement('button');
-    okButton.textContent = 'OK';
+    okButton.textContent = okButtonName;
+    okButton.classList.add('ok-button');
     okButton.addEventListener('click', () =>
     {
         ok();
@@ -95,7 +98,8 @@ function createDestructiveModal(message: string, ok: () => void, cancel: () => v
     });
 
     const cancelButton = document.createElement('button');
-    cancelButton.textContent = 'Cancel';
+    cancelButton.textContent = cancelButtonName;
+    cancelButton.classList.add('cancel-button');
     cancelButton.addEventListener('click', () =>
     {
         cancel();
