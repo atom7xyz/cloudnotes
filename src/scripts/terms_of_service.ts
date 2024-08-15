@@ -1,15 +1,15 @@
 window.addEventListener('DOMContentLoaded', () =>
 {
-    bindClickEvents(); 
+    bindLinksToHighlight(); 
 });
 
-function bindClickEvents() 
+function bindLinksToHighlight() 
 {
     const links = document.querySelectorAll('a[href^="#"]');
 
     links.forEach((link) => 
     {
-        link.addEventListener('click', (event) => 
+        bindClickEvent(link as HTMLElement, (event) => 
         {
             event.preventDefault();
 

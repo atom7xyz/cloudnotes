@@ -135,6 +135,11 @@ function setupValidation()
         }, 1000);
     });
 
+    submitButton.addEventListener('click', () =>
+    {
+        clearInputCustomValidity('');
+    });
+
     inputs.forEach((input) =>
     {
         input.addEventListener('focus', () =>
@@ -205,9 +210,7 @@ function setupValidation()
         
         if (repeatResult === null || !repeatResult)
         {
-            const validationCompletedEvent = new CustomEvent('validation-completed', { detail: { form } });
-            document.dispatchEvent(validationCompletedEvent);
-
+            throwEvent('validation-completed', { form });
             event.preventDefault();
         }
     });
