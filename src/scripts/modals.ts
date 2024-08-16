@@ -4,10 +4,8 @@ window.addEventListener('DOMContentLoaded', () =>
     {
         let messageChosen = getRandomMessage(randomMessage);
 
-        console.log('Validation started');
         createLoadingModal(messageChosen, () =>
         {
-            console.log('Validation completed');
             // @ts-ignore
             const form = event.detail.form as HTMLFormElement;
             form.submit();

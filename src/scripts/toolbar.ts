@@ -32,39 +32,51 @@ window.addEventListener('DOMContentLoaded', () =>
 
     manageNavigationButtons();
 
+    /*
+     * Destructive modals on hrefs 
+     */
+
     const excludedPages = [ 'terms-of-service.html' ];
 
     bindClickEvent(document.body, (event) => 
     {
         const target = event.target as HTMLElement;
 
-        if (target instanceof HTMLAnchorElement)
+        if (!(target instanceof HTMLAnchorElement))
         {
-            const href = target.href.toString();
-
-            if (href.startsWith('mailto') || href.startsWith('tel'))
-            {
-                return;
-            }
-
-            if (excludedPages.some((page) => href.includes(page)))
-            {
-                return;
-            }
-                
-            event.preventDefault();
-
-            checkFormsAndSendModal(() => 
-            {
-                sendToBackend("navigate", href);
-            });
+            return;
         }
+        
+        const href = target.href.toString();
+
+        if (href.startsWith('mailto') || href.startsWith('tel'))
+        {
+            return;
+        }
+
+        const isExcluded = excludedPages.some((page) => href.includes(page));
+
+        if (isExcluded)
+        {
+            return;
+        }
+
+        event.preventDefault();
+        
+        checkFormsAndSendModal(() => 
+        {
+            clearAllForms();
+            sendToBackend("navigate", href);
+        });
     });
 });
 
 function checkFormsAndSendModal(okAction: () => void)
 {
-    if (!isThereAnyForm() || !isFormPartiallyFilled())
+    let formPresent = isThereAnyForm();
+    let formFilled = isFormPartiallyFilled();
+   
+    if (!formPresent || !formFilled)
     {
         okAction();
         return;

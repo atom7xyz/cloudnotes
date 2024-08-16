@@ -74,3 +74,9 @@ function isFormPartiallyFilled(): boolean
 
     return false;
 }
+
+function clearAllForms(): void
+{
+    const forms = document.querySelectorAll('form');
+    forms.forEach((form: HTMLFormElement) => form.reset()); 
+}
