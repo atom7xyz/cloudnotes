@@ -4,7 +4,7 @@
     "description": "UniCA CS project for Human-Computer Interaction course.",
     "version": "1.0.0",
     "private": true,
-    "author": "Antonio Masala & Davide Flore & Marco La Civita",
+    "author": "Antonio Masala & Marco La Civita",
     "license": "GPL-3.0-only",
     "main": "app.js",
     "scripts": {
