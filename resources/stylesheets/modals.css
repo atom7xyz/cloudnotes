@@ -26,7 +26,7 @@
     width: 16em;
     height: 16em;
     background-color: var(--dracula-black);
-    border-radius: 0.5em;
+    border-radius: 5px;
     box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
@@ -75,7 +75,7 @@
 }
 
 .overlay > .destructive-container > .destructive-box {
-    width: 24em;
+    width: 26em;
     background-color: var(--dracula-black);
     box-shadow: 0 0 40px var(--deep-black);
     display: flex;
@@ -94,7 +94,7 @@
 
 .overlay > .destructive-container > .destructive-box > p {
     color: var(--dracula-white);
-    font-size: 1.3em;
+    font-size: 1.2em;
 }
 
 .overlay > .destructive-container > .destructive-box > p:after,
