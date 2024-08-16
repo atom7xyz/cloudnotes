@@ -79,6 +79,11 @@ function configureIPC()
 
         event.sender.send('result-nav-state', { canGoBack, canGoForward });
     });
+
+    ipcMain.on('navigate', (event, args) =>
+    {
+        BrowserWindow.fromWebContents(event.sender).loadURL(args[0][0]);
+    });
 }
 
 function createWindow() {

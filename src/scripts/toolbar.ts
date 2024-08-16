@@ -31,17 +31,42 @@ window.addEventListener('DOMContentLoaded', () =>
     });
 
     manageNavigationButtons();
+
+    const excludedPages = [ 'terms-of-service.html' ];
+
+    bindClickEvent(document.body, (event) => 
+    {
+        const target = event.target as HTMLElement;
+
+        if (target instanceof HTMLAnchorElement)
+        {
+            const href = target.href.toString();
+
+            if (href.startsWith('mailto') || href.startsWith('tel'))
+            {
+                return;
+            }
+
+            if (excludedPages.some((page) => href.includes(page)))
+            {
+                return;
+            }
+                
+            event.preventDefault();
+
+            checkFormsAndSendModal(() => 
+            {
+                sendToBackend("navigate", href);
+            });
+        }
+    });
 });
 
 function checkFormsAndSendModal(okAction: () => void)
 {
-    if (!isThereAnyForm())
+    if (!isThereAnyForm() || !isFormPartiallyFilled())
     {
-        return;
-    }
-
-    if (!isFormPartiallyFilled())
-    {
+        okAction();
         return;
     }
     

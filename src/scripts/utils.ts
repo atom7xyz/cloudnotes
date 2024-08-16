@@ -1,7 +1,7 @@
-function sendToBackend(message: string) 
+function sendToBackend(message: string, ...data: any[]) 
 {
     // @ts-ignore
-    window.backend.send(message);
+    window.backend.send(message, data);
 }
 
 function bindClickEvent(from: string | HTMLElement, callback: (args: any) => void)
