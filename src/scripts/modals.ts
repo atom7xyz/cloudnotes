@@ -50,7 +50,22 @@ function createLoadingModal(message: string, afterTimeout: () => void, timeout: 
     spinner.classList.add('load-spinner');
 
     const p = document.createElement('p');
-    p.textContent = message;
+
+    if (message.includes('<br>'))
+    {
+        const messageParts = message.split('<br>');
+        messageParts.forEach((part) =>
+        {
+            const sp = document.createElement('span');
+            sp.textContent = part;
+            p.appendChild(sp);
+            p.appendChild(document.createElement('br'));
+        });
+    }
+    else
+    {
+        p.textContent = message;
+    }
 
     box.appendChild(spinner);
     box.appendChild(p);
@@ -68,7 +83,8 @@ function createLoadingModal(message: string, afterTimeout: () => void, timeout: 
 
 function createDestructiveModal(message: string,
                                 ok: () => void, cancel: () => void,
-                                okButtonName: string = 'OK', cancelButtonName: string = 'Cancel')
+                                okButtonName: string = 'OK', cancelButtonName: string = 'Cancel', 
+                                action: string = 'Action Required')
 {
     const modal = document.createElement('div');
     modal.id = 'destructive-modal';
@@ -80,8 +96,26 @@ function createDestructiveModal(message: string,
     const box = document.createElement('div');
     box.classList.add('destructive-box');
 
+    const h2 = document.createElement('h2');
+    h2.textContent = action;
+
     const p = document.createElement('p');
-    p.textContent = message;
+    
+    if (message.includes('<br>'))
+    {
+        const messageParts = message.split('<br>');
+        messageParts.forEach((part) =>
+        {
+            const sp = document.createElement('span');
+            sp.textContent = part;
+            p.appendChild(sp);
+            p.appendChild(document.createElement('br'));
+        });
+    }
+    else
+    {
+        p.textContent = message;
+    }
 
     const buttonContainer = document.createElement('div');
     buttonContainer.classList.add('destructive-buttons');
@@ -107,6 +141,7 @@ function createDestructiveModal(message: string,
     buttonContainer.appendChild(okButton);
     buttonContainer.appendChild(cancelButton);
 
+    box.appendChild(h2);
     box.appendChild(p);
     box.appendChild(buttonContainer);
     boxContainer.appendChild(box);

@@ -82,7 +82,7 @@ function checkFormsAndSendModal(okAction: () => void)
         return;
     }
     
-    createDestructiveModal('You have unsaved changes. Do you want to discard them?',
+    createDestructiveModal('You have unsaved changes.<br>Do you want to discard them?',
     () => // ok
     {
         console.log('Discarding changes');
@@ -91,7 +91,8 @@ function checkFormsAndSendModal(okAction: () => void)
     () => // cancel
     {
         console.log('Cancelled');
-    });
+    }, 
+    "Proceed");
 }
 
 function manageNavigationButtons()
