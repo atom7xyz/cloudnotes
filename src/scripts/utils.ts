@@ -1,7 +1,196 @@
+class FormDataSave 
+{
+    protected data: Map<string, string>;
+
+    constructor()
+    {
+        this.data = new Map();
+    }
+
+    public putInData(name: string, value: string)
+    {
+        this.data.set(name, value);
+    }
+
+    public getData(): Map<string, string>
+    {
+        return this.data;
+    }
+
+    public has(name: string): boolean
+    {
+        return this.data.has(name);
+    }
+
+    public static fromJSON(json: any): FormDataSave 
+    {
+        const formDataSave = new FormDataSave();
+
+        Object.entries(json.data)
+              .forEach(([key, value]) => formDataSave.putInData(key, value as string));
+
+        return formDataSave;
+    }
+
+    public toJSON()
+    {
+        const serializedData: { [key: string]: string } = {};
+
+        this.data.forEach((value, key) => serializedData[key] = value);
+
+        return { data: serializedData };
+    }
+}
+
+class FormDataSaveBank
+{
+    protected bank: Map<string, FormDataSave>;
+
+    constructor()
+    {
+        this.bank = new Map();
+    }
+ 
+    public putInBank(url: string, save: FormDataSave)
+    {
+        this.bank.set(url, save);
+    }
+
+    public getBank(): Map<string, FormDataSave>
+    {
+        return this.bank;
+    }
+
+    public clearBank()
+    {
+        this.bank.clear();
+    }
+
+    public has(name: string): boolean
+    {
+        return this.bank.has(name);
+    }
+
+    public static fromJSON(json: any): FormDataSaveBank 
+    {
+        const formDataSaveBank = new FormDataSaveBank();
+
+        Object.entries(json.bank)
+              .forEach(([key, value]) => formDataSaveBank.putInBank(key, FormDataSave.fromJSON(value)));
+
+        return formDataSaveBank;
+    }
+
+    public toJSON()
+    {
+        const serializedBank: { [key: string]: object } = {};
+
+        this.bank.forEach((value, key) => serializedBank[key] = value.toJSON());
+
+        return { bank: serializedBank };
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () =>
+{
+    bindEvent(window.document.body, 'submit', () =>
+    {
+        if (isFormPartiallyFilled())
+        {
+            sendToBackend('form-submitted', window.location.href);
+        }
+    });
+
+    document.addEventListener('pre-clear-forms', () =>
+    {
+        if (isFormPartiallyFilled())
+        {
+            let dataBankJson = JSON.stringify(saveFormData());
+            sessionStorage.setItem('form-data', dataBankJson);
+        }
+    });
+    
+    // Retrieve the item from sessionStorage
+    let item: string | null = sessionStorage.getItem('form-data');
+
+    if (!item)
+    {
+        return;
+    }
+
+    // Parse the stored item and ensure it is in the correct format
+    let parsedBank: FormDataSaveBank = FormDataSaveBank.fromJSON(JSON.parse(item));
+    console.log(parsedBank);
+
+    // Restore the form data
+    let result = restoreFormData(parsedBank);
+
+    // If restore was successful, clear the saved data from sessionStorage
+    if (result)
+    {
+        sessionStorage.removeItem('form-data');
+    }
+});
+
+function saveFormData(): FormDataSaveBank 
+{
+    const inputs = document.querySelectorAll("input") as NodeListOf<HTMLInputElement>;
+    const href = window.location.href;
+
+    let dataBank: FormDataSaveBank = new FormDataSaveBank();
+    let dataSave: FormDataSave = new FormDataSave();
+
+    console.log("saving form data: " + inputs.length);
+
+    inputs.forEach(input => {
+        dataSave.putInData(input.name, input.value);
+        console.log("saved in datasave: " + input.name + " - " + input.value);
+    });
+
+    dataBank.putInBank(href, dataSave);
+
+    return dataBank;
+}
+
+function restoreFormData(dataBank: FormDataSaveBank): boolean
+{
+    const href = window.location.href;
+
+    if (!dataBank.has(href))
+    {
+        return false;
+    }
+
+    const inputs = document.querySelectorAll("input") as NodeListOf<HTMLInputElement>;
+
+    let dataSave: FormDataSave | undefined = dataBank.getBank().get(href);
+
+    if (!dataSave)
+    {
+        return false;
+    }
+
+    inputs.forEach(input =>
+    {
+        if (dataSave.has(input.name))
+        {
+            input.value = dataSave.getData().get(input.name) as string;
+        }
+    });
+
+    return true;
+}
+
 function sendToBackend(message: string, ...data: any[]) 
 {
     // @ts-ignore
     window.backend.send(message, data);
+}
+
+async function getHistory(): Promise<string[]>
+{
+    // @ts-ignore
+    return await window.backend.getHistory();
 }
 
 function bindClickEvent(from: string | HTMLElement, callback: (args: any) => void)

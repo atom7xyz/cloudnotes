@@ -10,24 +10,24 @@ window.addEventListener('DOMContentLoaded', () =>
         sendToBackend("resize");
     });
 
-    bindClickEvent('button-close', () => 
+    bindClickEvent('button-close', (event) => 
     {
-        checkFormsAndSendModal(() => sendToBackend("close"));
+        handleClickModal(event, 'close');
     });
 
-    bindClickEvent('button-reload', () => 
+    bindClickEvent('button-reload', (event) => 
     {
-        checkFormsAndSendModal(() => sendToBackend("reload"));
+        handleClickModal(event, 'reload');
     });
 
-    bindClickEvent('button-goback', () => 
+    bindClickEvent('button-goback', (event) => 
     {
-        checkFormsAndSendModal(() => sendToBackend("goback"));
+        handleClickModal(event, 'goback');
     });
 
-    bindClickEvent('button-goforward', () => 
+    bindClickEvent('button-goforward', (event) => 
     {
-        checkFormsAndSendModal(() => sendToBackend("goforward"));
+        handleClickModal(event, 'goforward');
     });
 
     manageNavigationButtons();
@@ -36,17 +36,15 @@ window.addEventListener('DOMContentLoaded', () =>
      * Destructive modals on hrefs 
      */
 
-    const excludedPages = [ 'terms-of-service.html' ];
-
     bindClickEvent(document.body, (event) => 
     {
         const target = event.target as HTMLElement;
 
         if (!(target instanceof HTMLAnchorElement))
-        {
+        { 
             return;
         }
-        
+
         const href = target.href.toString();
 
         if (href.startsWith('mailto') || href.startsWith('tel'))
@@ -54,22 +52,92 @@ window.addEventListener('DOMContentLoaded', () =>
             return;
         }
 
-        const isExcluded = excludedPages.some((page) => href.includes(page));
-
-        if (isExcluded)
+        if (isPageExcludedModal(href))
         {
             return;
         }
 
-        event.preventDefault();
-        
-        checkFormsAndSendModal(() => 
-        {
-            clearAllForms();
-            sendToBackend("navigate", href);
-        });
+        handleClickModal(event, 'navigate', href);
     });
 });
+
+const excludedPagesModal = [ 'terms-of-service.html' ];
+
+function isPageExcludedModal(href: string | null): boolean
+{
+    if (!href)
+    {
+        return false;
+    }
+
+    return excludedPagesModal.some((page) => href.includes(page));
+}
+
+const excludedPagesBackNav = [ 'pw-recovery-setnew.html', 'pw-recovery-code.html' ];
+
+function isPageExcludedFromBackNav(href: string | null): boolean
+{
+    if (!href)
+    {
+        return false;
+    }
+
+    return excludedPagesBackNav.some((page) => href.includes(page));
+}
+
+async function handleClickModal(event: MouseEvent, action: string, href: string | null = null)
+{
+    let toolbarMovement = href === null;
+    let skipModal = false;
+    let skipPage = false;
+    
+    if (toolbarMovement && action !== 'reload' && action !== 'close')
+    {
+        const history = await getHistory();
+        
+        if (history.length <= 0)
+        {
+            return;
+        }
+
+        // @ts-ignore
+        const currentPage = history.currentUrl;
+
+        skipModal = isPageExcludedModal(currentPage);
+        skipPage = isPageExcludedFromBackNav(currentPage);
+    }
+    
+    event.preventDefault();
+    
+    if (skipModal)
+    {
+        sendToBackend(action);
+        return;
+    }
+
+    if (skipPage)
+    {
+        // @ts-ignore
+        href = history.previousUrl;
+        sendToBackend(action, href);
+        return;
+    }
+    
+    checkFormsAndSendModal(() => 
+    {
+        throwEvent('pre-clear-forms', null);
+        clearAllForms();
+
+        if (toolbarMovement)
+        {
+            sendToBackend(action);
+        }
+        else
+        {
+            sendToBackend(action, href);
+        }
+    });
+}
 
 function checkFormsAndSendModal(okAction: () => void)
 {

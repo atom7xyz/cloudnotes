@@ -27,7 +27,28 @@ function configureLinkHandlers() {
 }
 
 function configureIPC()
-{
+{    
+    window.webContents.on('did-navigate', (event, url) => 
+    {
+        updateHistory(url);
+    });
+
+    ipcMain.on('form-submitted', (event, args) =>
+    {
+        const data = args[0];
+        const url = data[0];
+
+        // updateHistory(url);
+    });
+
+    ipcMain.handle('get-history', () => 
+    ({
+        previousUrl: currentIndex > 0 ? urlHistory[currentIndex - 1] : null,
+        currentUrl: urlHistory[currentIndex],
+        nextUrl: currentIndex < urlHistory.length - 1 ? urlHistory[currentIndex + 1] : null
+    }));
+
+
     ipcMain.on('minimize', (event) => 
     {
         BrowserWindow.fromWebContents(event.sender).minimize();
@@ -58,35 +79,40 @@ function configureIPC()
     ipcMain.on('reload', (event) => 
     {
         BrowserWindow.fromWebContents(event.sender).reload();
+        displayHistory();
     });
 
     ipcMain.on('goback', (event) => 
     {
-        BrowserWindow.fromWebContents(event.sender).webContents.goBack();
+        BrowserWindow.fromWebContents(event.sender).loadURL(navigateBackwards());
+        displayHistory();
     });
 
     ipcMain.on('goforward', (event) => 
     {
-        BrowserWindow.fromWebContents(event.sender).webContents.goForward();
+        BrowserWindow.fromWebContents(event.sender).loadURL(navigateForward());
+        displayHistory();
     });
 
     ipcMain.on('check-nav-state', (event) =>
     {
-        let window = BrowserWindow.fromWebContents(event.sender);
-        
-        const canGoBack = window.webContents.canGoBack();
-        const canGoForward = window.webContents.canGoForward();
+        const canGoBack = getPreviousUrl() !== null;
+        const canGoForward = getNextUrl() !== null;
 
         event.sender.send('result-nav-state', { canGoBack, canGoForward });
     });
 
     ipcMain.on('navigate', (event, args) =>
     {
-        BrowserWindow.fromWebContents(event.sender).loadURL(args[0][0]);
+        const data = args[0];
+        const url = data[0];
+
+        BrowserWindow.fromWebContents(event.sender).loadURL(url);
     });
 }
 
-function createWindow() {
+function createWindow() 
+{
     window = new BrowserWindow({
         width: 1366,
         height: 768,
@@ -105,7 +131,6 @@ function createWindow() {
     window.maximize();
 
     configureIPC();
-    configureLinkHandlers();
 
     window.loadURL(
         url.format({
@@ -127,3 +152,69 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+let urlHistory = [];
+let currentIndex = -1;  // Pointer to current URL in the history
+    
+const excludedFromHistory = [ 'pw-recovery-setnew.html', 'pw-recovery-code.html' ]
+
+function updateHistory(url)
+{
+    if (urlHistory[currentIndex] === url)
+    {
+        return;
+    }
+
+    if (currentIndex < urlHistory.length - 1) 
+    {
+        urlHistory = urlHistory.slice(0, currentIndex + 1);
+    }
+
+    urlHistory.push(url);
+    currentIndex++;
+}
+
+function navigateBackwards(restoreIndex = false) 
+{
+    if (currentIndex > 0)
+    {
+        let targetIndex = restoreIndex ? currentIndex - 1 : --currentIndex;
+        return urlHistory[targetIndex];
+    }
+
+    return null;
+}
+
+function navigateForward(restoreIndex = false)
+{
+    if (currentIndex < urlHistory.length - 1) 
+    {
+        let targetIndex = restoreIndex ? currentIndex + 1 : ++currentIndex;
+        return urlHistory[targetIndex];
+    }
+
+    return null;
+}
+
+function getPreviousUrl()
+{
+    return currentIndex > 0 ? urlHistory[currentIndex - 1] : null;
+}
+
+function getNextUrl()
+{
+    return currentIndex < urlHistory.length - 1 ? urlHistory[currentIndex + 1] : null;
+}
+
+// Function to display current history status
+function displayHistory() {
+    console.log("Browser History:");
+    urlHistory.forEach((url, index) => {
+        if (index === currentIndex) {
+            console.log(`* [${index}] ${url} (Current Page)`);
+        } else {
+            console.log(`[${index}] ${url}`);
+        }
+    });
+    console.log("");
+}
