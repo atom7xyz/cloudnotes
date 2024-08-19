@@ -101,7 +101,7 @@ window.addEventListener('DOMContentLoaded', () =>
         }
     });
 
-    document.addEventListener('pre-clear-forms', () =>
+    document.addEventListener('save-forms', () =>
     {
         if (isFormPartiallyFilled())
         {
@@ -109,8 +109,17 @@ window.addEventListener('DOMContentLoaded', () =>
             sessionStorage.setItem('form-data', dataBankJson);
         }
     });
-    
-    // Retrieve the item from sessionStorage
+});
+   
+window.addEventListener('DOMContentLoaded', async () =>
+{
+    const allowed = await restoreAllowed();
+
+    if (!allowed)
+    {
+        return;
+    }
+
     let item: string | null = sessionStorage.getItem('form-data');
 
     if (!item)
@@ -118,19 +127,52 @@ window.addEventListener('DOMContentLoaded', () =>
         return;
     }
 
-    // Parse the stored item and ensure it is in the correct format
     let parsedBank: FormDataSaveBank = FormDataSaveBank.fromJSON(JSON.parse(item));
-    console.log(parsedBank);
 
-    // Restore the form data
     let result = restoreFormData(parsedBank);
 
-    // If restore was successful, clear the saved data from sessionStorage
     if (result)
     {
         sessionStorage.removeItem('form-data');
     }
 });
+
+const pagesToRestore = new Map<string, string[]>();
+pagesToRestore.set('register.html', ['terms-of-service.html']);
+
+async function restoreAllowed()
+{
+    const history = await getHistory(); 
+
+    if (!history)
+    {
+        return false;
+    }
+
+    // @ts-ignore
+    const currentUrl = history.currentUrl;
+    // @ts-ignore
+    const nextUrl = history.nextUrl;
+
+    if (!currentUrl || !nextUrl)
+    {
+        return false;
+    }
+
+    const partOfInterest = currentUrl.split('/').pop() as string;
+
+    if (!pagesToRestore.has(partOfInterest))
+    {
+        return false;
+    }
+
+    let pages = pagesToRestore.get(partOfInterest) as string[];
+
+    // @ts-ignore
+    let temp = pages.some((page) => nextUrl.includes(page));
+
+    return temp;
+}
 
 function saveFormData(): FormDataSaveBank 
 {
@@ -140,13 +182,7 @@ function saveFormData(): FormDataSaveBank
     let dataBank: FormDataSaveBank = new FormDataSaveBank();
     let dataSave: FormDataSave = new FormDataSave();
 
-    console.log("saving form data: " + inputs.length);
-
-    inputs.forEach(input => {
-        dataSave.putInData(input.name, input.value);
-        console.log("saved in datasave: " + input.name + " - " + input.value);
-    });
-
+    inputs.forEach(input => dataSave.putInData(input.name, input.value));
     dataBank.putInBank(href, dataSave);
 
     return dataBank;
@@ -161,14 +197,14 @@ function restoreFormData(dataBank: FormDataSaveBank): boolean
         return false;
     }
 
-    const inputs = document.querySelectorAll("input") as NodeListOf<HTMLInputElement>;
-
     let dataSave: FormDataSave | undefined = dataBank.getBank().get(href);
 
     if (!dataSave)
     {
         return false;
     }
+
+    const inputs = document.querySelectorAll("input") as NodeListOf<HTMLInputElement>;
 
     inputs.forEach(input =>
     {

@@ -52,11 +52,6 @@ window.addEventListener('DOMContentLoaded', () =>
             return;
         }
 
-        if (isPageExcludedModal(href))
-        {
-            return;
-        }
-
         handleClickModal(event, 'navigate', href);
     });
 });
@@ -73,59 +68,21 @@ function isPageExcludedModal(href: string | null): boolean
     return excludedPagesModal.some((page) => href.includes(page));
 }
 
-const excludedPagesBackNav = [ 'pw-recovery-setnew.html', 'pw-recovery-code.html' ];
-
-function isPageExcludedFromBackNav(href: string | null): boolean
-{
-    if (!href)
-    {
-        return false;
-    }
-
-    return excludedPagesBackNav.some((page) => href.includes(page));
-}
-
 async function handleClickModal(event: MouseEvent, action: string, href: string | null = null)
 {
     let toolbarMovement = href === null;
-    let skipModal = false;
-    let skipPage = false;
-    
-    if (toolbarMovement && action !== 'reload' && action !== 'close')
-    {
-        const history = await getHistory();
-        
-        if (history.length <= 0)
-        {
-            return;
-        }
-
-        // @ts-ignore
-        const currentPage = history.currentUrl;
-
-        skipModal = isPageExcludedModal(currentPage);
-        skipPage = isPageExcludedFromBackNav(currentPage);
-    }
     
     event.preventDefault();
-    
-    if (skipModal)
-    {
-        sendToBackend(action);
-        return;
-    }
+    throwEvent('save-forms', null);
 
-    if (skipPage)
+    if (!toolbarMovement && isPageExcludedModal(href))
     {
-        // @ts-ignore
-        href = history.previousUrl;
         sendToBackend(action, href);
         return;
     }
     
     checkFormsAndSendModal(() => 
     {
-        throwEvent('pre-clear-forms', null);
         clearAllForms();
 
         if (toolbarMovement)

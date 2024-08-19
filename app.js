@@ -79,19 +79,16 @@ function configureIPC()
     ipcMain.on('reload', (event) => 
     {
         BrowserWindow.fromWebContents(event.sender).reload();
-        displayHistory();
     });
 
     ipcMain.on('goback', (event) => 
     {
         BrowserWindow.fromWebContents(event.sender).loadURL(navigateBackwards());
-        displayHistory();
     });
 
     ipcMain.on('goforward', (event) => 
     {
         BrowserWindow.fromWebContents(event.sender).loadURL(navigateForward());
-        displayHistory();
     });
 
     ipcMain.on('check-nav-state', (event) =>
@@ -154,13 +151,15 @@ app.on('window-all-closed', () => {
 });
 
 let urlHistory = [];
-let currentIndex = -1;  // Pointer to current URL in the history
-    
+let currentIndex = -1;
+ 
 const excludedFromHistory = [ 'pw-recovery-setnew.html', 'pw-recovery-code.html' ]
 
 function updateHistory(url)
 {
-    if (urlHistory[currentIndex] === url)
+    let partOfInterest = url.split('/').pop();
+
+    if (urlHistory[currentIndex] === url || excludedFromHistory.includes(partOfInterest))
     {
         return;
     }
@@ -172,6 +171,8 @@ function updateHistory(url)
 
     urlHistory.push(url);
     currentIndex++;
+
+    displayHistory();
 }
 
 function navigateBackwards(restoreIndex = false) 
@@ -206,13 +207,18 @@ function getNextUrl()
     return currentIndex < urlHistory.length - 1 ? urlHistory[currentIndex + 1] : null;
 }
 
-// Function to display current history status
-function displayHistory() {
+function displayHistory() 
+{
     console.log("Browser History:");
-    urlHistory.forEach((url, index) => {
-        if (index === currentIndex) {
+    
+    urlHistory.forEach((url, index) => 
+    {
+        if (index === currentIndex) 
+        {
             console.log(`* [${index}] ${url} (Current Page)`);
-        } else {
+        } 
+        else 
+        {
             console.log(`[${index}] ${url}`);
         }
     });
