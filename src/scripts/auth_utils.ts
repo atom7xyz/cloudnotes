@@ -15,7 +15,7 @@ window.addEventListener('DOMContentLoaded', () =>
 
 function togglePasswordVisibilityIndex(int : number): void 
 {
-    const passwordInputs = document.getElementsByName('password') as NodeListOf<HTMLInputElement>;
+    const passwordInputs = document.getElementsByClassName('password-input') as HTMLCollectionOf<HTMLInputElement>;
     const toggleButtons = document.querySelectorAll('.toggle-password') as NodeListOf<HTMLButtonElement>;
 
     if (passwordInputs && toggleButtons) 

@@ -71,7 +71,12 @@ function isPageExcludedModal(href: string | null): boolean
 async function handleClickModal(event: MouseEvent, action: string, href: string | null = null)
 {
     let toolbarMovement = href === null;
-    
+   
+    if (href && href.includes('#'))
+    {
+        return;
+    }
+
     event.preventDefault();
     throwEvent('save-forms', null);
 

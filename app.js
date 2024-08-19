@@ -159,7 +159,7 @@ function updateHistory(url)
 {
     let partOfInterest = url.split('/').pop();
 
-    if (urlHistory[currentIndex] === url || excludedFromHistory.includes(partOfInterest))
+    if (urlHistory[currentIndex] === url || excludedFromHistory.includes(partOfInterest) || partOfInterest.includes("#"))
     {
         return;
     }
