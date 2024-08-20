@@ -78,6 +78,7 @@
     width: 26em;
     background-color: var(--dracula-black);
     box-shadow: 0 0 40px var(--deep-black);
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -139,4 +140,90 @@
 
 .destructive-buttons .cancel-button:hover {
     background-color: var(--dracula-grey-darker-1);
+}
+
+.overlay > .action-failed-container,
+.overlay > .action-success-container {
+    margin: 35vh 0 0 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    user-select: none;
+}
+
+.overlay > .action-failed-container > .action-failed-box,
+.overlay > .action-success-container > .action-success-box {
+    width: 26em;
+    background-color: var(--dracula-black);
+    box-shadow: 0 0 40px var(--deep-black);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 2em;
+    box-sizing: border-box;
+}
+
+.overlay > .action-failed-container > .action-failed-box > h2 {
+    color: var(--dracula-red);
+    margin-bottom: 0;
+}
+
+.overlay > .action-success-container > .action-success-box > h2 {
+    color: var(--dracula-green);
+    margin-bottom: 0;
+}
+
+.overlay > .action-failed-container > .action-failed-box > p {
+    color: var(--dracula-white);
+    font-size: 1.2em;
+}
+
+.overlay > .action-success-container > .action-success-box > p {
+    color: var(--dracula-white);
+    font-size: 1.2em;
+}
+
+.overlay > .action-failed-container > .action-failed-box > p:after,
+.overlay > .action-failed-container > .action-failed-box > h2:after,
+.overlay > .action-success-container > .action-success-box > p:after, 
+.overlay > .action-success-container > .action-success-box > h2:after {
+    background-color: var(--dracula-grey);
+    height: 1px;
+    display: block;
+    content: "";
+    margin-top: 1em;
+}
+
+.overlay > .action-failed-container > .action-failed-box > .action-failed-buttons,
+.overlay > .action-success-container > .action-success-box > .action-success-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2em;
+}
+
+.action-failed-buttons .ok-button,
+.action-success-buttons .ok-button {
+    padding: 0.8em 1.5em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    width: 7em;
+    background-color: var(--dracula-green);
+    color: var(--deep-black);
+}
+
+.action-failed-buttons .ok-button:hover,
+.action-success-buttons .ok-button:hover {
+    background-color: var(--dracula-green-darker-1);
+}
+
+#resend-code {
+    cursor: pointer;
 }

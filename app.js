@@ -1,38 +1,49 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const url = require('url');
 const path = require('path');
-const { HtmlBuilder } = require('./dist/html/HtmlBuilder');
-const { WindowMaker } = require('./dist/window/WindowMaker');
 
 let window = null;
 
-function configureLinkHandlers() {
-    ipcMain.on("create-window", (event, args) => {
-        let dir = HtmlBuilder.getInstance().onDemandBuild(args[0]);
-        let window = WindowMaker.getAssociatedWindow(dir);
-        if (window) window.reload();
-        else WindowMaker.createWindow(dir, new BrowserWindow({
-            width: 1366,
-            height: 768,
-            webPreferences: {
-                nodeIntegration: true,
-                contextIsolation: true,
-                preload: path.join(__dirname, '/dist/preload.js')
-            },
-            frame: false,
-            resizable: true,
-            titleBarStyle: "hidden"
-        }));
+function createWindow() 
+{
+    window = new BrowserWindow({
+        width: 1366,
+        height: 768,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: true,
+            spellcheck: false,
+            preload: path.join(__dirname, '/dist/preload.js')
+        },
+        frame: false,
+        resizable: true,
+        titleBarStyle: "hidden"
     });
+
+    window.setMenuBarVisibility(false);
+    window.maximize();
+
+    configureIPC();
+
+    window.loadURL(
+        url.format({
+            pathname: path.join(__dirname, "/resources/register.html"),
+            protocol: "file:",
+            slashes: true
+        })
+    );
+
+    window.on('closed', () => window = null);
 }
 
 function configureIPC()
-{    
+{
     window.webContents.on('did-navigate', (event, url) => 
     {
         updateHistory(url);
     });
 
+    /* unused */
     ipcMain.on('form-submitted', (event, args) =>
     {
         const data = args[0];
@@ -47,7 +58,6 @@ function configureIPC()
         currentUrl: urlHistory[currentIndex],
         nextUrl: currentIndex < urlHistory.length - 1 ? urlHistory[currentIndex + 1] : null
     }));
-
 
     ipcMain.on('minimize', (event) => 
     {
@@ -108,38 +118,6 @@ function configureIPC()
     });
 }
 
-function createWindow() 
-{
-    window = new BrowserWindow({
-        width: 1366,
-        height: 768,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: true,
-            spellcheck: false,
-            preload: path.join(__dirname, '/dist/preload.js')
-        },
-        frame: false,
-        resizable: true,
-        titleBarStyle: "hidden"
-    });
-
-    window.setMenuBarVisibility(false);
-    window.maximize();
-
-    configureIPC();
-
-    window.loadURL(
-        url.format({
-            pathname: path.join(__dirname, "/resources/register.html"),
-            protocol: "file:",
-            slashes: true
-        })
-    );
-
-    window.on('closed', () => window = null);
-}
-
 app.whenReady().then(() => {
     createWindow()
 });
@@ -149,6 +127,11 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+
+/*
+ * Browser History Management
+ */
 
 let urlHistory = [];
 let currentIndex = -1;
