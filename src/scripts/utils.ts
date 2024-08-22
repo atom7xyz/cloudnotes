@@ -110,7 +110,7 @@ window.addEventListener('DOMContentLoaded', () =>
         }
     });
 });
-   
+
 window.addEventListener('DOMContentLoaded', async () =>
 {
     const allowed = await restoreAllowed();

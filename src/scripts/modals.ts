@@ -5,7 +5,7 @@ window.addEventListener('DOMContentLoaded', () =>
     handleSuccessModals();
     handleFailedModals();
 
-    listenForOtherModals();
+    handleOtherModals();
 });
 
 function handleDestructiveModals()
@@ -22,7 +22,7 @@ function handleDestructiveModals()
     });
 
     /*
-     * Destructive modals on hrefs 
+     * Destructive modals on hrefs. 
      */
 
     const resendCode = document.getElementById('resend-code') as HTMLButtonElement;
@@ -60,6 +60,10 @@ function handleSuccessModals()
         removeModal('success-modal');
     });
 
+    /* 
+     * Resend code modal. (pw-recovery-code.html)
+     */
+
     const resendCode = document.getElementById('resend-code') as HTMLButtonElement;
 
     bindClickEvent(resendCode, (event) => 
@@ -94,7 +98,7 @@ function handleFailedModals()
     });
 }
 
-function listenForOtherModals()
+function handleOtherModals()
 {
     document.addEventListener('validation-completed', (event) =>
     {
@@ -108,14 +112,22 @@ function listenForOtherModals()
         });
     });
 
-    document.addEventListener('open-settings', () => {});
+    document.addEventListener('open-settings', () => 
+    {
+                
+    });
 
     document.addEventListener('close-settings', () => 
     {
-        removeModal('search-settings');
+        removeModal('settings-modal');
     });
 
     document.addEventListener('open-search', () => {});
+
+    document.addEventListener('close-search', () => 
+    {
+        removeModal('search-modal');
+    });
 }
 
 const excludedPagesModal = [ 'terms-of-service.html' ];
@@ -385,6 +397,11 @@ function createWarningModal(type: ModalType,
     modal.appendChild(boxContainer);
 
     document.body.appendChild(modal);
+}
+
+function createSettingsModal()
+{
+    
 }
 
 function removeModal(modalId: string): boolean 
