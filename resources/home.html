@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CloudNotes - Terms of Service</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Davide Flore & Marco La Civita & Antonio Masala">
+    <meta name="description" content="UniCA CS project for Human-Computer Interaction course.">
+    <meta name="keywords" content="UNICA, IUM, HUMAN-COMPUTER-INTERACTION, CS, COMPUTER-SCIENCE">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="identifier" content="terms-of-service">
+
+    <link href="../resources/stylesheets/home.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/normalize.css" rel="stylesheet" media="screen">
+    <link href="../src/stylesheets/tailwind.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/common.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/titlebar.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/other.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/modals.css" rel="stylesheet" media="screen">
+
+    <script src="../dist/scripts/utils.js"></script>
+    <script src="../dist/scripts/toolbar.js"></script>
+    <script src="../dist/scripts/terms_of_service.js"></script>
+    <script src="../dist/scripts/modals.js"></script>
+</head>
+
+<body id="body-background">
+<header>
+    <div class="titlebar">
+        <img id="logo" src="./assets/logo.png" alt="Logo">
+
+        <div class="titlebar-buttons">
+            <button id="button-settings" class="alive-button">
+                <img class="filter-white" src="./assets/icons/settings.svg">
+            </button>
+        </div>
+
+        <div class="titlebar-spacer">
+        </div>
+
+        <div class="titlebar-buttons">
+            <button id="button-goback" class="alive-button">
+                <img class="filter-white" src="./assets/icons/arrow-left.svg">
+            </button>
+            <button id="button-goforward" class="alive-button">
+                <img class="filter-white" src="./assets/icons/arrow-right.svg">
+            </button>
+        </div>
+
+        <div class="titlebar-search">
+            <input type="text" id="search-bar" placeholder="Search...">
+        </div>
+
+        <div class="titlebar-buttons">
+            <button id="button-reload" class="alive-button">
+                <img class="filter-white" src="./assets/icons/reload.svg">
+            </button>
+        </div>
+
+        <div class="titlebar-spacer">
+        </div>
+
+        <div class="titlebar-buttons">
+            <button id="button-minimize" class="alive-button">
+                <img class="filter-white" src="./assets/icons/minus.svg">
+            </button>
+            <button id="button-fullscreen" class="alive-button">
+                <img class="filter-white" src="./assets/icons/fullscreen.svg">
+            </button>
+            <button id="button-close" class="alive-button">
+                <img class="filter-white" src="./assets/icons/close.svg">
+            </button>
+        </div>
+
+    </div>
+</header>
+
+<div id="wrapper-main" class="center-panel">
+    <aside id="main-menu" class="col-3 on-column">
+
+        <button id="service-button">
+            <img class="filter-white" src="assets/icons/menu.svg">
+        </button>
+
+        <button class="fake-button" onclick="openMainMenu()">
+            <img class="filter-white" src="./assets/icons/close.svg" alt="Logo">
+        </button>
+
+        <div class="profile-data">
+            <div class="profile-pic">
+                <img src="./assets/logo_zoom.png" alt="Profile Picture">
+            </div>
+            <span class="profile-name">Guest</span>
+        </div>
+        <hr>
+        <div class="nav-options">
+            <div><img class="filter-white" src="assets/icons/home.svg"><span>HOME</span></div>
+            <div><img class="filter-white" src="assets/icons/heart.svg"><span>LIKED</span></div>
+            <div><img class="filter-white" src="assets/icons/clock.svg"><span>RECENT</span></div>
+            <div><img class="filter-white" src="assets/icons/edit.svg"><span>BECOME A CREATOR</span></div>
+        </div>
+        <hr>
+        <div class="dangerous-options">
+            <button class="dangerous plain-button"><img class="filter-white" src="assets/icons/sign-out.svg"></button>
+            <button class="plain-button"><img class="filter-white" src="assets/icons/settings.svg"></button>
+            <button class="plain-button"><img class="filter-white" src="assets/icons/user.svg"></button>
+        </div>
+    </aside>
+    <main class="col-12 tos-container blurred-background-heavy on-column">
+        <div class="greetings">Welcome back, Guest!</div>
+        <div class="last-uploads-carousel">
+            <button class="carousel-button" id="carousel-left">
+                <img class="filter-white" src="assets/icons/chevron-left.svg">
+            </button>
+            <div class="carousel-item">
+                <img src="assets/clouds.jpg">
+                <div class="carousel-infos">
+                    <h2>Title</h2>
+                    <span>Author</span>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="assets/clouds.jpg">
+                <div class="carousel-infos">
+                    <h2>Title</h2>
+                    <span>Author</span>
+                </div>
+            </div>
+            <div class="carousel-item main-item">
+                <img src="assets/clouds.jpg">
+                <div class="carousel-infos">
+                    <h2>Title</h2>
+                    <span>Author</span>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="assets/clouds.jpg">
+                <div class="carousel-infos">
+                    <h2>Title</h2>
+                    <span>Author</span>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="assets/clouds.jpg">
+                <div class="carousel-infos">
+                    <h2>Title</h2>
+                    <span>Author</span>
+                </div>
+            </div>
+            <button class="carousel-button" id="carousel-right">
+                <img class="filter-white" src="assets/icons/chevron-right.svg">
+            </button>
+        </div>
+    </main>
+</div>
+</body>
+
+</html>
+
+
+<!-- <section class="home-section on-column">
+            <div class="home-perf-section">
+                <h2>LAST UPLOADS</h2>
+                <ul class="doc-signs">
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <section class="home-section on-column">
+            <div class="home-perf-section">
+                <h2>RECENT</h2>
+                <ul class="doc-signs">
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="home-perf-section">
+                <h2>LIKED</h2>
+                <ul class="doc-signs">
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <section class="home-section on-column">
+            <div class="home-perf-section">
+                <h2>MOST LIKED</h2>
+                <ul class="doc-signs">
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="filter-white"><img class="doc-pic" src="assets/icons/book.svg"></span>
+                        <div class="doc-sign">
+                            <div class="top-doc-sign">
+                                <h3>Meditations</h3>
+                                <div class="ratings">
+                                    <p>5/5</p>
+                                    <img src="assets/icons/yellow-star.svg">
+                                </div>
+                            </div>
+                            <div class="bottom-doc-sign">
+                                <h4>Marcus Aurelius</h4>
+                                <ul class="tag-list">
+                                    <li>Tag1</li>
+                                    <li>Tag2</li>
+                                    <li>Tag3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section> >

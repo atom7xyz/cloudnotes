@@ -27,7 +27,7 @@ function createWindow()
 
     window.loadURL(
         url.format({
-            pathname: path.join(__dirname, "/resources/settings.html"),
+            pathname: path.join(__dirname, "/resources/home.html"),
             protocol: "file:",
             slashes: true
         })
@@ -81,6 +81,8 @@ function configureIPC()
     ipcMain.on('close', (event) => 
     {
         let window = BrowserWindow.fromWebContents(event.sender);
+
+        //WindowMaker.removeWindow(window);
         window.close();
     });
 

@@ -415,3 +415,10 @@ function removeModal(modalId: string): boolean
 
     return modal ? true : false;
 }
+
+function openMainMenu() {
+    let mm = document.getElementById('main-menu');
+    if (mm) {
+        mm.style.left = mm.offsetLeft === 0 ? ('-'+mm.offsetWidth+'px') : '0px';
+    }
+}

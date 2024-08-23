@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CloudNotes - Register</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Davide Flore & Marco La Civita & Antonio Masala">
+    <meta name="description" content="UniCA CS project for Human-Computer Interaction course.">
+    <meta name="keywords" content="UNICA, IUM, HUMAN-COMPUTER-INTERACTION, CS, COMPUTER-SCIENCE">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="identifier" content="reader">
+
+    <link href="./stylesheets/reader.css" rel="stylesheet" media="screen">
+    <link href="../src/stylesheets/tailwind.css" rel="stylesheet" media="screen">
+    <link href="./stylesheets/common.css" rel="stylesheet" media="screen">
+    <link href="./stylesheets/titlebar.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/other.css" rel="stylesheet" media="screen">
+    <link href="../resources/stylesheets/normalize.css" rel="stylesheet" media="screen">
+
+    <script src="../dist/scripts/utils.js"></script>
+    <script src="../dist/scripts/toolbar.js"></script>
+</head>
+<body id="body-background">
+    <header>
+        <div class="titlebar">
+            <img id="logo" src="../resources/assets/logo.png" alt="Logo">
+
+            <div class="ghost-button"></div>
+
+            <div class="titlebar-spacer">
+            </div>
+
+            <div class="titlebar-buttons">
+                <button id="button-goback">
+                    <img src="../resources/assets/icons/arrow-left.svg">
+                </button>
+                <button id="button-goforward">
+                    <img src="../resources/assets/icons/arrow-right.svg">
+                </button>
+                <button id="button-reload" class="alive-button">
+                    <img src="../resources/assets/icons/reload.svg">
+                </button>
+            </div>
+
+            <div class="titlebar-spacer">
+            </div>
+
+            <div class="titlebar-buttons">
+                <button id="button-minimize" class="alive-button">
+                    <img src="../resources/assets/icons/minus.svg">
+                </button>
+                <button id="button-fullscreen" class="alive-button">
+                    <img src="../resources/assets/icons/fullscreen.svg">
+                </button>
+                <button id="button-close" class="alive-button">
+                    <img src="../resources/assets/icons/close.svg">
+                </button>
+            </div>
+        </div>
+    </header>
+    <div class="main-content">
+        <aside class="col-2 blurred-background"></aside>
+        <main class="col-8 blurred-background">
+            <iframe id="document" src="./files/conv/sex.html">
+            </iframe>
+        </main>
+        <aside id="reader-tools" class="col-2 blurred-background">
+            <section id="doc-info">
+                <div class="flex">
+                    <h1>Page</h1>
+                    <div class="flex">
+                        <input id="page" type="number">
+                        <p>9999</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="mark">Mark as</label>
+                    <input id="mark" type="text" placeholder="Bookmark">
+                </div>
+            </section>
+
+            <section id="doc-tools">
+                <div>
+                    <input type="color" id="background" value="#ffffff">
+                    <label for="background">Background</label>
+                </div>
+                <div>
+                    <input type="color" id="foreground" value="#000000">
+                    <label for="foreground">Foreground</label>
+                </div>
+                <div>
+                    <input type="color" id="marker" value="#ecc43c">
+                    <label for="marker">Marker</label>
+                </div>
+                <button id="note">Add a note</button>
+                <div>
+                    <label for="font">Font type</label>
+                    <input list="fonts" id="font" value="Arial">
+                    <datalist id="fonts">
+                        <option value="Arial">
+                        <option value="Verdana">
+                        <option value="Times New Roman">
+                        <option value="Courier New">
+                        <option value="Georgia">
+                        <option value="Palatino Linotype">
+                        <option value="Book Antiqua">
+                        <option value="Arial Black">
+                        <option value="Impact">
+                        <option value="Lucida Sans Unicode">
+                        <option value="Tahoma">
+                        <option value="Trebuchet MS">
+                        <option value="Verdana">
+                        <option value="Courier New">
+                        <option value="Lucida Console">
+                    </datalist>
+                </div>
+                <div>
+                    <label for="size">Font size</label>
+                    <input type="number" id="size" value="12">
+                </div>
+                <button id="feedback">Send a feedback</button>
+            </section>
+        </aside>
+    </div>
+
+</body>
+</html>

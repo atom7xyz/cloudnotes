@@ -93,6 +93,11 @@ class FormDataSaveBank
 
 window.addEventListener('DOMContentLoaded', () =>
 {
+    bindClickEvent('service-button', () =>
+    {
+        openMainMenu();
+    });
+
     bindEvent(window.document.body, 'submit', () =>
     {
         if (isFormPartiallyFilled())
