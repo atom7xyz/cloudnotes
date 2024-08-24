@@ -8,7 +8,7 @@
 }
 
 #main-menu {
-    background-color: rgb(32, 32, 32, 0.5);
+    background-color: rgb(32, 32, 32);
     z-index: 100;
     height: calc(100% - var(--titlebar-height));
     position: absolute;
@@ -186,21 +186,56 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 50px;
+    margin-bottom: 200px;
     user-select: none;
 }
 
-/* Carousel */
+.section-title {
+    height: 100px;
+    width: 600px;
+    padding: 0 20px;
+    position: absolute;
+    top: -130px;
+    left: calc(50% - 300px);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+}
 
-.last-uploads-carousel {
-    width: 100%;
-    height: 400px;
+.section-title > h1 {
+    font-size: 1.5em;
+    color: var(--dracula-white);
+    font-weight: bold;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.last-uploads-carousel > .carousel-button {
+.section-title > hr {
+    width: 100%;
+    height: 1px;
+    background-image: radial-gradient(circle at center, var(--dracula-grey-lighter-lighter), transparent 70%);
+    border: none;
+    margin: 5px 0;
+}
+
+/* Carousel */
+
+div.best-authors-uploads {
+    width: 1200px;
+    height: 375px;
+    min-height: 375px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin: 100px 0 200px 0;
+}
+
+.best-authors-uploads > .carousel-button {
     height: 80%;
     width: 50px;
     display: flex;
@@ -212,11 +247,11 @@
     user-select: none;
 }
 
-.last-uploads-carousel > .carousel-button:hover {
+.best-authors-uploads > .carousel-button:hover {
     background-color: rgb(64, 64, 64, 0.5);
 }
 
-.last-uploads-carousel > .carousel-item {
+.best-authors-uploads > .carousel-item {
     width: 250px;
     background-color: var(--dracula-black);
     margin: 0 10px;
@@ -228,7 +263,7 @@
     user-select: none;
 }
 
-.last-uploads-carousel > .carousel-item > img {
+.best-authors-uploads > .carousel-item > img {
     width: 100%;
     height: 100%;
 }
@@ -257,44 +292,46 @@
 }
 
 
-.last-uploads-carousel > .carousel-item:first-of-type {
+.best-authors-uploads > .carousel-item:first-of-type {
     filter: brightness(0.25);
     height: 86%;
     width: 200px;
 }
 
-.last-uploads-carousel > .carousel-item:first-of-type + * {
+.best-authors-uploads > .carousel-item:first-of-type + * {
     filter: brightness(0.5);
     transform: translateY(-5px);
     height: 90%;
     width: 200px;
 }
-.last-uploads-carousel > .carousel-item:first-of-type + * + * {
+.best-authors-uploads > .carousel-item:first-of-type + * + * {
     filter: brightness(1);
     transform: translateY(-10px);
     height: 95%;
     width: 225px;
 }
-.last-uploads-carousel > .carousel-item:first-of-type + * + * + * {
+.best-authors-uploads > .carousel-item:first-of-type + * + * + * {
     filter: brightness(0.5);
     transform: translateY(-5px);
     height: 90%;
     width: 200px;
 }
-.last-uploads-carousel > .carousel-item:first-of-type + * + * + * + * {
+.best-authors-uploads > .carousel-item:first-of-type + * + * + * + * {
     filter: brightness(0.25);
     height: 86%;
     width: 200px;
 }
 
-.last-uploads-carousel > .carousel-item:hover {
+.best-authors-uploads > .carousel-item:hover {
     filter: brightness(1);
     transform: translateY(-10px);
-    height: 100%;
+    z-index: 1;
+    height: calc(100% - 10px);
     width: 250px;
+    position: relative;
 }
 
-.last-uploads-carousel > .carousel-item:hover > .carousel-infos {
+.best-authors-uploads > .carousel-item:hover > .carousel-infos {
     height: 100%;
     justify-content: center;
 }
@@ -302,74 +339,55 @@
 
 
 
-
-
-
-
-
-
-
-
-
-/*
-
-
-.home-section {
-
-    height: calc(100% - var(--titlebar-height) - 4px);
-    width: calc(100% / 3 - 30px);
-    margin: 0 5px 0 5px;
-}
-
-
-/* Animation home-perf-section */
-
-.home-perf-section, .home-perf-section > h2 {
-    transition: 0.5s;
-}
-
-
-.home-perf-section:hover {
-    transform: translateY(-10px);
-    border-color: var(--dracula-purple);
-}
-
-.home-perf-section:hover > h2 {
-    background-color: var(--dracula-purple);
-}
-
-/* End Animation home-perf-section */
-
-.home-perf-section {
-    border: 2px solid var(--dracula-purple-darker-3);
-    border-top-left-radius: 24px;
-    border-top-right-radius: 24px;
-    flex: 1;
-    width: calc(100% - 4px);
-    overflow: hidden;
-}
-
-.home-section > .home-perf-section + .home-perf-section {
-    margin: 20px 0 0 0;
-}
-
-
-.home-perf-section > h2 {
-    color: var(--dracula-white);
-    font-size: 1.5em;
-    margin: 0;
-    height: 2em;
-    width: 100%;
-    border-top-right-radius: 16px;
-    border-top-left-radius: 16px;
-
-    background-color: var(--dracula-purple-darker-3);
-}
-
-.home-perf-section > h2 {
+.reserved-suggestions {
+    width: 1200px;
+    height: 500px;
+    min-height: 700px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    position: relative;
+    margin-bottom: 50px;
+    background-color: transparent;
+    border: none;
+}
+
+.doc-section {
+    width: 550px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+.doc-section > h2 {
+    display: flex;
     justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+    margin: 0;
+}
+
+.doc-section > hr {
+    width: 100%;
+    height: 1px;
+    background-image: radial-gradient(circle at center, var(--dracula-grey-lighter-lighter), transparent 70%);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.doc-section > .doc-signs {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 0 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+
 }
 
 .doc-signs {
@@ -399,16 +417,17 @@
 .doc-signs > li > span {
     width: 80px;
     height: 100px;
-    border: 2px solid var(--dracula-white);
+
 }
 
 .doc-signs > li > span > img {
     width: 100%;
     height: 100%;
+    border-radius: 8px;
 }
 
 .doc-signs > li {
-    background-color: var(--dracula-black);
+    background-color: rgba(42, 41, 41, 0.2);
     border-radius: 16px;
     padding: 8px 0 8px 8px;
 }
