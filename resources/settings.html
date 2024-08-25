@@ -22,27 +22,40 @@
     <script src="../dist/scripts/toolbar.js"></script>
     <script src="../dist/scripts/auth_utils.js"></script>
     <script src="../dist/scripts/modals.js"></script>
+    <script src="../dist/scripts/settings.js"></script>
 </head>
 
 <body id="body-background">
     <header>
         <div class="titlebar">
+
             <img id="logo" src="../resources/assets/logo.png" alt="Logo">
 
-            <div class="ghost-button"></div>
+            <div class="titlebar-buttons">
+                <button id="button-settings" class="alive-button">
+                    <img class="filter-white" src="../resources/assets/icons/settings.svg">
+                </button>
+            </div>
 
             <div class="titlebar-spacer">
             </div>
 
             <div class="titlebar-buttons">
-                <button id="button-goback">
-                    <img src="../resources/assets/icons/arrow-left.svg">
+                <button id="button-goback" class="alive-button">
+                    <img class="filter-white" src="../resources/assets/icons/arrow-left.svg">
                 </button>
-                <button id="button-goforward">
-                    <img src="../resources/assets/icons/arrow-right.svg">
+                <button id="button-goforward" class="alive-button">
+                    <img class="filter-white" src="../resources/assets/icons/arrow-right.svg">
                 </button>
+            </div>
+
+            <div class="titlebar-search">
+                <input type="text" id="search-bar" placeholder="Search...">
+            </div>
+
+            <div class="titlebar-buttons">
                 <button id="button-reload" class="alive-button">
-                    <img src="../resources/assets/icons/reload.svg">
+                    <img class="filter-white" src="../resources/assets/icons/reload.svg">
                 </button>
             </div>
 
@@ -51,15 +64,16 @@
 
             <div class="titlebar-buttons">
                 <button id="button-minimize" class="alive-button">
-                    <img src="../resources/assets/icons/minus.svg">
+                    <img class="filter-white" src="../resources/assets/icons/minus.svg">
                 </button>
                 <button id="button-fullscreen" class="alive-button">
-                    <img src="../resources/assets/icons/fullscreen.svg">
+                    <img class="filter-white" src="../resources/assets/icons/fullscreen.svg">
                 </button>
                 <button id="button-close" class="alive-button">
-                    <img src="../resources/assets/icons/close.svg">
+                    <img class="filter-white" src="../resources/assets/icons/close.svg">
                 </button>
             </div>
+
         </div>
     </header>
 
@@ -127,27 +141,6 @@
             </section>
         </main>
     </div>
-
-
-<div id="settings-modal" class="overlay">
-    <div class="settings-container">
-        <div class="settings-header">
-            <h2>SETTINGS</h2>
-            <button class="close-btn">&times;</button>
-        </div>
-        <div class="settings-body">
-            <div class="settings-tabs">
-                <button class="tab active">Account</button>
-                <button class="tab">Appearance</button>
-                <button class="tab">Reader</button>
-            </div>
-            <div class="settings-content">
-                
-            </div>
-        </div>
-    </div>
-</div>
-
 </body>
 
 </html>

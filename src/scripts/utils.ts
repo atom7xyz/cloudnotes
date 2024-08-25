@@ -238,11 +238,21 @@ function bindEvent(from: string | HTMLElement, event: string, callback: (args: a
 {
     if (typeof from === 'string')
     {
-        const element = document.getElementById(from);
+        const element = document.getElementById(from) as HTMLElement;
 
         if (element != null)
         {
             element.addEventListener(event, callback);
+        }
+
+        const elements = document.getElementsByClassName(from) as HTMLCollectionOf<HTMLElement>;
+
+        if (elements != null)
+        {
+            for (let i = 0; i < elements.length; i++)
+            {
+                elements[i].addEventListener(event, callback);
+            }
         }
     }
 
@@ -257,7 +267,7 @@ function getRandomMessage(list: string[]): string
     return list[Math.floor(Math.random() * list.length)];
 }
 
-function throwEvent(eventName: string, detail: any) 
+function throwEvent(eventName: string, detail: any = null) 
 {
     document.dispatchEvent(new CustomEvent(eventName, { detail }));
 }
