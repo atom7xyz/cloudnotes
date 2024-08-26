@@ -95,14 +95,6 @@
     color: var(--dracula-white);
 }
 
-.overlay > .destructive-container > .destructive-box > p:after {
-    background-color: var(--dracula-grey);
-    height: 1px;
-    display: block;
-    content: "";
-    margin-top: 1em;
-}
-
 .overlay > .destructive-container > .destructive-box > .destructive-buttons {
     display: flex;
     align-items: center;
@@ -180,15 +172,6 @@
     color: var(--dracula-white);
 }
 
-.overlay > .action-failed-container > .action-failed-box > p:after,
-.overlay > .action-success-container > .action-success-box > p:after {
-    background-color: var(--dracula-grey);
-    height: 1px;
-    display: block;
-    content: "";
-    margin-top: 1em;
-}
-
 .overlay > .action-failed-container > .action-failed-box > .action-failed-buttons,
 .overlay > .action-success-container > .action-success-box > .action-success-buttons {
     display: flex;
@@ -205,13 +188,13 @@
     cursor: pointer;
     font-size: 1em;
     width: 7em;
-    background-color: var(--dracula-green);
-    color: var(--deep-black);
+    background-color: var(--dracula-grey);
+    color: var(--deep-white);
 }
 
 .action-failed-buttons .ok-button:hover,
 .action-success-buttons .ok-button:hover {
-    background-color: var(--dracula-green-darker-1);
+    background-color: var(--dracula-grey-darker-1);
 }
 
 #resend-code {
@@ -250,17 +233,9 @@
     color: var(--dracula-white);
 }
 
-.overlay > .confirm-action-container > .confirm-action-box > p:after {
-    background-color: var(--dracula-grey);
-    height: 1px;
-    display: block;
-    content: "";
-    margin-top: 1em;
-}
-
 .overlay > .confirm-action-container > .confirm-action-box > .confirm-action-input {
     width: 100%;
-    margin: 1em 0 2em;
+    margin: 1em 0;
 }
 
 .overlay > .confirm-action-container > .confirm-action-box > .confirm-action-input > input {
@@ -279,6 +254,17 @@
     gap: 1.2em;
 }
 
+.overlay > .confirm-action-container hr,
+.overlay > .action-success-container hr,
+.overlay > .action-failed-container hr,
+.overlay > .destructive-container hr {
+    height: 1px;
+    background-color: var(--dracula-grey);
+    border: none;
+    margin: 1em 0;
+    width: 100%;
+}
+
 .confirm-action-buttons .ok-button,
 .confirm-action-buttons .cancel-button {
     padding: 0.8em 1.5em;
@@ -291,7 +277,7 @@
 
 .confirm-action-buttons .ok-button {
     background-color: var(--dracula-red);
-    color: var(--deep-black);
+    color: var(--deep-white);
 }
 
 .confirm-action-buttons .cancel-button {

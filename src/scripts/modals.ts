@@ -321,8 +321,11 @@ function createDestructiveModal(message: string,
     buttonContainer.appendChild(okButton);
     buttonContainer.appendChild(cancelButton);
 
+    const hr = document.createElement('hr');
+
     box.appendChild(h2);
     box.appendChild(p);
+    box.appendChild(hr);
     box.appendChild(buttonContainer);
     boxContainer.appendChild(box);
     modal.appendChild(boxContainer);
@@ -395,11 +398,14 @@ function createWarningModal(type: ModalType,
         ok();
         removeModal('success-modal');
     });
-
+    
     buttonContainer.appendChild(okButton);
+
+    const hr = document.createElement('hr');
 
     box.appendChild(h2);
     box.appendChild(p);
+    box.appendChild(hr);
     box.appendChild(buttonContainer);
     boxContainer.appendChild(box);
     modal.appendChild(boxContainer);
@@ -472,12 +478,16 @@ function createConfirmActionWithPasswordModal(message: string,
     });
 
     inputContainer.appendChild(input);
+
     buttonContainer.appendChild(okButton);
     buttonContainer.appendChild(cancelButton);
+    
+    const hr = document.createElement('hr');
 
     box.appendChild(h2);
     box.appendChild(p);
     box.appendChild(inputContainer);
+    box.appendChild(hr);
     box.appendChild(buttonContainer);
     boxContainer.appendChild(box);
     modal.appendChild(boxContainer);
@@ -766,10 +776,14 @@ function settingsPutAccount()
     ];
 
     let isDeleteAccount = false;
+    let isChangeEmail = false;
+    let isChangePassword = false;
 
     accountSettings.forEach((item, index) =>
     {
         isDeleteAccount = item === 'Delete Account';
+        isChangeEmail = item === 'Change Email';
+        isChangePassword = item === 'Change Password';
 
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('action-container');
@@ -792,12 +806,46 @@ function settingsPutAccount()
             clickableButton.id = 'delete-account-button';
         }
 
-        bindClickEvent(clickableButton, () =>
+        if (isChangeEmail)
         {
-            if (isDeleteAccount)
+            bindClickEvent(clickableButton, () =>
             {
-                createDestructiveModal('Account Deletion is a permanent action.<br>'
-                                        + 'You will lose all your data and documents.<br>'
+                createConfirmActionWithPasswordModal('Please enter your password to change your email.',
+                () =>
+                {
+                    createLoadingModal('Changing email ...', 
+                    () =>
+                    {
+                        createWarningModal(ModalType.Success, 'The email has been changed successfully.');
+                    });
+                },
+                () => {});
+            });
+        }
+
+        if (isChangePassword)
+        {
+            bindClickEvent(clickableButton, () =>
+            {
+                createConfirmActionWithPasswordModal('Please enter your current password to set a new password.',
+                () =>
+                {
+                    createLoadingModal('Changing password ...', 
+                    () =>
+                    {
+                        createWarningModal(ModalType.Success, 'The password has been changed successfully.'); 
+                    });
+                },
+                () => {});
+            });
+        }
+
+        if (isDeleteAccount)
+        {
+            bindClickEvent(clickableButton, () =>
+            {
+                createDestructiveModal('Account deletion is a permanent action.<br>'
+                                        + 'You will lose all your data and documents.<br><br>'
                                         + 'Are you sure you want to proceed?',
                 () => // ok
                 {
@@ -810,7 +858,7 @@ function settingsPutAccount()
                             createLoadingModal('Deleting account ...', 
                             () =>
                             {
-                                createWarningModal(ModalType.Success, 'Account deleted successfully.', 
+                                createWarningModal(ModalType.Success, 'The account has been deleted successfully.', 
                                 () =>
                                 {
                                     let target = window.location.href.split('/').slice(0, -1).join('/');
@@ -820,26 +868,15 @@ function settingsPutAccount()
                         },
                         () =>
                         {
-                            createWarningModal(ModalType.Failed, 'Account deletion cancelled.'); 
+                            createWarningModal(ModalType.Failed, 'The account deletion operation has been cancelled.', 
+                            () => {},
+                            'OK', 'Cancelled'); 
                         });
                     });
-                }, 
-                () => // cancel
-                {
-                    console.log('Cancelled');
-                });
-            }
-            
-            if (item === 'Change Email')
-            {
-                createWarningModal(ModalType.Success, 'Email changed successfully.');
-            }
-
-            if (item === 'Change Password')
-            {
-                createWarningModal(ModalType.Success, 'Password changed successfully.');
-            }
-        });
+                },
+                () => {});
+            });
+        }
 
         itemDiv.appendChild(label);
         itemDiv.appendChild(clickableButton);
