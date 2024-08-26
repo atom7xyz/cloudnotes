@@ -89,7 +89,8 @@
 .login-container > section > form > .password-container > input,
 .login-container > section > form > .email-container > input,
 .login-container > section > form > .name-surname > input,
-.login-container > section > form > .pw-code-container > input {
+.login-container > section > form > .pw-code-container > input,
+.overlay .password-container > input {
     background-color: var(--dracula-black);
     color: var(--dracula-white);
     padding: 3% 4%;
@@ -157,14 +158,16 @@
 
 .login-container > section > form > .password-container,
 .login-container > section > form > .email-container,
-.login-container > section > form > .name-surname {
+.login-container > section > form > .name-surname,
+.overlay .password-container {
     position: relative;
 }
 
 .login-container > section > form > .password-container > .password-input,
 .login-container > section > form > .email-container > .email-input,
 .login-container > section > form > .name-surname > .name-surname-input,
-.login-container > section > form > .pw-code-container > .pw-code-input {
+.login-container > section > form > .pw-code-container > .pw-code-input,
+.overlay .password-container > .password-input {
     width: 100%;
     padding-left: calc(1.8% + 34px);
     box-sizing: border-box;
@@ -176,11 +179,13 @@
     padding-right: 0;
 }
 
-.login-container > section > form > .password-container > .password-input {
+.login-container > section > form > .password-container > .password-input,
+.overlay .password-container > .password-input {
     padding-right: 80px;
 }
 
-.login-container > section > form > .password-container > .toggle-password {
+.login-container > section > form > .password-container > .toggle-password,
+.overlay .password-container > .toggle-password {
     position: absolute;
     right: 10px;
     border: none;
@@ -191,22 +196,28 @@
     width: 60px;
 }
 
-.login-container > section > form > .password-container > .toggle-password:hover {
+.login-container > section > form > .password-container > .toggle-password:hover, 
+.overlay .password-container > .toggle-password:hover {
     background: var(--dracula-grey-lighter-lighter);
 }
 
 .login-container > section > form > .password-container > .password-descriptor,
 .login-container > section > form > .email-container > .email-descriptor,
 .login-container > section > form > .name-surname > .name-descriptor,
-.login-container > section > form > .name-surname > .surname-descriptor {
+.login-container > section > form > .name-surname > .surname-descriptor,
+.overlay .password-container > .password-descriptor {
     position: absolute;
     border: none;
     background: none;
     color: var(--dracula-grey-lighter-lighter);
-    cursor: pointer;
     margin-top: 2%;
     margin-left: 1%;
     cursor: default;
+}
+
+.overlay .password-container > .password-descriptor {
+    display: block;
+    top: 0;
 }
 
 .login-container > section > form > .name-surname > .surname-descriptor {
@@ -219,7 +230,8 @@
 
 .login-container > section > form > .password-container > .password-descriptor > img,
 .login-container > section > form > .email-container > .email-descriptor > img,
-.login-container > section > form > .name-surname > .user-descriptor > img {
+.login-container > section > form > .name-surname > .user-descriptor > img,
+.overlay .password-container > .password-descriptor > img {
     width: 24px;
     height: 24px;
 } 

@@ -452,9 +452,43 @@ function createConfirmActionWithPasswordModal(message: string,
     const inputContainer = document.createElement('div');
     inputContainer.classList.add('confirm-action-input');
 
+    const passwordDivContainer = document.createElement('div');
+    passwordDivContainer.classList.add('password-container');
+
     const input = document.createElement('input');
+    input.classList.add('password-input');
     input.type = 'password';
-    input.placeholder = 'Enter your password';
+    input.placeholder = 'Password';
+    input.required = true;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.classList.add('password-descriptor');
+    button.tabIndex = -1;
+
+    const img = document.createElement('img');
+    img.classList.add('filter-gray');
+    img.src = '../resources/assets/icons/lock.svg';
+
+    button.appendChild(img);
+
+    const toggleButton = document.createElement('button');
+    toggleButton.type = 'button';
+    toggleButton.id = 'toggle-password-3';
+    toggleButton.classList.add('toggle-password');
+    toggleButton.tabIndex = -1;
+    toggleButton.textContent = 'Show';
+
+    bindClickEvent(toggleButton, () =>
+    {
+        togglePasswordVisibilityIndex(2);
+    });
+    
+    passwordDivContainer.appendChild(input);
+    passwordDivContainer.appendChild(button);
+    passwordDivContainer.appendChild(toggleButton);
+
+    inputContainer.appendChild(passwordDivContainer);
 
     const buttonContainer = document.createElement('div');
     buttonContainer.classList.add('confirm-action-buttons');
@@ -476,8 +510,6 @@ function createConfirmActionWithPasswordModal(message: string,
         cancel();
         removeModal('confirm-action-modal');
     });
-
-    inputContainer.appendChild(input);
 
     buttonContainer.appendChild(okButton);
     buttonContainer.appendChild(cancelButton);
@@ -810,7 +842,7 @@ function settingsPutAccount()
         {
             bindClickEvent(clickableButton, () =>
             {
-                createConfirmActionWithPasswordModal('Please enter your password to change your email.',
+                createConfirmActionWithPasswordModal('Please enter your password in order to change your email.',
                 () =>
                 {
                     createLoadingModal('Changing email ...', 
@@ -827,7 +859,7 @@ function settingsPutAccount()
         {
             bindClickEvent(clickableButton, () =>
             {
-                createConfirmActionWithPasswordModal('Please enter your current password to set a new password.',
+                createConfirmActionWithPasswordModal('Please enter your current password in order to set a new password.',
                 () =>
                 {
                     createLoadingModal('Changing password ...', 
@@ -849,29 +881,25 @@ function settingsPutAccount()
                                         + 'Are you sure you want to proceed?',
                 () => // ok
                 {
-                    createLoadingModal('Loading ...', 
+                    createConfirmActionWithPasswordModal('Please enter your password to confirm your account deletion.',
                     () =>
                     {
-                        createConfirmActionWithPasswordModal('Please enter your password to confirm your account deletion.',
+                        createLoadingModal('Deleting account ...', 
                         () =>
                         {
-                            createLoadingModal('Deleting account ...', 
+                            createWarningModal(ModalType.Success, 'The account has been deleted successfully.', 
                             () =>
                             {
-                                createWarningModal(ModalType.Success, 'The account has been deleted successfully.', 
-                                () =>
-                                {
-                                    let target = window.location.href.split('/').slice(0, -1).join('/');
-                                    sendToBackend('navigate', target + '/register.html');
-                                });
+                                let target = window.location.href.split('/').slice(0, -1).join('/');
+                                sendToBackend('navigate', target + '/register.html');
                             });
-                        },
-                        () =>
-                        {
-                            createWarningModal(ModalType.Failed, 'The account deletion operation has been cancelled.', 
-                            () => {},
-                            'OK', 'Cancelled'); 
                         });
+                    },
+                    () =>
+                    {
+                        createWarningModal(ModalType.Failed, 'The account deletion operation has been cancelled.', 
+                        () => {},
+                        'OK', 'Cancelled'); 
                     });
                 },
                 () => {});
