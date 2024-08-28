@@ -413,10 +413,25 @@ function createWarningModal(type: ModalType,
     document.body.appendChild(modal);
 }
 
-function createConfirmActionWithPasswordModal(message: string,
-                                                ok: () => void, cancel: () => void,
-                                                okButtonName: string = 'Proceed', cancelButtonName: string = 'Cancel', 
-                                                action: string = 'Authentication Required')
+type InputConfig = {
+    type: string;
+    placeholder: string;
+    descriptorImageSrc: string;
+    inputClasses: string[];
+    descriptorButtonClasses: string[];
+    togglePasswordId?: string;
+    togglePasswordText?: string;
+    togglePasswordClasses?: string[];
+};
+
+function createDynamicModal(
+    message: string,
+    inputConfigs: InputConfig[],
+    ok: () => void,
+    cancel: () => void,
+    okButtonName: string = 'Proceed',
+    cancelButtonName: string = 'Cancel',
+    action: string = 'Action Required') 
 {
     const modal = document.createElement('div');
     modal.id = 'confirm-action-modal';
@@ -432,19 +447,17 @@ function createConfirmActionWithPasswordModal(message: string,
     h2.textContent = action;
 
     const p = document.createElement('p');
-    
     if (message.includes('<br>'))
     {
         const messageParts = message.split('<br>');
-        messageParts.forEach((part) =>
-        {
+        messageParts.forEach((part) => {
             const sp = document.createElement('span');
             sp.textContent = part;
             p.appendChild(sp);
             p.appendChild(document.createElement('br'));
         });
-    }
-    else
+    } 
+    else 
     {
         p.textContent = message;
     }
@@ -452,43 +465,55 @@ function createConfirmActionWithPasswordModal(message: string,
     const inputContainer = document.createElement('div');
     inputContainer.classList.add('confirm-action-input');
 
-    const passwordDivContainer = document.createElement('div');
-    passwordDivContainer.classList.add('password-container');
-
-    const input = document.createElement('input');
-    input.classList.add('password-input');
-    input.type = 'password';
-    input.placeholder = 'Password';
-    input.required = true;
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.classList.add('password-descriptor');
-    button.tabIndex = -1;
-
-    const img = document.createElement('img');
-    img.classList.add('filter-gray');
-    img.src = '../resources/assets/icons/lock.svg';
-
-    button.appendChild(img);
-
-    const toggleButton = document.createElement('button');
-    toggleButton.type = 'button';
-    toggleButton.id = 'toggle-password-3';
-    toggleButton.classList.add('toggle-password');
-    toggleButton.tabIndex = -1;
-    toggleButton.textContent = 'Show';
-
-    bindClickEvent(toggleButton, () =>
+    inputConfigs.forEach((config, index) => 
     {
-        togglePasswordVisibilityIndex(2);
-    });
-    
-    passwordDivContainer.appendChild(input);
-    passwordDivContainer.appendChild(button);
-    passwordDivContainer.appendChild(toggleButton);
+        const inputDivContainer = document.createElement('div');
+        inputDivContainer.classList.add('input-container');
 
-    inputContainer.appendChild(passwordDivContainer);
+        const input = document.createElement('input');
+        input.type = config.type;
+        input.placeholder = config.placeholder;
+        input.required = true;
+        config.inputClasses.forEach((cls) => input.classList.add(cls));
+
+        const descriptorButton = document.createElement('button');
+        descriptorButton.type = 'button';
+        descriptorButton.tabIndex = -1;
+        config.descriptorButtonClasses.forEach((cls) => descriptorButton.classList.add(cls));
+
+        const img = document.createElement('img');
+        img.src = config.descriptorImageSrc;
+        img.classList.add('filter-gray');
+
+        descriptorButton.appendChild(img);
+
+        inputDivContainer.appendChild(input);
+        inputDivContainer.appendChild(descriptorButton);
+
+        if (config.type === 'password' && config.togglePasswordId && config.togglePasswordText) 
+        {
+            const toggleButton = document.createElement('button');
+            toggleButton.type = 'button';
+            toggleButton.id = config.togglePasswordId;
+            toggleButton.tabIndex = -1;
+            toggleButton.textContent = config.togglePasswordText;
+            config.togglePasswordClasses?.forEach((cls) => toggleButton.classList.add(cls));
+
+            bindClickEvent(toggleButton, () => {
+                togglePasswordVisibilityIndex(2 + index);
+            });
+
+            inputDivContainer.appendChild(toggleButton);
+        }
+
+        inputContainer.appendChild(inputDivContainer);
+
+        if (index !== inputConfigs.length - 1) 
+        {
+            const br = document.createElement('br');
+            inputContainer.appendChild(br);
+        }
+    });
 
     const buttonContainer = document.createElement('div');
     buttonContainer.classList.add('confirm-action-buttons');
@@ -496,7 +521,7 @@ function createConfirmActionWithPasswordModal(message: string,
     const okButton = document.createElement('button');
     okButton.textContent = okButtonName;
     okButton.classList.add('ok-button');
-    bindClickEvent(okButton, () =>
+    bindClickEvent(okButton, () => 
     {
         ok();
         removeModal('confirm-action-modal');
@@ -505,7 +530,7 @@ function createConfirmActionWithPasswordModal(message: string,
     const cancelButton = document.createElement('button');
     cancelButton.textContent = cancelButtonName;
     cancelButton.classList.add('cancel-button');
-    bindClickEvent(cancelButton, () =>
+    bindClickEvent(cancelButton, () => 
     {
         cancel();
         removeModal('confirm-action-modal');
@@ -513,7 +538,7 @@ function createConfirmActionWithPasswordModal(message: string,
 
     buttonContainer.appendChild(okButton);
     buttonContainer.appendChild(cancelButton);
-    
+
     const hr = document.createElement('hr');
 
     box.appendChild(h2);
@@ -842,13 +867,51 @@ function settingsPutAccount()
         {
             bindClickEvent(clickableButton, () =>
             {
-                createConfirmActionWithPasswordModal('Please enter your password in order to change your email.',
+                createDynamicModal('Please provide your NEW email address:',
+                [
+                    {
+                        type: 'email',
+                        placeholder: 'New Email',
+                        descriptorImageSrc: '../resources/assets/icons/mail.svg',
+                        inputClasses: [ 'generic-input', 'email-input' ],
+                        descriptorButtonClasses: [ 'descriptor' ]
+                    },
+                    {
+                        type: 'email',
+                        placeholder: 'Confirm New Email',
+                        descriptorImageSrc: '../resources/assets/icons/mail.svg',
+                        inputClasses: [ 'generic-input', 'email-input' ],
+                        descriptorButtonClasses: [ 'descriptor' ]
+                    }
+                ],
                 () =>
                 {
-                    createLoadingModal('Changing email ...', 
+                    createDynamicModal('Enter your password to confirm changing the email to: new@example.com',
+                    [
+                        {
+                            type: 'password',
+                            placeholder: 'Password',
+                            descriptorImageSrc: '../resources/assets/icons/lock.svg',
+                            inputClasses: [ 'generic-input', 'password-input' ],
+                            descriptorButtonClasses: [ 'descriptor' ],
+                            togglePasswordId: 'toggle-password-3',
+                            togglePasswordText: 'Show',
+                            togglePasswordClasses: [ 'toggle-password' ]
+                        }
+                    ],
                     () =>
                     {
-                        createWarningModal(ModalType.Success, 'The email has been changed successfully.');
+                        createLoadingModal('Changing email ...', 
+                        () =>
+                        {
+                            createWarningModal(ModalType.Success, 'The email has been changed successfully.');
+                        });
+                    },
+                    () =>
+                    {
+                        createWarningModal(ModalType.Failed, 'The email change operation has been cancelled.',
+                        () => {},
+                        'OK', 'Cancelled'); 
                     });
                 },
                 () => {});
@@ -859,13 +922,57 @@ function settingsPutAccount()
         {
             bindClickEvent(clickableButton, () =>
             {
-                createConfirmActionWithPasswordModal('Please enter your current password in order to set a new password.',
+                createDynamicModal('Please provide your NEW password:',
+                [
+                    {
+                        type: 'password',
+                        placeholder: 'New Password',
+                        descriptorImageSrc: '../resources/assets/icons/lock.svg',
+                        inputClasses: [ 'generic-input', 'password-input' ],
+                        descriptorButtonClasses: [ 'descriptor' ],
+                        togglePasswordId: 'toggle-password-3',
+                        togglePasswordText: 'Show',
+                        togglePasswordClasses: [ 'toggle-password' ]
+                    },
+                    {
+                        type: 'password',
+                        placeholder: 'Confirm New Password',
+                        descriptorImageSrc: '../resources/assets/icons/lock.svg',
+                        inputClasses: [ 'generic-input', 'password-input' ],
+                        descriptorButtonClasses: [ 'descriptor' ],
+                        togglePasswordId: 'toggle-password-4',
+                        togglePasswordText: 'Show',
+                        togglePasswordClasses: [ 'toggle-password' ]
+                    }
+                ],
                 () =>
                 {
-                    createLoadingModal('Changing password ...', 
+                    createDynamicModal('Enter your CURRENT password to confirm the password change.',
+                    [
+                        {
+                            type: 'password',
+                            placeholder: 'Current Password',
+                            descriptorImageSrc: '../resources/assets/icons/lock.svg',
+                            inputClasses: [ 'generic-input', 'password-input' ],
+                            descriptorButtonClasses: [ 'descriptor' ],
+                            togglePasswordId: 'toggle-password-3',
+                            togglePasswordText: 'Show',
+                            togglePasswordClasses: [ 'toggle-password' ]
+                        }
+                    ],
                     () =>
                     {
-                        createWarningModal(ModalType.Success, 'The password has been changed successfully.'); 
+                        createLoadingModal('Changing password ...', 
+                        () =>
+                        {
+                            createWarningModal(ModalType.Success, 'The password has been changed successfully.');
+                        });
+                    },
+                    () =>
+                    {
+                        createWarningModal(ModalType.Failed, 'The password change operation has been cancelled.',
+                        () => {},
+                        'OK', 'Cancelled'); 
                     });
                 },
                 () => {});
@@ -881,17 +988,30 @@ function settingsPutAccount()
                                         + 'Are you sure you want to proceed?',
                 () => // ok
                 {
-                    createConfirmActionWithPasswordModal('Please enter your password to confirm your account deletion.',
+                    createDynamicModal('Please enter your password to confirm the deletion of your account.', 
+                    [
+                        {
+                            type: 'password',
+                            placeholder: 'Password',
+                            descriptorImageSrc: '../resources/assets/icons/lock.svg',
+                            inputClasses: [ 'generic-input', 'password-input' ],
+                            descriptorButtonClasses: [ 'descriptor' ],
+                            togglePasswordId: 'toggle-password-3',
+                            togglePasswordText: 'Show',
+                            togglePasswordClasses: [ 'toggle-password' ]
+                        }
+                    ],
                     () =>
                     {
-                        createLoadingModal('Deleting account ...', 
+                        createLoadingModal('Working on it ...', 
                         () =>
                         {
-                            createWarningModal(ModalType.Success, 'The account has been deleted successfully.', 
+                            createWarningModal(ModalType.Success, 'Your account is planned for deletion on:<br> 09-14-2024.<br><br>'
+                                                                    + 'You have 7 days to cancel the deletion process.<br><br>'
+                                                                    + 'Please check your email for more details.',
                             () =>
                             {
-                                let target = window.location.href.split('/').slice(0, -1).join('/');
-                                sendToBackend('navigate', target + '/register.html');
+                                navigateTo('register.html')
                             });
                         });
                     },

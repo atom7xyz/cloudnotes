@@ -463,6 +463,7 @@ input:checked + .slider:before {
 
 .select-container select {
     width: 30%;
+    min-width: 160px;
     padding: 0.5em;
     background-color: var(--dracula-black);
     color: var(--dracula-white);
@@ -504,6 +505,7 @@ input:checked + .slider:before {
 
 .action-container > button {
     width: 30%;
+    min-width: 160px;
     padding: 0.5em 1em;
     background-color: var(--dracula-black);
     color: var(--dracula-white);

@@ -223,6 +223,12 @@ function sendToBackend(message: string, ...data: any[])
     window.backend.send(message, data);
 }
 
+function navigateTo(page: string)
+{
+    let target = window.location.href.split('/').slice(0, -1).join('/');
+    sendToBackend('navigate', target + "/" + page);
+}
+
 async function getHistory(): Promise<string[]>
 {
     // @ts-ignore

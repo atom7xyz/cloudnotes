@@ -90,7 +90,7 @@
 .login-container > section > form > .email-container > input,
 .login-container > section > form > .name-surname > input,
 .login-container > section > form > .pw-code-container > input,
-.overlay .password-container > input {
+.overlay .input-container > input {
     background-color: var(--dracula-black);
     color: var(--dracula-white);
     padding: 3% 4%;
@@ -159,7 +159,7 @@
 .login-container > section > form > .password-container,
 .login-container > section > form > .email-container,
 .login-container > section > form > .name-surname,
-.overlay .password-container {
+.overlay .input-container {
     position: relative;
 }
 
@@ -167,7 +167,7 @@
 .login-container > section > form > .email-container > .email-input,
 .login-container > section > form > .name-surname > .name-surname-input,
 .login-container > section > form > .pw-code-container > .pw-code-input,
-.overlay .password-container > .password-input {
+.overlay .input-container > .generic-input {
     width: 100%;
     padding-left: calc(1.8% + 34px);
     box-sizing: border-box;
@@ -180,12 +180,12 @@
 }
 
 .login-container > section > form > .password-container > .password-input,
-.overlay .password-container > .password-input {
+.overlay .input-container > .password-input {
     padding-right: 80px;
 }
 
 .login-container > section > form > .password-container > .toggle-password,
-.overlay .password-container > .toggle-password {
+.overlay .input-container > .toggle-password {
     position: absolute;
     right: 10px;
     border: none;
@@ -197,7 +197,7 @@
 }
 
 .login-container > section > form > .password-container > .toggle-password:hover, 
-.overlay .password-container > .toggle-password:hover {
+.overlay .input-container > .toggle-password:hover {
     background: var(--dracula-grey-lighter-lighter);
 }
 
@@ -205,7 +205,7 @@
 .login-container > section > form > .email-container > .email-descriptor,
 .login-container > section > form > .name-surname > .name-descriptor,
 .login-container > section > form > .name-surname > .surname-descriptor,
-.overlay .password-container > .password-descriptor {
+.overlay .input-container > .descriptor {
     position: absolute;
     border: none;
     background: none;
@@ -215,7 +215,7 @@
     cursor: default;
 }
 
-.overlay .password-container > .password-descriptor {
+.overlay .input-container > .descriptor {
     display: block;
     top: 0;
 }
@@ -231,7 +231,7 @@
 .login-container > section > form > .password-container > .password-descriptor > img,
 .login-container > section > form > .email-container > .email-descriptor > img,
 .login-container > section > form > .name-surname > .user-descriptor > img,
-.overlay .password-container > .password-descriptor > img {
+.overlay .input-container > .descriptor > img {
     width: 24px;
     height: 24px;
 } 
