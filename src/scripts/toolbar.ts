@@ -43,32 +43,29 @@ function manageNavigationButtons()
         const goBackButton = document.getElementById('button-goback') as HTMLButtonElement;
         const goForwardButton = document.getElementById('button-goforward') as HTMLButtonElement;
 
-        if (goBackButton && goForwardButton)
-        {
-            goBackButton.disabled = !result.canGoBack;
-            goForwardButton.disabled = !result.canGoForward;
+        if (!goBackButton || !goForwardButton) {
+            return;
+        }
 
-            if (result.canGoBack)
-            {
-                goBackButton.classList.remove('dead-button');
-                goBackButton.classList.add('alive-button');
-            }
-            else
-            {
-                goBackButton.classList.add('dead-button');
-                goBackButton.classList.remove('alive-button');
-            }
+        goBackButton.disabled = !result.canGoBack;
+        goForwardButton.disabled = !result.canGoForward;
 
-            if (result.canGoForward)
-            {
-                goForwardButton.classList.remove('dead-button');
-                goForwardButton.classList.add('alive-button');
-            }
-            else
-            {
-                goForwardButton.classList.add('dead-button');
-                goForwardButton.classList.remove('alive-button');
-            }
+        if (result.canGoBack) {
+            goBackButton.classList.remove('dead-button');
+            goBackButton.classList.add('alive-button');
+        }
+        else {
+            goBackButton.classList.add('dead-button');
+            goBackButton.classList.remove('alive-button');
+        }
+
+        if (result.canGoForward) {
+            goForwardButton.classList.remove('dead-button');
+            goForwardButton.classList.add('alive-button');
+        }
+        else {
+            goForwardButton.classList.add('dead-button');
+            goForwardButton.classList.remove('alive-button');
         }
     });
 }

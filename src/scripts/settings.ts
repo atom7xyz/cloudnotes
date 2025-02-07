@@ -17,8 +17,7 @@ function handleSettingsChangeTab()
 {
     const tabs = document.querySelectorAll('.tab') as NodeListOf<HTMLElement>;
 
-    if (!tabs)
-    {
+    if (!tabs) {
         return;
     }
 

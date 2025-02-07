@@ -15,8 +15,7 @@ function bindLinksToHighlight()
 
             const targetAttribute = link.getAttribute('href');
 
-            if (!targetAttribute) 
-            {
+            if (!targetAttribute) {
                 return;
             }
 

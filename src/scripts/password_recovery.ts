@@ -4,8 +4,7 @@ window.addEventListener('DOMContentLoaded', () =>
 
     const button = document.getElementById('send-pw-reset') as HTMLButtonElement;
 
-    if (button)
-    {
+    if (button) {
         button.disabled = true;
     }
 });
@@ -21,9 +20,8 @@ function setupCaptcha()
 
     bindClickEvent('recaptchaCheckbox', () =>
     {
-        if (recaptchaCompleted)
-        {
-            return; 
+        if (recaptchaCompleted) {
+            return;
         }
 
         recaptchaCompleted = true;

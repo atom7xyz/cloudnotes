@@ -2,122 +2,131 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const url = require('url');
 const path = require('path');
 
+// Window Management
 let window = null;
 
-function createWindow() 
-{
-    window = new BrowserWindow({
+function createWindow() {
+    const windowConfig = {
         width: 1366,
         height: 768,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: true,
             spellcheck: false,
-            preload: path.join(__dirname, '/dist/preload.js')
+            preload: path.join(__dirname, '/dist/preload.js'),
+            backgroundColor: '#2e2c29'
         },
         frame: false,
         resizable: true,
-        titleBarStyle: "hidden"
-    });
+        titleBarStyle: "hidden",
+        show: false,
+        backgroundColor: '#2e2c29',
+        paintWhenInitiallyHidden: true
+    };
 
+    window = new BrowserWindow(windowConfig);
+    
+    // Set background color immediately after creation
+    window.setBackgroundColor('#2e2c29');
     window.setMenuBarVisibility(false);
     window.maximize();
 
+    // Preload the background color
+    window.webContents.on('dom-ready', () => {
+        window.webContents.executeJavaScript(`
+            document.body.style.backgroundColor = '#2e2c29';
+            document.documentElement.style.backgroundColor = '#2e2c29';
+        `);
+    });
+
     configureIPC();
 
-    window.loadURL(
-        url.format({
-            pathname: path.join(__dirname, "/resources/settings.html"),
-            protocol: "file:",
-            slashes: true
-        })
-    );
+    setTimeout(() => {
+        window.loadURL(
+            url.format({
+                pathname: path.join(__dirname, "/resources/settings.html"),
+                protocol: "file:",
+                slashes: true
+            })
+        );
+    }, 500);
+
+    window.once('ready-to-show', () => {
+        setTimeout(() => {
+            window.show();
+            window.webContents.executeJavaScript(`
+                document.body.style.opacity = 0;
+                document.body.style.transition = 'opacity 400ms ease-in';
+                document.body.style.opacity = 1;
+            `);
+        }, 200);
+    });
 
     window.on('closed', () => window = null);
 }
 
-function configureIPC()
-{
-    window.webContents.on('did-navigate', (event, url) => 
-    {
+// IPC Configuration - Split into logical groups
+function configureIPC() {
+    configureNavigationHandlers();
+    configureWindowControlHandlers();
+    configureHistoryHandlers();
+}
+
+function configureNavigationHandlers() {
+    window.webContents.on('did-navigate', (event, url) => {
         updateHistory(url);
     });
 
-    /* unused */
-    ipcMain.on('form-submitted', (event, args) =>
-    {
-        const data = args[0];
-        const url = data[0];
-
-        // updateHistory(url);
+    ipcMain.on('navigate', (event, args) => {
+        const [url] = args[0];
+        BrowserWindow.fromWebContents(event.sender).loadURL(url);
     });
 
-    ipcMain.handle('get-history', () => 
-    ({
+    ipcMain.on('reload', (event) => {
+        BrowserWindow.fromWebContents(event.sender).reload();
+    });
+
+    ipcMain.on('goback', (event) => {
+        BrowserWindow.fromWebContents(event.sender).loadURL(navigateBackwards());
+    });
+
+    ipcMain.on('goforward', (event) => {
+        BrowserWindow.fromWebContents(event.sender).loadURL(navigateForward());
+    });
+}
+
+function configureWindowControlHandlers() {
+    ipcMain.on('minimize', (event) => {
+        BrowserWindow.fromWebContents(event.sender).minimize();
+    });
+    
+    ipcMain.on('resize', (event) => {
+        const window = BrowserWindow.fromWebContents(event.sender);
+        window.isMaximized() ? window.unmaximize() : window.maximize();
+    });
+    
+    ipcMain.on('close', (event) => {
+        BrowserWindow.fromWebContents(event.sender).close();
+    });
+}
+
+function configureHistoryHandlers() {
+    ipcMain.handle('get-history', () => ({
         previousUrl: currentIndex > 0 ? urlHistory[currentIndex - 1] : null,
         currentUrl: urlHistory[currentIndex],
         nextUrl: currentIndex < urlHistory.length - 1 ? urlHistory[currentIndex + 1] : null
     }));
 
-    ipcMain.on('minimize', (event) => 
-    {
-        BrowserWindow.fromWebContents(event.sender).minimize();
-    });
-    
-    ipcMain.on('resize', (event) => 
-    {
-        let window = BrowserWindow.fromWebContents(event.sender);
-
-        if (window.isMaximized()) 
-        {
-            window.unmaximize();
-        } 
-        else 
-        {
-            window.maximize();
-        }
-    });
-    
-    ipcMain.on('close', (event) => 
-    {
-        let window = BrowserWindow.fromWebContents(event.sender);
-        window.close();
-    });
-
-    ipcMain.on('reload', (event) => 
-    {
-        BrowserWindow.fromWebContents(event.sender).reload();
-    });
-
-    ipcMain.on('goback', (event) => 
-    {
-        BrowserWindow.fromWebContents(event.sender).loadURL(navigateBackwards());
-    });
-
-    ipcMain.on('goforward', (event) => 
-    {
-        BrowserWindow.fromWebContents(event.sender).loadURL(navigateForward());
-    });
-
-    ipcMain.on('check-nav-state', (event) =>
-    {
+    ipcMain.on('check-nav-state', (event) => {
         const canGoBack = getPreviousUrl() !== null;
         const canGoForward = getNextUrl() !== null;
-
         event.sender.send('result-nav-state', { canGoBack, canGoForward });
-    });
-
-    ipcMain.on('navigate', (event, args) =>
-    {
-        const data = args[0];
-        const url = data[0];
-
-        BrowserWindow.fromWebContents(event.sender).loadURL(url);
     });
 }
 
+// Application Lifecycle
 app.whenReady().then(() => {
-    createWindow()
+    createWindow();
 });
 
 app.on('window-all-closed', () => {
@@ -125,7 +134,6 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
 
 /*
  * Browser History Management
