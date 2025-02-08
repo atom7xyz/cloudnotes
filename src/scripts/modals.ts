@@ -31,15 +31,13 @@ function handleDestructiveModals()
     {
         const target = event.target as HTMLElement;
 
-        if (!(target instanceof HTMLAnchorElement) || resendCode)
-        { 
+        if (!(target instanceof HTMLAnchorElement) || resendCode) { 
             return;
         }
 
         const href = target.href.toString();
 
-        if (href.startsWith('mailto') || href.startsWith('tel'))
-        {
+        if (href.startsWith('mailto') || href.startsWith('tel')) {
             return;
         }
 
@@ -142,8 +140,7 @@ const excludedPagesModal = [ 'terms-of-service.html' ];
 
 function isPageExcludedModal(href: string | null): boolean
 {
-    if (!href)
-    {
+    if (!href) {
         return false;
     }
 
@@ -154,16 +151,14 @@ async function handleDestructiveModalClick(event: MouseEvent, action: string, hr
 {
     let toolbarMovement = href === null;
    
-    if (href && href.includes('#'))
-    {
+    if (href && href.includes('#')) {
         return;
     }
 
     event.preventDefault();
     throwEvent('save-forms', null);
 
-    if (!toolbarMovement && isPageExcludedModal(href))
-    {
+    if (!toolbarMovement && isPageExcludedModal(href)) {
         sendToBackend(action, href);
         return;
     }
@@ -172,12 +167,10 @@ async function handleDestructiveModalClick(event: MouseEvent, action: string, hr
     {
         clearAllForms();
 
-        if (toolbarMovement)
-        {
+        if (toolbarMovement) {
             sendToBackend(action);
         }
-        else
-        {
+        else {
             sendToBackend(action, href);
         }
     });
@@ -188,8 +181,7 @@ function checkFormsAndSendModal(okAction: () => void)
     let formPresent = isThereAnyForm();
     let formFilled = isFormPartiallyFilled();
    
-    if (!formPresent || !formFilled)
-    {
+    if (!formPresent || !formFilled) {
         okAction();
         return;
     }
@@ -207,321 +199,361 @@ function checkFormsAndSendModal(okAction: () => void)
     });
 }
 
-
-/*
- * Loading Modals
+/**
+ * The random messages to display in the loading modal.
  */
-
 const randomMessages = [ 'Getting ready ...', 'Loading ...', 'Please wait ...', 'Almost there ...', 'Just a moment ...'];
 
-function createLoadingModal(message: string, afterTimeout: () => void, timeout: number = 3000)
+/**
+ * Creates a loading modal with a message and a spinner.
+ * @param loadingMessage The message to display in the modal.
+ * @param onLoadComplete The function to call when the modal is loaded.
+ * @param loadingDuration The duration of the modal.
+ */
+function createLoadingModal(loadingMessage: string, onLoadComplete: () => void, loadingDuration: number = 3000)
 {
-    const modal = document.createElement('div');
-    modal.id = 'spinner-container';
-    modal.classList.add('overlay');
+    const loadingModal = document.createElement('div');
+    loadingModal.id = 'spinner-container';
+    loadingModal.classList.add('overlay');
 
-    const boxContainer = document.createElement('div');
-    boxContainer.classList.add('load-container');
+    const loadingContainer = document.createElement('div');
+    loadingContainer.classList.add('load-container');
 
-    const box = document.createElement('div');
-    box.classList.add('load-box');
+    const loadingBox = document.createElement('div');
+    loadingBox.classList.add('load-box');
 
-    const spinner = document.createElement('div');
-    spinner.classList.add('load-spinner');
+    const loadingSpinner = document.createElement('div');
+    loadingSpinner.classList.add('load-spinner');
 
-    const p = document.createElement('p');
+    const messageElement = document.createElement('p');
 
-    if (message.includes('<br>'))
+    if (loadingMessage.includes('<br>'))
     {
-        const messageParts = message.split('<br>');
-        messageParts.forEach((part) =>
+        const messageLines = loadingMessage.split('<br>');
+        messageLines.forEach((line) =>
         {
-            const sp = document.createElement('span');
-            sp.textContent = part;
-            p.appendChild(sp);
-            p.appendChild(document.createElement('br'));
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = line;
+            messageElement.appendChild(messageSpan);
+            messageElement.appendChild(document.createElement('br'));
         });
     }
     else
     {
-        p.textContent = message;
+        messageElement.textContent = loadingMessage;
     }
 
-    box.appendChild(spinner);
-    box.appendChild(p);
-    boxContainer.appendChild(box);
-    modal.appendChild(boxContainer);
+    loadingBox.appendChild(loadingSpinner);
+    loadingBox.appendChild(messageElement);
+    loadingContainer.appendChild(loadingBox);
+    loadingModal.appendChild(loadingContainer);
 
-    document.body.appendChild(modal);
+    document.body.appendChild(loadingModal);
 
     setTimeout(() => 
     {
-        afterTimeout();
+        onLoadComplete();
         removeModal('spinner-container');
-    }, timeout);
+    }, loadingDuration);
 }
 
+/**
+ * Creates a destructive modal with a message and two buttons.
+ * @param message The message to display in the modal.
+ * @param ok The function to call when the OK button is clicked.
+ * @param cancel The function to call when the Cancel button is clicked.
+ * @param okButtonName The text to display on the OK button.
+ * @param cancelButtonName The text to display on the Cancel button.
+ * @param action The text to display in the header of the modal.
+ */
 function createDestructiveModal(message: string,
-                                ok: () => void, cancel: () => void,
-                                okButtonName: string = 'Proceed', cancelButtonName: string = 'Cancel', 
-                                action: string = 'Action Required')
+                                onConfirm: () => void, 
+                                onCancel: () => void,
+                                confirmButtonText: string = 'Proceed', 
+                                cancelButtonText: string = 'Cancel', 
+                                modalTitle: string = 'Action Required')
 {
-    const modal = document.createElement('div');
-    modal.id = 'destructive-modal';
-    modal.classList.add('overlay');
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'destructive-modal';
+    modalOverlay.classList.add('overlay');
 
-    const boxContainer = document.createElement('div');
-    boxContainer.classList.add('destructive-container');
+    const modalContainer = document.createElement('div');
+    modalContainer.classList.add('destructive-container');
 
-    const box = document.createElement('div');
-    box.classList.add('destructive-box');
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('destructive-box');
 
-    const h2 = document.createElement('h2');
-    h2.textContent = action;
+    const titleElement = document.createElement('h2');
+    titleElement.textContent = modalTitle;
 
-    const p = document.createElement('p');
+    const messageElement = document.createElement('p');
     
     if (message.includes('<br>'))
     {
-        const messageParts = message.split('<br>');
-        messageParts.forEach((part) =>
+        const messageLines = message.split('<br>');
+        messageLines.forEach((line) =>
         {
-            const sp = document.createElement('span');
-            sp.textContent = part;
-            p.appendChild(sp);
-            p.appendChild(document.createElement('br'));
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = line;
+            messageElement.appendChild(messageSpan);
+            messageElement.appendChild(document.createElement('br'));
         });
     }
     else
     {
-        p.textContent = message;
+        messageElement.textContent = message;
     }
 
     const buttonContainer = document.createElement('div');
     buttonContainer.classList.add('destructive-buttons');
 
-    const okButton = document.createElement('button');
-    okButton.textContent = okButtonName;
-    okButton.classList.add('ok-button');
-    bindClickEvent(okButton, () =>
+    const confirmButton = document.createElement('button');
+    confirmButton.textContent = confirmButtonText;
+    confirmButton.classList.add('ok-button');
+    bindClickEvent(confirmButton, () =>
     {
-        ok();
+        onConfirm();
         removeModal('destructive-modal');
     });
 
     const cancelButton = document.createElement('button');
-    cancelButton.textContent = cancelButtonName;
+    cancelButton.textContent = cancelButtonText;
     cancelButton.classList.add('cancel-button');
     bindClickEvent(cancelButton, () =>
     {
-        cancel();
+        onCancel();
         removeModal('destructive-modal');
     });
 
-    buttonContainer.appendChild(okButton);
+    buttonContainer.appendChild(confirmButton);
     buttonContainer.appendChild(cancelButton);
 
-    const hr = document.createElement('hr');
+    const divider = document.createElement('hr');
 
-    box.appendChild(h2);
-    box.appendChild(p);
-    box.appendChild(hr);
-    box.appendChild(buttonContainer);
-    boxContainer.appendChild(box);
-    modal.appendChild(boxContainer);
+    modalContent.appendChild(titleElement);
+    modalContent.appendChild(messageElement);
+    modalContent.appendChild(divider);
+    modalContent.appendChild(buttonContainer);
+    modalContainer.appendChild(modalContent);
+    modalOverlay.appendChild(modalContainer);
 
-    document.body.appendChild(modal);
+    document.body.appendChild(modalOverlay);
 }
 
+/**
+ * The types of modals available.
+ */
 enum ModalType
 {
     Success,
     Failed
 };
 
-function createWarningModal(type: ModalType, 
-                            message: string, 
-                            ok: () => void  = () => {}, okButtonName: string = 'OK', 
-                            action: string = 'Success')
+/**
+ * Creates a warning modal with a message and a confirm button.
+ * @param modalType The type of modal to create.
+ * @param modalMessage The message to display in the modal.
+ * @param onConfirm The function to call when the confirm button is clicked.
+ * @param confirmButtonText The text to display on the confirm button.
+ * @param modalTitle The title of the modal.
+ */
+function createWarningModal(modalType: ModalType, 
+                            modalMessage: string, 
+                            onConfirm: () => void = () => {}, 
+                            confirmButtonText: string = 'OK', 
+                            modalTitle: string = 'Success')
 {
-    let classContainer = 'action-success-container';
-    let classBox = 'action-success-box';
-    let classButtons = 'action-success-buttons';
+    let modalContainerClass = 'action-success-container';
+    let modalBoxClass = 'action-success-box';
+    let modalButtonsClass = 'action-success-buttons';
 
-    if (type === ModalType.Failed)
+    if (modalType === ModalType.Failed)
     {
-        classContainer = 'action-failed-container';
-        classBox = 'action-failed-box';
-        classButtons = 'action-failed-buttons';
+        modalContainerClass = 'action-failed-container';
+        modalBoxClass = 'action-failed-box';
+        modalButtonsClass = 'action-failed-buttons';
     }
 
-    const modal = document.createElement('div');
-    modal.id = 'success-modal';
-    modal.classList.add('overlay');
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'success-modal';
+    modalOverlay.classList.add('overlay');
 
-    const boxContainer = document.createElement('div');
-    boxContainer.classList.add(classContainer);
+    const modalContainer = document.createElement('div');
+    modalContainer.classList.add(modalContainerClass);
 
-    const box = document.createElement('div');
-    box.classList.add(classBox);
+    const modalBox = document.createElement('div');
+    modalBox.classList.add(modalBoxClass);
 
-    const h2 = document.createElement('h2');
-    h2.textContent = action;
+    const titleElement = document.createElement('h2');
+    titleElement.textContent = modalTitle;
 
-    const p = document.createElement('p');
+    const messageElement = document.createElement('p');
     
-    if (message.includes('<br>'))
+    if (modalMessage.includes('<br>'))
     {
-        const messageParts = message.split('<br>');
-        messageParts.forEach((part) =>
+        const messageLines = modalMessage.split('<br>');
+        messageLines.forEach((line) =>
         {
-            const sp = document.createElement('span');
-            sp.textContent = part;
-            p.appendChild(sp);
-            p.appendChild(document.createElement('br'));
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = line;
+            messageElement.appendChild(messageSpan);
+            messageElement.appendChild(document.createElement('br'));
         });
     }
     else
     {
-        p.textContent = message;
+        messageElement.textContent = modalMessage;
     }
     
     const buttonContainer = document.createElement('div');
-    buttonContainer.classList.add(classButtons);
+    buttonContainer.classList.add(modalButtonsClass);
 
-    const okButton = document.createElement('button');
-    okButton.classList.add('ok-button');
-    okButton.textContent = okButtonName;
+    const confirmButton = document.createElement('button');
+    confirmButton.classList.add('ok-button');
+    confirmButton.textContent = confirmButtonText;
 
-    bindClickEvent(okButton, () =>
+    bindClickEvent(confirmButton, () =>
     {
-        ok();
+        onConfirm();
         removeModal('success-modal');
     });
     
-    buttonContainer.appendChild(okButton);
+    buttonContainer.appendChild(confirmButton);
 
-    const hr = document.createElement('hr');
+    const divider = document.createElement('hr');
 
-    box.appendChild(h2);
-    box.appendChild(p);
-    box.appendChild(hr);
-    box.appendChild(buttonContainer);
-    boxContainer.appendChild(box);
-    modal.appendChild(boxContainer);
+    modalBox.appendChild(titleElement);
+    modalBox.appendChild(messageElement);
+    modalBox.appendChild(divider);
+    modalBox.appendChild(buttonContainer);
+    modalContainer.appendChild(modalBox);
+    modalOverlay.appendChild(modalContainer);
 
-    document.body.appendChild(modal);
+    document.body.appendChild(modalOverlay);
 }
 
+/**
+ * The input configurations for the dynamic modal.
+ */
 type InputConfig = {
     type: string;
     placeholder: string;
     descriptorImageSrc: string;
     inputClasses: string[];
     descriptorButtonClasses: string[];
+
     togglePasswordId?: string;
     togglePasswordText?: string;
     togglePasswordClasses?: string[];
 };
 
-function createDynamicModal(
-    message: string,
-    inputConfigs: InputConfig[],
-    ok: () => void,
-    cancel: () => void,
-    okButtonName: string = 'Proceed',
-    cancelButtonName: string = 'Cancel',
-    action: string = 'Action Required') 
+/**
+ * Creates a dynamic modal with a message and a form.
+ * @param message The message to display in the modal.
+ * @param inputConfigs The input configurations for the modal.
+ * @param ok The function to call when the OK button is clicked.
+ * @param cancel The function to call when the Cancel button is clicked.
+ * @param okButtonName The text to display on the OK button.
+ * @param cancelButtonName The text to display on the Cancel button.
+ * @param action The text to display in the header of the modal.
+ */
+function createDynamicModal(message: string,
+                            inputConfigs: InputConfig[],
+                            ok: () => void,
+                            cancel: () => void,
+                            okButtonName: string = 'Proceed', 
+                            cancelButtonName: string = 'Cancel',
+                            action: string = 'Action Required')
 {
-    const modal = document.createElement('div');
-    modal.id = 'confirm-action-modal';
-    modal.classList.add('overlay');
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'confirm-action-modal';
+    modalOverlay.classList.add('overlay');
 
-    const boxContainer = document.createElement('div');
-    boxContainer.classList.add('confirm-action-container');
+    const modalContainer = document.createElement('div');
+    modalContainer.classList.add('confirm-action-container');
 
-    const box = document.createElement('div');
-    box.classList.add('confirm-action-box');
+    const modalBox = document.createElement('div');
+    modalBox.classList.add('confirm-action-box');
 
-    const h2 = document.createElement('h2');
-    h2.textContent = action;
+    const modalTitle = document.createElement('h2');
+    modalTitle.textContent = action;
 
-    const p = document.createElement('p');
+    const messageContainer = document.createElement('p');
     if (message.includes('<br>'))
     {
         const messageParts = message.split('<br>');
-        messageParts.forEach((part) => {
-            const sp = document.createElement('span');
-            sp.textContent = part;
-            p.appendChild(sp);
-            p.appendChild(document.createElement('br'));
+        messageParts.forEach((messagePart) => {
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = messagePart;
+            messageContainer.appendChild(messageSpan);
+            messageContainer.appendChild(document.createElement('br'));
         });
     } 
     else 
     {
-        p.textContent = message;
+        messageContainer.textContent = message;
     }
 
-    const inputContainer = document.createElement('div');
-    inputContainer.classList.add('confirm-action-input');
+    const formInputsContainer = document.createElement('div');
+    formInputsContainer.classList.add('confirm-action-input');
 
-    inputConfigs.forEach((config, index) => 
+    inputConfigs.forEach((inputConfig, inputIndex) => 
     {
-        const inputDivContainer = document.createElement('div');
-        inputDivContainer.classList.add('input-container');
+        const inputWrapper = document.createElement('div');
+        inputWrapper.classList.add('input-container');
 
-        const input = document.createElement('input');
-        input.type = config.type;
-        input.placeholder = config.placeholder;
-        input.required = true;
-        config.inputClasses.forEach((cls) => input.classList.add(cls));
+        const formInput = document.createElement('input');
+        formInput.type = inputConfig.type;
+        formInput.placeholder = inputConfig.placeholder;
+        formInput.required = true;
+        inputConfig.inputClasses.forEach((className) => formInput.classList.add(className));
 
-        const descriptorButton = document.createElement('button');
-        descriptorButton.type = 'button';
-        descriptorButton.tabIndex = -1;
-        config.descriptorButtonClasses.forEach((cls) => descriptorButton.classList.add(cls));
+        const inputIconButton = document.createElement('button');
+        inputIconButton.type = 'button';
+        inputIconButton.tabIndex = -1;
+        inputConfig.descriptorButtonClasses.forEach((className) => inputIconButton.classList.add(className));
 
-        const img = document.createElement('img');
-        img.src = config.descriptorImageSrc;
-        img.classList.add('filter-gray');
+        const inputIcon = document.createElement('img');
+        inputIcon.src = inputConfig.descriptorImageSrc;
+        inputIcon.classList.add('filter-gray');
 
-        descriptorButton.appendChild(img);
+        inputIconButton.appendChild(inputIcon);
 
-        inputDivContainer.appendChild(input);
-        inputDivContainer.appendChild(descriptorButton);
+        inputWrapper.appendChild(formInput);
+        inputWrapper.appendChild(inputIconButton);
 
-        if (config.type === 'password' && config.togglePasswordId && config.togglePasswordText) 
+        if (inputConfig.type === 'password' && inputConfig.togglePasswordId && inputConfig.togglePasswordText) 
         {
-            const toggleButton = document.createElement('button');
-            toggleButton.type = 'button';
-            toggleButton.id = config.togglePasswordId;
-            toggleButton.tabIndex = -1;
-            toggleButton.textContent = config.togglePasswordText;
-            config.togglePasswordClasses?.forEach((cls) => toggleButton.classList.add(cls));
+            const passwordToggleButton = document.createElement('button');
+            passwordToggleButton.type = 'button';
+            passwordToggleButton.id = inputConfig.togglePasswordId;
+            passwordToggleButton.tabIndex = -1;
+            passwordToggleButton.textContent = inputConfig.togglePasswordText;
+            inputConfig.togglePasswordClasses?.forEach((className) => passwordToggleButton.classList.add(className));
 
-            bindClickEvent(toggleButton, () => {
-                togglePasswordVisibilityIndex(2 + index);
+            bindClickEvent(passwordToggleButton, () => {
+                togglePasswordVisibilityIndex(2 + inputIndex);
             });
 
-            inputDivContainer.appendChild(toggleButton);
+            inputWrapper.appendChild(passwordToggleButton);
         }
 
-        inputContainer.appendChild(inputDivContainer);
+        formInputsContainer.appendChild(inputWrapper);
 
-        if (index !== inputConfigs.length - 1) 
+        if (inputIndex !== inputConfigs.length - 1) 
         {
-            const br = document.createElement('br');
-            inputContainer.appendChild(br);
+            const inputSpacer = document.createElement('br');
+            formInputsContainer.appendChild(inputSpacer);
         }
     });
 
-    const buttonContainer = document.createElement('div');
-    buttonContainer.classList.add('confirm-action-buttons');
+    const modalButtonsContainer = document.createElement('div');
+    modalButtonsContainer.classList.add('confirm-action-buttons');
 
-    const okButton = document.createElement('button');
-    okButton.textContent = okButtonName;
-    okButton.classList.add('ok-button');
-    bindClickEvent(okButton, () => 
+    const confirmButton = document.createElement('button');
+    confirmButton.textContent = okButtonName;
+    confirmButton.classList.add('ok-button');
+    bindClickEvent(confirmButton, () => 
     {
         ok();
         removeModal('confirm-action-modal');
@@ -536,95 +568,104 @@ function createDynamicModal(
         removeModal('confirm-action-modal');
     });
 
-    buttonContainer.appendChild(okButton);
-    buttonContainer.appendChild(cancelButton);
+    modalButtonsContainer.appendChild(confirmButton);
+    modalButtonsContainer.appendChild(cancelButton);
 
-    const hr = document.createElement('hr');
+    const modalDivider = document.createElement('hr');
 
-    box.appendChild(h2);
-    box.appendChild(p);
-    box.appendChild(inputContainer);
-    box.appendChild(hr);
-    box.appendChild(buttonContainer);
-    boxContainer.appendChild(box);
-    modal.appendChild(boxContainer);
+    modalBox.appendChild(modalTitle);
+    modalBox.appendChild(messageContainer);
+    modalBox.appendChild(formInputsContainer);
+    modalBox.appendChild(modalDivider);
+    modalBox.appendChild(modalButtonsContainer);
+    modalContainer.appendChild(modalBox);
+    modalOverlay.appendChild(modalContainer);
 
-    document.body.appendChild(modal);
+    document.body.appendChild(modalOverlay);
 }
 
+/**
+ * The tabs available in the settings modal.
+ */
 enum SettingsTab {
     Account,
     Appearance,
     Reader,
     Language,
     Notifications
+
 };
 
+/**
+ * The tabs available in the settings modal.
+ */
 const settingsTabs = [
     'Account', 'Appearance', 'Reader', 'Language', 'Notifications'
 ];
 
+/**
+ * Creates a settings modal.
+ */
 function createSettingsModal()
 {
-    const modal = document.createElement('div'); 
-    modal.id = 'settings-modal';
-    modal.classList.add('overlay');
+    const settingsModalOverlay = document.createElement('div'); 
+    settingsModalOverlay.id = 'settings-modal';
+    settingsModalOverlay.classList.add('overlay');
 
-    const container = document.createElement('div');
-    container.classList.add('settings-container');
+    const settingsContainer = document.createElement('div');
+    settingsContainer.classList.add('settings-container');
 
-    const header = document.createElement('div');
-    header.classList.add('settings-header');
+    const settingsHeader = document.createElement('div');
+    settingsHeader.classList.add('settings-header');
 
-    const h2 = document.createElement('h2');
-    h2.textContent = 'SETTINGS';
+    const settingsTitle = document.createElement('h2');
+    settingsTitle.textContent = 'SETTINGS';
 
-    const closeButton = document.createElement('button');
-    closeButton.classList.add('settings-close-button', 'filter-white');
+    const settingsCloseButton = document.createElement('button');
+    settingsCloseButton.classList.add('settings-close-button', 'filter-white');
 
-    const img = document.createElement('img');
-    img.src = '../resources/assets/icons/close.svg';
+    const closeButtonIcon = document.createElement('img');
+    closeButtonIcon.src = '../resources/assets/icons/close.svg';
 
-    closeButton.appendChild(img);
-    header.appendChild(h2);
-    header.appendChild(closeButton);
+    settingsCloseButton.appendChild(closeButtonIcon);
+    settingsHeader.appendChild(settingsTitle);
+    settingsHeader.appendChild(settingsCloseButton);
 
-    const body = document.createElement('div');
-    body.classList.add('settings-body');
+    const settingsBody = document.createElement('div');
+    settingsBody.classList.add('settings-body');
 
-    const tabs = document.createElement('div');
-    tabs.classList.add('settings-tabs');
+    const settingsTabList = document.createElement('div');
+    settingsTabList.classList.add('settings-tabs');
 
-    settingsTabs.forEach((name) =>
+    settingsTabs.forEach((tabName) =>
     {
-        const tab = document.createElement('button');
-        tab.classList.add('tab');
-        tab.textContent = name;
-        tabs.appendChild(tab);
+        const settingsTab = document.createElement('button');
+        settingsTab.classList.add('tab');
+        settingsTab.textContent = tabName;
+        settingsTabList.appendChild(settingsTab);
     });
 
-    const hr = document.createElement('hr');
+    const settingsDivider = document.createElement('hr');
 
-    const content = document.createElement('div');
-    content.classList.add('settings-content');
+    const settingsContent = document.createElement('div');
+    settingsContent.classList.add('settings-content');
 
-    body.appendChild(tabs);
-    body.appendChild(hr);
-    body.appendChild(content);
+    settingsBody.appendChild(settingsTabList);
+    settingsBody.appendChild(settingsDivider);
+    settingsBody.appendChild(settingsContent);
 
-    container.appendChild(header);
-    container.appendChild(body);
+    settingsContainer.appendChild(settingsHeader);
+    settingsContainer.appendChild(settingsBody);
 
-    modal.appendChild(container);
-    document.body.appendChild(modal);
+    settingsModalOverlay.appendChild(settingsContainer);
+    document.body.appendChild(settingsModalOverlay);
 }
 
 function settingsPutContent(content: SettingsTab)
 {
     const contentDiv = document.querySelector('.settings-content') as HTMLElement;
 
-    if (!contentDiv)
-    {
+    if (!contentDiv) {
         return;
     }
 
@@ -664,8 +705,7 @@ function settingsPutNotifications()
 
     const content = document.querySelector('.settings-content') as HTMLElement;
 
-    if (!content)
-    {
+    if (!content) {
         return;
     }
 
@@ -707,9 +747,9 @@ function settingsPutNotifications()
 
 function settingsPutLanguage()
 {
-    const content = document.querySelector('.settings-content') as HTMLElement;
+    const settingsContent = document.querySelector('.settings-content') as HTMLElement;
 
-    if (!content)
+    if (!settingsContent)
     {
         return;
     }
@@ -723,50 +763,50 @@ function settingsPutLanguage()
         'Choose the language you would like to read documents in.'
     ];
 
-    languageSettings.forEach((item, index) =>
+    languageSettings.forEach((settingName, index) =>
     {
-        const selectContainer = document.createElement('div');
-        selectContainer.classList.add('select-container');
+        const languageContainer = document.createElement('div');
+        languageContainer.classList.add('select-container');
 
-        const label = document.createElement('label');
-        label.textContent = item;
+        const settingLabel = document.createElement('label');
+        settingLabel.textContent = settingName;
 
-        const select = document.createElement('select');
+        const languageSelect = document.createElement('select');
 
-        const languages = [ 
+        const availableLanguages = [ 
             '🇺🇸 English', '🇮🇹 Italiano', '🇫🇷 Française', '🇩🇪 Deutsch', '🇪🇸 Español', '🇷🇺 Pусский' 
         ];
 
-        languages.forEach((language) =>
+        availableLanguages.forEach((languageName) =>
         {
-            const option = document.createElement('option');
-            option.value = language.toLowerCase();
-            option.textContent = language;
+            const languageOption = document.createElement('option');
+            languageOption.value = languageName.toLowerCase();
+            languageOption.textContent = languageName;
 
-            select.appendChild(option);
+            languageSelect.appendChild(languageOption);
         });
 
-        selectContainer.appendChild(label);
-        selectContainer.appendChild(select);
+        languageContainer.appendChild(settingLabel);
+        languageContainer.appendChild(languageSelect);
 
-        const description = document.createElement('div');
-        description.classList.add('settings-item-description');
+        const descriptionContainer = document.createElement('div');
+        descriptionContainer.classList.add('settings-item-description');
 
-        const descLabel = document.createElement('label');
-        descLabel.textContent = languageDescriptions[index];
+        const descriptionText = document.createElement('label');
+        descriptionText.textContent = languageDescriptions[index];
 
-        description.appendChild(descLabel);
+        descriptionContainer.appendChild(descriptionText);
 
-        content.appendChild(selectContainer);
-        content.appendChild(description);
+        settingsContent.appendChild(languageContainer);
+        settingsContent.appendChild(descriptionContainer);
     }); 
 }
 
 function settingsPutAppearance()
 {
-    const content = document.querySelector('.settings-content') as HTMLElement;
+    const settingsContent = document.querySelector('.settings-content') as HTMLElement;
 
-    if (!content)
+    if (!settingsContent)
     {
         return;
     }
@@ -779,45 +819,45 @@ function settingsPutAppearance()
         'Choose the theme you would like to use for the application.' 
     ];
 
-    const selectContainer = document.createElement('div');
-    selectContainer.classList.add('select-container');
+    const themeContainer = document.createElement('div');
+    themeContainer.classList.add('select-container');
 
-    const label = document.createElement('label');
-    label.textContent = appearanceSettings[0];
+    const themeLabel = document.createElement('label');
+    themeLabel.textContent = appearanceSettings[0];
     
-    const select = document.createElement('select');
+    const themeSelect = document.createElement('select');
 
-    const darkMode = document.createElement('option');
-    darkMode.value = 'dark';
-    darkMode.textContent = '🌚 Dark Theme';
+    const darkThemeOption = document.createElement('option');
+    darkThemeOption.value = 'dark';
+    darkThemeOption.textContent = '🌚 Dark Theme';
 
-    const lightMode = document.createElement('option');
-    lightMode.value = 'light';
-    lightMode.textContent = '🌝 Light Theme';
+    const lightThemeOption = document.createElement('option');
+    lightThemeOption.value = 'light';
+    lightThemeOption.textContent = '🌝 Light Theme';
 
-    select.appendChild(darkMode);
-    select.appendChild(lightMode);
+    themeSelect.appendChild(darkThemeOption);
+    themeSelect.appendChild(lightThemeOption);
 
-    selectContainer.appendChild(label);
-    selectContainer.appendChild(select);
+    themeContainer.appendChild(themeLabel);
+    themeContainer.appendChild(themeSelect);
 
-    const description = document.createElement('div');
-    description.classList.add('settings-item-description');
+    const descriptionContainer = document.createElement('div');
+    descriptionContainer.classList.add('settings-item-description');
 
-    const descLabel = document.createElement('label');
-    descLabel.textContent = appearanceDescriptions[0];
+    const descriptionText = document.createElement('label');
+    descriptionText.textContent = appearanceDescriptions[0];
 
-    description.appendChild(descLabel);
+    descriptionContainer.appendChild(descriptionText);
     
-    content.appendChild(selectContainer);
-    content.appendChild(description);
+    settingsContent.appendChild(themeContainer);
+    settingsContent.appendChild(descriptionContainer);
 }
 
 function settingsPutAccount()
 {
-    const content = document.querySelector('.settings-content') as HTMLElement;
+    const settingsContent = document.querySelector('.settings-content') as HTMLElement;
 
-    if (!content)
+    if (!settingsContent)
     {
         return;
     }
@@ -836,36 +876,36 @@ function settingsPutAccount()
     let isChangeEmail = false;
     let isChangePassword = false;
 
-    accountSettings.forEach((item, index) =>
+    accountSettings.forEach((settingName, index) =>
     {
-        isDeleteAccount = item === 'Delete Account';
-        isChangeEmail = item === 'Change Email';
-        isChangePassword = item === 'Change Password';
+        isDeleteAccount = settingName === 'Delete Account';
+        isChangeEmail = settingName === 'Change Email';
+        isChangePassword = settingName === 'Change Password';
 
-        const itemDiv = document.createElement('div');
-        itemDiv.classList.add('action-container');
+        const settingContainer = document.createElement('div');
+        settingContainer.classList.add('action-container');
 
         if (isDeleteAccount)
         {
-            itemDiv.id = 'delete-account-container';
+            settingContainer.id = 'delete-account-container';
         }
 
-        const label = document.createElement('label');
-        label.textContent = item;
+        const settingLabel = document.createElement('label');
+        settingLabel.textContent = settingName;
 
-        const clickableButton = document.createElement('button');
-        clickableButton.classList.add('settings-button');
-        clickableButton.textContent = item;
+        const actionButton = document.createElement('button');
+        actionButton.classList.add('settings-button');
+        actionButton.textContent = settingName;
 
         if (isDeleteAccount)
         {
-            label.id = 'delete-account-label';
-            clickableButton.id = 'delete-account-button';
+            settingLabel.id = 'delete-account-label';
+            actionButton.id = 'delete-account-button';
         }
 
         if (isChangeEmail)
         {
-            bindClickEvent(clickableButton, () =>
+            bindClickEvent(actionButton, () =>
             {
                 createDynamicModal('Please provide your NEW email address:',
                 [
@@ -920,7 +960,7 @@ function settingsPutAccount()
 
         if (isChangePassword)
         {
-            bindClickEvent(clickableButton, () =>
+            bindClickEvent(actionButton, () =>
             {
                 createDynamicModal('Please provide your NEW password:',
                 [
@@ -981,7 +1021,7 @@ function settingsPutAccount()
 
         if (isDeleteAccount)
         {
-            bindClickEvent(clickableButton, () =>
+            bindClickEvent(actionButton, () =>
             {
                 createDestructiveModal('Account deletion is a permanent action.<br>'
                                         + 'You will lose all your data and documents.<br><br>'
@@ -1026,19 +1066,19 @@ function settingsPutAccount()
             });
         }
 
-        itemDiv.appendChild(label);
-        itemDiv.appendChild(clickableButton);
+        settingContainer.appendChild(settingLabel);
+        settingContainer.appendChild(actionButton);
 
-        const description = document.createElement('div');
-        description.classList.add('settings-item-description');
+        const descriptionContainer = document.createElement('div');
+        descriptionContainer.classList.add('settings-item-description');
 
-        const descLabel = document.createElement('label');
-        descLabel.textContent = accountDescriptions[index];
+        const descriptionText = document.createElement('label');
+        descriptionText.textContent = accountDescriptions[index];
 
-        description.appendChild(descLabel);
+        descriptionContainer.appendChild(descriptionText);
 
-        content.appendChild(itemDiv);
-        content.appendChild(description);
+        settingsContent.appendChild(settingContainer);
+        settingsContent.appendChild(descriptionContainer);
     });
 }
 
@@ -1046,8 +1086,7 @@ function removeModal(modalId: string): boolean
 {
     const modal = document.getElementById(modalId);
 
-    if (modal) 
-    {
+    if (modal) {
         document.body.removeChild(modal);
     }
 
