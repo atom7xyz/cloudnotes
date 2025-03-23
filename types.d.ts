@@ -1,0 +1,1 @@
+type Sesso = 'M' | 'F';

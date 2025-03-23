@@ -1,0 +1,16 @@
+{
+    "appId": "com.cloudnotes.application",
+    "files": ["dist-electron", "dist-react"],
+    "icon": "./icon.png",
+    "extraResources": ["dist-electron/preload.cjs"],
+  "mac": {
+      "target": "dmg"
+    },
+    "win": {
+        "target": ["portable", "msi"]
+    },
+    "linux": {
+        "target": "AppImage",
+        "category": "Office"
+    }
+}
