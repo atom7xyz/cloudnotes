@@ -2,6 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Register from './components/pages/Register';
 import Login from './components/pages/Login';
 import Tos from './components/pages/Tos';
+import ForgotPassword from './components/pages/ForgotPassword';
+import ResetPassword from './components/pages/ResetPassword';
+import ResetPasswordSuccess from './components/pages/ResetPasswordSuccess';
+import VerifyOTP from './components/pages/VerifyOTP';
 
 const TabletPage = () => {
   const colorClasses = [
@@ -90,6 +94,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/tos" element={<Tos />} />
         <Route path="/tablet" element={<TabletPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password-success" element={<ResetPasswordSuccess />} />
         <Route path="/" element={<Navigate to="/register" replace />} />
       </Routes>
     </Router>

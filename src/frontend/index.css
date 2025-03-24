@@ -134,7 +134,7 @@
   }
   
   /* exclude the links in buttons */
-  a:not([data-slot="button"] *) {
+  /* a {
     color: var(--chart-2) !important;
-  }
+  } */
 }
