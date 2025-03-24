@@ -121,12 +121,12 @@
 
   @font-face {
     font-family: 'Bigshot One';
-    src: url('assets/BigshotOne-Regular.ttf') format('truetype');
+    src: url('assets/fonts/BigshotOne-Regular.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'Inter';
-    src: url('assets/Inter.ttf') format('truetype');
+    src: url('assets/fonts/Inter.ttf') format('truetype');
   }
 
   .font-bigshot-one {

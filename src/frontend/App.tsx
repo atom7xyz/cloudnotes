@@ -3,7 +3,6 @@ import Register from './components/pages/Register';
 import Login from './components/pages/Login';
 import Tos from './components/pages/Tos';
 
-// Save current content for Tablet page
 const TabletPage = () => {
   const colorClasses = [
     { name: 'background', class: 'bg-background' },
