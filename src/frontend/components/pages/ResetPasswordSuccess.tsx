@@ -42,7 +42,7 @@ export default function ResetPasswordSuccess() {
             <div className="pt-4 w-full flex flex-col items-center space-y-4">
               <Button 
                 asChild
-                className="rounded-lg bg-[#071833] hover:bg-[#071833]/90 text-white px-8 py-2 font-medium"
+                className="rounded-full bg-[#071833] hover:bg-[#071833]/90 text-white px-8 py-2 font-medium cursor-pointer"
               >
                 <Link to="/login">
                   Go to Login

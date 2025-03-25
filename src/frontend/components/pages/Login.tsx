@@ -8,7 +8,8 @@ import cloudsBackground from "../../assets/clouds3.jpg";
 export default function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Login logic would be implemented here
+    
+    // Fake the process
     console.log("Login submitted");
   };
 
@@ -75,7 +76,7 @@ export default function Login() {
             </div>
             <Button 
               type="submit" 
-              className="w-full rounded-lg mt-4"
+              className="w-full rounded-full mt-4 cursor-pointer"
             >
               Login
             </Button>

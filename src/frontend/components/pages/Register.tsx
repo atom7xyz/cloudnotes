@@ -14,7 +14,8 @@ export default function Register() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Registration logic would be implemented here
+    
+    // Fake the process
     console.log("Registration submitted");
   };
 
@@ -114,7 +115,7 @@ export default function Register() {
                 onCheckedChange={(checked) => {
                   setAcceptedTerms(checked as boolean);
                 }}
-                className="border-foreground/50"
+                className="border-foreground/50 cursor-pointer"
               />
               <label
                 htmlFor="terms"
@@ -132,7 +133,7 @@ export default function Register() {
             
             <Button 
               type="submit" 
-              className="w-full rounded-lg mt-4" 
+              className="w-full rounded-full mt-4 cursor-pointer" 
               disabled={!acceptedTerms}
               aria-disabled={!acceptedTerms}
             >

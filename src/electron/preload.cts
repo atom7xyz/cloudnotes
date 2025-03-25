@@ -1,7 +1,33 @@
+const { contextBridge, ipcRenderer } = require('electron');
 
-const electron = require('electron');
-
-electron.contextBridge.exposeInMainWorld('test', {
-    function1: () => console.log("Porcodio"),
-    value1: 42
+// Expose protected methods that allow the renderer process to use
+// the ipcRenderer without exposing the entire object
+contextBridge.exposeInMainWorld('electron', {
+  // Window controls
+  minimize: () => ipcRenderer.send('minimize-window'),
+  maximize: () => ipcRenderer.send('maximize-window'),
+  close: () => ipcRenderer.send('close-window'),
+  
+  // Navigation controls
+  goBack: () => ipcRenderer.send('go-back'),
+  goForward: () => ipcRenderer.send('go-forward'),
+  reload: () => ipcRenderer.send('reload-page'),
+  
+  // Window state listeners
+  onMaximizeChange: (callback: (isMaximized: boolean) => void) => {
+    ipcRenderer.on('maximize-change', (_event: any, isMaximized: boolean) => callback(isMaximized));
+    return () => {
+      ipcRenderer.removeAllListeners('maximize-change');
+    };
+  },
+  
+  // Navigation state listeners
+  onNavigationStateChange: (callback: (canGoBack: boolean, canGoForward: boolean) => void) => {
+    ipcRenderer.on('navigation-state-change', (_event: any, canGoBack: boolean, canGoForward: boolean) => 
+      callback(canGoBack, canGoForward));
+    return () => {
+      ipcRenderer.removeAllListeners('navigation-state-change');
+    };
+  }
 });
+

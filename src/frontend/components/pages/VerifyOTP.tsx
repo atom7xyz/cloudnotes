@@ -21,9 +21,7 @@ export default function VerifyOTP() {
       return;
     }
     
-    // In a real implementation, this would verify the OTP with the server
-    // For now, we'll just redirect to the reset password page
-    // We could pass the verified token in the URL in a real app
+    // Fake the process
     navigate("/reset-password");
   };
 
@@ -101,7 +99,7 @@ export default function VerifyOTP() {
             
             <Button 
               type="submit" 
-              className="w-full rounded-lg mt-4"
+              className="w-full rounded-full mt-4 cursor-pointer"
               disabled={otp.length !== 6}
             >
               Verify & Continue

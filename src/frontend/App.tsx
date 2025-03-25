@@ -6,6 +6,7 @@ import ForgotPassword from './components/pages/ForgotPassword';
 import ResetPassword from './components/pages/ResetPassword';
 import ResetPasswordSuccess from './components/pages/ResetPasswordSuccess';
 import VerifyOTP from './components/pages/VerifyOTP';
+import MainLayout from './components/layout/MainLayout';
 
 const TabletPage = () => {
   const colorClasses = [
@@ -88,17 +89,54 @@ const TabletPage = () => {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/ext/cloudnotes/">
       <Routes>
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/tos" element={<Tos />} />
-        <Route path="/tablet" element={<TabletPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/verify-otp" element={<VerifyOTP />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/reset-password-success" element={<ResetPasswordSuccess />} />
-        <Route path="/" element={<Navigate to="/register" replace />} />
+        {/* Auth routes without MainLayout */}
+        <Route path="/register" element={
+          <MainLayout>
+            <Register />
+          </MainLayout>
+        } />
+        <Route path="/login" element={
+          <MainLayout>
+            <Login />
+          </MainLayout>
+        } />
+        <Route path="/tos" element={
+          <MainLayout>
+            <Tos />
+          </MainLayout>
+        } />
+        <Route path="/forgot-password" element={
+          <MainLayout>
+            <ForgotPassword />
+          </MainLayout>
+        } />
+        <Route path="/verify-otp" element={
+          <MainLayout>
+            <VerifyOTP />
+          </MainLayout>
+        } />
+        <Route path="/reset-password" element={
+          <MainLayout>
+            <ResetPassword />
+          </MainLayout>
+        } />
+        <Route path="/reset-password-success" element={
+          <MainLayout>
+            <ResetPasswordSuccess />
+          </MainLayout>
+        } />
+        
+        {/* Non-auth routes with MainLayout */}
+        <Route path="/tablet" element={
+          <MainLayout>
+            <TabletPage />
+          </MainLayout>
+        } />
+        
+        {/* Default route */}
+        <Route path="*" element={<Navigate to="/register" replace />} />
       </Routes>
     </Router>
   );

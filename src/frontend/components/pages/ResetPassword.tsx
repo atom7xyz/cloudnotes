@@ -24,8 +24,7 @@ export default function ResetPassword() {
       return;
     }
     
-    // In a real implementation, this would send the new password to the server
-    // For now, we'll just redirect to the success page
+    // Fake the process
     navigate("/reset-password-success");
   };
 
@@ -55,7 +54,7 @@ export default function ResetPassword() {
         >
           <form onSubmit={handleSubmit} className="space-y-4">
             {!passwordsMatch && (
-              <Alert variant="destructive" className="mb-4">
+              <Alert variant="destructive" className="mb-4 border-red-500">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   Passwords do not match. Please try again.
@@ -89,7 +88,7 @@ export default function ResetPassword() {
             
             <Button 
               type="submit" 
-              className="w-full rounded-lg mt-4"
+              className="w-full rounded-full mt-4 cursor-pointer"
             >
               Reset Password
             </Button>

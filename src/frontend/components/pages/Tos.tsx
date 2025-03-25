@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 import cloudsBackground from "../../assets/clouds3.jpg";
-import { PrinterIcon } from "lucide-react";
+import { PrinterIcon, XIcon } from "lucide-react";
 
 // Section type definition
 interface TosSection {
@@ -18,23 +18,55 @@ function PrintModal({ isOpen, onClose, sections }: {
   onClose: () => void; 
   sections: TosSection[] 
 }) {
+
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = 'hidden';
+      
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
   
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white z-10 p-4 border-b flex justify-between items-center">
+      <div className="bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-background z-10 p-4 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold">Print Preview</h2>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-4">
             <Button 
-              variant="outline" 
-              onClick={onClose}
+              className="rounded-full !px-6 cursor-pointer flex items-center gap-2" 
+              onClick={() => window.print()}
             >
-              Close
-            </Button>
-            <Button>
               <PrinterIcon className="size-4" />
               Print
+            </Button>
+            <Button 
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full hover:bg-primary/10 hover:text-primary"
+              onClick={onClose}
+            >
+              <XIcon size={18} />
             </Button>
           </div>
         </div>
@@ -56,6 +88,17 @@ function PrintModal({ isOpen, onClose, sections }: {
               </div>
             ))}
           </div>
+          
+          {/* Bottom print button */}
+          <div className="flex justify-center pb-8">
+            <Button 
+              className="rounded-full !px-8 py-6 cursor-pointer flex items-center gap-2 text-base"
+              onClick={() => window.print()}
+            >
+              <PrinterIcon className="size-5" />
+              Print
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -63,28 +106,19 @@ function PrintModal({ isOpen, onClose, sections }: {
 }
 
 export default function Tos() {
-  // References for sections to enable smooth scrolling
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-  
-  // Active section tracking
   const [activeSection, setActiveSection] = useState<string>("introduction");
-  
-  // Print modal state
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   
-  // Last updated date
   const lastUpdated = "May 10, 2024";
   
-  // Function to scroll to a section
   const scrollToSection = (sectionId: string) => {
     const section = sectionRefs.current[sectionId];
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
       
-      // Update active section
       setActiveSection(sectionId);
       
-      // Highlight the section content temporarily
       section.classList.add("bg-primary/5");
       setTimeout(() => {
         section.classList.remove("bg-primary/5");
@@ -92,138 +126,225 @@ export default function Tos() {
     }
   };
   
-  // Terms of Service sections
   const sections: TosSection[] = [
     {
-      id: "introduction",
-      title: "Introduction",
+      id: "legal-terms",
+      title: "Agreement to Our Legal Terms",
       content: (
         <div className="space-y-4">
           <p>
-            Welcome to CloudNotes. By accessing our service, you agree to be bound by these Terms of Service. Please read them carefully.
+            We are CloudNotes LLC ("Company," "we," "us," "our"), a company registered in Italy at Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125.
           </p>
           <p>
-            CloudNotes provides a platform for users to store, manage, and share their notes and files in a secure cloud environment.
-            These terms govern your use of our website, applications, and services.
+            We operate the website <strong>cloudnotes.com</strong> (the "Site"), as well as any other related products and services that refer or link to these legal terms (the "Legal Terms") (collectively, the "Services").
+          </p>
+          <p>
+            This application aims to help students of all ages find their own study methods using various integrated technological tools.
+          </p>
+          <p>
+            You can contact us by phone at <a href="tel:+39000000000">+39 000 000 000</a>, email at <a href="mailto:contact@cloudnotes.com">contact@cloudnotes.com</a>, or by mail to Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125, Italy.
+          </p>
+          <p>
+            These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you"), and CloudNotes LLC, concerning your access to and use of the Services. You agree that by accessing the Services, you have read, understood, and agreed to be bound by all of these Legal Terms.{" "}
+            <strong>
+              IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.
+            </strong>
+          </p>
+          <p>
+            Supplemental terms and conditions or documents that may be posted on the Services from time to time are hereby explicitly incorporated herein by reference. We reserve the right, in our sole discretion, to make changes or modifications to these Legal Terms from time to time. We will alert you about any changes by updating the "Last updated" date, and you waive any right to receive specific notice of each such change. It is your responsibility to periodically review these Legal Terms to stay informed of updates. Your continued use of the Services after any such changes have been posted will signify your acceptance of the revised Legal Terms.
+          </p>
+          <p>
+            All users who are minors in the jurisdiction in which they reside (generally under the age of 18) must have the permission of, and be directly supervised by, a parent or guardian to use the Services. If you are a minor, you must have your parent or guardian read and agree to these Legal Terms before using the Services.
+          </p>
+          <p>We recommend that you print a copy of these Legal Terms for your records.</p>
+        </div>
+      ),
+    },
+    {
+      id: "our-services",
+      title: "Our Services",
+      content: (
+        <div className="space-y-4">
+          <p>
+            The information provided when using the Services is not intended for distribution to or use by any person or entity in any jurisdiction or country where such distribution or use would be contrary to law or regulation or which would subject us to registration requirements. Those who access the Services from other locations do so at their own initiative and are solely responsible for compliance with local laws.
+          </p>
+          <p>
+            The Services are not tailored to comply with specific industry regulations (such as HIPAA or FISMA); if your interactions must meet such standards, you may not use the Services. Additionally, you may not use the Services in a manner that would violate the Gramm-Leach-Bliley Act (GLBA).
           </p>
         </div>
       ),
     },
     {
-      id: "account",
-      title: "Account Terms",
+      id: "intellectual-property-rights",
+      title: "Intellectual Property Rights",
       content: (
         <div className="space-y-4">
+          <h3><strong>Our Intellectual Property</strong></h3>
           <p>
-            You are responsible for maintaining the security of your account and password. The company cannot and will not be liable for any loss or damage from your failure to comply with this security obligation.
+            We are the owner or licensee of all intellectual property rights in the Services, including all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics (collectively, the "Content"), as well the trademarks, service marks, and logos (the "Marks").
           </p>
           <p>
-            You are responsible for all content posted and activity that occurs under your account. You may not use the Service for any illegal or unauthorized purpose.
+            Our Content and Marks are protected by copyright, trademark, and other intellectual property laws and treaties worldwide.
           </p>
           <p>
-            You must be a human. Accounts registered by "bots" or other automated methods are not permitted.
+            The Content and Marks are provided "AS IS" for your personal, non-commercial use or internal business purposes only.
+          </p>
+          <h3><strong>Your Use of Our Services</strong></h3>
+          <p>
+            Subject to your compliance with these Legal Terms (including the "Prohibited Activities" section below), we grant you a non-exclusive, non-transferable, revocable license to:
+          </p>
+          <ol className="pl-4">
+            <li>- Access the Services;</li>
+            <li>- Download or print a copy of any portion of the Content that you have legally accessed.</li>
+          </ol>
+          <p>
+            This license is solely for your personal, non-commercial use. Any other use of the Services, Content, or Marks without our explicit written permission is prohibited.
+          </p>
+          <p>
+            If you wish to use the Services, Content, or Marks in any other way, please contact us at <a href="mailto:contact@cloudnotes.com">contact@cloudnotes.com</a>.
+          </p>
+          <p>
+            We reserve all rights not expressly granted herein. Any breach of these Intellectual Property Rights will constitute a material breach of these Legal Terms and result in immediate termination of your right to use the Services.
           </p>
         </div>
       ),
     },
     {
-      id: "payment",
-      title: "Payment Terms",
+      id: "user-representations",
+      title: "User Representations",
       content: (
         <div className="space-y-4">
+          <p>By using the Services, you represent and warrant that:</p>
+          <ol className="pl-4">
+            <li>- All registration information will be true, accurate, current, and complete;</li>
+            <li>- You will maintain and update this information as necessary;</li>
+            <li>- You have the legal capacity to enter into these Legal Terms;</li>
+            <li>- You are not a minor, or if you are, you have obtained parental permission;</li>
+            <li>- You will not use automated means (like bots or scripts) to access the Services;</li>
+            <li>- You will not use the Services for any illegal or unauthorized purpose; and</li>
+            <li>- Your use of the Services complies with all applicable laws and regulations.</li>
+          </ol>
           <p>
-            The Service is offered with both free and paid subscription plans. By selecting a paid subscription, you agree to pay the monthly or annual subscription fees indicated for that service.
-          </p>
-          <p>
-            Payments will be charged on the day you sign up for a paid subscription and will cover the use of that service for the period indicated. Subscription fees are not refundable.
-          </p>
-          <p>
-            If we are unsuccessful in charging your payment method and have not received payment within 14 days, we may terminate your access to the paid services.
+            If any information is untrue or incomplete, we reserve the right to suspend or terminate your account.
           </p>
         </div>
       ),
     },
     {
-      id: "cancellation",
-      title: "Cancellation and Termination",
+      id: "prohibited-activities",
+      title: "Prohibited Activities",
       content: (
         <div className="space-y-4">
           <p>
-            You are solely responsible for properly canceling your account. You can cancel your account at any time by going to account settings and clicking on the "Cancel Account" button.
+            You may only use the Services for their intended purpose. The Services may not be used for any commercial endeavors unless expressly approved by us.
           </p>
           <p>
-            All of your content will be immediately deleted from the Service upon cancellation. This information cannot be recovered once it has been deleted.
+            You may not:
+          </p>
+          <ol>
+            <li>- Systematically retrieve data to create a database or directory without our written permission;</li>
+            <li>- Trick, defraud, or mislead us or other users (for example, by trying to obtain sensitive account information);</li>
+            <li>- Circumvent, disable, or interfere with security features of the Services;</li>
+            <li>- Disparage, tarnish, or harm the Services or CloudNotes LLC;</li>
+            <li>- Use information from the Services to harass, abuse, or harm anyone;</li>
+            <li>- Misuse our support services or submit false abuse reports;</li>
+            <li>- Use the Services in violation of any applicable law or regulation;</li>
+            <li>- Engage in unauthorized framing or linking to the Services;</li>
+            <li>- Upload or transmit viruses, Trojan horses, or malicious materials that disrupt the Services;</li>
+            <li>- Use automated tools (such as bots or scrapers) to access the Services;</li>
+            <li>- Remove or alter any copyright or proprietary notices from the Content;</li>
+            <li>- Impersonate another user or use someone else's username;</li>
+            <li>- Upload materials that serve as hidden data collection mechanisms (e.g., web bugs or cookies);</li>
+            <li>- Interfere with, disrupt, or impose an undue burden on the Services;</li>
+            <li>- Harass, intimidate, or threaten any of our employees or agents;</li>
+            <li>- Attempt to bypass access restrictions on any portion of the Services;</li>
+            <li>- Copy or adapt our software (including Flash, PHP, HTML, or JavaScript) without permission;</li>
+            <li>- Reverse engineer, decompile, or disassemble any part of the Services, except as permitted by law;</li>
+            <li>- Deploy automated systems to access the Services without authorization;</li>
+            <li>- Use purchasing agents to make transactions on the Services;</li>
+            <li>- Collect users' personal data for unsolicited emails or create accounts under false pretenses;</li>
+            <li>- Use the Services to compete with us or for revenue-generating enterprises;</li>
+            <li>- Sell or transfer your profile data;</li>
+            <li>- Use the Services to advertise or offer goods and services.</li>
+          </ol>
+        </div>
+      ),
+    },
+    {
+      id: "term-and-termination",
+      title: "Term and Termination",
+      content: (
+        <div className="space-y-4">
+          <p>
+            These Legal Terms remain in full effect while you use the Services.{" "}
+            <strong>
+              Without limiting other provisions, we reserve the right to deny access (including blocking IP addresses) at our sole discretion and without notice for any breach of these terms or applicable law.
+            </strong>
           </p>
           <p>
-            CloudNotes, in its sole discretion, has the right to suspend or terminate your account and refuse any and all current or future use of the Service for any reason at any time.
+            If we terminate or suspend your account, you may not register a new account under your name, a fake or borrowed name, or on behalf of a third party. We also reserve the right to pursue legal action, including civil, criminal, and injunctive relief.
           </p>
         </div>
       ),
     },
     {
-      id: "modifications",
-      title: "Modifications to the Service",
+      id: "governing-law",
+      title: "Governing Law",
       content: (
         <div className="space-y-4">
           <p>
-            CloudNotes reserves the right at any time and from time to time to modify or discontinue, temporarily or permanently, the Service (or any part thereof) with or without notice.
-          </p>
-          <p>
-            CloudNotes shall not be liable to you or to any third party for any modification, suspension or discontinuance of the Service.
-          </p>
-        </div>
-      ),
-    },
-    {
-      id: "copyright",
-      title: "Copyright and Content Ownership",
-      content: (
-        <div className="space-y-4">
-          <p>
-            We claim no intellectual property rights over the material you provide to the Service. Your materials uploaded remain yours.
-          </p>
-          <p>
-            CloudNotes does not pre-screen content, but reserves the right (but not the obligation) in their sole discretion to refuse or remove any content that is available via the Service.
-          </p>
-          <p>
-            The look and feel of the Service is copyright©CloudNotes. All rights reserved. You may not duplicate, copy, or reuse any portion of the HTML/CSS, JavaScript, or visual design elements or concepts without express written permission from CloudNotes.
-          </p>
-        </div>
-      ),
-    },
-    {
-      id: "privacy",
-      title: "Privacy and Data Protection",
-      content: (
-        <div className="space-y-4">
-          <p>
-            CloudNotes takes the privacy of its users seriously. Please refer to our Privacy Policy for information on how we collect, use, and disclose information from our users.
-          </p>
-          <p>
-            We implement a variety of security measures to maintain the safety of your personal information. Your personal information is contained behind secured networks and is only accessible by a limited number of persons who have special access rights to such systems.
+            These Legal Terms are governed by the laws of Italy, excluding the United Nations Convention on Contracts for the International Sale of Goods. If you reside in the EU as a consumer, you may have additional rights under your national laws. Both CloudNotes LLC and you agree to submit to the non-exclusive jurisdiction of the courts in Sardegna.
           </p>
         </div>
       ),
     },
     {
       id: "disclaimer",
-      title: "Disclaimer of Warranties",
+      title: "Disclaimer",
       content: (
         <div className="space-y-4">
           <p>
-            Your use of the service is at your sole risk. The service is provided on an "as is" and "as available" basis without any warranty or condition, express, implied or statutory.
-          </p>
-          <p>
-            CloudNotes does not warrant that the service will be uninterrupted, timely, secure, or error-free. CloudNotes does not warrant that the results that may be obtained from the use of the service will be accurate or reliable.
-          </p>
-          <p>
-            You understand that CloudNotes uses third-party vendors and hosting partners to provide the necessary hardware, software, networking, storage, and related technology required to run the Service.
+            The Services are provided on an "as-is" and "as-available" basis. Your use is at your own risk. To the fullest extent allowed by law, we disclaim all warranties, whether express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not guarantee the accuracy or completeness of the Services' content and are not liable for any errors, damages, or interruptions arising from its use. Please exercise caution with any third-party products or services referenced herein.
           </p>
         </div>
       ),
     },
+    {
+      id: "limitations-of-liability",
+      title: "Limitations of Liability",
+      content: (
+        <div className="space-y-4">
+          <p>
+            In no event will we, our directors, employees, or agents be liable for any direct, indirect, consequential, exemplary, incidental, special, or punitive damages (including lost profits, revenue, or data) arising from your use of the Services, even if we have been advised of the possibility of such damages. Our total liability to you shall be limited to the amount you have paid us, if any, subject to applicable law.
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: "contact-us",
+      title: "Contact Us",
+      content: (
+        <div className="space-y-4">
+          <p>
+            To resolve any complaint or to obtain further information regarding the Services, please contact us at:
+          </p>
+          <div className="contact-info">
+            <p>CloudNotes LLC</p>
+            <p>Pescheria del Porto di Cagliari</p>
+            <p>Cagliari, Cagliari 09125</p>
+            <p>Italy</p>
+            <p>
+              Phone: <a href="tel:+39000000000">+39 000 000 000</a>
+            </p>
+            <p>
+              Email: <a href="mailto:contact@cloudnotes.com">contact@cloudnotes.com</a>
+            </p>
+          </div>
+        </div>
+      ),
+    },
   ];
-
+  
   return (
     <div className="relative min-h-screen bg-background text-foreground">
       {/* Background image */}
@@ -240,15 +361,6 @@ export default function Tos() {
       {/* Gray overlay */}
       <div className="absolute inset-0 z-0 bg-black/15" aria-hidden="true" />
       
-      {/* Header */}
-      <header className="relative z-10 bg-white/80 backdrop-blur-sm shadow-sm py-4">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6">
-          <h1 className="text-3xl font-extrabold italic font-bigshot-one text-foreground">
-            CloudNotes
-          </h1>
-        </div>
-      </header>
-      
       {/* Main content */}
       <main className="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-6 py-8 pb-16">
         <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-md p-6 sm:p-8">
@@ -260,7 +372,7 @@ export default function Tos() {
             <Button 
               variant="outline" 
               size="icon" 
-              className="h-10 w-10 rounded-full"
+              className="h-10 w-10 rounded-full cursor-pointer"
               onClick={() => setIsPrintModalOpen(true)}
               aria-label="Print Terms of Service"
             >
@@ -282,7 +394,7 @@ export default function Tos() {
                         <button
                           className={cn(
                             "tos-nav-link w-full text-left py-2 px-3 rounded-md text-sm transition-colors flex items-start",
-                            "hover:bg-primary/10 hover:text-primary",
+                            "hover:bg-primary/10 hover:text-primary cursor-pointer",
                             activeSection === section.id 
                               ? "text-primary font-medium bg-primary/5" 
                               : "text-black"

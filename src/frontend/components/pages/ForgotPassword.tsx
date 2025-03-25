@@ -10,8 +10,8 @@ export default function ForgotPassword() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real implementation, this would send an OTP to the user's email
-    // For now, we'll just redirect to the OTP verification page
+
+    // Fake the process
     navigate("/verify-otp");
   };
 
@@ -65,7 +65,7 @@ export default function ForgotPassword() {
             </div>
             <Button 
               type="submit" 
-              className="w-full rounded-lg mt-4"
+              className="w-full rounded-full mt-4 cursor-pointer"
             >
               Send Verification Code
             </Button>
