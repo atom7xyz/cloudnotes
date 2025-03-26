@@ -56,7 +56,7 @@ const LoadingModalDemo = () => {
           </Button>
         </Card>
 
-        <Card className="p-6 border-border md:col-span-2 bg-primary/5">
+        <Card className="p-6 border-border md:col-span-2 bg-blue-50/30 dark:bg-blue-950/10">
           <h2 className="text-lg font-semibold mb-4">Fullscreen Loading</h2>
           <p className="text-sm text-muted-foreground mb-6">
             True fullscreen experience that takes over the entire screen. Features a larger spinner, 

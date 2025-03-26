@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "../ui/button";
 import { Modal } from "../ui/modal";
 import { AlertTriangleIcon } from "lucide-react";
+import { Card } from "../ui/card";
 
 interface UnsavedChangesModalProps {
   isOpen: boolean;
@@ -14,7 +15,7 @@ export default function UnsavedChangesModal({
   isOpen, 
   onClose, 
   targetPath,
-  message = "You have unsaved changes that will be lost if you leave this page."
+  message = "You have unsaved changes in the form. Are you sure you want to leave this page? Your changes will be lost."
 }: UnsavedChangesModalProps) {
   const navigate = useNavigate();
 
@@ -53,21 +54,26 @@ export default function UnsavedChangesModal({
         </div>
       }
     >
-      {/* Redesigned Content Section */}
-      <div className="px-6 py-8">
-        <div className="flex justify-center mb-5">
-          <div className="w-[72px] h-[72px] bg-red-50 rounded-full flex items-center justify-center">
-            <AlertTriangleIcon className="h-8 w-8 text-red-500" />
+      <div className="p-6">
+        <Card className="p-6 space-y-6 border-none shadow-none bg-muted/50">
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
+                <AlertTriangleIcon size={28} className="text-destructive" />
+              </div>
+            </div>
+            
+            <p className="text-base text-center">
+              {message}
+            </p>
+            
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p className="text-sm text-amber-700 text-center">
+                Click "Leave Page" to continue without saving, or "Cancel" to stay on this page.
+              </p>
+            </div>
           </div>
-        </div>
-        
-        <p className="text-center text-base mb-3">
-          {message}
-        </p>
-        
-        <p className="text-sm text-muted-foreground text-center">
-          Click "Leave Page" to continue without saving, or "Cancel" to stay on this page.
-        </p>
+        </Card>
       </div>
     </Modal>
   );

@@ -29,38 +29,36 @@ export default function SessionExpiredModal({ isOpen, onClose }: SessionExpiredM
         </div>
       }
       maxWidth="max-w-md"
+      footer={
+        <div className="flex justify-end items-center">
+          <Button 
+            onClick={handleLogout}
+            className="rounded-full flex items-center gap-2 !px-8 cursor-pointer"
+            variant="destructive"
+          >
+            Log In Again
+          </Button>
+        </div>
+      }
     >
       <div className="p-6">
         <Card className="p-6 space-y-6 border-none shadow-none bg-muted/50">
           <div className="space-y-4">
-            <p className="text-base">
-              Your session has expired due to inactivity. Please log in again to continue using CloudNotes.
-            </p>
             <div className="flex justify-center">
-              <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center">
-                <LogOutIcon size={36} className="text-destructive" />
+              <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
+                <LogOutIcon size={28} className="text-destructive" />
               </div>
             </div>
-            <p className="text-sm text-muted-foreground text-center">
-              For security reasons, we automatically log you out after a period of inactivity.
-            </p>
-          </div>
-          
-          <div className="flex flex-col space-y-2 pt-2">
-            <Button
-              onClick={handleLogout}
-              className="rounded-full cursor-pointer"
-            >
-              Log In Again
-            </Button>
             
-            <Button 
-              variant="outline" 
-              onClick={onClose} 
-              className="rounded-full cursor-pointer"
-            >
-              Close
-            </Button>
+            <p className="text-base text-center">
+              Your session has expired due to inactivity. Please log in again to continue using CloudNotes.
+            </p>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-700 text-center">
+                For security reasons, we automatically log you out after a period of inactivity.
+              </p>
+            </div>
           </div>
         </Card>
       </div>

@@ -7,10 +7,7 @@ import {
   MoreHorizontalIcon,
   SettingsIcon,
   UserIcon,
-  AlertOctagonIcon,
-  LayoutGridIcon,
-  AlertTriangleIcon,
-  LoaderIcon
+  LayoutIcon,
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -72,29 +69,13 @@ const LeftSidebar: React.FC = () => {
           <NavItem icon={<MoreHorizontalIcon size={32} />} label="MORE" to="/more" />
         </div>
         
-        {/* Test Modals Section */}
+        {/* Demo Section */}
         <div className="flex flex-col items-center mb-4">
           <div className="w-full border-t border-sidebar-border/30 my-2"></div>
           <NavItem 
-            icon={<AlertOctagonIcon size={28} />} 
-            label="SESSION" 
-            to=""
-            onClick={() => setIsSessionExpiredOpen(true)} 
-          />
-          <NavItem 
-            icon={<LayoutGridIcon size={28} />} 
-            label="DEMO" 
-            to="/modal-demo" 
-          />
-          <NavItem 
-            icon={<AlertTriangleIcon size={28} />} 
-            label="UNSAVED" 
-            to="/unsaved-changes-demo" 
-          />
-          <NavItem 
-            icon={<LoaderIcon size={28} />} 
-            label="LOADING" 
-            to="/loading-modal-demo" 
+            icon={<LayoutIcon size={28} />} 
+            label="DEMOS" 
+            to="/demos" 
           />
         </div>
         
