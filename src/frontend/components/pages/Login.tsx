@@ -1,20 +1,50 @@
+import { useState, ChangeEvent, FormEvent } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthCard } from "../auth/AuthCard";
+import UnsavedChangesModal from "../modals/UnsavedChangesModal";
 import cloudsBackground from "../../assets/clouds3.jpg";
 
 export default function Login() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [isDirty, setIsDirty] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [targetPath, setTargetPath] = useState('');
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setIsDirty(true);
+  };
+
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     
+    // Reset dirty state on submission
+    setIsDirty(false);
+    
     // Fake the process
-    console.log("Login submitted");
+    console.log("Login submitted", formData);
+  };
+
+  // Handle navigation away with Link component
+  const handleNavigateClick = (path: string) => {
+    if (isDirty) {
+      setTargetPath(path);
+      setIsModalOpen(true);
+      return false;
+    }
+    return true;
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
+    <div className="relative h-[calc(100vh-3rem)] flex items-center justify-center p-4">
       {/* Background image */}
       <div 
         className="absolute inset-0 z-0"
@@ -37,9 +67,21 @@ export default function Login() {
           subtitle="Login to Your Account"
           footer={
             <p className="text-center text-sm text-muted-foreground w-full">
-              <Link to="/register" className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1">
-                Don't have an account? Register
-              </Link>
+              {isDirty ? (
+                <span 
+                  className="font-medium text-primary hover:underline focus:outline-none cursor-pointer"
+                  onClick={() => handleNavigateClick('/register')}
+                >
+                  Don't have an account? Register
+                </span>
+              ) : (
+                <Link 
+                  to="/register" 
+                  className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                >
+                  Don't have an account? Register
+                </Link>
+              )}
             </p>
           }
           className="rounded-3xl border-none shadow-2xl"
@@ -49,7 +91,10 @@ export default function Login() {
               <Label htmlFor="email">Email</Label>
               <Input 
                 id="email" 
+                name="email"
                 type="email" 
+                value={formData.email}
+                onChange={handleInputChange}
                 placeholder="example@example.com" 
                 className="rounded-lg border-foreground/50"
                 aria-required="true"
@@ -59,16 +104,28 @@ export default function Login() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link 
-                  to="/forgot-password" 
-                  className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
-                >
-                  Forgot password?
-                </Link>
+                {isDirty ? (
+                  <span 
+                    className="text-sm text-primary hover:underline focus:outline-none cursor-pointer"
+                    onClick={() => handleNavigateClick('/forgot-password')}
+                  >
+                    Forgot password?
+                  </span>
+                ) : (
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                  >
+                    Forgot password?
+                  </Link>
+                )}
               </div>
               <Input 
                 id="password" 
-                type="password" 
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleInputChange}
                 className="rounded-lg border-foreground/50"
                 aria-required="true"
                 required
@@ -83,6 +140,14 @@ export default function Login() {
           </form>
         </AuthCard>
       </div>
+
+      {/* Unsaved Changes Modal */}
+      <UnsavedChangesModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        targetPath={targetPath}
+        message="You have unsaved changes in the login form. If you leave, your information will be lost."
+      />
     </div>
   );
 } 

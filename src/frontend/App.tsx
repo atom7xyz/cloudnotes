@@ -7,6 +7,9 @@ import ResetPassword from './components/pages/ResetPassword';
 import ResetPasswordSuccess from './components/pages/ResetPasswordSuccess';
 import VerifyOTP from './components/pages/VerifyOTP';
 import MainLayout from './components/layout/MainLayout';
+import ModalDemo from './components/modals/ModalDemo';
+import UnsavedChangesDemo from './components/pages/UnsavedChangesDemo';
+import LoadingModalDemo from './components/pages/LoadingModalDemo';
 
 const TabletPage = () => {
   const colorClasses = [
@@ -132,6 +135,27 @@ function App() {
         <Route path="/tablet" element={
           <MainLayout>
             <TabletPage />
+          </MainLayout>
+        } />
+        
+        {/* Modal Demo route */}
+        <Route path="/modal-demo" element={
+          <MainLayout>
+            <ModalDemo />
+          </MainLayout>
+        } />
+        
+        {/* Unsaved Changes Demo route */}
+        <Route path="/unsaved-changes-demo" element={
+          <MainLayout>
+            <UnsavedChangesDemo />
+          </MainLayout>
+        } />
+        
+        {/* Loading Modal Demo route */}
+        <Route path="/loading-modal-demo" element={
+          <MainLayout>
+            <LoadingModalDemo />
           </MainLayout>
         } />
         

@@ -6,7 +6,7 @@ import { CheckCircle2 } from "lucide-react";
 
 export default function ResetPasswordSuccess() {
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
+    <div className="relative h-[calc(100vh-3rem)] flex items-center justify-center p-4">
       {/* Background image */}
       <div 
         className="absolute inset-0 z-0"
@@ -30,8 +30,9 @@ export default function ResetPasswordSuccess() {
           className="rounded-3xl border-none shadow-2xl"
         >
           <div className="flex flex-col items-center justify-center space-y-5 text-center p-4">
-            <div className="rounded-full bg-primary/10 p-3 text-primary">
+            <div className="rounded-full bg-green-500/10 p-3 text-green-700 relative">
               <CheckCircle2 className="h-10 w-10" />
+              <span className="absolute inset-0 rounded-full bg-green-400/40 animate-ping"></span>
             </div>
             <div className="space-y-3">
               <h3 className="text-xl font-semibold">Success!</h3>

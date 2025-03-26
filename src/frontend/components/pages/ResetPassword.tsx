@@ -1,35 +1,69 @@
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { AuthCard } from "../auth/AuthCard";
+import UnsavedChangesModal from "../modals/UnsavedChangesModal";
 import cloudsBackground from "../../assets/clouds3.jpg";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "../ui/alert";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    password: '',
+    confirmPassword: ''
+  });
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [isDirty, setIsDirty] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [targetPath, setTargetPath] = useState('');
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setIsDirty(true);
+  };
   
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    const formData = new FormData(e.currentTarget);
-    const password = formData.get("password") as string;
-    const confirmPassword = formData.get("confirmPassword") as string;
+    const { password, confirmPassword } = formData;
     
     if (password !== confirmPassword) {
       setPasswordsMatch(false);
       return;
     }
     
+    // Reset dirty state on submission
+    setIsDirty(false);
+    
     // Fake the process
     navigate("/reset-password-success");
   };
 
+  // Handle navigation away with Link component
+  const handleNavigateClick = (path: string) => {
+    if (isDirty) {
+      setTargetPath(path);
+      setIsModalOpen(true);
+      return false;
+    }
+    return true;
+  };
+
+  // Handle browser back button or navigation attempts
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (isDirty) {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+  };
+
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
+    <div className="relative h-[calc(100vh-3rem)] flex items-center justify-center p-4">
       {/* Background image */}
       <div 
         className="absolute inset-0 z-0"
@@ -67,7 +101,9 @@ export default function ResetPassword() {
               <Input 
                 id="password"
                 name="password"
-                type="password" 
+                type="password"
+                value={formData.password}
+                onChange={handleInputChange}
                 className="rounded-lg border-foreground/50"
                 aria-required="true"
                 required
@@ -79,7 +115,9 @@ export default function ResetPassword() {
               <Input 
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password" 
+                type="password"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
                 className="rounded-lg border-foreground/50"
                 aria-required="true"
                 required
@@ -95,6 +133,14 @@ export default function ResetPassword() {
           </form>
         </AuthCard>
       </div>
+
+      {/* Unsaved Changes Modal */}
+      <UnsavedChangesModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        targetPath={targetPath}
+        message="You haven't completed your password reset. If you leave now, you'll need to start over."
+      />
     </div>
   );
 } 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   HomeIcon, 
   BookmarkIcon, 
@@ -7,12 +7,15 @@ import {
   MoreHorizontalIcon,
   SettingsIcon,
   UserIcon,
-  XIcon
+  AlertOctagonIcon,
+  LayoutGridIcon,
+  AlertTriangleIcon,
+  LoaderIcon
 } from 'lucide-react';
 import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 import SettingsModal from '../modals/SettingsModal';
+import SessionExpiredModal from '../modals/SessionExpiredModal';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -49,7 +52,9 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick }) =
 };
 
 const LeftSidebar: React.FC = () => {
+  const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSessionExpiredOpen, setIsSessionExpiredOpen] = useState(false);
   
   return (
     <>
@@ -65,6 +70,32 @@ const LeftSidebar: React.FC = () => {
           <NavItem icon={<BookmarkIcon size={32} />} label="SAVED" to="/saved" />
           <NavItem icon={<ActivityIcon size={32} />} label="ACTIVITY" to="/activity" />
           <NavItem icon={<MoreHorizontalIcon size={32} />} label="MORE" to="/more" />
+        </div>
+        
+        {/* Test Modals Section */}
+        <div className="flex flex-col items-center mb-4">
+          <div className="w-full border-t border-sidebar-border/30 my-2"></div>
+          <NavItem 
+            icon={<AlertOctagonIcon size={28} />} 
+            label="SESSION" 
+            to=""
+            onClick={() => setIsSessionExpiredOpen(true)} 
+          />
+          <NavItem 
+            icon={<LayoutGridIcon size={28} />} 
+            label="DEMO" 
+            to="/modal-demo" 
+          />
+          <NavItem 
+            icon={<AlertTriangleIcon size={28} />} 
+            label="UNSAVED" 
+            to="/unsaved-changes-demo" 
+          />
+          <NavItem 
+            icon={<LoaderIcon size={28} />} 
+            label="LOADING" 
+            to="/loading-modal-demo" 
+          />
         </div>
         
         {/* Bottom Items - Settings and Profile */}
@@ -83,10 +114,15 @@ const LeftSidebar: React.FC = () => {
         </div>
       </aside>
       
-      {/* Settings Modal */}
+      {/* Modals */}
       <SettingsModal 
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+      />
+      
+      <SessionExpiredModal
+        isOpen={isSessionExpiredOpen}
+        onClose={() => setIsSessionExpiredOpen(false)}
       />
     </>
   );

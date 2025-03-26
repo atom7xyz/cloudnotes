@@ -1,108 +1,16 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 import cloudsBackground from "../../assets/clouds3.jpg";
-import { PrinterIcon, XIcon } from "lucide-react";
+import { PrinterIcon } from "lucide-react";
+import PrintModal from "../modals/PrintModal";
 
 // Section type definition
 interface TosSection {
   id: string;
   title: string;
   content: React.ReactNode;
-}
-
-// Modal component for print preview
-function PrintModal({ isOpen, onClose, sections }: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  sections: TosSection[] 
-}) {
-
-  useEffect(() => {
-    if (isOpen) {
-      const originalOverflow = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = 'hidden';
-      
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
-  }, [isOpen]);
-
-  // Handle escape key to close modal
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-  
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-background z-10 p-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-bold">Print Preview</h2>
-          <div className="flex items-center gap-4">
-            <Button 
-              className="rounded-full !px-6 cursor-pointer flex items-center gap-2" 
-              onClick={() => window.print()}
-            >
-              <PrinterIcon className="size-4" />
-              Print
-            </Button>
-            <Button 
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-full hover:bg-primary/10 hover:text-primary"
-              onClick={onClose}
-            >
-              <XIcon size={18} />
-            </Button>
-          </div>
-        </div>
-        
-        <div className="p-8 print:p-0">
-          <div className="print:max-w-none mx-auto print:mx-0 mb-6">
-            <h1 className="text-3xl font-bold mb-1">CloudNotes Terms of Service</h1>
-            <p className="text-sm text-black mb-6">Last updated: May 10, 2024</p>
-            
-            {sections.map((section, index) => (
-              <div key={section.id} className="mb-8">
-                <h2 className="text-xl font-semibold mb-3">
-                  {index + 1}. {section.title}
-                </h2>
-                <div className="text-black">
-                  {section.content}
-                </div>
-                {index < sections.length - 1 && <Separator className="mt-6" />}
-              </div>
-            ))}
-          </div>
-          
-          {/* Bottom print button */}
-          <div className="flex justify-center pb-8">
-            <Button 
-              className="rounded-full !px-8 py-6 cursor-pointer flex items-center gap-2 text-base"
-              onClick={() => window.print()}
-            >
-              <PrinterIcon className="size-5" />
-              Print
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 export default function Tos() {
@@ -370,13 +278,13 @@ export default function Tos() {
               <p className="text-sm text-black mt-1">Last updated: {lastUpdated}</p>
             </div>
             <Button 
-              variant="outline" 
-              size="icon" 
-              className="h-10 w-10 rounded-full cursor-pointer"
+              variant="default" 
+              className="rounded-full flex items-center gap-2 !px-8 cursor-pointer"
               onClick={() => setIsPrintModalOpen(true)}
               aria-label="Print Terms of Service"
             >
-              <PrinterIcon className="size-5" />
+              <PrinterIcon className="size-4" />
+              Print
             </Button>
           </div>
           
@@ -456,6 +364,8 @@ export default function Tos() {
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
         sections={sections}
+        title="CloudNotes Terms of Service"
+        lastUpdated={lastUpdated}
       />
     </div>
   );
