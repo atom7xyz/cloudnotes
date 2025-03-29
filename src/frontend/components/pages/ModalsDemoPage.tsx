@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Badge } from "../ui/badge";
 import UnsavedChangesModal from "../modals/UnsavedChangesModal";
 import SessionExpiredModal from "../modals/SessionExpiredModal";
+import SearchModal from "../modals/SearchModal";
 import LoadingModal from "../modals/LoadingModal";
 import { 
   PlusIcon, 
@@ -19,7 +20,8 @@ import {
   AlertTriangleIcon,
   AlertOctagonIcon,
   LoaderIcon,
-  PaletteIcon
+  PaletteIcon,
+  SearchIcon
 } from "lucide-react";
 
 export default function ModalsDemoPage() {
@@ -36,6 +38,9 @@ export default function ModalsDemoPage() {
   
   // Unsaved Changes Modal state
   const [isUnsavedChangesOpen, setIsUnsavedChangesOpen] = useState(false);
+
+  // Search Modal state
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   
   // Loading Modal states
   const [isDefaultLoading, setIsDefaultLoading] = useState(false);
@@ -374,7 +379,7 @@ export default function ModalsDemoPage() {
         
         {/* FUNCTIONAL MODALS TAB */}
         <TabsContent value="functional" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Session Expired Modal Demo */}
             <Card className="p-6 space-y-4">
               <div className="flex items-center gap-2">
@@ -436,6 +441,39 @@ export default function ModalsDemoPage() {
                 onClose={() => setIsUnsavedChangesOpen(false)}
                 targetPath="#"
                 message="You have unsaved changes in your document. Are you sure you want to leave this page? Your changes will be lost."
+              />
+            </Card>
+
+            {/* Search Modal Demo */}
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <Badge variant="default">Search</Badge>
+                <h2 className="text-lg font-medium">Search Modal</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Advanced search interface for finding documents and users with real-time results.
+              </p>
+              <div className="bg-muted/30 p-4 rounded-md text-sm text-muted-foreground">
+                <p>Features:</p>
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li>Real-time search with typing</li>
+                  <li>Document and user results</li>
+                  <li>Loading state with skeletons</li>
+                  <li>Recent searches history</li>
+                </ul>
+              </div>
+              <Button 
+                onClick={() => setIsSearchModalOpen(true)}
+                className="w-full rounded-full"
+                variant="default"
+              >
+                <SearchIcon size={16} className="mr-2" />
+                Open Search Modal
+              </Button>
+              
+              <SearchModal
+                isOpen={isSearchModalOpen}
+                onClose={() => setIsSearchModalOpen(false)}
               />
             </Card>
           </div>

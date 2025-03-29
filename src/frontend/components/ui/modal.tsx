@@ -36,6 +36,8 @@ export interface ModalProps {
   footer?: React.ReactNode;
   /** Whether the close button should appear in the header (default: true) */
   showCloseButton?: boolean;
+  /** Whether the modal body should have scrolling enabled (default: true) */
+  scrollBody?: boolean;
 }
 
 export function Modal({
@@ -55,6 +57,7 @@ export function Modal({
   backdropClassName = "bg-black/50 backdrop-blur-sm",
   footer,
   showCloseButton = true,
+  scrollBody = true,
 }: ModalProps) {
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -114,7 +117,7 @@ export function Modal({
         )}
       >
         {showHeader && (
-          <div className="shrink-0 sticky top-0 bg-background z-10 p-4 border-b flex justify-between items-center">
+          <div className="shrink-0 sticky top-0 bg-background z-10 p-4 border-b flex justify-between items-center select-none">
             {title && (
               <h2 className="text-xl font-bold">{title}</h2>
             )}
@@ -137,7 +140,8 @@ export function Modal({
         
         <div 
           className={cn(
-            "overflow-y-auto grow", 
+            scrollBody ? "overflow-y-auto" : "overflow-y-hidden",
+            "grow", 
             contentMaxHeight,
             contentClassName
           )}
