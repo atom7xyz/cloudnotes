@@ -168,8 +168,38 @@ class MockDataGenerator {
           return (
             user.firstName.toLowerCase().includes(lowerCaseQuery) ||
             user.lastName.toLowerCase().includes(lowerCaseQuery) ||
-            user.username.toLowerCase().includes(lowerCaseQuery) ||
-            user.bio.toLowerCase().includes(lowerCaseQuery)
+            user.username.toLowerCase().includes(lowerCaseQuery)
+          );
+        });
+        
+        resolve(results);
+      }, 500); // 500ms delay to simulate loading
+    });
+  }
+  
+  public searchBookmarks(query: string): Promise<MockDocument[]> {
+    // Simulate network delay and bookmarked documents
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Get a random user for bookmark simulation
+        const randomUser = this.users[Math.floor(Math.random() * this.users.length)];
+        
+        // Simulate this user's bookmarked documents (random selection of documents)
+        let bookmarkedDocuments = this.documents
+          .filter(() => Math.random() > 0.5) // Randomly select ~50% of documents as bookmarked
+          .slice(0, 8); // Limit to max 8 bookmarks for demo
+        
+        if (!query || query.trim() === '') {
+          resolve(bookmarkedDocuments);
+          return;
+        }
+        
+        const lowerCaseQuery = query.toLowerCase();
+        const results = bookmarkedDocuments.filter((doc) => {
+          return (
+            doc.name.toLowerCase().includes(lowerCaseQuery) ||
+            doc.uploaderUsername.toLowerCase().includes(lowerCaseQuery) ||
+            doc.tags.some(tag => tag.toLowerCase().includes(lowerCaseQuery))
           );
         });
         
