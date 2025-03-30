@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function TabletPage() {
   const colorClasses = [
     { name: 'background', class: 'bg-background' },

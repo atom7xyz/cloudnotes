@@ -12,6 +12,8 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import SearchModal from '../modals/SearchModal';
+import { cn } from '@/lib/utils';
+import { goBack, goForward, reloadPage, getElectronAPI } from '@/lib/navigation';
 
 // Define the Electron interface for TypeScript
 declare global {
@@ -23,6 +25,8 @@ declare global {
       goBack: () => void;
       goForward: () => void;
       reload: () => void;
+      navigate: (url: string) => void;
+      requestNavigationStateUpdate: () => void;
       onMaximizeChange: (callback: (isMaximized: boolean) => void) => () => void;
       onNavigationStateChange: (callback: (canGoBack: boolean, canGoForward: boolean) => void) => () => void;
     };
@@ -33,6 +37,37 @@ declare global {
 interface ElectronCSSProperties extends CSSProperties {
   WebkitAppRegion?: 'drag' | 'no-drag';
 }
+
+// Navigation Button component for reuse
+interface NavButtonProps {
+  icon: React.ReactNode;
+  title: string;
+  onClick: () => void;
+  disabled?: boolean;
+}
+
+const NavButton: React.FC<NavButtonProps> = ({
+  icon,
+  title,
+  onClick,
+  disabled = false
+}) => (
+  <Button 
+    variant="ghost"
+    size="icon"
+    className={cn(
+      "p-1 h-8 w-8 rounded-full transition-all duration-200",
+      disabled 
+        ? "opacity-50 cursor-default" 
+        : "hover:bg-primary/10 hover:text-primary"
+    )}
+    title={title}
+    disabled={disabled}
+    onClick={onClick}
+  >
+    {icon}
+  </Button>
+);
 
 const TopNavbar: React.FC = () => {
   // State for navigation and window controls
@@ -45,9 +80,21 @@ const TopNavbar: React.FC = () => {
   const dragRegion: ElectronCSSProperties = { WebkitAppRegion: 'drag' };
   const noDragRegion: ElectronCSSProperties = { WebkitAppRegion: 'no-drag' };
 
+  // Request a navigation state update when the path changes
   useEffect(() => {
+    const api = getElectronAPI();
+    if (api?.requestNavigationStateUpdate) {
+      api.requestNavigationStateUpdate();
+    }
+  }, [window.location.pathname]);
+
+  // Set up event listeners
+  useEffect(() => {
+    const api = getElectronAPI();
+    if (!api) return;
+
     // Set up listeners for navigation state changes
-    const unsubscribeNavigation = window.electron?.onNavigationStateChange?.(
+    const unsubscribeNavigation = api.onNavigationStateChange?.(
       (canGoBack, canGoForward) => {
         setCanGoBack(canGoBack);
         setCanGoForward(canGoForward);
@@ -55,11 +102,14 @@ const TopNavbar: React.FC = () => {
     );
 
     // Set up listeners for window maximize state changes
-    const unsubscribeMaximize = window.electron?.onMaximizeChange?.(
+    const unsubscribeMaximize = api.onMaximizeChange?.(
       (isMaximized) => {
         setIsMaximized(isMaximized);
       }
     );
+
+    // Request initial navigation state
+    api.requestNavigationStateUpdate();
 
     // Clean up listeners on component unmount
     return () => {
@@ -68,51 +118,62 @@ const TopNavbar: React.FC = () => {
     };
   }, []);
 
-  // Window control functions
-  const handleMinimize = () => {
-    if (window.electron) {
-      window.electron.minimize();
-    }
-  };
-
-  const handleMaximize = () => {
-    if (window.electron) {
-      window.electron.maximize();
-    }
-  };
-
-  const handleClose = () => {
-    if (window.electron) {
-      window.electron.close();
-    }
-  };
-
-  // Navigation functions
+  // Navigation handlers with optimized state updates
   const handleGoBack = () => {
-    if (window.electron && canGoBack) {
-      window.electron.goBack();
-    }
+    if (!canGoBack) return;
+    
+    // Immediately update UI for responsiveness
+    setCanGoBack(false);
+    
+    // Perform the navigation
+    goBack();
+    
+    // Request update after navigation
+    requestAnimationFrame(() => {
+      const api = getElectronAPI();
+      api?.requestNavigationStateUpdate();
+    });
   };
 
   const handleGoForward = () => {
-    if (window.electron && canGoForward) {
-      window.electron.goForward();
-    }
+    if (!canGoForward) return;
+    
+    // Immediately update UI for responsiveness
+    setCanGoForward(false);
+    
+    // Perform the navigation
+    goForward();
+    
+    // Request update after navigation
+    requestAnimationFrame(() => {
+      const api = getElectronAPI();
+      api?.requestNavigationStateUpdate();
+    });
   };
 
   const handleReload = () => {
-    if (window.electron) {
-      window.electron.reload();
-    }
+    reloadPage();
   };
 
-  const openSearchModal = () => {
-    setIsSearchModalOpen(true);
+  // Window control handlers
+  const handleMinimize = () => {
+    const api = getElectronAPI();
+    api?.minimize();
   };
 
-  const closeSearchModal = () => {
-    setIsSearchModalOpen(false);
+  const handleMaximize = () => {
+    const api = getElectronAPI();
+    api?.maximize();
   };
+
+  const handleClose = () => {
+    const api = getElectronAPI();
+    api?.close();
+  };
+
+  // Search modal handlers
+  const openSearchModal = () => setIsSearchModalOpen(true);
+  const closeSearchModal = () => setIsSearchModalOpen(false);
 
   return (
     <>
@@ -123,55 +184,40 @@ const TopNavbar: React.FC = () => {
         {/* Middle section - Navigation and Search */}
         <div className="flex items-center space-x-2 flex-1 justify-center">
           <div className="flex items-center space-x-1 mr-2" style={noDragRegion}>
-            <Button 
-              variant="ghost"
-              size="icon"
-              className={`p-1 h-8 w-8 rounded-full transition-all duration-200 ${
-                canGoBack 
-                  ? "hover:bg-primary/10 hover:text-primary" 
-                  : "opacity-50 cursor-default"
-              }`}
+            <NavButton 
+              icon={<ArrowLeftIcon size={16} />}
               title="Go back"
-              disabled={!canGoBack}
               onClick={handleGoBack}
-            >
-              <ArrowLeftIcon size={16} />
-            </Button>
+              disabled={!canGoBack}
+            />
             
-            <Button 
-              variant="ghost"
-              size="icon"
-              className={`p-1 h-8 w-8 rounded-full transition-all duration-200 ${
-                canGoForward 
-                  ? "hover:bg-primary/10 hover:text-primary" 
-                  : "opacity-50 cursor-default"
-              }`}
+            <NavButton 
+              icon={<ArrowRightIcon size={16} />}
               title="Go forward"
-              disabled={!canGoForward}
               onClick={handleGoForward}
-            >
-              <ArrowRightIcon size={16} />
-            </Button>
+              disabled={!canGoForward}
+            />
             
-            <Button 
-              variant="ghost"
-              size="icon"
-              className="p-1 h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary transition-all duration-200"
+            <NavButton 
+              icon={<RotateCwIcon size={16} />}
               title="Reload"
               onClick={handleReload}
-            >
-              <RotateCwIcon size={16} />
-            </Button>
+            />
           </div>
           
-          <div className="relative w-2/5 max-w-md" style={noDragRegion}>
+          <div className="relative w-1/4 max-w-md" style={noDragRegion}>
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/70">
               <SearchIcon size={16} />
             </div>
             <Input
               type="text"
-              placeholder="Search documents..."
-              className="h-8 w-full bg-sidebar-accent/30 border border-sidebar-border/50 rounded-full py-1.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring placeholder-sidebar-foreground/60 transition-all duration-200 cursor-pointer"
+              placeholder="Search"
+              className={cn(
+                "h-8 w-full rounded-full py-1.5 pl-10 pr-4 text-sm transition-all duration-200 cursor-pointer",
+                "border border-muted-foreground/40",
+                "focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring",
+                "placeholder-sidebar-foreground/60"
+              )}
               onClick={openSearchModal}
               readOnly
             />

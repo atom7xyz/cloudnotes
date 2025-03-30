@@ -6,6 +6,23 @@ let mainWindow: BrowserWindow | null = null;
 // Flag to track reload state
 let isReloading = false;
 
+// Send navigation state changes to renderer
+const updateNavigationState = () => {
+    if (mainWindow) {
+        const canGoBack = mainWindow.webContents.navigationHistory.canGoBack();
+        const canGoForward = mainWindow.webContents.navigationHistory.canGoForward();
+        mainWindow.webContents.send('navigation-state-change', canGoBack, canGoForward);
+    }
+};
+
+// Send maximize state changes to renderer
+const updateMaximizeState = () => {
+    if (mainWindow) {
+        const isMaximized = mainWindow.isMaximized();
+        mainWindow.webContents.send('maximize-change', isMaximized);
+    }
+};
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         frame: false,          // Remove the window frame (toolbar and title bar)
@@ -29,26 +46,22 @@ function createWindow() {
         mainWindow.loadFile(path.join(app.getAppPath(), '/dist-react/index.html'));
     }
 
-    // Send navigation state changes to renderer
-    const updateNavigationState = () => {
-        if (mainWindow) {
-            const canGoBack = mainWindow.webContents.navigationHistory.canGoBack();
-            const canGoForward = mainWindow.webContents.navigationHistory.canGoForward();
-            mainWindow.webContents.send('navigation-state-change', canGoBack, canGoForward);
-        }
-    };
-
-    // Send maximize state changes to renderer
-    const updateMaximizeState = () => {
-        if (mainWindow) {
-            const isMaximized = mainWindow.isMaximized();
-            mainWindow.webContents.send('maximize-change', isMaximized);
-        }
-    };
-
     // Listen for navigation events to update state
-    mainWindow.webContents.on('did-navigate', updateNavigationState);
-    mainWindow.webContents.on('did-navigate-in-page', updateNavigationState);
+    mainWindow.webContents.on('did-navigate', () => {
+        console.log('did-navigate event triggered');
+        updateNavigationState();
+    });
+    
+    mainWindow.webContents.on('did-navigate-in-page', () => {
+        console.log('did-navigate-in-page event triggered');
+        updateNavigationState();
+    });
+
+    // Add this event listener for SPA navigation
+    mainWindow.webContents.on('page-title-updated', () => {
+        console.log('page-title-updated event triggered');
+        updateNavigationState();
+    });
 
     // Special handler for reloads to preserve history state
     mainWindow.webContents.on('will-navigate', (event, url) => {
@@ -63,13 +76,14 @@ function createWindow() {
 
     // Update state on page load
     mainWindow.webContents.on('did-finish-load', () => {
-        // If not reloading, update navigation state normally
-        if (!isReloading) {
-            updateNavigationState();
-        } else {
-            // After reload completes, reset the flag
+        // Always update navigation state after the page finishes loading
+        updateNavigationState();
+        
+        // Reset reloading flag if needed
+        if (isReloading) {
             isReloading = false;
         }
+        
         updateMaximizeState();
     });
 
@@ -120,8 +134,32 @@ ipcMain.on('reload-page', () => {
     if (mainWindow) {
         // Set the flag before reloading
         isReloading = true;
+        
+        // Reload the page
         mainWindow.webContents.reload();
+        
+        // Make sure to update navigation state after reload
+        mainWindow.webContents.once('did-finish-load', () => {
+            updateNavigationState();
+        });
     }
+});
+
+ipcMain.on('navigate', (_, url) => {
+    if (mainWindow) {
+        // Load the URL
+        mainWindow.webContents.loadURL(url);
+        
+        // Make sure to update navigation state after navigation
+        mainWindow.webContents.once('did-finish-load', () => {
+            updateNavigationState();
+        });
+    }
+});
+
+// Add an IPC handler to request navigation state update
+ipcMain.on('request-navigation-state-update', () => {
+    updateNavigationState();
 });
 
 // Quit application when all windows are closed on macOS

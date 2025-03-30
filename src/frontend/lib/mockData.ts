@@ -181,9 +181,6 @@ class MockDataGenerator {
     // Simulate network delay and bookmarked documents
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Get a random user for bookmark simulation
-        const randomUser = this.users[Math.floor(Math.random() * this.users.length)];
-        
         // Simulate this user's bookmarked documents (random selection of documents)
         let bookmarkedDocuments = this.documents
           .filter(() => Math.random() > 0.5) // Randomly select ~50% of documents as bookmarked

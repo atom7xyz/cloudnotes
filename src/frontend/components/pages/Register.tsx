@@ -1,53 +1,74 @@
-import { useState, ChangeEvent, FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
-import { cn } from "@/lib/utils";
-import { AuthCard } from "../auth/AuthCard";
-import UnsavedChangesModal from "../modals/UnsavedChangesModal";
-
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { AuthCard } from "@/components/auth/AuthCard";
 import cloudsBackground from "../../assets/clouds3.jpg";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RegisterFormValues, registerSchema } from "@/lib/validations/auth";
+import { FormContainer } from "@/components/form-fields/FormContainer";
+import { FormInput } from "@/components/form-fields/FormInput";
+import { FormCheckbox } from "@/components/form-fields/FormCheckbox";
+import { AppLink } from "@/components/ui/app-link";
+
+// Create a key for storing form data in localStorage
+const FORM_STORAGE_KEY = "cloudnotes-register-form";
 
 export default function Register() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+  // Initialize form with react-hook-form and zod validation
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      acceptTerms: false
+    },
   });
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [targetPath, setTargetPath] = useState('');
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setIsDirty(true);
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    
-    // Reset dirty state on submission
-    setIsDirty(false);
+  
+  // Load saved form values from localStorage
+  useEffect(() => {
+    const savedForm = localStorage.getItem(FORM_STORAGE_KEY);
+    if (savedForm) {
+      try {
+        const parsedForm = JSON.parse(savedForm);
+        form.reset(parsedForm);
+      } catch (error) {
+        // If parsing fails, clear the localStorage
+        localStorage.removeItem(FORM_STORAGE_KEY);
+      }
+    }
+  }, [form]);
+  
+  // Save form values to localStorage whenever they change
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(values));
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+  
+  // Handle form submission
+  const onSubmit = (values: RegisterFormValues) => {
+    // Clear form data from localStorage on successful submission
+    localStorage.removeItem(FORM_STORAGE_KEY);
     
     // Fake the process
-    console.log("Registration submitted", formData);
+    console.log("Registration submitted", values);
   };
-
-  // Handle navigation away with Link component
-  const handleNavigateClick = (path: string) => {
-    if (isDirty || acceptedTerms) {
-      setTargetPath(path);
-      setIsModalOpen(true);
-      return false;
-    }
-    return true;
+  
+  // Check if form is empty
+  const isFormEmpty = () => {
+    const values = form.getValues();
+    return (
+      !values.firstName && 
+      !values.lastName && 
+      !values.email && 
+      !values.password && 
+      !values.confirmPassword && 
+      !values.acceptTerms
+    );
   };
 
   return (
@@ -74,147 +95,90 @@ export default function Register() {
           subtitle="Register an Account"
           footer={
             <p className="text-center text-sm text-muted-foreground w-full">
-              {isDirty ? (
-                <span 
-                  className="font-medium text-primary hover:underline focus:outline-none cursor-pointer"
-                  onClick={() => handleNavigateClick('/login')}
-                >
-                  Already have an account? Login
-                </span>
-              ) : (
-                <Link to="/login" className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1">
-                  Already have an account? Login
-                </Link>
-              )}
+              <AppLink href="/login">
+                Already have an account? Login
+              </AppLink>
             </p>
           }
           className="rounded-3xl border-none shadow-2xl"
         >
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <FormContainer 
+            form={form} 
+            onSubmit={onSubmit}
+            bypassPaths={['/tos']}
+            isFormEmpty={isFormEmpty}
+            unsavedMessage="You have unsaved changes in the registration form. If you leave, your information will be lost."
+            className="space-y-4"
+          >
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input 
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  placeholder="John" 
-                  required 
-                  className="rounded-lg border-foreground/50" 
-                  aria-required="true"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input 
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  placeholder="Doe" 
-                  required 
-                  className="rounded-lg border-foreground/50" 
-                  aria-required="true"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                type="email" 
-                placeholder="john.doe@example.com" 
-                required 
-                className="rounded-lg border-foreground/50" 
-                aria-required="true"
+              <FormInput
+                form={form}
+                name="firstName"
+                label="First Name"
+                placeholder="John"
+                required
+              />
+              <FormInput
+                form={form}
+                name="lastName"
+                label="Last Name"
+                placeholder="Doe"
+                required
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                type="password" 
-                required 
-                className="rounded-lg border-foreground/50" 
-                aria-required="true"
-              />
-            </div>
+            <FormInput
+              form={form}
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="john.doe@example.com"
+              autoComplete="email"
+              required
+            />
             
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Repeat Password</Label>
-              <Input 
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                type="password" 
-                required 
-                className="rounded-lg border-foreground/50" 
-                aria-required="true"
-              />
-            </div>
+            <FormInput
+              form={form}
+              name="password"
+              label="Password"
+              type="password"
+              autoComplete="new-password"
+              required
+            />
             
-            <div className="flex items-center space-x-2 pt-2">
-              <Checkbox 
-                id="terms" 
-                checked={acceptedTerms}
-                onCheckedChange={(checked) => {
-                  setAcceptedTerms(checked as boolean);
-                  setIsDirty(true);
-                }}
-                className="border-foreground/50 cursor-pointer"
-              />
-              <label
-                htmlFor="terms"
-                className={cn(
-                  "text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer",
-                  !acceptedTerms && "text-muted-foreground"
-                )}
-              >
-                I've read and accept the{" "}
-                {isDirty ? (
-                  <span
-                    className="font-medium text-primary hover:underline focus:outline-none cursor-pointer"
-                    onClick={() => handleNavigateClick('/tos')}
-                  >
+            <FormInput
+              form={form}
+              name="confirmPassword"
+              label="Repeat Password"
+              type="password"
+              autoComplete="new-password"
+              required
+            />
+            
+            <FormCheckbox
+              form={form}
+              name="acceptTerms"
+              label={
+                <>
+                  I've read and accept the{" "}
+                  <AppLink href="/tos">
                     Terms of Service
-                  </span>
-                ) : (
-                  <Link to="/tos" className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1">
-                    Terms of Service
-                  </Link>
-                )}
-              </label>
-            </div>
+                  </AppLink>
+                </>
+              }
+            />
             
             <Button 
               type="submit" 
               className="w-full rounded-full mt-4 cursor-pointer" 
-              disabled={!acceptedTerms}
-              aria-disabled={!acceptedTerms}
+              disabled={!form.watch("acceptTerms")}
+              aria-disabled={!form.watch("acceptTerms")}
             >
               Register
             </Button>
-          </form>
+          </FormContainer>
         </AuthCard>
       </div>
-
-      {/* Unsaved Changes Modal */}
-      <UnsavedChangesModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        targetPath={targetPath}
-        message="You have unsaved changes in the registration form. If you leave, your information will be lost."
-      />
     </div>
   );
 } 

@@ -1,46 +1,62 @@
-import { useState, ChangeEvent, FormEvent } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Link, useNavigate } from "react-router-dom";
-import { AuthCard } from "../auth/AuthCard";
-import UnsavedChangesModal from "../modals/UnsavedChangesModal";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { AuthCard } from "@/components/auth/AuthCard";
 import cloudsBackground from "../../assets/clouds3.jpg";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginFormValues, loginSchema } from "@/lib/validations/auth";
+import { FormContainer } from "@/components/form-fields/FormContainer";
+import { FormInput } from "@/components/form-fields/FormInput";
+import { AppLink } from "@/components/ui/app-link";
+
+// Create a key for storing form data in localStorage
+const LOGIN_FORM_STORAGE_KEY = "cloudnotes-login-form";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+  // Initialize form with react-hook-form and zod validation
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
   });
-  const [isDirty, setIsDirty] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [targetPath, setTargetPath] = useState('');
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setIsDirty(true);
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    
-    // Reset dirty state on submission
-    setIsDirty(false);
+  
+  // Load saved form values from localStorage
+  useEffect(() => {
+    const savedForm = localStorage.getItem(LOGIN_FORM_STORAGE_KEY);
+    if (savedForm) {
+      try {
+        const parsedForm = JSON.parse(savedForm);
+        form.reset(parsedForm);
+      } catch (error) {
+        // If parsing fails, clear the localStorage
+        localStorage.removeItem(LOGIN_FORM_STORAGE_KEY);
+      }
+    }
+  }, [form]);
+  
+  // Save form values to localStorage whenever they change
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem(LOGIN_FORM_STORAGE_KEY, JSON.stringify(values));
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+  
+  // Handle form submission
+  const onSubmit = (values: LoginFormValues) => {
+    // Clear form data from localStorage on successful submission
+    localStorage.removeItem(LOGIN_FORM_STORAGE_KEY);
     
     // Fake the process
-    console.log("Login submitted", formData);
+    console.log("Login submitted", values);
   };
-
-  // Handle navigation away with Link component
-  const handleNavigateClick = (path: string) => {
-    if (isDirty) {
-      setTargetPath(path);
-      setIsModalOpen(true);
-      return false;
-    }
-    return true;
+  
+  // Check if form is empty
+  const isFormEmpty = () => {
+    const values = form.getValues();
+    return !values.email && !values.password;
   };
 
   return (
@@ -67,87 +83,61 @@ export default function Login() {
           subtitle="Login to Your Account"
           footer={
             <p className="text-center text-sm text-muted-foreground w-full">
-              {isDirty ? (
-                <span 
-                  className="font-medium text-primary hover:underline focus:outline-none cursor-pointer"
-                  onClick={() => handleNavigateClick('/register')}
-                >
-                  Don't have an account? Register
-                </span>
-              ) : (
-                <Link 
-                  to="/register" 
-                  className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
-                >
-                  Don't have an account? Register
-                </Link>
-              )}
+              <AppLink href="/register">
+                Don't have an account? Register
+              </AppLink>
             </p>
           }
           className="rounded-3xl border-none shadow-2xl"
         >
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <FormContainer 
+            form={form} 
+            onSubmit={onSubmit}
+            bypassPaths={['/forgot-password']}
+            isFormEmpty={isFormEmpty}
+            unsavedMessage="You have unsaved changes in the login form. If you leave, your information will be lost."
+            className="space-y-4"
+          >
+            <FormInput
+              form={form}
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="example@example.com"
+              autoComplete="email"
+              required
+            />
+            
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                name="email"
-                type="email" 
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="example@example.com" 
-                className="rounded-lg border-foreground/50"
-                aria-required="true"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                {isDirty ? (
-                  <span 
-                    className="text-sm text-primary hover:underline focus:outline-none cursor-pointer"
-                    onClick={() => handleNavigateClick('/forgot-password')}
-                  >
-                    Forgot password?
-                  </span>
-                ) : (
-                  <Link 
-                    to="/forgot-password" 
-                    className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
-                  >
-                    Forgot password?
-                  </Link>
-                )}
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 select-none" htmlFor="password">
+                  Password
+                </label>
+                <AppLink 
+                  href="/forgot-password" 
+                  className="text-sm"
+                >
+                  Forgot password?
+                </AppLink>
               </div>
-              <Input 
-                id="password" 
+              <FormInput
+                form={form}
                 name="password"
                 type="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="rounded-lg border-foreground/50"
-                aria-required="true"
+                autoComplete="current-password"
                 required
               />
             </div>
+            
             <Button 
               type="submit" 
               className="w-full rounded-full mt-4 cursor-pointer"
             >
               Login
             </Button>
-          </form>
+          </FormContainer>
         </AuthCard>
       </div>
-
-      {/* Unsaved Changes Modal */}
-      <UnsavedChangesModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        targetPath={targetPath}
-        message="You have unsaved changes in the login form. If you leave, your information will be lost."
-      />
     </div>
   );
 } 

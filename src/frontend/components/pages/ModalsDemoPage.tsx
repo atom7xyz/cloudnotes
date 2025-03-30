@@ -17,7 +17,6 @@ import {
   ExpandIcon,
   MaximizeIcon,
   MinimizeIcon,
-  AlertTriangleIcon,
   AlertOctagonIcon,
   LoaderIcon,
   PaletteIcon,

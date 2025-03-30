@@ -675,7 +675,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
 
   // Document skeleton for loading state
   const DocumentSkeleton = () => (
-    <Card className="p-4 mb-3 mt-3">
+    <Card className="p-4 mb-3 mt-6">
       <div className="flex items-start gap-3">
         <Skeleton className="h-16 w-16 rounded-md bg-muted-foreground/30 animate-[pulse_0.8s_ease-in-out_infinite]" />
         <div className="flex-grow space-y-2">
@@ -754,7 +754,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
 
   // User skeleton for loading state
   const UserSkeleton = () => (
-    <Card className="p-4 mb-3 mt-3">
+    <Card className="p-4 mb-3 mt-6">
       <div className="flex items-start gap-3">
         <Skeleton className="h-12 w-12 rounded-full bg-muted-foreground/30 animate-[pulse_0.8s_ease-in-out_infinite]" />
         <div className="flex-grow space-y-2">
@@ -858,7 +858,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <div 
             ref={searchContainerRef}
-            className="pl-10 pr-4 py-2 rounded-full border border-muted-foreground/20 bg-background flex flex-wrap items-center gap-2"
+            className="pl-10 pr-4 py-2 rounded-full border border-muted-foreground/40 bg-background flex flex-wrap items-center gap-2"
           >
             {selectedTags.length > 0 && (
               <div className={`flex flex-wrap gap-2 ${shouldWrapInput ? 'w-full mb-1.5' : ''}`}>
@@ -974,7 +974,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                     key={index}
                     variant="outline"
                     size="sm"
-                    className={`rounded-full text-sm ${hasTags ? 'bg-muted/10' : ''}`}
+                    className={`cursor-pointer rounded-full text-sm ${hasTags ? 'bg-muted/10' : ''}`}
                     onClick={() => handleRecentSearchClick(term)}
                   >
                     {hasTags ? (
@@ -1077,6 +1077,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                 <DocumentSkeleton />
                 <DocumentSkeleton />
                 <DocumentSkeleton />
+                <DocumentSkeleton />
               </>
             ) : documentResults.length === 0 && (searchQuery || selectedTags.length > 0) ? (
               // No results state - only show when a search was attempted
@@ -1119,6 +1120,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
             {isLoading ? (
               // Loading state - fixed 3 skeletons
               <>
+                <UserSkeleton />
+                <UserSkeleton />
                 <UserSkeleton />
                 <UserSkeleton />
                 <UserSkeleton />

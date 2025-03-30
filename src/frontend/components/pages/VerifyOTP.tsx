@@ -1,32 +1,68 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
-import { AuthCard } from "../auth/AuthCard";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { useAppNavigate } from "@/lib/navigation";
 import cloudsBackground from "../../assets/clouds3.jpg";
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "../ui/alert";
-import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "../ui/input-otp";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { OtpFormValues, otpSchema } from "@/lib/validations/auth";
+import { FormContainer } from "@/components/form-fields/FormContainer";
+import { FormOTP } from "@/components/form-fields/FormOTP";
+import { AppLink } from "@/components/ui/app-link";
+
+// Create a key for storing form data in localStorage
+const FORM_STORAGE_KEY = "cloudnotes-otp-form";
 
 export default function VerifyOTP() {
-  const navigate = useNavigate();
-  const [otp, setOtp] = useState("");
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (otp.length !== 6) {
-      setError("Please enter all 6 digits of the verification code.");
-      return;
+  const appNavigate = useAppNavigate();
+  
+  // Initialize form with react-hook-form and zod validation
+  const form = useForm<OtpFormValues>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: {
+      otp: '',
+    },
+  });
+  
+  // Load saved form values from localStorage
+  useEffect(() => {
+    const savedForm = localStorage.getItem(FORM_STORAGE_KEY);
+    if (savedForm) {
+      try {
+        const parsedForm = JSON.parse(savedForm);
+        form.reset(parsedForm);
+      } catch (error) {
+        // If parsing fails, clear the localStorage
+        localStorage.removeItem(FORM_STORAGE_KEY);
+      }
     }
+  }, [form]);
+  
+  // Save form values to localStorage whenever they change
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(value));
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+  
+  // Handle form submission
+  const onSubmit = (values: OtpFormValues) => {
+    // Clear form data from localStorage on successful submission
+    localStorage.removeItem(FORM_STORAGE_KEY);
     
-    // Fake the process
-    navigate("/reset-password");
+    // Navigate to reset password page
+    appNavigate("/reset-password");
+  };
+  
+  // Check if form is empty
+  const isFormEmpty = () => {
+    const values = form.getValues();
+    return !values.otp;
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
+    <div className="relative h-[calc(100vh-3rem)] flex items-center justify-center p-4">
       {/* Background image */}
       <div 
         className="absolute inset-0 z-0"
@@ -42,16 +78,19 @@ export default function VerifyOTP() {
       <div className="absolute inset-0 z-10 bg-black/15" aria-hidden="true" />
       
       {/* Content */}
-      <div className="relative z-20 w-full max-w-lg">
+      <div className="relative z-20 w-full max-w-md">
         <AuthCard 
-          title="CloudNotes" 
+          title="CloudNotes"
           description="Your virtual oasis of knowledge"
-          subtitle="Verify Your Identity"
+          subtitle="Verify OTP"
           footer={
             <p className="text-center text-sm text-muted-foreground w-full">
-              <Link to="/forgot-password" className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1">
+              <AppLink 
+                href="/forgot-password"
+                className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+              >
                 Didn't receive a code? Request again
-              </Link>
+              </AppLink>
             </p>
           }
           className="rounded-3xl border-none shadow-2xl"
@@ -62,49 +101,28 @@ export default function VerifyOTP() {
               Enter the code below to continue.
             </p>
           </div>
-
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {error}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex flex-col items-center space-y-4">
-              <InputOTP 
-                maxLength={6}
-                value={otp}
-                onChange={(value) => {
-                  setOtp(value);
-                  setError(null);
-                }}
-                containerClassName="justify-center"
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} className="rounded-md w-12 h-12 border-foreground/50" />
-                  <InputOTPSlot index={1} className="rounded-md w-12 h-12 border-foreground/50" />
-                  <InputOTPSlot index={2} className="rounded-md w-12 h-12 border-foreground/50" />
-                </InputOTPGroup>
-                <InputOTPSeparator className="px-2" />
-                <InputOTPGroup>
-                  <InputOTPSlot index={3} className="rounded-md w-12 h-12 border-foreground/50" />
-                  <InputOTPSlot index={4} className="rounded-md w-12 h-12 border-foreground/50" />
-                  <InputOTPSlot index={5} className="rounded-md w-12 h-12 border-foreground/50" />
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
+          
+          <FormContainer 
+            form={form} 
+            onSubmit={onSubmit}
+            isFormEmpty={isFormEmpty}
+            unsavedMessage="You have unsaved changes in the OTP verification form. If you leave, your information will be lost."
+            className="space-y-4"
+          >
+            <FormOTP
+              form={form}
+              name="otp"
+              label="Verification Code"
+              maxLength={6}
+            />
             
             <Button 
               type="submit" 
               className="w-full rounded-full mt-4 cursor-pointer"
-              disabled={otp.length !== 6}
             >
-              Verify & Continue
+              Verify Code
             </Button>
-          </form>
+          </FormContainer>
         </AuthCard>
       </div>
     </div>

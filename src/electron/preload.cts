@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('electron', {
   goBack: () => ipcRenderer.send('go-back'),
   goForward: () => ipcRenderer.send('go-forward'),
   reload: () => ipcRenderer.send('reload-page'),
+  navigate: (url: string) => ipcRenderer.send('navigate', url),
+  requestNavigationStateUpdate: () => ipcRenderer.send('request-navigation-state-update'),
   
   // Window state listeners
   onMaximizeChange: (callback: (isMaximized: boolean) => void) => {

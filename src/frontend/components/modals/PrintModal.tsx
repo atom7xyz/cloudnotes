@@ -1,6 +1,6 @@
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import { PrinterIcon, XIcon } from "lucide-react";
+import { PrinterIcon } from "lucide-react";
 import { Modal } from "../ui/modal";
 
 // Section type definition

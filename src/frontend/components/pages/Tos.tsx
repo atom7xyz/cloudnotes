@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import cloudsBackground from "../../assets/clouds3.jpg";
 import { PrinterIcon } from "lucide-react";
 import PrintModal from "../modals/PrintModal";
+import { AppLink } from "@/components/ui/app-link";
 
 // Section type definition
 interface TosSection {
@@ -27,10 +28,16 @@ export default function Tos() {
       
       setActiveSection(sectionId);
       
-      section.classList.add("bg-primary/5");
+      // Apply stronger highlight that fades after 2 seconds
+      section.classList.add("bg-primary/[0.06]");
       setTimeout(() => {
-        section.classList.remove("bg-primary/5");
-      }, 1500);
+        section.classList.remove("bg-primary/[0.06]");
+      }, 2000);
+      
+      // Reset active section after 2 seconds
+      setTimeout(() => {
+        setActiveSection("");
+      }, 2000);
     }
   };
   
@@ -49,8 +56,8 @@ export default function Tos() {
           <p>
             This application aims to help students of all ages find their own study methods using various integrated technological tools.
           </p>
-          <p>
-            You can contact us by phone at <a href="tel:+39000000000">+39 000 000 000</a>, email at <a href="mailto:contact@cloudnotes.com">contact@cloudnotes.com</a>, or by mail to Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125, Italy.
+          <p className="select-none">
+            You can contact us by phone at <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>, email at <AppLink href="mailto:contact@cloudnotes.com" external>contact@cloudnotes.com</AppLink>, or by mail to Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125, Italy.
           </p>
           <p>
             These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you"), and CloudNotes LLC, concerning your access to and use of the Services. You agree that by accessing the Services, you have read, understood, and agreed to be bound by all of these Legal Terms.{" "}
@@ -236,16 +243,16 @@ export default function Tos() {
           <p>
             To resolve any complaint or to obtain further information regarding the Services, please contact us at:
           </p>
-          <div className="contact-info">
+          <div className="contact-info select-none">
             <p>CloudNotes LLC</p>
             <p>Pescheria del Porto di Cagliari</p>
             <p>Cagliari, Cagliari 09125</p>
             <p>Italy</p>
             <p>
-              Phone: <a href="tel:+39000000000">+39 000 000 000</a>
+              Phone: <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>
             </p>
             <p>
-              Email: <a href="mailto:contact@cloudnotes.com">contact@cloudnotes.com</a>
+              Email: <AppLink href="mailto:contact@cloudnotes.com" external>contact@cloudnotes.com</AppLink>
             </p>
           </div>
         </div>
@@ -333,7 +340,7 @@ export default function Tos() {
                       }}
                       className={cn(
                         "scroll-mt-24 transition-colors duration-500 rounded-lg p-4",
-                        activeSection === section.id ? "bg-primary/[0.03]" : ""
+                        activeSection === section.id ? "bg-primary/[0.06]" : ""
                       )}
                       aria-labelledby={`heading-${section.id}`}
                     >

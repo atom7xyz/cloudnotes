@@ -26,17 +26,17 @@ export function AuthCard({
       className
     )}>
       <CardHeader className="space-y-3 text-center px-10 pb-4">
-        <CardTitle className="text-5xl font-extrabold italic mb-0 font-bigshot-one">{title}</CardTitle>
+        <CardTitle className="text-5xl font-extrabold italic mb-0 font-bigshot-one select-none">{title}</CardTitle>
         {description && (
-          <CardDescription className="text-sm italic">{description}</CardDescription>
+          <CardDescription className="text-sm italic select-none">{description}</CardDescription>
         )}
         {description && <Separator className="mt-4 mb-1" />}
         {subtitle && (
-          <div className="text-xl font-semibold text-foreground pt-4">{subtitle}</div>
+          <div className="text-xl font-semibold text-foreground pt-4 select-none">{subtitle}</div>
         )}
       </CardHeader>
       <CardContent className="px-10">{children}</CardContent>
-      {footer && <CardFooter className="px-10 py-4 border-t border-border/30">{footer}</CardFooter>}
+      {footer && <CardFooter className="px-10 py-4 border-t border-border/30 select-none">{footer}</CardFooter>}
     </Card>
   );
 } 

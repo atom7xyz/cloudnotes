@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { 
   HomeIcon, 
   BookmarkIcon, 
@@ -11,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { AppLink } from "../ui/app-link";
 import SettingsModal from '../modals/SettingsModal';
 import SessionExpiredModal from '../modals/SessionExpiredModal';
 
@@ -23,7 +23,7 @@ interface NavItemProps {
 }
 
 const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick }) => {
-  const content = (
+  const buttonContent = (
     <Button
       variant="ghost"
       onClick={onClick}
@@ -39,17 +39,20 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick }) =
     </Button>
   );
 
-  return onClick ? (
-    content
-  ) : (
-    <Link to={to} className="w-full">
-      {content}
-    </Link>
+  // If there's an onClick handler, render just the button
+  if (onClick) {
+    return buttonContent;
+  }
+
+  // Otherwise use AppLink for navigation
+  return (
+    <AppLink href={to} className="w-full block" preventNavigation>
+      {buttonContent}
+    </AppLink>
   );
 };
 
 const LeftSidebar: React.FC = () => {
-  const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSessionExpiredOpen, setIsSessionExpiredOpen] = useState(false);
   

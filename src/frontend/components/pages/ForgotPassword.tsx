@@ -1,42 +1,64 @@
-import { useState, ChangeEvent, FormEvent } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Link, useNavigate } from "react-router-dom";
-import { AuthCard } from "../auth/AuthCard";
-import UnsavedChangesModal from "../modals/UnsavedChangesModal";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { useAppNavigate } from "@/lib/navigation";
 import cloudsBackground from "../../assets/clouds3.jpg";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ForgotPasswordFormValues, forgotPasswordSchema } from "@/lib/validations/auth";
+import { FormContainer } from "@/components/form-fields/FormContainer";
+import { FormInput } from "@/components/form-fields/FormInput";
+import { AppLink } from "@/components/ui/app-link";
+
+// Create a key for storing form data in localStorage
+const FORM_STORAGE_KEY = "cloudnotes-forgot-password-form";
 
 export default function ForgotPassword() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [isDirty, setIsDirty] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [targetPath, setTargetPath] = useState('');
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    setIsDirty(e.target.value !== '');
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-
-    // Reset dirty state on submission
-    setIsDirty(false);
-    
-    // Fake the process
-    navigate("/verify-otp");
-  };
-
-  // Handle navigation away with Link component
-  const handleNavigateClick = (path: string) => {
-    if (isDirty) {
-      setTargetPath(path);
-      setIsModalOpen(true);
-      return false;
+  const appNavigate = useAppNavigate();
+  
+  // Initialize form with react-hook-form and zod validation
+  const form = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: '',
+    },
+  });
+  
+  // Load saved form values from localStorage
+  useEffect(() => {
+    const savedForm = localStorage.getItem(FORM_STORAGE_KEY);
+    if (savedForm) {
+      try {
+        const parsedForm = JSON.parse(savedForm);
+        form.reset(parsedForm);
+      } catch (error) {
+        // If parsing fails, clear the localStorage
+        localStorage.removeItem(FORM_STORAGE_KEY);
+      }
     }
-    return true;
+  }, [form]);
+  
+  // Save form values to localStorage whenever they change
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(values));
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+  
+  // Handle form submission
+  const onSubmit = (values: ForgotPasswordFormValues) => {
+    // Clear form data from localStorage on successful submission
+    localStorage.removeItem(FORM_STORAGE_KEY);
+    
+    // Navigate to verify OTP page
+    appNavigate("/verify-otp");
+  };
+  
+  // Check if form is empty
+  const isFormEmpty = () => {
+    const values = form.getValues();
+    return !values.email;
   };
 
   return (
@@ -56,65 +78,48 @@ export default function ForgotPassword() {
       <div className="absolute inset-0 z-10 bg-black/15" aria-hidden="true" />
       
       {/* Content */}
-      <div className="relative z-20 w-full max-w-lg">
+      <div className="relative z-20 w-full max-w-md">
         <AuthCard 
-          title="CloudNotes" 
+          title="CloudNotes"
           description="Your virtual oasis of knowledge"
-          subtitle="Reset Your Password"
+          subtitle="Forgot Password"
           footer={
-            <p className="text-center text-sm text-muted-foreground w-full">
-              {isDirty ? (
-                <span 
-                  className="font-medium text-primary hover:underline focus:outline-none cursor-pointer"
-                  onClick={() => handleNavigateClick('/login')}
-                >
-                  Remember your password? Login
-                </span>
-              ) : (
-                <Link to="/login" className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1">
-                  Remember your password? Login
-                </Link>
-              )}
-            </p>
+            <div className="flex justify-between w-full text-sm">
+              <AppLink 
+                href="/login"
+              >
+                Back to Login
+              </AppLink>
+            </div>
           }
           className="rounded-3xl border-none shadow-2xl"
         >
-          <div className="mb-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Enter your email address below and we'll send you a 6-digit verification code to reset your password.
-            </p>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                value={email}
-                onChange={handleInputChange}
-                placeholder="example@example.com" 
-                className="rounded-lg border-foreground/50"
-                aria-required="true"
-                required
-              />
-            </div>
+          <FormContainer 
+            form={form} 
+            onSubmit={onSubmit}
+            isFormEmpty={isFormEmpty}
+            unsavedMessage="You have unsaved changes in the forgot password form. If you leave, your information will be lost."
+            className="space-y-4"
+          >
+            <FormInput
+              form={form}
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="john.doe@example.com"
+              autoComplete="email"
+              required
+            />
+            
             <Button 
               type="submit" 
               className="w-full rounded-full mt-4 cursor-pointer"
             >
-              Send Verification Code
+              Send Reset Code
             </Button>
-          </form>
+          </FormContainer>
         </AuthCard>
       </div>
-
-      {/* Unsaved Changes Modal */}
-      <UnsavedChangesModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        targetPath={targetPath}
-        message="You have started the password reset process. If you leave now, your progress will be lost."
-      />
     </div>
   );
 } 
