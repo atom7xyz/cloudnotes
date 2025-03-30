@@ -797,7 +797,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
       // Also reset the last text query reference
       lastTextQueryRef.current = '';
     }
-  }, [isOpen, performSearch, searchQuery, selectedTags]);
+  }, [isOpen, performSearch]);
 
   // Custom search input with tag display
   const SearchInput = () => {
