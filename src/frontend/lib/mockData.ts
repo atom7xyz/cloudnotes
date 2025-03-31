@@ -51,7 +51,7 @@ class MockDataGenerator {
     this.users = Array.from({ length: count }, () => {
       const firstName = faker.person.firstName('male');
       const lastName = faker.person.lastName('male');
-      const username = faker.internet.userName({ firstName, lastName }).toLowerCase();
+      const username = faker.internet.username({ firstName, lastName }).toLowerCase();
       
       return {
         id: faker.string.uuid(),

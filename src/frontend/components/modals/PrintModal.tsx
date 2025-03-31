@@ -38,7 +38,7 @@ export default function PrintModal({
       maxWidth="max-w-4xl"
       maxHeight="max-h-[calc(90vh-10rem)]"
       footer={
-        <div className="flex justify-end items-center gap-2">
+        <div className="flex justify-end items-center gap-2 select-none">
           <Button 
             variant="outline" 
             onClick={onClose}
@@ -58,12 +58,12 @@ export default function PrintModal({
     >
       <div className="p-8 print:p-0">
         <div className="print:max-w-none mx-auto print:mx-0">
-          <h1 className="text-3xl font-bold mb-1">{title}</h1>
-          <p className="text-sm text-black mb-6">Last updated: {lastUpdated}</p>
+          <h1 className="text-3xl font-bold mb-1 select-none">{title}</h1>
+          <p className="text-sm text-black mb-6 select-none">Last updated: {lastUpdated}</p>
           
           {sections.map((section, index) => (
             <div key={section.id} className="mb-8">
-              <h2 className="text-xl font-semibold mb-3">
+              <h2 className="text-xl font-semibold mb-3 select-none">
                 {index + 1}. {section.title}
               </h2>
               <div className="text-black">

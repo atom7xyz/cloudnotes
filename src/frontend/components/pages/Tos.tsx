@@ -26,17 +26,23 @@ export default function Tos() {
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
       
+      // Clear any existing highlights first
+      Object.values(sectionRefs.current).forEach(ref => {
+        if (ref) {
+          ref.classList.remove("bg-primary/[0.06]");
+        }
+      });
+      
+      // Set new active section and highlight
       setActiveSection(sectionId);
-      
-      // Apply stronger highlight that fades after 2 seconds
       section.classList.add("bg-primary/[0.06]");
-      setTimeout(() => {
-        section.classList.remove("bg-primary/[0.06]");
-      }, 2000);
       
-      // Reset active section after 2 seconds
+      // Clear highlight and active section after 2 seconds
       setTimeout(() => {
-        setActiveSection("");
+        if (section) {
+          section.classList.remove("bg-primary/[0.06]");
+          setActiveSection("");
+        }
       }, 2000);
     }
   };
@@ -56,7 +62,7 @@ export default function Tos() {
           <p>
             This application aims to help students of all ages find their own study methods using various integrated technological tools.
           </p>
-          <p className="select-none">
+          <p>
             You can contact us by phone at <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>, email at <AppLink href="mailto:contact@cloudnotes.com" external>contact@cloudnotes.com</AppLink>, or by mail to Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125, Italy.
           </p>
           <p>
@@ -281,12 +287,12 @@ export default function Tos() {
         <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-md p-6 sm:p-8">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold">Terms of Service</h2>
-              <p className="text-sm text-black mt-1">Last updated: {lastUpdated}</p>
+              <h2 className="text-2xl sm:text-3xl font-bold select-none">Terms of Service</h2>
+              <p className="text-sm text-black mt-1 select-none">Last updated: {lastUpdated}</p>
             </div>
             <Button 
               variant="default" 
-              className="rounded-full flex items-center gap-2 !px-8 cursor-pointer"
+              className="rounded-full flex items-center gap-2 !px-8 cursor-pointer select-none"
               onClick={() => setIsPrintModalOpen(true)}
               aria-label="Print Terms of Service"
             >
@@ -300,7 +306,7 @@ export default function Tos() {
             {/* Sidebar navigation */}
             <aside className="lg:w-1/5 xl:w-3/10">
               <div className="lg:sticky lg:top-8">
-                <nav className="bg-white/50 backdrop-blur-sm rounded-lg shadow-sm p-4">
+                <nav className="bg-white/50 backdrop-blur-sm rounded-lg shadow-sm p-4 select-none">
                   <h3 className="text-lg font-semibold mb-4 text-black">Navigation</h3>
                   <div className="space-y-1 custom-scrollbar">
                     {sections.map((section, index) => (

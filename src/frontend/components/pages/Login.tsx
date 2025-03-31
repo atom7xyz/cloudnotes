@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AuthCard } from "@/components/auth/AuthCard";
 import cloudsBackground from "../../assets/clouds3.jpg";
@@ -9,9 +8,6 @@ import { FormContainer } from "@/components/form-fields/FormContainer";
 import { FormInput } from "@/components/form-fields/FormInput";
 import { AppLink } from "@/components/ui/app-link";
 
-// Create a key for storing form data in localStorage
-const LOGIN_FORM_STORAGE_KEY = "cloudnotes-login-form";
-
 export default function Login() {
   // Initialize form with react-hook-form and zod validation
   const form = useForm<LoginFormValues>({
@@ -20,35 +16,11 @@ export default function Login() {
       email: '',
       password: '',
     },
+    mode: "onSubmit"
   });
-  
-  // Load saved form values from localStorage
-  useEffect(() => {
-    const savedForm = localStorage.getItem(LOGIN_FORM_STORAGE_KEY);
-    if (savedForm) {
-      try {
-        const parsedForm = JSON.parse(savedForm);
-        form.reset(parsedForm);
-      } catch (error) {
-        // If parsing fails, clear the localStorage
-        localStorage.removeItem(LOGIN_FORM_STORAGE_KEY);
-      }
-    }
-  }, [form]);
-  
-  // Save form values to localStorage whenever they change
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      localStorage.setItem(LOGIN_FORM_STORAGE_KEY, JSON.stringify(values));
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
   
   // Handle form submission
   const onSubmit = (values: LoginFormValues) => {
-    // Clear form data from localStorage on successful submission
-    localStorage.removeItem(LOGIN_FORM_STORAGE_KEY);
-    
     // Fake the process
     console.log("Login submitted", values);
   };
@@ -97,6 +69,7 @@ export default function Login() {
             isFormEmpty={isFormEmpty}
             unsavedMessage="You have unsaved changes in the login form. If you leave, your information will be lost."
             className="space-y-4"
+            noValidate
           >
             <FormInput
               form={form}
@@ -108,9 +81,12 @@ export default function Login() {
               required
             />
             
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 select-none" htmlFor="password">
+                <label 
+                  className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 select-none ${form.formState.errors.password ? 'text-destructive' : ''}`} 
+                  htmlFor="password"
+                >
                   Password
                 </label>
                 <AppLink 
@@ -125,6 +101,7 @@ export default function Login() {
                 name="password"
                 type="password"
                 autoComplete="current-password"
+                label=""
                 required
               />
             </div>

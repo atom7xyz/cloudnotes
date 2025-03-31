@@ -1,21 +1,7 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-/**
- * Type definition for the Electron API
- */
-interface ElectronAPI {
-  minimize: () => void;
-  maximize: () => void;
-  close: () => void;
-  goBack: () => void;
-  goForward: () => void;
-  reload: () => void;
-  navigate: (url: string) => void;
-  requestNavigationStateUpdate: () => void;
-  onMaximizeChange: (callback: (isMaximized: boolean) => void) => () => void;
-  onNavigationStateChange: (callback: (canGoBack: boolean, canGoForward: boolean) => void) => () => void;
-}
+// Use the ElectronAPI interface from types.d.ts instead of redefining it here
 
 /**
  * Navigation utility functions that work with Electron

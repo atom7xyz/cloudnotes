@@ -9,6 +9,27 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Toggle Developer Tools in Electron
+ * This will only work in the Electron environment, not in browser
+ */
+export function toggleDevTools() {
+  if (window.electron) {
+    if (typeof window.electron.toggleDevTools === 'function') {
+      return window.electron.toggleDevTools().catch(err => {
+        console.error('Error toggling DevTools:', err);
+        return false;
+      });
+    } else {
+      console.warn('toggleDevTools function not found in electron API');
+      return false;
+    }
+  } else {
+    console.warn('DevTools toggling is only available in Electron environment');
+    return false;
+  }
+}
+
+/**
  * Debounce function to limit how often a function can be called
  * @param func The function to debounce
  * @param wait The time to wait in milliseconds

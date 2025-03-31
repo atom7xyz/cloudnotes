@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AuthCard } from "@/components/auth/AuthCard";
 import cloudsBackground from "../../assets/clouds3.jpg";
@@ -9,9 +8,6 @@ import { FormContainer } from "@/components/form-fields/FormContainer";
 import { FormInput } from "@/components/form-fields/FormInput";
 import { FormCheckbox } from "@/components/form-fields/FormCheckbox";
 import { AppLink } from "@/components/ui/app-link";
-
-// Create a key for storing form data in localStorage
-const FORM_STORAGE_KEY = "cloudnotes-register-form";
 
 export default function Register() {
   // Initialize form with react-hook-form and zod validation
@@ -25,35 +21,11 @@ export default function Register() {
       confirmPassword: '',
       acceptTerms: false
     },
+    mode: "onSubmit"
   });
-  
-  // Load saved form values from localStorage
-  useEffect(() => {
-    const savedForm = localStorage.getItem(FORM_STORAGE_KEY);
-    if (savedForm) {
-      try {
-        const parsedForm = JSON.parse(savedForm);
-        form.reset(parsedForm);
-      } catch (error) {
-        // If parsing fails, clear the localStorage
-        localStorage.removeItem(FORM_STORAGE_KEY);
-      }
-    }
-  }, [form]);
-  
-  // Save form values to localStorage whenever they change
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(values));
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
   
   // Handle form submission
   const onSubmit = (values: RegisterFormValues) => {
-    // Clear form data from localStorage on successful submission
-    localStorage.removeItem(FORM_STORAGE_KEY);
-    
     // Fake the process
     console.log("Registration submitted", values);
   };

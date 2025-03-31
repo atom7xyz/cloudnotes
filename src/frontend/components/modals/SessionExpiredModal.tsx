@@ -23,14 +23,14 @@ export default function SessionExpiredModal({ isOpen, onClose }: SessionExpiredM
       isOpen={isOpen}
       onClose={onClose}
       title={
-        <div className="flex items-center gap-2 text-destructive">
+        <div className="flex items-center gap-2 text-destructive select-none">
           <AlertCircleIcon size={20} />
           <span>Session Expired</span>
         </div>
       }
       maxWidth="max-w-md"
       footer={
-        <div className="flex justify-end items-center">
+        <div className="flex justify-end items-center select-none">
           <Button 
             onClick={handleLogout}
             className="rounded-full flex items-center gap-2 !px-8 cursor-pointer"
@@ -44,7 +44,7 @@ export default function SessionExpiredModal({ isOpen, onClose }: SessionExpiredM
       <div className="p-6">
         <Card className="p-6 space-y-6 border-none shadow-none bg-muted/50">
           <div className="space-y-4">
-            <div className="flex justify-center">
+            <div className="flex justify-center select-none">
               <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
                 <LogOutIcon size={28} className="text-destructive" />
               </div>

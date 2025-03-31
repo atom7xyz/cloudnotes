@@ -15,23 +15,7 @@ import SearchModal from '../modals/SearchModal';
 import { cn } from '@/lib/utils';
 import { goBack, goForward, reloadPage, getElectronAPI } from '@/lib/navigation';
 
-// Define the Electron interface for TypeScript
-declare global {
-  interface Window {
-    electron?: {
-      minimize: () => void;
-      maximize: () => void;
-      close: () => void;
-      goBack: () => void;
-      goForward: () => void;
-      reload: () => void;
-      navigate: (url: string) => void;
-      requestNavigationStateUpdate: () => void;
-      onMaximizeChange: (callback: (isMaximized: boolean) => void) => () => void;
-      onNavigationStateChange: (callback: (canGoBack: boolean, canGoForward: boolean) => void) => () => void;
-    };
-  }
-}
+// No need to redeclare the Window interface as it's already defined in types.d.ts
 
 // Custom CSS properties for Electron window drag regions
 interface ElectronCSSProperties extends CSSProperties {

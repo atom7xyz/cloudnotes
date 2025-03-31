@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import Register from './components/pages/Register';
 import Login from './components/pages/Login';
 import Tos from './components/pages/Tos';
@@ -7,10 +8,26 @@ import ResetPassword from './components/pages/ResetPassword';
 import ResetPasswordSuccess from './components/pages/ResetPasswordSuccess';
 import VerifyOTP from './components/pages/VerifyOTP';
 import MainLayout from './components/layout/MainLayout';
-import ModalsDemoPage from './components/pages/ModalsDemoPage';
-import TabletPage from './components/pages/TabletPage';
+import { toggleDevTools } from './lib/utils';
 
 function App() {
+  // Add keyboard listeners for development tools
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Alternative way to toggle dev tools with Ctrl+Shift+I
+      if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+        console.log('Keyboard shortcut detected: Ctrl+Shift+I');
+        toggleDevTools();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <Router basename="/ext/cloudnotes/">
       <Routes>
@@ -48,20 +65,6 @@ function App() {
         <Route path="/reset-password-success" element={
           <MainLayout>
             <ResetPasswordSuccess />
-          </MainLayout>
-        } />
-        
-        {/* Non-auth routes with MainLayout */}
-        <Route path="/tablet" element={
-          <MainLayout>
-            <TabletPage />
-          </MainLayout>
-        } />
-        
-        {/* Unified Modal Demo route */}
-        <Route path="/demos" element={
-          <MainLayout>
-            <ModalsDemoPage />
           </MainLayout>
         } />
         

@@ -12,6 +12,7 @@ interface FormContainerProps<TFieldValues extends FieldValues> {
   isFormEmpty?: () => boolean;
   unsavedMessage?: string;
   className?: string;
+  noValidate?: boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ export function FormContainer<TFieldValues extends FieldValues>({
   isFormEmpty,
   unsavedMessage,
   className = "",
+  noValidate = true,
 }: FormContainerProps<TFieldValues>) {
   const {
     isDirty,
@@ -50,10 +52,24 @@ export function FormContainer<TFieldValues extends FieldValues>({
     return () => subscription.unsubscribe();
   }, [form]);
 
+  // Custom form submission handler that prevents default behavior
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    
+    // Trigger form validation and submission
+    form.handleSubmit((data: TFieldValues) => {
+      console.log("Form submitted", form.formState.isValid);
+      console.log("Form data", data);
+
+      // At this point, if we have the data, the form is valid
+      onSubmit(data);
+    })(event);
+  };
+
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
+        <form onSubmit={handleSubmit} className={className} noValidate={noValidate}>
           {children}
         </form>
       </Form>

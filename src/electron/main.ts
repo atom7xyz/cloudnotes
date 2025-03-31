@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 import path from 'path';
 import { getPreloadPath, isDev } from "./run_utilities.js";
 
@@ -23,6 +23,23 @@ const updateMaximizeState = () => {
     }
 };
 
+// Toggle DevTools function
+const toggleDevTools = () => {
+    if (mainWindow) {
+        try {
+            if (mainWindow.webContents.isDevToolsOpened()) {
+                mainWindow.webContents.closeDevTools();
+            } else {
+                mainWindow.webContents.openDevTools({ mode: 'detach' });
+            }
+        } catch (error) {
+            console.error('Error toggling DevTools:', error);
+        }
+    } else {
+        console.error('Cannot toggle DevTools: mainWindow is null');
+    }
+};
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         frame: false,          // Remove the window frame (toolbar and title bar)
@@ -31,7 +48,8 @@ function createWindow() {
         webPreferences: {
             preload: getPreloadPath(),
             nodeIntegration: false,
-            contextIsolation: true
+            contextIsolation: true,
+            devTools: true     // Always allow DevTools
         }
     });
 
@@ -40,8 +58,15 @@ function createWindow() {
     mainWindow.show();
     mainWindow.webContents.session.setSpellCheckerEnabled(false);
 
+    // Load the app
     if (isDev()) {
         mainWindow.loadURL('http://localhost:5123');
+        // Use a slight delay to ensure window is fully loaded before opening DevTools
+        setTimeout(() => {
+            if (mainWindow) {
+                mainWindow.webContents.openDevTools({ mode: 'detach' });
+            }
+        }, 1000);
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), '/dist-react/index.html'));
     }
@@ -97,7 +122,46 @@ function createWindow() {
     });
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+    createWindow();
+    
+    // Log global shortcuts registered
+    console.log('Registering global shortcuts for DevTools');
+    
+    // Add IPC handler for toggling DevTools
+    ipcMain.handle('toggle-dev-tools', () => {
+        toggleDevTools();
+    });
+    
+    // Register CTRL+I shortcut to toggle DevTools
+    try {
+        const registered = globalShortcut.register('CommandOrControl+I', () => {
+            toggleDevTools();
+        });
+        if (!registered) {
+            console.warn('CTRL+I shortcut registration failed');
+        }
+    } catch (error) {
+        console.error('Error registering CTRL+I shortcut:', error);
+    }
+
+    // Also register F12 as an alternative
+    try {
+        const registered = globalShortcut.register('F12', () => {
+            toggleDevTools();
+        });
+        if (!registered) {
+            console.warn('F12 shortcut registration failed');
+        }
+    } catch (error) {
+        console.error('Error registering F12 shortcut:', error);
+    }
+});
+
+// Unregister shortcuts when app is about to quit
+app.on('will-quit', () => {
+    globalShortcut.unregisterAll();
+});
 
 // Handle IPC messages from renderer
 ipcMain.on('minimize-window', () => {

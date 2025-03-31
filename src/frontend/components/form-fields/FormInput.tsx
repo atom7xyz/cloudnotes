@@ -54,7 +54,7 @@ export function FormInput<
               placeholder={placeholder}
               className={`rounded-lg border-muted-foreground/40 ${className}`}
               autoComplete={autoComplete}
-              required={required}
+              required={false}
               disabled={disabled}
               aria-required={required}
             />

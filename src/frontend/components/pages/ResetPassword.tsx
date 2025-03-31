@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { useAppNavigate } from "@/lib/navigation";
@@ -8,9 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ResetPasswordFormValues, resetPasswordSchema } from "@/lib/validations/auth";
 import { FormContainer } from "@/components/form-fields/FormContainer";
 import { FormInput } from "@/components/form-fields/FormInput";
-
-// Create a key for storing form data in localStorage
-const FORM_STORAGE_KEY = "cloudnotes-reset-password-form";
 
 export default function ResetPassword() {
   const appNavigate = useAppNavigate();
@@ -22,35 +18,11 @@ export default function ResetPassword() {
       password: '',
       confirmPassword: '',
     },
+    mode: "onSubmit"
   });
-  
-  // Load saved form values from localStorage
-  useEffect(() => {
-    const savedForm = localStorage.getItem(FORM_STORAGE_KEY);
-    if (savedForm) {
-      try {
-        const parsedForm = JSON.parse(savedForm);
-        form.reset(parsedForm);
-      } catch (error) {
-        // If parsing fails, clear the localStorage
-        localStorage.removeItem(FORM_STORAGE_KEY);
-      }
-    }
-  }, [form]);
-  
-  // Save form values to localStorage whenever they change
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(value));
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
   
   // Handle form submission
   const onSubmit = (values: ResetPasswordFormValues) => {
-    // Clear form data from localStorage on successful submission
-    localStorage.removeItem(FORM_STORAGE_KEY);
-    
     // Navigate to success page
     appNavigate("/reset-password-success");
   };

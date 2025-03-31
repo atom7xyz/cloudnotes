@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld('electron', {
   navigate: (url: string) => ipcRenderer.send('navigate', url),
   requestNavigationStateUpdate: () => ipcRenderer.send('request-navigation-state-update'),
   
+  // DevTools controls
+  toggleDevTools: async () => await ipcRenderer.invoke('toggle-dev-tools'),
+  
   // Window state listeners
   onMaximizeChange: (callback: (isMaximized: boolean) => void) => {
     ipcRenderer.on('maximize-change', (_event: any, isMaximized: boolean) => callback(isMaximized));

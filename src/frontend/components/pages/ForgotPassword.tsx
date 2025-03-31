@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { useAppNavigate } from "@/lib/navigation";
@@ -10,9 +9,6 @@ import { FormContainer } from "@/components/form-fields/FormContainer";
 import { FormInput } from "@/components/form-fields/FormInput";
 import { AppLink } from "@/components/ui/app-link";
 
-// Create a key for storing form data in localStorage
-const FORM_STORAGE_KEY = "cloudnotes-forgot-password-form";
-
 export default function ForgotPassword() {
   const appNavigate = useAppNavigate();
   
@@ -22,36 +18,13 @@ export default function ForgotPassword() {
     defaultValues: {
       email: '',
     },
+    mode: "onSubmit"
   });
-  
-  // Load saved form values from localStorage
-  useEffect(() => {
-    const savedForm = localStorage.getItem(FORM_STORAGE_KEY);
-    if (savedForm) {
-      try {
-        const parsedForm = JSON.parse(savedForm);
-        form.reset(parsedForm);
-      } catch (error) {
-        // If parsing fails, clear the localStorage
-        localStorage.removeItem(FORM_STORAGE_KEY);
-      }
-    }
-  }, [form]);
-  
-  // Save form values to localStorage whenever they change
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(values));
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
   
   // Handle form submission
   const onSubmit = (values: ForgotPasswordFormValues) => {
-    // Clear form data from localStorage on successful submission
-    localStorage.removeItem(FORM_STORAGE_KEY);
-    
     // Navigate to verify OTP page
+    console.log("Forgot password submitted", values);
     appNavigate("/verify-otp");
   };
   
