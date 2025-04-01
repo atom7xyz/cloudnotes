@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { AuthCard } from "@/components/auth/AuthCard";
-import cloudsBackground from "../../assets/clouds3.jpg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "@/lib/validations/auth";
-import { FormContainer } from "@/components/form-fields/FormContainer";
 import { FormInput } from "@/components/form-fields/FormInput";
 import { AppLink } from "@/components/ui/app-link";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
+import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
+import { PasswordInput } from "@/components/form-fields/PasswordInput";
 
 export default function Login() {
   // Initialize form with react-hook-form and zod validation
@@ -32,89 +32,59 @@ export default function Login() {
   };
 
   return (
-    <div className="relative h-[calc(100vh-3rem)] flex items-center justify-center p-4">
-      {/* Background image */}
-      <div 
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url(${cloudsBackground})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-        aria-hidden="true"
-      />
-      
-      {/* Gray overlay */}
-      <div className="absolute inset-0 z-10 bg-black/15" aria-hidden="true" />
-      
-      {/* Content */}
-      <div className="relative z-20 w-full max-w-lg">
-        <AuthCard 
-          title="CloudNotes" 
-          description="Your virtual oasis of knowledge"
-          subtitle="Login to Your Account"
-          footer={
-            <p className="text-center text-sm text-muted-foreground w-full">
-              <AppLink href="/register">
-                Don't have an account? Register
-              </AppLink>
-            </p>
-          }
-          className="rounded-3xl border-none shadow-2xl"
+    <AuthPageLayout>
+      <AuthCard 
+        title="CloudNotes" 
+        description="Your virtual oasis of knowledge"
+        subtitle="Login to Your Account"
+        footer={
+          <p className="text-center text-sm text-muted-foreground w-full">
+            <AppLink href="/register">
+              Don't have an account? Register
+            </AppLink>
+          </p>
+        }
+        className="rounded-3xl border-none shadow-2xl"
+      >
+        <AuthFormContainer
+          form={form}
+          onSubmit={onSubmit}
+          bypassPaths={['/forgot-password']}
+          isFormEmpty={isFormEmpty}
+          unsavedMessage="You have unsaved changes in the login form. If you leave, your information will be lost."
+          submitLabel="Login"
         >
-          <FormContainer 
-            form={form} 
-            onSubmit={onSubmit}
-            bypassPaths={['/forgot-password']}
-            isFormEmpty={isFormEmpty}
-            unsavedMessage="You have unsaved changes in the login form. If you leave, your information will be lost."
-            className="space-y-4"
-            noValidate
-          >
-            <FormInput
+          <FormInput
+            form={form}
+            name="email"
+            label="Email"
+            type="email"
+            placeholder="example@example.com"
+            autoComplete="email"
+            required
+          />
+          
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 select-none">
+                Password
+              </label>
+              <AppLink 
+                href="/forgot-password" 
+                className="text-sm select-none"
+              >
+                Forgot password?
+              </AppLink>
+            </div>
+            <PasswordInput
               form={form}
-              name="email"
-              label="Email"
-              type="email"
-              placeholder="example@example.com"
-              autoComplete="email"
+              name="password"
+              autoComplete="current-password"
               required
             />
-            
-            <div className="space-y-2 relative">
-              <div className="flex items-center justify-between mb-1">
-                <label 
-                  className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 select-none ${form.formState.errors.password ? 'text-destructive' : ''}`} 
-                  htmlFor="password"
-                >
-                  Password
-                </label>
-                <AppLink 
-                  href="/forgot-password" 
-                  className="text-sm"
-                >
-                  Forgot password?
-                </AppLink>
-              </div>
-              <FormInput
-                form={form}
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                label=""
-                required
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full rounded-full mt-4 cursor-pointer"
-            >
-              Login
-            </Button>
-          </FormContainer>
-        </AuthCard>
-      </div>
-    </div>
+          </div>
+        </AuthFormContainer>
+      </AuthCard>
+    </AuthPageLayout>
   );
 } 

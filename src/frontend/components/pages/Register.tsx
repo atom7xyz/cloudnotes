@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { AuthCard } from "@/components/auth/AuthCard";
-import cloudsBackground from "../../assets/clouds3.jpg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterFormValues, registerSchema } from "@/lib/validations/auth";
-import { FormContainer } from "@/components/form-fields/FormContainer";
 import { FormInput } from "@/components/form-fields/FormInput";
 import { FormCheckbox } from "@/components/form-fields/FormCheckbox";
 import { AppLink } from "@/components/ui/app-link";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
+import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
+import { PasswordInput } from "@/components/form-fields/PasswordInput";
 
 export default function Register() {
   // Initialize form with react-hook-form and zod validation
@@ -44,23 +44,8 @@ export default function Register() {
   };
 
   return (
-    <div className="relative h-[calc(100vh-3rem)] flex items-center justify-center p-4">
-      {/* Background image */}
-      <div 
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url(${cloudsBackground})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-        aria-hidden="true"
-      />
-      
-      {/* Gray overlay */}
-      <div className="absolute inset-0 z-10 bg-black/15" aria-hidden="true" />
-      
-      {/* Content */}
-      <div className="relative z-20 w-full max-w-lg">
+    <AuthPageLayout>
+      <div className="w-full max-w-lg">
         <AuthCard 
           title="CloudNotes" 
           description="Your virtual oasis of knowledge"
@@ -74,13 +59,14 @@ export default function Register() {
           }
           className="rounded-3xl border-none shadow-2xl"
         >
-          <FormContainer 
-            form={form} 
+          <AuthFormContainer
+            form={form}
             onSubmit={onSubmit}
             bypassPaths={['/tos']}
             isFormEmpty={isFormEmpty}
             unsavedMessage="You have unsaved changes in the registration form. If you leave, your information will be lost."
-            className="space-y-4"
+            submitLabel="Register"
+            disabled={!form.watch("acceptTerms")}
           >
             <div className="grid grid-cols-2 gap-4">
               <FormInput
@@ -109,20 +95,18 @@ export default function Register() {
               required
             />
             
-            <FormInput
+            <PasswordInput
               form={form}
               name="password"
               label="Password"
-              type="password"
               autoComplete="new-password"
               required
             />
             
-            <FormInput
+            <PasswordInput
               form={form}
               name="confirmPassword"
               label="Repeat Password"
-              type="password"
               autoComplete="new-password"
               required
             />
@@ -139,18 +123,9 @@ export default function Register() {
                 </>
               }
             />
-            
-            <Button 
-              type="submit" 
-              className="w-full rounded-full mt-4 cursor-pointer" 
-              disabled={!form.watch("acceptTerms")}
-              aria-disabled={!form.watch("acceptTerms")}
-            >
-              Register
-            </Button>
-          </FormContainer>
+          </AuthFormContainer>
         </AuthCard>
       </div>
-    </div>
+    </AuthPageLayout>
   );
 } 

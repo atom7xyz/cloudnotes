@@ -79,7 +79,7 @@ export function FormOTP<
               </InputOTPGroup>
             </InputOTP>
           </FormControl>
-          <FormMessage className="text-xs mt-1 text-center" />
+          <FormMessage className="text-xs -mt-2 text-center" />
         </FormItem>
       )}
     />

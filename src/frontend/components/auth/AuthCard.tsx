@@ -22,10 +22,10 @@ export function AuthCard({
 }: AuthCardProps) {
   return (
     <Card className={cn(
-      "w-full max-w-4xl shadow-xl bg-background rounded-3xl border-none overflow-hidden",
+      "w-full max-w-4xl shadow-xl bg-background rounded-none border-none overflow-hidden",
       className
     )}>
-      <CardHeader className="space-y-3 text-center px-10 pb-4">
+      <CardHeader className="space-y-3 text-center px-10">
         <CardTitle className="text-5xl font-extrabold italic mb-0 font-bigshot-one select-none">{title}</CardTitle>
         {description && (
           <CardDescription className="text-sm italic select-none">{description}</CardDescription>
@@ -36,7 +36,7 @@ export function AuthCard({
         )}
       </CardHeader>
       <CardContent className="px-10">{children}</CardContent>
-      {footer && <CardFooter className="px-10 py-4 border-t border-border/30 select-none">{footer}</CardFooter>}
+      {footer && <CardFooter className="px-10 py-3 !pt-0 border-t border-border/30 select-none">{footer}</CardFooter>}
     </Card>
   );
 } 

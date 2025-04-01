@@ -7,6 +7,7 @@ import {
   FormMessage 
 } from "@/components/ui/form";
 import { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
+import { cn } from "@/lib/utils";
 
 interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -21,6 +22,7 @@ interface FormInputProps<
   autoComplete?: string; // Autocomplete attribute
   required?: boolean; // Whether the field is required
   disabled?: boolean; // Whether the field is disabled
+  description?: string; // Optional description text
 }
 
 /**
@@ -39,6 +41,7 @@ export function FormInput<
   autoComplete,
   required = false,
   disabled = false,
+  description
 }: FormInputProps<TFieldValues, TName>) {
   return (
     <FormField
@@ -46,20 +49,23 @@ export function FormInput<
       name={name}
       render={({ field }) => (
         <FormItem className="space-y-1">
-          {label && <FormLabel className="mb-1 select-none">{label}</FormLabel>}
+          {label && <FormLabel className="select-none">{label}</FormLabel>}
+          {description && (
+            <p className="text-sm text-muted-foreground -mt-1 mb-1 select-none">{description}</p>
+          )}
           <FormControl>
             <Input
               {...field}
               type={type}
               placeholder={placeholder}
-              className={`rounded-lg border-muted-foreground/40 ${className}`}
+              className={cn("rounded-lg border-muted-foreground/40", className)}
               autoComplete={autoComplete}
               required={false}
               disabled={disabled}
               aria-required={required}
             />
           </FormControl>
-          <FormMessage className="text-xs mt-0.5" />
+          <FormMessage className="text-xs -mt-2 select-none" />
         </FormItem>
       )}
     />

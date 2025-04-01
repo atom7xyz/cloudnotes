@@ -1,13 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { AuthCard } from "@/components/auth/AuthCard";
 import { useAppNavigate } from "@/lib/navigation";
-import cloudsBackground from "../../assets/clouds3.jpg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ForgotPasswordFormValues, forgotPasswordSchema } from "@/lib/validations/auth";
-import { FormContainer } from "@/components/form-fields/FormContainer";
 import { FormInput } from "@/components/form-fields/FormInput";
 import { AppLink } from "@/components/ui/app-link";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
+import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 
 export default function ForgotPassword() {
   const appNavigate = useAppNavigate();
@@ -35,64 +34,46 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="relative h-[calc(100vh-3rem)] flex items-center justify-center p-4">
-      {/* Background image */}
-      <div 
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url(${cloudsBackground})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-        aria-hidden="true"
-      />
-      
-      {/* Gray overlay */}
-      <div className="absolute inset-0 z-10 bg-black/15" aria-hidden="true" />
-      
-      {/* Content */}
-      <div className="relative z-20 w-full max-w-md">
-        <AuthCard 
-          title="CloudNotes"
-          description="Your virtual oasis of knowledge"
-          subtitle="Forgot Password"
-          footer={
-            <div className="flex justify-between w-full text-sm">
-              <AppLink 
-                href="/login"
-              >
-                Back to Login
-              </AppLink>
-            </div>
-          }
-          className="rounded-3xl border-none shadow-2xl"
-        >
-          <FormContainer 
-            form={form} 
-            onSubmit={onSubmit}
-            isFormEmpty={isFormEmpty}
-            unsavedMessage="You have unsaved changes in the forgot password form. If you leave, your information will be lost."
-            className="space-y-4"
-          >
-            <FormInput
-              form={form}
-              name="email"
-              label="Email"
-              type="email"
-              placeholder="john.doe@example.com"
-              autoComplete="email"
-              required
-            />
-            
-            <Button 
-              type="submit" 
-              className="w-full rounded-full mt-4 cursor-pointer"
+    <AuthPageLayout>
+      <AuthCard 
+        title="CloudNotes"
+        description="Your virtual oasis of knowledge"
+        subtitle="Forgot Password"
+        footer={
+          <div className="flex justify-between w-full text-sm">
+            <AppLink 
+              href="/login"
             >
-              Send Reset Code
-            </Button>
-          </FormContainer>
-        </AuthCard>
-      </div>
-    </div>
+              Back to Login
+            </AppLink>
+          </div>
+        }
+        className="rounded-3xl border-none shadow-2xl"
+      >
+        <div className="mb-6">
+          <p className="text-sm text-muted-foreground -mt-1 text-center select-none">
+            Enter your email address and we'll send you a code to reset your password.
+          </p>
+        </div>
+        
+        <AuthFormContainer
+          form={form}
+          onSubmit={onSubmit}
+          isFormEmpty={isFormEmpty}
+          unsavedMessage="You have unsaved changes in the forgot password form. If you leave, your information will be lost."
+          submitLabel="Send Reset Code"
+        >
+          <FormInput
+            form={form}
+            name="email"
+            label="Email"
+            type="email"
+            placeholder="john.doe@example.com"
+            autoComplete="email"
+            required
+          />
+        </AuthFormContainer>
+      </AuthCard>
+    </AuthPageLayout>
   );
 } 
