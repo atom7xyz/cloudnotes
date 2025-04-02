@@ -7,6 +7,7 @@ import { AppLink } from "@/components/ui/app-link";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
+import { ArrowLeftIcon } from "lucide-react";
 
 export default function ForgotPassword() {
   const appNavigate = useAppNavigate();
@@ -43,7 +44,9 @@ export default function ForgotPassword() {
           <div className="flex justify-between w-full text-sm">
             <AppLink 
               href="/login"
+              className="flex items-center gap-1 hover:text-primary transition-colors"
             >
+              <ArrowLeftIcon size={16} />
               Back to Login
             </AppLink>
           </div>

@@ -11,7 +11,6 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src/frontend"),
     },
   },
-  base: '/ext/cloudnotes/',
   build: {
     outDir: 'dist-react',
   },

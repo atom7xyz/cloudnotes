@@ -11,6 +11,12 @@ import { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PasswordInputProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -74,21 +80,30 @@ export function PasswordInput<
                 aria-required={required}
               />
             </FormControl>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
-              onClick={togglePasswordVisibility}
-              tabIndex={-1}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? (
-                <EyeOffIcon className="h-4 w-4 text-muted-foreground cursor-pointer" />
-              ) : (
-                <EyeIcon className="h-4 w-4 text-muted-foreground cursor-pointer" />
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                    tabIndex={-1}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOffIcon className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                    ) : (
+                      <EyeIcon className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>{showPassword ? "Hide password" : "Show password"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <FormMessage className="text-xs -mt-2 select-none" />
         </FormItem>

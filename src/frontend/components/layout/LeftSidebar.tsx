@@ -112,9 +112,9 @@ const LeftSidebar: React.FC = () => {
             to="/settings" 
             onClick={() => setIsSettingsOpen(true)} 
           />
-          <AppLink href="/profile" className="w-full block" preventNavigation>
-            <div className="w-full flex flex-col items-center justify-center py-3 px-1 hover:bg-primary/10 rounded-none transition-all duration-200 cursor-default">
-              <div className="relative">
+          <AppLink href="/profile" className="w-full block hover:no-underline" preventNavigation>
+            <div className="w-full flex flex-col items-center justify-center py-3 px-1 hover:bg-primary/10 rounded-none transition-all duration-200 cursor-pointer text-sidebar-foreground">
+              <div className="relative mb-1">
                 <Avatar className="h-8 w-8 border-2 border-sidebar">
                   <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
                   <AvatarFallback>
@@ -123,6 +123,7 @@ const LeftSidebar: React.FC = () => {
                 </Avatar>
                 <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-sidebar ${statusColors[userStatus]}`} />
               </div>
+              <span className="text-[11px] font-medium select-none">PROFILE</span>
             </div>
           </AppLink>
         </div>

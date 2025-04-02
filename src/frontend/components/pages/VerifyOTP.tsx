@@ -7,6 +7,7 @@ import { AppLink } from "@/components/ui/app-link";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
+import { ArrowLeftIcon } from "lucide-react";
 
 export default function VerifyOTP() {
   const appNavigate = useAppNavigate();
@@ -42,8 +43,9 @@ export default function VerifyOTP() {
           <p className="text-center text-sm text-muted-foreground w-full">
             <AppLink 
               href="/forgot-password"
-              className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+              className="flex items-center justify-left gap-1 font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
             >
+              <ArrowLeftIcon size={16} />
               Didn't receive a code? Request again
             </AppLink>
           </p>

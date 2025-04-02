@@ -52,7 +52,7 @@ export const useAppNavigate = () => {
     if (isInternalLink) {
       // Handle internal navigation
       if (isElectron()) {
-        const fullUrl = window.location.origin + "/ext/cloudnotes" + to;
+        const fullUrl = window.location.origin + to;
         const api = getElectronAPI();
         api?.navigate(fullUrl);
       } else {

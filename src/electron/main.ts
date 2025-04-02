@@ -156,6 +156,36 @@ app.on('ready', () => {
     } catch (error) {
         console.error('Error registering F12 shortcut:', error);
     }
+    
+    // Register F5 to reload the page
+    try {
+        const registered = globalShortcut.register('F5', () => {
+            if (mainWindow) {
+                isReloading = true;
+                mainWindow.webContents.reload();
+            }
+        });
+        if (!registered) {
+            console.warn('F5 shortcut registration failed');
+        }
+    } catch (error) {
+        console.error('Error registering F5 shortcut:', error);
+    }
+    
+    // Register CTRL+R as an alternative reload shortcut
+    try {
+        const registered = globalShortcut.register('CommandOrControl+R', () => {
+            if (mainWindow) {
+                isReloading = true;
+                mainWindow.webContents.reload();
+            }
+        });
+        if (!registered) {
+            console.warn('CTRL+R shortcut registration failed');
+        }
+    } catch (error) {
+        console.error('Error registering CTRL+R shortcut:', error);
+    }
 });
 
 // Unregister shortcuts when app is about to quit

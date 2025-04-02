@@ -1,7 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./button";
 import { XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Modal stack management for handling ESC key press
+let modalStack: string[] = [];
 
 export interface ModalProps {
   /** Whether the modal is currently visible */
@@ -38,6 +41,8 @@ export interface ModalProps {
   showCloseButton?: boolean;
   /** Whether the modal body should have scrolling enabled (default: true) */
   scrollBody?: boolean;
+  /** A unique ID for this modal (used for stacking) */
+  id?: string;
 }
 
 export function Modal({
@@ -58,7 +63,26 @@ export function Modal({
   footer,
   showCloseButton = true,
   scrollBody = true,
+  id = "modal-" + Math.random().toString(36).substr(2, 9),
 }: ModalProps) {
+  // Generate a unique ID for this modal instance if not provided
+
+  // Register and unregister modal in the stack
+  useEffect(() => {
+    if (isOpen) {
+      // Add this modal to the stack when opened
+      modalStack = [...modalStack, id];
+    } else {
+      // Remove this modal from the stack when closed
+      modalStack = modalStack.filter(modalId => modalId !== id);
+    }
+
+    return () => {
+      // Clean up when component unmounts
+      modalStack = modalStack.filter(modalId => modalId !== id);
+    };
+  }, [isOpen, id]);
+  
   // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen && lockScroll) {
@@ -71,11 +95,14 @@ export function Modal({
     }
   }, [isOpen, lockScroll]);
 
-  // Handle escape key to close modal
+  // Handle escape key to close modal ONLY if this is the topmost modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen && closeOnEscape) {
-        onClose();
+        // Only close if this is the topmost modal
+        if (modalStack[modalStack.length - 1] === id) {
+          onClose();
+        }
       }
     };
 
@@ -85,7 +112,7 @@ export function Modal({
         window.removeEventListener("keydown", handleKeyDown);
       };
     }
-  }, [isOpen, onClose, closeOnEscape]);
+  }, [isOpen, onClose, closeOnEscape, id]);
 
   if (!isOpen) return null;
 

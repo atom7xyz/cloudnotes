@@ -9,6 +9,7 @@ import ResetPasswordSuccess from './components/pages/ResetPasswordSuccess';
 import VerifyOTP from './components/pages/VerifyOTP';
 import MainLayout from './components/layout/MainLayout';
 import { toggleDevTools } from './lib/utils';
+import PrivacyPolicy from './components/pages/PrivacyPolicy';
 
 function App() {
   // Add keyboard listeners for development tools
@@ -29,7 +30,7 @@ function App() {
   }, []);
 
   return (
-    <Router basename="/ext/cloudnotes/">
+    <Router>
       <Routes>
         {/* Auth routes without MainLayout */}
         <Route path="/register" element={
@@ -45,6 +46,11 @@ function App() {
         <Route path="/tos" element={
           <MainLayout>
             <Tos />
+          </MainLayout>
+        } />
+        <Route path="/privacy-policy" element={
+          <MainLayout>
+            <PrivacyPolicy />
           </MainLayout>
         } />
         <Route path="/forgot-password" element={

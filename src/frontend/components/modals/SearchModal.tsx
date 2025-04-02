@@ -21,7 +21,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { mockDataService, MockDocument, MockUser } from '../../lib/mockData';
-import { debounce } from '../../lib/utils';
+import { debounce, throttle } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 // Import placeholder images
@@ -251,31 +251,41 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
     }
   }, []);
 
-  // Debounced search function to prevent too many searches while typing
+  // Optimized debounced search function with a longer delay for better performance
   const debouncedSearch = useCallback(
     debounce((query: string, tags: string[]) => {
       performSearch(query, tags);
-    }, 500),
+    }, 300),
     [performSearch]
   );
 
-  // Handle search input change - combine text and tag search in one operation
+  // Throttled function for UI updates to prevent render lag
+  const throttledUIUpdate = useCallback(
+    throttle((value: string) => {
+      setInputValue(value);
+      // Extract tag being typed without triggering search
+      const tagBeingTyped = extractCurrentTag(value);
+      setCurrentTag(tagBeingTyped);
+    }, 50),
+    []
+  );
+
+  // Handle search input change - optimize to reduce UI lag
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setInputValue(value);
     
-    // Check for @tag being typed
-    const tagBeingTyped = extractCurrentTag(value);
-    setCurrentTag(tagBeingTyped);
+    // Update UI with throttling to prevent render lag
+    throttledUIUpdate(value);
     
-    // Update search query (without the @tag part)
+    // Process the search query with debouncing
+    // This is done separately from UI updates to maintain responsiveness
     const cleanQuery = value.replace(/@\w*$/, '').trim();
     setSearchQuery(cleanQuery);
     
     // Update last text query ref when text input changes
     lastTextQueryRef.current = cleanQuery;
     
-    // Trigger search with existing tags
+    // Trigger search with existing tags after debounce
     debouncedSearch(cleanQuery, selectedTags);
   };
 
