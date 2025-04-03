@@ -1,37 +1,31 @@
-import { useNavigate } from 'react-router-dom';
 import { Button } from "../ui/button";
 import { Modal } from "../ui/modal";
-import { AlertTriangleIcon } from "lucide-react";
+import { LogOutIcon } from "lucide-react";
 import { Card } from "../ui/card";
 
-interface UnsavedChangesModalProps {
+interface SignOutConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  targetPath: string;
-  message?: string;
+  onConfirm: () => void;
+  deviceName: string;
+  isCurrent?: boolean;
 }
 
-export default function UnsavedChangesModal({ 
+export default function SignOutConfirmationModal({ 
   isOpen, 
   onClose, 
-  targetPath,
-  message = "You have unsaved changes in the form. Are you sure you want to leave this page? Your changes will be lost."
-}: UnsavedChangesModalProps) {
-  const navigate = useNavigate();
-
-  const handleConfirm = () => {
-    onClose();
-    navigate(targetPath);
-  };
-
+  onConfirm,
+  deviceName,
+  isCurrent = false
+}: SignOutConfirmationModalProps) {
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={
         <div className="flex items-center gap-2 text-destructive">
-          <AlertTriangleIcon size={20} />
-          <span>Unsaved Changes</span>
+          <LogOutIcon size={20} />
+          <span>Sign Out Confirmation</span>
         </div>
       }
       maxWidth="max-w-md"
@@ -45,11 +39,11 @@ export default function UnsavedChangesModal({
             Cancel
           </Button>
           <Button 
-            onClick={handleConfirm}
+            onClick={onConfirm}
             className="rounded-full flex items-center gap-2 !px-8 cursor-pointer"
             variant="destructive"
           >
-            Leave Page
+            Sign Out
           </Button>
         </div>
       }
@@ -59,17 +53,19 @@ export default function UnsavedChangesModal({
           <div className="space-y-4">
             <div className="flex justify-center">
               <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
-                <AlertTriangleIcon size={28} className="text-destructive" />
+                <LogOutIcon size={28} className="text-destructive" />
               </div>
             </div>
             
             <p className="text-base text-center">
-              {message}
+              Are you sure you want to sign out from <span className="font-medium">{deviceName}</span>?
             </p>
             
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
               <p className="text-sm text-amber-700 text-center">
-                Click "Leave Page" to continue without saving, or "Cancel" to stay on this page.
+                {isCurrent 
+                  ? "Signing out will terminate your current session and you will need to log in again to access your account."
+                  : "Signing out will terminate the session and you will need to log in again to access your account on that device."}
               </p>
             </div>
           </div>

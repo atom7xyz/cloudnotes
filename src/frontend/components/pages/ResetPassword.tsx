@@ -6,8 +6,6 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { PasswordInput } from "@/components/form-fields/PasswordInput";
-import { AppLink } from "@/components/ui/app-link";
-import { ArrowLeftIcon } from "lucide-react";
 
 export default function ResetPassword() {
   const appNavigate = useAppNavigate();
@@ -40,17 +38,6 @@ export default function ResetPassword() {
         title="CloudNotes"
         description="Your virtual oasis of knowledge"
         subtitle="Reset Password"
-        footer={
-          <div className="flex justify-between w-full text-sm">
-            <AppLink 
-              href="/verify-otp"
-              className="flex items-center gap-1 hover:text-primary transition-colors"
-            >
-              <ArrowLeftIcon size={16} />
-              Back to Verification
-            </AppLink>
-          </div>
-        }
         className="rounded-3xl border-none shadow-2xl"
       >
         <div className="mb-6">

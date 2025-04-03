@@ -46,12 +46,12 @@ export const navigateTo = (url: string): void => {
 export const useAppNavigate = () => {
   const navigate = useNavigate();
   
-  return useCallback((to: string) => {
+  return useCallback((to: string, useElectron: boolean = false) => {
     const isInternalLink = to.startsWith('/');
     
     if (isInternalLink) {
       // Handle internal navigation
-      if (isElectron()) {
+      if (isElectron() && useElectron) {
         const fullUrl = window.location.origin + to;
         const api = getElectronAPI();
         api?.navigate(fullUrl);
@@ -75,8 +75,8 @@ export const useAppNavigate = () => {
 /**
  * Go back in history
  */
-export const goBack = (): void => {
-  if (isElectron()) {
+export const goBack = (useElectron: boolean = false): void => {
+  if (isElectron() && useElectron) {
     const api = getElectronAPI();
     api?.goBack();
   } else {
@@ -87,8 +87,8 @@ export const goBack = (): void => {
 /**
  * Go forward in history
  */
-export const goForward = (): void => {
-  if (isElectron()) {
+export const goForward = (useElectron: boolean = false): void => {
+  if (isElectron() && useElectron) {
     const api = getElectronAPI();
     api?.goForward();
   } else {
@@ -99,8 +99,8 @@ export const goForward = (): void => {
 /**
  * Reload the current page
  */
-export const reloadPage = (): void => {
-  if (isElectron()) {
+export const reloadPage = (useElectron: boolean = false): void => {
+  if (isElectron() && useElectron) {
     const api = getElectronAPI();
     api?.reload();
   } else {

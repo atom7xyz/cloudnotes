@@ -229,6 +229,8 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
     setCreatedPin(""); // Clear to avoid automatic advancing
     // Move back to create stage
     setStage("create");
+    // Prevent auto-submission when going back
+    setPreventAutoSubmit(true);
     // Preserve the PIN value in the form
     createForm.reset({ pin: currentCreatePin });
     createForm.clearErrors();
@@ -364,7 +366,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
           <p className="text-sm text-muted-foreground">{description()}</p>
         </div>
 
-        <div className="py-4">
+        <div className="py-4 min-h-[120px]">
           {stage === "verify" && (
             <form onSubmit={(e) => {
               e.preventDefault();
@@ -422,7 +424,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
           {stage === "confirm" && (
             <Button
               type="button"
-              variant="secondary"
+              variant="outline"
               onClick={handleBackFromConfirm}
               className="w-1/3 mr-2 rounded-full cursor-pointer"
             >

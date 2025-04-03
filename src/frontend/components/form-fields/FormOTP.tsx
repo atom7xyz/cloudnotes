@@ -186,7 +186,7 @@ const FormOTP = forwardRef(function FormOTPComponent(
               )}
             </InputOTP>
           </FormControl>
-          <FormMessage className="text-xs -mt-2 text-center" />
+          <FormMessage className="text-xs mt-16 text-center absolute w-full left-0" />
         </FormItem>
       )}
     />

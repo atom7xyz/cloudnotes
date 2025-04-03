@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import { ScrollArea } from "../ui/scroll-area";
-import { Card } from "../ui/card";
 import { Switch } from "../ui/switch";
 import { Badge } from "../ui/badge";
-import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { cn } from "@/lib/utils";
 import { 
@@ -20,49 +17,42 @@ import {
   SunIcon,
   MoonIcon,
   MousePointerIcon,
-  BellOffIcon,
   UserIcon,
   AtSignIcon,
   LockIcon,
   FileIcon,
   LogOutIcon,
   CheckIcon,
-  RadioIcon,
   InfoIcon,
   DownloadIcon,
   AlertTriangleIcon,
   RefreshCwIcon,
-  ChevronRightIcon,
-  MonitorIcon,
   SmartphoneIcon,
   TabletIcon,
   LaptopIcon,
   ExternalLinkIcon,
   ZoomInIcon,
-  ArrowLeftIcon,
   MessageSquareIcon,
-  VolumeIcon,
   Volume2Icon,
   FileTextIcon,
   PencilIcon,
   MailIcon,
-  SendIcon,
   PlayIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  Trash2Icon
 } from 'lucide-react';
 import { Avatar } from '../ui/avatar';
 import { Modal } from '../ui/modal';
 import { AppLink } from '../ui/app-link';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import FormOTP from '../form-fields/FormOTP';
-import { Form } from '../ui/form';
 import { toast } from 'sonner';
 import correctAnswerSound from '../../assets/sounds/mixkit-correct-answer-tone-2870.wav';
 import { Toaster } from '../ui/sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import PINLockModal from './PINLockModal';
+import { Slider } from "../ui/slider";
+import os from 'os';
+import SignOutConfirmationModal from './SignOutConfirmationModal';
+import ExportDataModal from './ExportDataModal';
 
 // Toggle switch component with label
 interface ToggleProps {
@@ -116,6 +106,7 @@ interface ActionItemProps {
   onClick?: () => void;
   href?: string;
   variant?: "default" | "outline" | "destructive" | "secondary";
+  disabled?: boolean;
 }
 
 const ActionItem: React.FC<ActionItemProps> = ({
@@ -125,16 +116,24 @@ const ActionItem: React.FC<ActionItemProps> = ({
   actionLabel,
   onClick,
   href,
-  variant = "outline"
+  variant = "outline",
+  disabled = false
 }) => {
+  // Split description by newline character to handle line breaks
+  const descriptionLines = description ? description.split('\n') : [];
+  
   return (
     <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-md transition-colors select-none">
       <div className="flex items-start gap-3 flex-1">
         {icon && <div className="pt-0.5 text-muted-foreground">{icon}</div>}
         <div className="flex-1">
           <div className="font-medium">{label}</div>
-          {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
+          {descriptionLines.length > 0 && (
+            <div className="text-sm text-muted-foreground space-y-1">
+              {descriptionLines.map((line, index) => (
+                <p key={index}>{line}</p>
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -142,7 +141,9 @@ const ActionItem: React.FC<ActionItemProps> = ({
         <AppLink 
           href={href}
           className={cn(
-            "inline-flex h-9 min-w-24 px-4 py-2 items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer",
+            "inline-flex h-9 min-w-24 px-4 py-2 items-center justify-center gap-1.5 whitespace-nowrap rounded-md",
+            "text-sm font-medium ring-offset-background transition-colors", 
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer",
             variant === "default" && "bg-primary text-primary-foreground hover:bg-primary/90",
             variant === "destructive" && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
             variant === "outline" && "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
@@ -157,14 +158,18 @@ const ActionItem: React.FC<ActionItemProps> = ({
           variant={variant} 
           size="sm" 
           onClick={onClick}
-          className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+          className={cn(
+            "whitespace-nowrap min-w-24 flex items-center gap-1.5 justify-center",
+            disabled ? "cursor-not-allowed" : "cursor-pointer"
+          )}
+          disabled={disabled}
         >
           {typeof actionLabel === 'string' && actionLabel === 'Open' && <ExternalLinkIcon size={14} />}
           {typeof actionLabel === 'string' && actionLabel === 'Report' && <AlertTriangleIcon size={14} />}
           {typeof actionLabel === 'string' && actionLabel === 'View' && <EyeIcon size={14} />}
           {typeof actionLabel === 'string' && actionLabel === 'Change' && <PencilIcon size={14} />}
           {typeof actionLabel === 'string' && actionLabel === 'Export' && <DownloadIcon size={14} />}
-          {typeof actionLabel === 'string' && actionLabel === 'Delete' && <XIcon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Delete' && <Trash2Icon size={14} />}
           {typeof actionLabel === 'string' && actionLabel === 'Check' && <RefreshCwIcon size={14} />}
           {typeof actionLabel === 'string' && actionLabel === 'Set Up' && <KeyIcon size={14} />}
           {actionLabel}
@@ -255,6 +260,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<string>("account");
   const [darkMode, setDarkMode] = useState(false);
   const [largeCursor, setLargeCursor] = useState(false);
+  const [cursorSize, setCursorSize] = useState(24);
   const [textZoom, setTextZoom] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -270,6 +276,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [documentUpdates, setDocumentUpdates] = useState(true);
   const [commentsAndMentions, setCommentsAndMentions] = useState(true);
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [deviceToSignOut, setDeviceToSignOut] = useState<{ id: number, name: string, isCurrent?: boolean } | null>(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportInProgress, setExportInProgress] = useState(false);
   const [activeDevices, setActiveDevices] = useState([
     { id: 1, icon: <LaptopIcon size={16} />, name: "MacBook Pro", lastActive: "Now", isCurrent: true },
     { id: 2, icon: <SmartphoneIcon size={16} />, name: "iPhone 13", lastActive: "2 hours ago", isCurrent: false },
@@ -366,13 +376,57 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   // Handle sign out from other devices
   const handleSignOutAllDevices = () => {
-    // Temporarily remove all non-current devices
-    setActiveDevices(prevDevices => prevDevices.filter(device => device.isCurrent));
+    // Show confirmation modal for signing out all other devices
+    setDeviceToSignOut({ id: -1, name: "all other devices", isCurrent: false });
+    setShowSignOutModal(true);
   };
 
   // Handle sign out of a single device
   const handleDeviceLogout = (deviceId: number) => {
-    setActiveDevices(prevDevices => prevDevices.filter(device => device.id !== deviceId));
+    const device = activeDevices.find(d => d.id === deviceId);
+    if (device) {
+      setDeviceToSignOut({ id: deviceId, name: device.name, isCurrent: device.isCurrent });
+      setShowSignOutModal(true);
+    }
+  };
+
+  // Confirm sign out of the device
+  const confirmDeviceSignOut = () => {
+    if (deviceToSignOut) {
+      if (deviceToSignOut.id === -1) {
+        // Sign out all other devices
+        setActiveDevices(prevDevices => prevDevices.filter(device => device.isCurrent));
+        toast.success("Signed out successfully", {
+          description: "Signed out from all other devices",
+        });
+        
+        if (soundEnabled) {
+          playSound();
+        }
+      } else {
+        // Sign out a single device
+        setActiveDevices(prevDevices => prevDevices.filter(device => device.id !== deviceToSignOut.id));
+        
+        if (deviceToSignOut.isCurrent) {
+          onClose();
+          // Redirect to login page
+          setTimeout(() => {
+            appNavigate('/login');
+          }, 300);
+        } else {
+          toast.success("Signed out successfully", {
+            description: `Signed out from ${deviceToSignOut.name}`,
+          });
+          
+          if (soundEnabled) {
+            playSound();
+          }
+        }
+      }
+      
+      setShowSignOutModal(false);
+      setDeviceToSignOut(null);
+    }
   };
 
   // Handle showing PIN modal
@@ -428,9 +482,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       });
     } else {
       // Disable sound effects too if notifications are disabled
-      if (soundEnabled) {
-        setSoundEnabled(false);
-      }
+      setSoundEnabled(false);
       toast.info("Notifications disabled", {
         description: "You will no longer receive notifications from the application",
       });
@@ -447,6 +499,40 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       // Play the sound to demonstrate
       playSound();
     }
+  };
+
+  // Function to get the current device name
+  const getCurrentDeviceName = () => {
+    try {
+      return "Windows PC";
+    } catch (error) {
+      return "Windows Computer";
+    }
+  };
+
+  // Update computer name in active devices
+  useEffect(() => {
+    setActiveDevices(prevDevices => 
+      prevDevices.map(device => 
+        device.isCurrent 
+          ? { ...device, name: getCurrentDeviceName() }
+          : device
+      )
+    );
+  }, []);
+
+  // Handle Export Data
+  const handleExportData = () => {
+    setShowExportModal(true);
+  };
+  
+  // Handle Export Complete
+  const handleExportComplete = () => {
+    setExportInProgress(true);
+    
+    toast.success("Data export initiated", {
+      description: "Your data will be sent to your email in 24-72 hours",
+    });
   };
 
   return (
@@ -565,13 +651,21 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 title="Account Management" 
                 description="Manage your data and account"
               >
-                <ActionItem
-                  icon={<DownloadIcon size={18} />}
-                  label="Export Data"
-                  description="Download all your files and personal data"
-                  actionLabel="Export"
-                  onClick={() => {}}
-                />
+                <div className="relative">
+                  <ActionItem
+                    icon={<DownloadIcon size={18} />}
+                    label="Export Data"
+                    description="Download all your files and personal data"
+                    actionLabel="Export"
+                    onClick={handleExportData}
+                    disabled={exportInProgress}
+                  />
+                  {exportInProgress && (
+                    <div className="px-4 py-2 -mt-2 mb-1 bg-muted/20 rounded-b-md flex items-center justify-end">
+                      <p className="text-sm text-muted-foreground justify-end">The data will be sent to your email in 24-72 hours</p>
+                    </div>
+                  )}
+                </div>
                 <Separator />
                 <div className="py-3 px-4">
                   <div className="flex items-start gap-3 mb-3">
@@ -597,20 +691,22 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     )}
                   </div>
                   <div className="mt-3 ml-7">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full justify-center cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-                      onClick={handleSignOutAllDevices}
-                    >
-                      <LogOutIcon size={14} className="mr-2" />
-                      Sign out from all devices
-                    </Button>
+                    {activeDevices.filter(d => !d.isCurrent).length > 0 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-center cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+                        onClick={handleSignOutAllDevices}
+                      >
+                        <LogOutIcon size={14} className="mr-2" />
+                        Sign out from all other devices
+                      </Button>
+                    )}
                   </div>
                 </div>
                 <Separator />
                 <ActionItem
-                  icon={<AlertTriangleIcon size={18} className="text-destructive" />}
+                  icon={<Trash2Icon size={18} className="text-destructive" />}
                   label="Delete Account"
                   description="Permanently delete your account and all associated data"
                   actionLabel="Delete"
@@ -666,6 +762,26 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   onCheckedChange={setLargeCursor}
                   icon={<MousePointerIcon size={18} />}
                 />
+                {largeCursor && (
+                  <div className="px-4 pt-2 pb-4 border-t">
+                    <div className="pl-7 pr-2 space-y-6">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm">Cursor Size</span>
+                          <span className="text-sm font-medium">{cursorSize}px</span>
+                        </div>
+                        <Slider
+                          value={[cursorSize]}
+                          min={16}
+                          max={48}
+                          step={2}
+                          onValueChange={(value: number[]) => setCursorSize(value[0])}
+                          className="w-full cursor-grab active:cursor-grabbing"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <Separator />
                 <ToggleItem
                   label="Text Zoom"
@@ -731,38 +847,40 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 description="Control how you receive notifications"
               >
                 {/* First container: Enable Notifications */}
-                <div className="rounded-md border mb-4">
+                <div className="rounded-md border">
                   <ToggleItem
-                    label="Enable Notifications"
+                    label="In-App Notifications"
                     description="Receive notifications from the application"
                     checked={notificationsEnabled}
                     onCheckedChange={handleNotificationsToggle}
                     icon={<BellIcon size={18} />}
                   />
                   {/* Notification Example Preview */}
-                  <div className="py-2 px-4 border-t">
-                    <div className="flex justify-between items-center">
-                      <div className="flex gap-2 items-center">
-                        <div className="bg-primary/10 p-2 rounded-full">
-                          <BookOpenIcon size={16} className="text-primary" />
+                  {notificationsEnabled && (
+                    <div className="py-2 px-4 border-t">
+                      <div className="flex justify-between items-center">
+                        <div className="flex gap-2 items-center">
+                          <div className="bg-primary/10 p-2 rounded-full">
+                            <BookOpenIcon size={16} className="text-primary" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium">Notification Example</span>
+                            <p className="text-xs text-muted-foreground">See how notifications appear</p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-sm font-medium">Notification Example</span>
-                          <p className="text-xs text-muted-foreground">See how notifications appear</p>
-                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={showNotificationExample}
+                          disabled={!notificationsEnabled}
+                          className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                        >
+                          <EyeIcon size={14} />
+                          <span>Preview</span>
+                        </Button>
                       </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={showNotificationExample}
-                        disabled={!notificationsEnabled}
-                        className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
-                      >
-                        <EyeIcon size={14} />
-                        <span>Preview</span>
-                      </Button>
                     </div>
-                  </div>
+                  )}
                 </div>
                 
                 {/* Second container: Sound Effects */}
@@ -776,29 +894,31 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     icon={<Volume2Icon size={18} />}
                   />
                   {/* Sound Effect Preview */}
-                  <div className="py-2 px-4 border-t">
-                    <div className="flex justify-between items-center">
-                      <div className="flex gap-2 items-center">
-                        <div className="bg-primary/10 p-2 rounded-full">
-                          <PlayIcon size={16} className="text-primary" />
+                  {soundEnabled && (
+                    <div className="py-2 px-4 border-t">
+                      <div className="flex justify-between items-center">
+                        <div className="flex gap-2 items-center">
+                          <div className="bg-primary/10 p-2 rounded-full">
+                            <PlayIcon size={16} className="text-primary" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium">Sound Effect</span>
+                            <p className="text-xs text-muted-foreground">Hear notification sounds</p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-sm font-medium">Sound Effect</span>
-                          <p className="text-xs text-muted-foreground">Hear notification sounds</p>
-                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={demonstrateSound}
+                          disabled={!soundEnabled}
+                          className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                        >
+                          <Volume2Icon size={14} />
+                          <span>Play</span>
+                        </Button>
                       </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={demonstrateSound}
-                        disabled={!soundEnabled || !notificationsEnabled}
-                        className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
-                      >
-                        <Volume2Icon size={14} />
-                        <span>Play</span>
-                      </Button>
                     </div>
-                  </div>
+                  )}
                 </div>
               </SettingsSection>
 
@@ -974,6 +1094,26 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         onClose={() => setIsPinModalOpen(false)}
         currentPin={pinValue}
         onSave={handleSavePin}
+      />
+
+      {/* Sign Out Confirmation Modal */}
+      <SignOutConfirmationModal
+        isOpen={showSignOutModal}
+        onClose={() => setShowSignOutModal(false)}
+        onConfirm={confirmDeviceSignOut}
+        deviceName={deviceToSignOut?.name || ""}
+        isCurrent={deviceToSignOut?.isCurrent || false}
+      />
+
+      {/* Export Data Modal */}
+      <ExportDataModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        email="john.doe@example.com"
+        onExportComplete={handleExportComplete}
+        notificationsEnabled={notificationsEnabled}
+        playSound={playSound}
+        soundEnabled={soundEnabled}
       />
 
       {/* Sonner Toast Container */}
