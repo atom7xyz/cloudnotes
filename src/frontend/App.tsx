@@ -10,6 +10,7 @@ import VerifyOTP from './components/pages/VerifyOTP';
 import MainLayout from './components/layout/MainLayout';
 import { toggleDevTools } from './lib/utils';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
+import FileReader from './components/pages/FileReader';
 
 function App() {
   // Add keyboard listeners for development tools
@@ -73,6 +74,9 @@ function App() {
             <ResetPasswordSuccess />
           </MainLayout>
         } />
+        
+        {/* FileReader route without MainLayout */}
+        <Route path="/reader" element={<FileReader />} />
         
         {/* Default route */}
         <Route path="*" element={<Navigate to="/register" replace />} />

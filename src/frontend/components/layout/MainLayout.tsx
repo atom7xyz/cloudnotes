@@ -4,20 +4,16 @@ import LeftSidebar from './LeftSidebar';
 
 interface MainLayoutProps {
   children: ReactNode;
+  useLeftSidebar?: boolean;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children, useLeftSidebar = true }) => {
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
-      {/* Left Sidebar */}
-      <LeftSidebar />
-      
-      <div className="flex flex-col flex-grow">
-        {/* Top Navbar */}
-        <TopNavbar />
-        
-        {/* Main Content */}
-        <main className="flex-grow overflow-auto bg-background">
+    <div className="h-screen flex flex-col">
+      <TopNavbar />
+      <div className="flex-1 flex overflow-hidden">
+        {useLeftSidebar && <LeftSidebar />}
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
       </div>

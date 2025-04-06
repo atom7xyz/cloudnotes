@@ -34,18 +34,10 @@ export default function ExportDataModal({
       setLoading(false);
       onClose();
       onExportComplete();
-
-      // Show notification if enabled
-      if (notificationsEnabled) {
-        toast.success("Data export started", {
-          description: "Your data will be delivered to your email in 24-72 hours.",
-          icon: <MailIcon size={16} />,
-        });
-        
-        // Play sound if both notifications and sound are enabled
-        if (soundEnabled && playSound) {
-          playSound();
-        }
+      
+      // Play sound if both notifications and sound are enabled
+      if (notificationsEnabled && soundEnabled && playSound) {
+        playSound();
       }
     }, 2000);
   };
@@ -90,7 +82,7 @@ export default function ExportDataModal({
         </div>
       }
     >
-      <div className="p-6">
+      <div className="p-6 select-none">
         <Card className="p-6 space-y-6 border-none shadow-none bg-muted/50">
           <div className="space-y-6">
             <div className="flex justify-center">

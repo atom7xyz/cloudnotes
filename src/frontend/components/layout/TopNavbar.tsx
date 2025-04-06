@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
 import SearchModal from '../modals/SearchModal';
 import { cn } from '@/lib/utils';
 import { goBack, goForward, reloadPage, getElectronAPI } from '@/lib/navigation';
@@ -102,6 +103,21 @@ const TopNavbar: React.FC = () => {
     };
   }, []);
 
+  // Set up keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        setIsSearchModalOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   // Navigation handlers with optimized state updates
   const handleGoBack = () => {
     if (!canGoBack) return;
@@ -162,8 +178,10 @@ const TopNavbar: React.FC = () => {
   return (
     <>
       <header className="flex h-12 bg-sidebar text-sidebar-foreground items-center justify-between select-none" style={dragRegion}>
-        {/* Spacer for left side to balance window controls */}
-        <div className="w-[120px]"></div>
+        {/* Logo on the left side */}
+        <div className="w-[120px] flex items-center justify-start pl-4">
+          <h1 className="font-bigshot-one italic text-black text-3xl tracking-tight">CN</h1>
+        </div>
 
         {/* Middle section - Navigation and Search */}
         <div className="flex items-center space-x-2 flex-1 justify-center">
@@ -197,7 +215,7 @@ const TopNavbar: React.FC = () => {
               type="text"
               placeholder="Search"
               className={cn(
-                "h-8 w-full rounded-full py-1.5 pl-10 pr-4 text-sm transition-all duration-200 cursor-pointer",
+                "h-8 w-full rounded-full py-1.5 pl-10 pr-16 text-sm transition-all duration-200 cursor-pointer",
                 "border border-muted-foreground/40",
                 "focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring",
                 "placeholder-sidebar-foreground/60"
@@ -205,6 +223,9 @@ const TopNavbar: React.FC = () => {
               onClick={openSearchModal}
               readOnly
             />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+              <Badge variant="secondary" className="text-[10px] bg-muted border-0 shadow-none">CTRL + F</Badge>
+            </div>
           </div>
         </div>
 

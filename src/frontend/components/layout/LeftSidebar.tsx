@@ -8,6 +8,7 @@ import {
   BugIcon,
   UserIcon,
   BellIcon,
+  FileTextIcon
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -81,14 +82,10 @@ const LeftSidebar: React.FC = () => {
   return (
     <>
       <aside className="flex flex-col bg-sidebar text-sidebar-foreground w-[70px] h-full select-none">
-        {/* Logo at the very top */}
-        <div className="flex justify-center items-center border-b border-sidebar-border/30">
-          <h1 className="font-bigshot-one italic text-black text-3xl tracking-tight py-1.5">CN</h1>
-        </div>
-        
         {/* Top Navigation Items - Centered */}
         <div className="flex-grow flex flex-col items-center justify-center">
           <NavItem icon={<HomeIcon size={32} />} label="HOME" to="/home" active />
+          <NavItem icon={<FileTextIcon size={32} />} label="READER" to="/reader" />
           <NavItem icon={<BookmarkIcon size={32} />} label="SAVED" to="/saved" />
           <NavItem icon={<BellIcon size={32} />} label="NOTICE" to="/notifications" />
           <NavItem icon={<MoreHorizontalIcon size={32} />} label="MORE" to="/more" />

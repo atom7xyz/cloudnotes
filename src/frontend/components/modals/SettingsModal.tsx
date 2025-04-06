@@ -6,7 +6,6 @@ import { Badge } from "../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { cn } from "@/lib/utils";
 import { 
-  XIcon, 
   SettingsIcon, 
   EyeIcon, 
   ShieldIcon,
@@ -37,9 +36,8 @@ import {
   FileTextIcon,
   PencilIcon,
   MailIcon,
-  PlayIcon,
-  BookOpenIcon,
-  Trash2Icon
+  Trash2Icon,
+  CircleHelp
 } from 'lucide-react';
 import { Avatar } from '../ui/avatar';
 import { Modal } from '../ui/modal';
@@ -49,8 +47,6 @@ import correctAnswerSound from '../../assets/sounds/mixkit-correct-answer-tone-2
 import { Toaster } from '../ui/sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import PINLockModal from './PINLockModal';
-import { Slider } from "../ui/slider";
-import os from 'os';
 import SignOutConfirmationModal from './SignOutConfirmationModal';
 import ExportDataModal from './ExportDataModal';
 
@@ -259,8 +255,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   // Settings state
   const [activeTab, setActiveTab] = useState<string>("account");
   const [darkMode, setDarkMode] = useState(false);
-  const [largeCursor, setLargeCursor] = useState(false);
-  const [cursorSize, setCursorSize] = useState(24);
   const [textZoom, setTextZoom] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -532,6 +526,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     
     toast.success("Data export initiated", {
       description: "Your data will be sent to your email in 24-72 hours",
+      icon: <MailIcon size={16} />,
     });
   };
 
@@ -750,47 +745,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   </div>
                 </div>
               </SettingsSection>
-
-              <SettingsSection 
-                title="Display Options" 
-                description="Customize how content is displayed and accessibility features"
-              >
-                <ToggleItem
-                  label="Large Cursor"
-                  description="Use a larger cursor for better visibility"
-                  checked={largeCursor}
-                  onCheckedChange={setLargeCursor}
-                  icon={<MousePointerIcon size={18} />}
-                />
-                {largeCursor && (
-                  <div className="px-4 pt-2 pb-4 border-t">
-                    <div className="pl-7 pr-2 space-y-6">
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-sm">Cursor Size</span>
-                          <span className="text-sm font-medium">{cursorSize}px</span>
-                        </div>
-                        <Slider
-                          value={[cursorSize]}
-                          min={16}
-                          max={48}
-                          step={2}
-                          onValueChange={(value: number[]) => setCursorSize(value[0])}
-                          className="w-full cursor-grab active:cursor-grabbing"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <Separator />
-                <ToggleItem
-                  label="Text Zoom"
-                  description="Increase text size throughout the application"
-                  checked={textZoom}
-                  onCheckedChange={setTextZoom}
-                  icon={<ZoomInIcon size={18} />}
-                />
-              </SettingsSection>
             </TabsContent>
 
             <TabsContent value="security" className="space-y-6 mt-0 data-[state=active]:block">
@@ -847,7 +801,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 description="Control how you receive notifications"
               >
                 {/* First container: Enable Notifications */}
-                <div className="rounded-md border">
+                <div className="rounded-md">
                   <ToggleItem
                     label="In-App Notifications"
                     description="Receive notifications from the application"
@@ -857,14 +811,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   />
                   {/* Notification Example Preview */}
                   {notificationsEnabled && (
-                    <div className="py-2 px-4 border-t">
+                    <div className="py-2 px-4 pl-12">
                       <div className="flex justify-between items-center">
                         <div className="flex gap-2 items-center">
                           <div className="bg-primary/10 p-2 rounded-full">
-                            <BookOpenIcon size={16} className="text-primary" />
+                            <CircleHelp size={16} className="text-primary" />
                           </div>
                           <div>
-                            <span className="text-sm font-medium">Notification Example</span>
+                            <span className="text-sm font-medium">Test the notifications</span>
                             <p className="text-xs text-muted-foreground">See how notifications appear</p>
                           </div>
                         </div>
@@ -884,7 +838,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
                 
                 {/* Second container: Sound Effects */}
-                <div className="rounded-md border mt-4">
+                <div className="rounded-md border-t">
                   <ToggleItem
                     label="Sound Effects"
                     description="Play sounds for notifications and actions"
@@ -895,14 +849,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   />
                   {/* Sound Effect Preview */}
                   {soundEnabled && (
-                    <div className="py-2 px-4 border-t">
+                    <div className="pb-2 px-4 pl-12">
                       <div className="flex justify-between items-center">
                         <div className="flex gap-2 items-center">
                           <div className="bg-primary/10 p-2 rounded-full">
-                            <PlayIcon size={16} className="text-primary" />
+                            <CircleHelp size={16} className="text-primary" />
                           </div>
                           <div>
-                            <span className="text-sm font-medium">Sound Effect</span>
+                            <span className="text-sm font-medium">Test the sound of notifications</span>
                             <p className="text-xs text-muted-foreground">Hear notification sounds</p>
                           </div>
                         </div>
@@ -957,7 +911,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 title="Language Settings" 
                 description="Choose your preferred language"
               >
-                <div className="p-4 space-y-4">
+                <div>
                   <ToggleItem
                     label="Use System Language"
                     description="Follow your device's language settings"
@@ -965,8 +919,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     onCheckedChange={handleSystemLanguageToggle}
                     icon={<GlobeIcon size={18} />}
                   />
-                  <Separator />
-                  <div className="space-y-3">
+                  <div className="space-y-3 p-4">
                     {[
                       { id: 'english', label: 'English' },
                       { id: 'spanish', label: 'Español' },
