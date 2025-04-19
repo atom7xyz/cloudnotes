@@ -8,8 +8,7 @@ import {
   ChevronRight,
   Plus,
   PenSquare,
-  Globe
-} from 'lucide-react';
+  Globe} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { 
   DndContext, 
@@ -30,9 +29,6 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 interface NoteBarProps {
   currentPage: number;
-  totalPages: number;
-  currentTool: 'text' | 'highlight' | 'draw' | 'drag';
-  setCurrentTool: (tool: 'text' | 'highlight' | 'draw' | 'drag') => void;
   newNoteRef?: React.RefObject<HTMLTextAreaElement>;
 }
 
@@ -110,6 +106,12 @@ const SortableNote = memo(({
     return note.isGlobal ? "bg-yellow-500" : "bg-gray-500";
   }, [note.isGlobal]);
   
+  // Get latest note id for auto-focusing
+  const getLatestNoteId = useMemo(() => {
+    if (!notes || notes.length === 0) return -1;
+    return Math.max(...notes.map(n => n.id));
+  }, [notes]);
+  
   return (
     <Card ref={setNodeRef} style={style} className="p-0 overflow-hidden relative" {...attributes}>
       {/* Colored drag handle on the left side */}
@@ -182,7 +184,7 @@ const SortableNote = memo(({
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
-          ref={note.id === Math.max(...notes.map(n => n.id)) ? newNoteRef : undefined}
+          ref={note.id === getLatestNoteId ? newNoteRef || null : null}
         />
       </div>
     </Card>
@@ -193,9 +195,6 @@ SortableNote.displayName = 'SortableNote';
 
 const NoteBar = memo(({
   currentPage,
-  totalPages,
-  currentTool,
-  setCurrentTool,
   newNoteRef
 }: NoteBarProps) => {
   // All state declarations at the top level
@@ -349,7 +348,7 @@ const NoteBar = memo(({
             <div className="flex items-center justify-between">
               <Label className="select-none">Notes</Label>
               <Button 
-                variant="outline" 
+                variant="outline"
                 size="sm"
                 onClick={addNote}
                 className="select-none"

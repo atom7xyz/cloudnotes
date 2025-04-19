@@ -29,10 +29,8 @@ export function FormContainer<TFieldValues extends FieldValues>({
   noValidate = true,
 }: FormContainerProps<TFieldValues>) {
   const {
-    isDirty,
     isModalOpen,
     targetPath,
-    confirmNavigation,
     cancelNavigation,
     unsavedMessage: defaultUnsavedMessage,
   } = useFormNavigation({

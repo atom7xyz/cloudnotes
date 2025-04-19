@@ -35,14 +35,6 @@ export function FormCheckbox<
   disabled = false,
   labelClassName = "",
 }: FormCheckboxProps<TFieldValues, TName>) {
-  // Function to toggle the checkbox value
-  const toggleCheckbox = (newValue?: boolean) => {
-    if (!disabled) {
-      const value = newValue !== undefined ? newValue : !form.getValues(name);
-      form.setValue(name, value as any, { shouldDirty: true });
-    }
-  };
-
   return (
     <FormField
       control={form.control}

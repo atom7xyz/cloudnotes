@@ -1041,30 +1041,30 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
 
         <Tabs defaultValue="documents" value={activeTab} onValueChange={(value) => setActiveTab(value as 'documents' | 'users' | 'bookmarks')}>
           <div className="flex justify-between items-center mb-4">
-            <TabsList>
-              <TabsTrigger value="documents" className="gap-2 text-[13px] cursor-pointer">
+            <TabsList className="bg-background p-1 border border-muted-foreground/20 shadow">
+              <TabsTrigger value="documents" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10">
                 <FileText size={16} />
                 <span>Documents</span>
                 {documentResults.length > 0 && (
-                  <Badge variant="secondary" className="ml-1.5">
+                  <Badge variant="secondary" className="ml-1.5 rounded-full">
                     {documentResults.length}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="users" className="gap-2 text-[13px] cursor-pointer">
+              <TabsTrigger value="users" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10">
                 <User size={16} />
                 <span>Users</span>
                 {userResults.length > 0 && (
-                  <Badge variant="secondary" className="ml-1.5">
+                  <Badge variant="secondary" className="ml-1.5 rounded-full">
                     {userResults.length}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="bookmarks" className="gap-2 text-[13px] cursor-pointer">
+              <TabsTrigger value="bookmarks" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10">
                 <BookmarkIcon size={16} />
                 <span>Bookmarks</span>
                 {bookmarkResults.length > 0 && (
-                  <Badge variant="secondary" className="ml-1.5">
+                  <Badge variant="secondary" className="ml-1.5 rounded-full">
                     {bookmarkResults.length}
                   </Badge>
                 )}

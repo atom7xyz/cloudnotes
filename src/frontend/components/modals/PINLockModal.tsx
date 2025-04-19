@@ -96,20 +96,6 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
   // Create refs for the submit buttons
   const submitBtnRef = useRef<HTMLButtonElement>(null);
 
-  // Helper to get the active form based on current stage
-  const getActiveForm = () => {
-    switch (stage) {
-      case "verify":
-        return verifyForm;
-      case "create":
-        return createForm;
-      case "confirm":
-        return confirmForm;
-      default:
-        return createForm;
-    }
-  };
-
   // Helper to get the active input ref based on current stage
   const getActiveInputRef = () => {
     switch (stage) {

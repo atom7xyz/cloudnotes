@@ -15,7 +15,6 @@ import {
   HelpCircleIcon,
   SunIcon,
   MoonIcon,
-  MousePointerIcon,
   UserIcon,
   AtSignIcon,
   LockIcon,
@@ -30,7 +29,6 @@ import {
   TabletIcon,
   LaptopIcon,
   ExternalLinkIcon,
-  ZoomInIcon,
   MessageSquareIcon,
   Volume2Icon,
   FileTextIcon,
@@ -255,7 +253,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   // Settings state
   const [activeTab, setActiveTab] = useState<string>("account");
   const [darkMode, setDarkMode] = useState(false);
-  const [textZoom, setTextZoom] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [rememberLogin, setRememberLogin] = useState(true);

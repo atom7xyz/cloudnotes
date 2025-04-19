@@ -3,7 +3,6 @@ import { Modal } from "../ui/modal";
 import { DownloadIcon, MailIcon, RefreshCwIcon } from "lucide-react";
 import { Card } from "../ui/card";
 import { useState } from "react";
-import { toast } from 'sonner';
 
 interface ExportDataModalProps {
   isOpen: boolean;

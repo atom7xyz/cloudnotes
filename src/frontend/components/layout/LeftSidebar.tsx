@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   HomeIcon, 
   BookmarkIcon, 
-  ActivityIcon, 
   MoreHorizontalIcon,
   SettingsIcon,
   BugIcon,
@@ -63,7 +62,7 @@ const LeftSidebar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSessionExpiredOpen, setIsSessionExpiredOpen] = useState(false);
   const [isDev, setIsDev] = useState(false);
-  const [userStatus, setUserStatus] = useState<UserStatus>('online');
+  const [userStatus, _setUserStatus] = useState<UserStatus>('online');
   
   // Check if we're in development mode
   useEffect(() => {

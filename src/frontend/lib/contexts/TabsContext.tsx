@@ -10,6 +10,8 @@ interface TabsContextProps {
   isTabOpen: (path: string) => boolean;
   getTabById: (tabId: string) => FileTab | undefined;
   getTabByPath: (path: string) => FileTab | undefined;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
 }
 
 const TabsContext = createContext<TabsContextProps | undefined>(undefined);
@@ -17,24 +19,16 @@ const TabsContext = createContext<TabsContextProps | undefined>(undefined);
 // Asset directory files
 const assetFiles = [
   {
-    name: 'bible.pdf',
-    path: '/assets/files/bible.pdf',
+    name: 'genesis.pdf',
+    path: '/assets/files/genesis.pdf',
   },
   {
-    name: 'bible.txt',
-    path: '/assets/files/bible.txt',
+    name: 'exodus.pdf',
+    path: '/assets/files/exodus.pdf',
   },
   {
-    name: 'bible.docx',
-    path: '/assets/files/bible.docx',
-  },
-  {
-    name: 'bible.epub',
-    path: '/assets/files/bible.epub',
-  },
-  {
-    name: 'bible.ppt',
-    path: '/assets/files/bible.ppt',
+    name: 'revelation.pdf',
+    path: '/assets/files/revelation.pdf',
   },
 ];
 
@@ -49,12 +43,16 @@ const initialTabs: FileTab[] = assetFiles.map((file, index) => ({
 export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [openTabs, setOpenTabs] = useState<FileTab[]>(initialTabs);
   const [activeTabId, setActiveTabId] = useState<string | null>(initialTabs.length > 0 ? initialTabs[0].id : null);
-  const [isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
+  const [_isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Function to open a new tab
   const openTab = useCallback((tabInfo: Omit<FileTab, 'id' | 'lastOpened'>): string => {
     // First check if tab is already open
     const existingTab = openTabs.find(tab => tab.path === tabInfo.path);
+    
+    // Set loading state when switching tabs
+    setIsLoading(true);
     
     if (existingTab) {
       setActiveTabId(existingTab.id);
@@ -104,6 +102,7 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
           b.lastOpened.getTime() - a.lastOpened.getTime()
         );
         setActiveTabId(sortedTabs[0].id);
+        setIsLoading(true); // Set loading state when switching tabs
       } else if (filteredTabs.length === 0) {
         setActiveTabId(null);
       }
@@ -114,6 +113,10 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Function to set the active tab
   const setActiveTab = useCallback((tabId: string) => {
+    // Skip if loading or tab is already active
+    if (isLoading || tabId === activeTabId) return;
+    
+    setIsLoading(true); // Set loading state when switching tabs
     setActiveTabId(tabId);
     
     // Update the lastOpened time
@@ -124,7 +127,7 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
           : tab
       )
     );
-  }, []);
+  }, [activeTabId, isLoading]);
 
   // Function to check if a tab is open
   const isTabOpen = useCallback((path: string) => {
@@ -144,6 +147,14 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Set up keyboard shortcut to open tab switcher
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't open tab switcher if loading
+      if (isLoading) {
+        if (e.ctrlKey && e.key === 'Tab') {
+          e.preventDefault();
+          return;
+        }
+      }
+      
       // Ctrl+Tab to open tab switcher
       if (e.ctrlKey && e.key === 'Tab') {
         e.preventDefault();
@@ -155,7 +166,7 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isLoading]);
 
   const contextValue = {
     openTabs,
@@ -166,6 +177,8 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isTabOpen,
     getTabById,
     getTabByPath,
+    isLoading,
+    setIsLoading,
   };
 
   return (

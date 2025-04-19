@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { useZoom } from '@/lib/contexts/ZoomContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import LoadingModal from '@/components/modals/LoadingModal';
+import { ZoomValue } from '@/components/reader/FileReaderTopNavbar';
 
 // Import the PDFViewer
 import PDFViewer, { ScrollMode } from './PDFViewer';
@@ -9,43 +9,47 @@ import PDFViewer, { ScrollMode } from './PDFViewer';
 // Define file type enum 
 export enum FileType {
   PDF = 'pdf',
-  TXT = 'txt',
   UNKNOWN = 'unknown'
 }
 
-// Map of default files for each file type
-export const DEFAULT_FILES = {
-  [FileType.PDF]: '/assets/files/sample.pdf',
-  [FileType.TXT]: '/assets/files/sample.txt',
-  [FileType.UNKNOWN]: '/assets/files/sample.pdf',
+// Set up default files for testing/demo
+export const DEFAULT_FILES: Record<FileType, string> = {
+  [FileType.PDF]: '/assets/files/genesis.pdf',
+  [FileType.UNKNOWN]: '/assets/files/genesis.pdf'
 };
 
-// Props interface for DocumentViewer
-interface DocumentViewerProps {
-  filePath: string; // Path to the file (can be a local or remote URL)
-  onLoadSuccess?: (numPages?: number) => void;
-  onLoadError?: (error: Error) => void;
-  currentPage?: number; // For multi-page documents
-  onTextSearch?: (searchTerm: string) => void;
-  scrollMode?: ScrollMode; // Add scrollMode prop
-  onPageChange?: (pageNumber: number) => void; // Add page change callback
-}
-
 // Helper function to determine file type from path
-export const getFileType = (filePath: string): FileType => {
+const getFileType = (filePath: string): FileType => {
   if (!filePath) return FileType.UNKNOWN;
   
-  const extension = filePath.split('.').pop()?.toLowerCase();
+  // Get file extension
+  const ext = filePath.split('.').pop()?.toLowerCase();
   
-  switch (extension) {
+  // Check against known file types
+  switch (ext) {
     case 'pdf':
       return FileType.PDF;
-    case 'txt':
-      return FileType.TXT;
     default:
       return FileType.UNKNOWN;
   }
 };
+
+// Viewer props
+interface DocumentViewerProps {
+  filePath: string;
+  currentPage?: number;
+  onLoadSuccess?: (numPages?: number) => void;
+  onLoadError?: (error: Error) => void;
+  onTextSearch?: (text: string) => void;
+  scrollMode?: ScrollMode;
+  onPageChange?: (pageNumber: number) => void;
+  activeTool?: string | null;
+  onToolChange?: (tool: string | null) => void;
+  onZoomChange?: (zoomValue: ZoomValue) => void;
+  selectedMarkerColor?: string;
+  selectedDrawingColor?: string;
+  drawingLineWidth?: number;
+}
 
 // Main DocumentViewer component
 const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
@@ -53,17 +57,30 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
   onLoadSuccess,
   onLoadError,
   currentPage = 1,
-  onTextSearch,
   scrollMode = ScrollMode.VERTICAL,
-  onPageChange
+  onPageChange,
+  activeTool = 'move',
+  onToolChange,
+  onZoomChange,
+  selectedMarkerColor = 'rgba(255, 255, 0, 0.3)', // Default yellow
+  selectedDrawingColor = '#FF0000', // Default red
+  drawingLineWidth = 2 // Default line width
 }) => {
-  const { zoomLevel } = useZoom();
   const [fileType, setFileType] = useState<FileType>(FileType.UNKNOWN);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
-  const [numPages, setNumPages] = useState<number>(1);
+  const [_numPages, setNumPages] = useState<number>(1);
   const [previousFilePath, setPreviousFilePath] = useState<string>('');
+  const [previousScrollMode, setPreviousScrollMode] = useState<ScrollMode | undefined>(undefined);
+  
+  // Log when scroll mode changes
+  useEffect(() => {
+    if (previousScrollMode !== scrollMode) {
+      console.log('DocumentViewer: scrollMode changed from', previousScrollMode, 'to', scrollMode);
+      setPreviousScrollMode(scrollMode);
+    }
+  }, [scrollMode, previousScrollMode]);
   
   // Detect file type based on path
   useEffect(() => {
@@ -108,12 +125,21 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
     }
   }, [onLoadSuccess]);
 
-  // Handle page change events from PDFViewer
+  // Handle page change events from PDFViewer - this function will trigger smooth scrolling
   const handlePageChange = useCallback((pageNumber: number) => {
+    console.log(`DocumentViewer: handlePageChange called with page ${pageNumber}`);
     if (onPageChange) {
+      // Pass the page change to the parent component
       onPageChange(pageNumber);
     }
   }, [onPageChange]);
+
+  // Handle zoom change events
+  const handleZoomChange = useCallback((zoomValue: number) => {
+    if (onZoomChange) {
+      onZoomChange(zoomValue);
+    }
+  }, [onZoomChange]);
 
   // Render appropriate viewer based on file type
   const renderViewer = () => {
@@ -143,21 +169,23 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
             onLoadError={handleError}
             scrollMode={scrollMode}
             onPageChange={handlePageChange}
+            activeTool={activeTool || undefined}
+            onZoomChange={handleZoomChange}
+            selectedMarkerColor={selectedMarkerColor}
+            selectedDrawingColor={selectedDrawingColor}
+            drawingLineWidth={drawingLineWidth}
           />
         );
-      case FileType.TXT:
       case FileType.UNKNOWN:
       default:
-        // For text files or unknown types, fallback to a simple viewer or PDF viewer
+        // Only show the fallback PDF for unknown files
         return (
-          <PDFViewer
-            filePath={DEFAULT_FILES[FileType.PDF]}
-            currentPage={currentPage}
-            onLoadSuccess={handleLoadSuccess}
-            onLoadError={handleError}
-            scrollMode={scrollMode}
-            onPageChange={handlePageChange}
-          />
+          <div className="h-[842px] w-[595px] bg-muted rounded-md flex items-center justify-center shadow-md">
+            <div className="text-center p-4">
+              <h3 className="text-lg font-semibold mb-2">Unsupported File Type</h3>
+              <p className="text-muted-foreground">The file type could not be determined or is not supported.</p>
+            </div>
+          </div>
         );
     }
   };

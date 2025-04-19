@@ -38,15 +38,19 @@ import TabSwitcherModal, { FileTab } from '@/components/modals/TabSwitcherModal'
 import { useTabs } from '@/lib/contexts/TabsContext';
 import { cn } from '@/lib/utils';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
+import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
 
 // Custom CSS properties for Electron window drag regions
 interface ElectronCSSProperties extends CSSProperties {
   WebkitAppRegion?: 'drag' | 'no-drag';
 }
 
+// Define special zoom types for adaptive zooming
+export type ZoomValue = number | 'fit' | 'width';
+
 interface FileReaderTopNavbarProps {
   zoomLevel: number;
-  onZoomChange: (value: number[]) => void;
+  onZoomChange: (value: number) => void;
   onGoBack?: () => void;
   onFindText?: (text: string, direction: 'forward' | 'backward') => void;
   onFindAllText?: (text: string) => void;
@@ -54,6 +58,7 @@ interface FileReaderTopNavbarProps {
   onToggleNotes?: () => void;
   scrollMode?: ScrollMode;
   onScrollModeChange?: (mode: ScrollMode) => void;
+  isLoading?: boolean;
 }
 
 // Memoized CSS style objects for better performance
@@ -97,38 +102,114 @@ const NavButton: React.FC<NavButtonProps> = memo(({
 
 NavButton.displayName = 'NavButton';
 
-// Compact Zoom Control component
-const CompactZoomControl = memo(({ 
+// Zoom Control with Dropdown menu
+const ZoomControl = memo(({ 
   zoomLevel, 
-  onZoomOut, 
-  onZoomIn 
+  onZoomChange 
 }: { 
   zoomLevel: number;
-  onZoomOut: () => void;
-  onZoomIn: () => void;
+  onZoomChange: (value: number) => void;
 }) => {
+  // Predefined zoom levels
+  const zoomLevels = [
+    { label: 'Actual size', value: 100 },
+    { label: 'Page fit', value: 'fit' },
+    { label: 'Page width', value: 'width' },
+    { label: '50%', value: 50 },
+    { label: '75%', value: 75 },
+    { label: '100%', value: 100 },
+    { label: '125%', value: 125 },
+    { label: '150%', value: 150 },
+    { label: '200%', value: 200 },
+    { label: '300%', value: 300 },
+    { label: '400%', value: 400 },
+  ];
+
+  // Handle zoom level selection
+  const handleZoomSelect = useCallback((value: number | string) => {
+    if (typeof value === 'number') {
+      onZoomChange(value);
+    }
+    
+    if (value === 'fit') {
+      onZoomChange(125);
+    }
+    
+    if (value === 'width') {
+      onZoomChange(310);
+    }
+  }, [onZoomChange]);
+
+  // Handle zoom in button click
+  const handleZoomIn = useCallback(() => {
+    const newZoom = Math.min(400, zoomLevel + 25);
+    onZoomChange(newZoom);
+  }, [zoomLevel, onZoomChange]);
+  
+  // Handle zoom out button click
+  const handleZoomOut = useCallback(() => {
+    const newZoom = Math.max(25, zoomLevel - 25);
+    onZoomChange(newZoom);
+  }, [zoomLevel, onZoomChange]);
+
+  // Get display label for the current zoom level
+  const currentZoomLabel = useMemo(() => {
+    return `${zoomLevel}%`;
+  }, [zoomLevel]);
+
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1" style={noDragRegion}>
       <NavButton
         icon={<ZoomOut className="h-4 w-4" />}
         title="Zoom out"
-        onClick={onZoomOut}
+        onClick={handleZoomOut}
       />
       
-      <Badge variant="outline" className="text-xs font-medium h-6 px-2 py-0 flex items-center">
-        {zoomLevel}%
-      </Badge>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8 px-2 flex items-center gap-1 text-xs font-medium"
+          >
+            {currentZoomLabel}
+            <ChevronDown className="h-3 w-3 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-32">
+          {zoomLevels.map((level, index) => (
+            <React.Fragment key={index}>
+              {(index === 0 || index === 3) && (
+                <DropdownMenuSeparator />
+              )}
+              <DropdownMenuItem 
+                className={cn(
+                  "flex justify-between",
+                  (typeof level.value === 'number' && level.value === zoomLevel) || 
+                  (level.value === 'fit' && zoomLevel === -1) ||
+                  (level.value === 'width' && zoomLevel === -2)
+                    ? "bg-muted" 
+                    : ""
+                )}
+                onClick={() => handleZoomSelect(level.value)}
+              >
+                <span>{level.label}</span>
+              </DropdownMenuItem>
+            </React.Fragment>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
       
       <NavButton
         icon={<ZoomIn className="h-4 w-4" />}
         title="Zoom in"
-        onClick={onZoomIn}
+        onClick={handleZoomIn}
       />
     </div>
   );
 });
 
-CompactZoomControl.displayName = 'CompactZoomControl';
+ZoomControl.displayName = 'ZoomControl';
 
 // Memoized WindowControls component
 const WindowControls = memo(({ 
@@ -143,12 +224,12 @@ const WindowControls = memo(({
   onClose: () => void;
 }) => {
   return (
-    <div className="flex items-center h-full w-[150px]" style={noDragRegion}>
+    <div className="flex items-center h-full w-[150px]">
       <Button 
         onClick={onMinimize}
         variant="ghost"
         size="icon"
-        className="h-12 w-[50px] rounded-none hover:bg-primary/10 hover:text-primary transition-all duration-200"
+        className="h-12 w-[50px] rounded-none hover:bg-primary/10 hover:text-primary transition-all duration-200" style={noDragRegion}
         title="Minimize"
       >
         <MinusIcon size={16} />
@@ -158,7 +239,7 @@ const WindowControls = memo(({
         onClick={onMaximize}
         variant="ghost"
         size="icon"
-        className="h-12 w-[50px] rounded-none hover:bg-primary/10 hover:text-primary transition-all duration-200" 
+        className="h-12 w-[50px] rounded-none hover:bg-primary/10 hover:text-primary transition-all duration-200" style={noDragRegion}
         title={isMaximized ? "Restore" : "Maximize"}
       >
         {isMaximized ? <SquareIcon size={16} /> : <MaximizeIcon size={16} />}
@@ -168,7 +249,7 @@ const WindowControls = memo(({
         onClick={onClose}
         variant="ghost"
         size="icon"
-        className="h-12 w-[50px] rounded-none hover:bg-destructive hover:text-white transition-all duration-200"
+        className="h-12 w-[50px] rounded-none hover:bg-destructive hover:text-white transition-all duration-200" style={noDragRegion}
         title="Close"
       >
         <XIcon size={16} />
@@ -236,16 +317,12 @@ DropdownTabItem.displayName = 'DropdownTabItem';
 const ScrollModeSelector = memo(({
   currentMode,
   onChange,
-  isNotesOpen,
-  onToggleNotes
 }: {
   currentMode: ScrollMode;
   onChange: (mode: ScrollMode) => void;
-  isNotesOpen: boolean;
-  onToggleNotes: () => void;
 }) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" style={noDragRegion}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-1 rounded-full">
@@ -288,8 +365,8 @@ const ScrollModeSelector = memo(({
           >
             <MoveHorizontal className="h-4 w-4" />
             <div className="flex flex-col">
-              <span>Horizontal Scrolling</span>
-              <span className="text-xs text-muted-foreground">Show all pages in a row</span>
+              <span>Wrapped Scrolling</span>
+              <span className="text-xs text-muted-foreground">Show pages in a wrapped layout</span>
             </div>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -301,8 +378,16 @@ const ScrollModeSelector = memo(({
 ScrollModeSelector.displayName = 'ScrollModeSelector';
 
 // Memoized RecentFilesDropdown component
-const RecentFilesDropdown = memo(() => {
+const RecentFilesDropdown = memo(({ isLoading }: { isLoading?: boolean }) => {
   const { openTabs, activeTabId, setActiveTab, closeTab } = useTabs();
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Close dropdown when loading
+  useEffect(() => {
+    if (isLoading && isOpen) {
+      setIsOpen(false);
+    }
+  }, [isLoading, isOpen]);
   
   // Get the tabs sorted by most recently opened
   const sortedTabs = useMemo(() => {
@@ -314,6 +399,7 @@ const RecentFilesDropdown = memo(() => {
   // Memoize the handlers to prevent recreating functions
   const handleTabSelect = useCallback((tabId: string) => {
     setActiveTab(tabId);
+    setIsOpen(false);
   }, [setActiveTab]);
   
   const handleTabClose = useCallback((tabId: string) => {
@@ -321,10 +407,10 @@ const RecentFilesDropdown = memo(() => {
   }, [closeTab]);
   
   return (
-    <div className="ml-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-1 rounded-full">
+    <div className="ml-2" style={noDragRegion}>
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild disabled={isLoading}>
+          <Button variant="outline" size="sm" className={`gap-1 rounded-full ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <NotebookText className="h-4 w-4" />
             <span>Your cloudnotes</span>
             <ChevronDown className="h-3 w-3 opacity-50" />
@@ -375,13 +461,13 @@ const FileReaderTopNavbar = memo(({
   onGoBack,
   onFindText,
   onFindAllText,
-  isNotesOpen = false,
-  onToggleNotes = () => {},
   scrollMode = ScrollMode.VERTICAL,
-  onScrollModeChange = () => {}
-}: FileReaderTopNavbarProps) => {
+  onScrollModeChange = () => {},
+  isLoading = false
+}: FileReaderTopNavbarProps & { isLoading?: boolean }) => {
   const navigate = useNavigate();
   const { openTabs, activeTabId, setActiveTab } = useTabs();
+  const editHistory = useEditHistoryContext();
   
   // All state hooks at the top level
   const [searchQuery, setSearchQuery] = useState('');
@@ -484,35 +570,19 @@ const FileReaderTopNavbar = memo(({
   
   // Edit handlers
   const handleUndoClick = useCallback(() => {
-    // Implement undo functionality
-    console.log('Undo action');
-  }, []);
+    // Use the undo function from the EditHistoryContext
+    editHistory.undo();
+  }, [editHistory]);
   
   const handleRedoClick = useCallback(() => {
-    // Implement redo functionality
-    console.log('Redo action');
-  }, []);
-  
-  // Toggle notes handler
-  const handleToggleNotes = useCallback(() => {
-    onToggleNotes();
-  }, [onToggleNotes]);
+    // Use the redo function from the EditHistoryContext
+    editHistory.redo();
+  }, [editHistory]);
   
   // Handle scroll mode change
   const handleScrollModeChange = useCallback((mode: ScrollMode) => {
     onScrollModeChange(mode);
   }, [onScrollModeChange]);
-  
-  // Zoom handlers
-  const handleZoomIn = useCallback(() => {
-    const newZoom = Math.min(200, zoomLevel + 10);
-    onZoomChange([newZoom]);
-  }, [zoomLevel, onZoomChange]);
-  
-  const handleZoomOut = useCallback(() => {
-    const newZoom = Math.max(50, zoomLevel - 10);
-    onZoomChange([newZoom]);
-  }, [zoomLevel, onZoomChange]);
   
   // Search modal handlers
   const handleSaveRecentSearch = useCallback((search: string) => {
@@ -545,32 +615,18 @@ const FileReaderTopNavbar = memo(({
       <TooltipProvider>
         <header className="flex h-12 bg-sidebar text-sidebar-foreground items-center justify-between select-none" style={dragRegion}>
           {/* Left section - Back button, cloudnotes dropdown */}
-          <div className="flex items-center pl-4" style={noDragRegion}>
+          <div className="flex items-center pl-4" style={dragRegion}>
             <NavButton
-              icon={<ArrowLeftIcon className="h-5 w-5" />}
+              icon={<ArrowLeftIcon className="h-5 w-5" style={noDragRegion}/>}
               title="Go back"
               onClick={handleGoBack}
             />
             
-            <RecentFilesDropdown />
+            <RecentFilesDropdown isLoading={isLoading} />
           </div>
 
           {/* Middle section - Edit buttons, Search, View controls, and Zoom */}
-          <div className="flex-1 flex items-center justify-center space-x-3" style={noDragRegion}>
-            <div className="flex items-center space-x-2">
-              <NavButton
-                icon={<Undo2 className="h-4 w-4" />}
-                title="Undo"
-                onClick={handleUndoClick}
-              />
-              
-              <NavButton
-                icon={<Redo2 className="h-4 w-4" />}
-                title="Redo"
-                onClick={handleRedoClick}
-              />
-            </div>
-            
+          <div className="flex-1 flex items-center justify-center space-x-3" style={dragRegion}>
             <div className="relative w-1/4 max-w-xs" onClick={handleSearchClick}>
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/70">
                 <Search className="h-4 w-4" />
@@ -588,6 +644,7 @@ const FileReaderTopNavbar = memo(({
                   searchFocused ? "ring-2 ring-sidebar-ring border-sidebar-ring" : "border-muted-foreground/40",
                   "placeholder-sidebar-foreground/60 hover:border-primary/30"
                 )}
+                style={noDragRegion}
                 readOnly
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
@@ -599,16 +656,13 @@ const FileReaderTopNavbar = memo(({
               <ScrollModeSelector 
                 currentMode={scrollMode}
                 onChange={handleScrollModeChange}
-                isNotesOpen={isNotesOpen}
-                onToggleNotes={handleToggleNotes}
               />
             </div>
             
             <div className="flex items-center">
-              <CompactZoomControl 
+              <ZoomControl 
                 zoomLevel={zoomLevel}
-                onZoomOut={handleZoomOut}
-                onZoomIn={handleZoomIn}
+                onZoomChange={onZoomChange}
               />
             </div>
           </div>

@@ -21,7 +21,7 @@ export default function ResetPassword() {
   });
   
   // Handle form submission
-  const onSubmit = (values: ResetPasswordFormValues) => {
+  const onSubmit = (_values: ResetPasswordFormValues) => {
     // Navigate to success page
     appNavigate("/reset-password-success");
   };

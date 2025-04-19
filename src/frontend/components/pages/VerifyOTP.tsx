@@ -22,7 +22,7 @@ export default function VerifyOTP() {
   });
   
   // Handle form submission
-  const onSubmit = (values: OtpFormValues) => {
+  const onSubmit = (_values: OtpFormValues) => {
     // Navigate to reset password page
     appNavigate("/reset-password");
   };

@@ -118,7 +118,7 @@ const FileViewport = ({
     setIsDrawing(false);
   }, []);
   
-  const handleHighlight = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const handleHighlight = useCallback((_e: React.MouseEvent<HTMLDivElement>) => {
     if (currentTool !== 'highlight') return;
     
     // In a real app, this would identify the text being highlighted
