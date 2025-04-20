@@ -8,9 +8,12 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { ArrowLeftIcon } from "lucide-react";
+import { useState } from "react";
 
 export default function ForgotPassword() {
   const appNavigate = useAppNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Initialize form with react-hook-form and zod validation
   const form = useForm<ForgotPasswordFormValues>({
@@ -22,10 +25,21 @@ export default function ForgotPassword() {
   });
   
   // Handle form submission
-  const onSubmit = (values: ForgotPasswordFormValues) => {
-    // Navigate to verify OTP page
-    console.log("Forgot password submitted", values);
-    appNavigate("/verify-otp");
+  const onSubmit = async (values: ForgotPasswordFormValues) => {
+    setIsLoading(true);
+    
+    try {
+      // Simulate API request to send reset code
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Navigate to verify OTP page
+      appNavigate("/verify-otp");
+    } catch (error) {
+      // Handle error
+      setError('Failed to send reset code. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Check if form is empty

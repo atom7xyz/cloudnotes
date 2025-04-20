@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FileTab } from '@/components/modals/TabSwitcherModal';
+import { Document, Page, pdfjs } from 'react-pdf';
+
+// Set the pdf.js worker source
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface TabsContextProps {
   openTabs: FileTab[];
@@ -12,6 +17,7 @@ interface TabsContextProps {
   getTabByPath: (path: string) => FileTab | undefined;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+  generatePreview: (filePath: string) => Promise<string | undefined>;
 }
 
 const TabsContext = createContext<TabsContextProps | undefined>(undefined);
@@ -45,6 +51,108 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activeTabId, setActiveTabId] = useState<string | null>(initialTabs.length > 0 ? initialTabs[0].id : null);
   const [_isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
+
+  // Generate PDF preview using react-pdf
+  const generatePreview = useCallback(async (filePath: string): Promise<string | undefined> => {
+    if (!filePath.toLowerCase().endsWith('.pdf')) {
+      return undefined;
+    }
+    
+    try {
+      // Create an off-screen canvas for rendering the PDF
+      const canvas = document.createElement('canvas');
+      canvas.width = 300; // Width of the preview
+      canvas.height = 400; // Height of the preview
+      
+      // Create a wrapper div to hold the canvas temporarily
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '-9999px';
+      tempDiv.appendChild(canvas);
+      document.body.appendChild(tempDiv);
+      
+      // Render the first page of the PDF to the canvas
+      return new Promise((resolve) => {
+        // Render only the first page
+        const renderPage = (page: any) => {
+          const viewport = page.getViewport({ scale: 0.5 }); // Adjust scale to fit
+          const context = canvas.getContext('2d');
+          
+          if (!context) {
+            document.body.removeChild(tempDiv);
+            resolve(undefined);
+            return;
+          }
+          
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+          };
+          
+          // Render the page
+          const renderTask = page.render(renderContext);
+          
+          renderTask.promise.then(() => {
+            const dataUrl = canvas.toDataURL('image/png');
+            document.body.removeChild(tempDiv);
+            resolve(dataUrl);
+          }).catch(() => {
+            document.body.removeChild(tempDiv);
+            resolve(undefined);
+          });
+        };
+        
+        // Use react-pdf to load the document
+        import('pdfjs-dist').then(async (pdfjs) => {
+          try {
+            const loadingTask = pdfjs.getDocument(filePath);
+            const pdf = await loadingTask.promise;
+            
+            if (pdf) {
+              const page = await pdf.getPage(1);
+              renderPage(page);
+            } else {
+              document.body.removeChild(tempDiv);
+              resolve(undefined);
+            }
+          } catch (error) {
+            document.body.removeChild(tempDiv);
+            resolve(undefined);
+          }
+        }).catch((error) => {
+          document.body.removeChild(tempDiv);
+          resolve(undefined);
+        });
+      });
+    } catch (error) {
+      return undefined;
+    }
+  }, []);
+
+  // Generate thumbnails for initial tabs
+  useEffect(() => {
+    // Only run once on mount
+    initialTabs.forEach(tab => {
+      if (tab.path.toLowerCase().endsWith('.pdf')) {
+        generatePreview(tab.path).then(previewUrl => {
+          if (previewUrl) {
+            setOpenTabs(currentTabs => 
+              currentTabs.map(t => 
+                t.id === tab.id ? { ...t, preview: previewUrl } : t
+              )
+            );
+          }
+        }).catch(err => {
+          console.error('Error generating preview for initial tab:', err);
+        });
+      }
+    });
+  }, [generatePreview]);
 
   // Function to open a new tab
   const openTab = useCallback((tabInfo: Omit<FileTab, 'id' | 'lastOpened'>): string => {
@@ -80,14 +188,28 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setOpenTabs(prevTabs => [...prevTabs, newTab]);
     setActiveTabId(newTabId);
     
+    // Generate preview for the file
+    if (tabInfo.path.toLowerCase().endsWith('.pdf')) {
+      generatePreview(tabInfo.path).then(previewUrl => {
+        if (previewUrl) {
+          setOpenTabs(currentTabs => 
+            currentTabs.map(t => 
+              t.id === newTabId ? { ...t, preview: previewUrl } : t
+            )
+          );
+        }
+      }).catch(err => {
+        console.error('Error generating preview:', err);
+      });
+    }
+    
     return newTabId;
-  }, [openTabs]);
+  }, [openTabs, generatePreview]);
 
   // Load files from assets directory on initialization
   useEffect(() => {
     // We're already loading the files from the asset directory
     // This effect could be used to dynamically fetch files from the backend in the future
-    console.log('Loaded files from assets directory:', assetFiles);
   }, []);
 
   // Function to close a tab
@@ -179,6 +301,7 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getTabByPath,
     isLoading,
     setIsLoading,
+    generatePreview
   };
 
   return (

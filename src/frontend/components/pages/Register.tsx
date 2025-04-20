@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterFormValues, registerSchema } from "@/lib/validations/auth";
@@ -10,6 +12,10 @@ import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { PasswordInput } from "@/components/form-fields/PasswordInput";
 
 export default function Register() {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Initialize form with react-hook-form and zod validation
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -25,9 +31,21 @@ export default function Register() {
   });
   
   // Handle form submission
-  const onSubmit = (values: RegisterFormValues) => {
-    // Fake the process
-    console.log("Registration submitted", values);
+  const onSubmit = async (values: RegisterFormValues) => {
+    setIsLoading(true);
+    
+    try {
+      // Simulate API request
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // On success, navigate to login or verification page
+      navigate('/login');
+    } catch (error) {
+      // Handle registration error
+      setError('Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Check if form is empty

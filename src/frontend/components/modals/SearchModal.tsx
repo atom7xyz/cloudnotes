@@ -144,18 +144,14 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
       // Check if this is still the latest request
       if (latestSearchRequestRef.current !== currentRequestId) {
         // A newer request has been made, abandon this one
-        console.log("Search aborted: newer search initiated");
         return;
       }
-      
-      console.log(`Executing search: ${query} with ${tags.length} tags`);
       
       // For documents search
       const documents = await mockDataService.searchDocuments(query);
       
       // After each async operation, check if this search is still relevant
       if (latestSearchRequestRef.current !== currentRequestId) {
-        console.log("Search aborted after document search: newer search initiated");
         return;
       }
       
@@ -164,7 +160,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
       
       // Check again if this search is still relevant
       if (latestSearchRequestRef.current !== currentRequestId) {
-        console.log("Search aborted after bookmark search: newer search initiated");
         return;
       }
       
@@ -191,7 +186,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
       
       // Check again if this is still the latest request
       if (latestSearchRequestRef.current !== currentRequestId) {
-        console.log("Search aborted after user search: newer search initiated");
         return;
       }
       
@@ -231,7 +225,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
 
       // One final check before updating state
       if (latestSearchRequestRef.current !== currentRequestId) {
-        console.log("Search aborted before updating UI: newer search initiated");
         return;
       }
 
@@ -239,10 +232,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
       setBookmarkResults(filteredBookmarks);
       // Set users results - tags don't affect user results, but we update based on text
       setUserResults(users);
-      
-      console.log(`Search completed: ${filteredDocuments.length} docs, ${users.length} users, ${filteredBookmarks.length} bookmarks`);
     } catch (error) {
-      console.error('Search error:', error);
+      // Silently handle error
     } finally {
       // Only update loading state if this is still the latest request
       if (latestSearchRequestRef.current === currentRequestId) {
@@ -457,27 +448,22 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
 
   // Mock navigation functions (since we're not actually navigating)
   const navigateToUserProfile = (username: string) => {
-    console.log(`Navigating to user profile: ${username}`);
     // In a real app, we would use a router here
   };
 
   const navigateToDocument = (documentId: string) => {
-    console.log(`Navigating to document: ${documentId}`);
     // In a real app, we would use a router here
   };
 
   const navigateToComments = (documentId: string) => {
-    console.log(`Navigating to comments for document: ${documentId}`);
     // In a real app, we would use a router here
   };
 
   const navigateToReviews = (documentId: string) => {
-    console.log(`Navigating to reviews for document: ${documentId}`);
     // In a real app, we would use a router here
   };
 
   const navigateToUserUploads = (userId: string) => {
-    console.log(`Navigating to uploads for user: ${userId}`);
     // In a real app, we would use a router here
   };
 

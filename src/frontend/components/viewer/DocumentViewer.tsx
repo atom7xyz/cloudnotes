@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import LoadingModal from '@/components/modals/LoadingModal';
 import { ZoomValue } from '@/components/reader/FileReaderTopNavbar';
@@ -40,7 +40,8 @@ interface DocumentViewerProps {
   currentPage?: number;
   onLoadSuccess?: (numPages?: number) => void;
   onLoadError?: (error: Error) => void;
-  onTextSearch?: (text: string) => void;
+  onTextSearch?: (searchFn: (text: string, direction: 'forward' | 'backward') => void) => void;
+  onSearchMetadataChange?: (metadata: { totalMatches: number; currentMatch: number }) => void;
   scrollMode?: ScrollMode;
   onPageChange?: (pageNumber: number) => void;
   activeTool?: string | null;
@@ -62,7 +63,9 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
   activeTool = 'move',
   onToolChange,
   onZoomChange,
-  selectedMarkerColor = 'rgba(255, 255, 0, 0.3)', // Default yellow
+  onTextSearch,
+  onSearchMetadataChange,
+  selectedMarkerColor = 'rgba(255, 255, 0, 0.3)',
   selectedDrawingColor = '#FF0000', // Default red
   drawingLineWidth = 2 // Default line width
 }) => {
@@ -74,10 +77,35 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
   const [previousFilePath, setPreviousFilePath] = useState<string>('');
   const [previousScrollMode, setPreviousScrollMode] = useState<ScrollMode | undefined>(undefined);
   
-  // Log when scroll mode changes
+  // Store search metadata to pass back to parent
+  const [searchMetadata, setSearchMetadata] = useState<{ totalMatches: number; currentMatch: number }>({ 
+    totalMatches: 0, 
+    currentMatch: 0 
+  });
+  
+  // Add a ref to store the search function provided by PDFViewer
+  const searchFunctionRef = useRef<((text: string, direction: 'forward' | 'backward') => void) | null>(null);
+
+  // Create an adapter for text search
+  const handlePDFTextSearch = useCallback((searchFunction: (text: string, direction?: 'forward' | 'backward') => void) => {
+    // Store the search function provided by PDFViewer
+    searchFunctionRef.current = searchFunction;
+    
+    // If parent component provided a callback to receive our search function
+    if (onTextSearch) {
+      // Pass up our function that will use the PDFViewer's search implementation
+      onTextSearch((text: string, direction: 'forward' | 'backward' = 'forward') => {
+        if (searchFunctionRef.current) {
+          // Use the PDFViewer's search function when called
+          searchFunctionRef.current(text, direction);
+        }
+      });
+    }
+  }, [onTextSearch]);
+
+  // Update scroll mode
   useEffect(() => {
     if (previousScrollMode !== scrollMode) {
-      console.log('DocumentViewer: scrollMode changed from', previousScrollMode, 'to', scrollMode);
       setPreviousScrollMode(scrollMode);
     }
   }, [scrollMode, previousScrollMode]);
@@ -89,8 +117,6 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
       
       // Only show loading and reset state when file path changes
       if (filePath !== previousFilePath) {
-        console.log(`DocumentViewer: File path changed from ${previousFilePath} to ${filePath}`);
-        
         setIsLoading(true);
         setError(null);
         setShowLoadingModal(true);
@@ -129,7 +155,6 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
 
   // Handle page change events from PDFViewer - this function will trigger smooth scrolling
   const handlePageChange = useCallback((pageNumber: number) => {
-    console.log(`DocumentViewer: handlePageChange called with page ${pageNumber}`);
     if (onPageChange) {
       // Pass the page change to the parent component
       onPageChange(pageNumber);
@@ -142,6 +167,14 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
       onZoomChange(zoomValue);
     }
   }, [onZoomChange]);
+
+  // Handle search metadata updates from PDFViewer
+  const handleSearchMetadataChange = useCallback((metadata: { totalMatches: number; currentMatch: number }) => {
+    setSearchMetadata(metadata);
+    if (onSearchMetadataChange) {
+      onSearchMetadataChange(metadata);
+    }
+  }, [onSearchMetadataChange]);
 
   // Render appropriate viewer based on file type
   const renderViewer = () => {
@@ -173,6 +206,8 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
             onPageChange={handlePageChange}
             activeTool={activeTool || undefined}
             onZoomChange={handleZoomChange}
+            onTextSearch={handlePDFTextSearch}
+            onSearchMetadataChange={handleSearchMetadataChange}
             selectedMarkerColor={selectedMarkerColor}
             selectedDrawingColor={selectedDrawingColor}
             drawingLineWidth={drawingLineWidth}

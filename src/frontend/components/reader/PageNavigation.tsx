@@ -81,7 +81,6 @@ const PageNavigation = memo(({ pageNumber, numPages, onPageChange, isVisible, is
       setTimeout(() => {
         const pdfContainer = document.querySelector('.pdf-container');
         if (pdfContainer) {
-          console.log('Dispatching previous page navigation event');
           pdfContainer.dispatchEvent(
             new CustomEvent('direct-navigate', { 
               detail: { pageNumber: pageNumber - 1 } 
@@ -103,7 +102,6 @@ const PageNavigation = memo(({ pageNumber, numPages, onPageChange, isVisible, is
       setTimeout(() => {
         const pdfContainer = document.querySelector('.pdf-container');
         if (pdfContainer) {
-          console.log('Dispatching next page navigation event');
           pdfContainer.dispatchEvent(
             new CustomEvent('direct-navigate', { 
               detail: { pageNumber: pageNumber + 1 } 

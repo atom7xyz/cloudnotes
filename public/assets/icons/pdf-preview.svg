@@ -1,0 +1,20 @@
+<svg width="200" height="250" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main document shape -->
+  <rect x="20" y="10" width="160" height="230" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+  
+  <!-- PDF header bar -->
+  <rect x="20" y="10" width="160" height="40" rx="10" fill="#FF5252"/>
+  <text x="100" y="37" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">PDF</text>
+  
+  <!-- Document lines -->
+  <rect x="40" y="70" width="120" height="8" rx="4" fill="#E2E8F0"/>
+  <rect x="40" y="90" width="120" height="8" rx="4" fill="#E2E8F0"/>
+  <rect x="40" y="110" width="120" height="8" rx="4" fill="#E2E8F0"/>
+  <rect x="40" y="130" width="120" height="8" rx="4" fill="#E2E8F0"/>
+  <rect x="40" y="150" width="120" height="8" rx="4" fill="#E2E8F0"/>
+  <rect x="40" y="170" width="80" height="8" rx="4" fill="#E2E8F0"/>
+  
+  <!-- PDF document icon at bottom -->
+  <rect x="60" y="190" width="80" height="30" rx="4" fill="#F3F4F6"/>
+  <text x="100" y="212" font-family="Arial, sans-serif" font-size="16" fill="#4B5563" text-anchor="middle">Document</text>
+</svg> 

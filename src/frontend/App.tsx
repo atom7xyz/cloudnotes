@@ -18,7 +18,6 @@ function App() {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Alternative way to toggle dev tools with Ctrl+Shift+I
       if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-        console.log('Keyboard shortcut detected: Ctrl+Shift+I');
         toggleDevTools();
       }
     };

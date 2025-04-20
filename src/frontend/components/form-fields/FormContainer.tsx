@@ -56,9 +56,6 @@ export function FormContainer<TFieldValues extends FieldValues>({
     
     // Trigger form validation and submission
     form.handleSubmit((data: TFieldValues) => {
-      console.log("Form submitted", form.formState.isValid);
-      console.log("Form data", data);
-
       // At this point, if we have the data, the form is valid
       onSubmit(data);
     })(event);

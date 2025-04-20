@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useZoom } from '@/lib/contexts/ZoomContext';
 import { useTabs } from '@/lib/contexts/TabsContext';
 import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
+import { getElectronAPI } from '@/lib/navigation';
 import FileReaderTopNavbar, { ZoomValue } from '@/components/reader/FileReaderTopNavbar';
 import NoteBar from '@/components/reader/NoteBar';
 import DocumentViewer, { DEFAULT_FILES, FileType } from '@/components/viewer/DocumentViewer';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
 import PageNavigation from '@/components/reader/PageNavigation';
 import LeftToolbar from '@/components/reader/LeftToolbar';
+import SearchBar from '@/components/reader/SearchBar';
 
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -55,6 +57,44 @@ const FileReaderContent = memo(() => {
     [isDraggingZoom]
   );
 
+  // State for search functionality
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchMetadata, setSearchMetadata] = useState<{ 
+    totalMatches: number; 
+    currentMatch: number; 
+  }>({ totalMatches: 0, currentMatch: 0 });
+
+  // Store the search function provided by PDFViewer
+  const searchFunctionRef = useRef<(text: string, direction: 'forward' | 'backward') => void | null>(null);
+
+  // Handler for finding text (called from search modal)
+  const handleFindText = useCallback((text: string, direction: 'forward' | 'backward') => {
+    if (searchFunctionRef.current) {
+      searchFunctionRef.current(text, direction);
+      // The actual search metadata will be updated by the PDFViewer component,
+      // which internally tracks the total matches and current match index.
+      // No need to manually update metadata here as it was before.
+    }
+  }, []);
+
+  // Save a recent search term
+  const saveRecentSearch = useCallback((term: string) => {
+    if (!term.trim()) return;
+    
+    setRecentSearches(prev => {
+      // Remove the term if it already exists
+      const filtered = prev.filter(item => item !== term);
+      // Add to the beginning (most recent)
+      return [term, ...filtered].slice(0, 5); // Keep only 5 most recent searches
+    });
+  }, []);
+
+  // Toggle search bar visibility
+  const toggleSearch = useCallback(() => {
+    setIsSearchOpen(prev => !prev);
+  }, []);
+
   // Update file path based on active tab
   useEffect(() => {
     if (activeTabId === previousActiveTabIdRef.current) {
@@ -78,8 +118,6 @@ const FileReaderContent = memo(() => {
       if (activeTab) {
         // Only update the file path if it actually changed
         if (filePath !== activeTab.path) {
-          console.log(`Switching from ${filePath} to ${activeTab.path}`);
-          
           // First set the current file path in the EditHistoryContext
           // This will cause the EditHistoryContext to load annotations for the new file
           setCurrentFilePath(activeTab.path);
@@ -96,6 +134,14 @@ const FileReaderContent = memo(() => {
           } else {
             // Reset page number when opening a new document
             setPageNumber(1);
+          }
+          
+          // Update window title with the active tab name
+          const api = getElectronAPI();
+          if (api?.setWindowTitle) {
+            // Extract filename from path
+            const fileName = activeTab.path.split('/').pop() || activeTab.path;
+            api.setWindowTitle(fileName);
           }
         }
       }
@@ -115,6 +161,12 @@ const FileReaderContent = memo(() => {
         setActiveTool(null);
         
         setPageNumber(1);
+        
+        // Reset window title to default
+        const api = getElectronAPI();
+        if (api?.setWindowTitle) {
+          api.setWindowTitle("");
+        }
       }
       
       previousActiveTabIdRef.current = null;
@@ -126,15 +178,22 @@ const FileReaderContent = memo(() => {
       setNumPages(numPages);
     }
     setIsLoading(false);
+    
+    // Update the ALT+TAB preview to show the loaded document
+    const api = getElectronAPI();
+    if (api?.updateWindowPreview) {
+      // Use setTimeout to ensure the UI has fully rendered
+      setTimeout(() => {
+        api.updateWindowPreview();
+      }, 300);
+    }
   }, [setIsLoading]);
 
   const handleDocumentLoadError = useCallback((error: Error) => {
-    console.error('Error loading document:', error);
     setIsLoading(false);
     
     // If there's an error loading the file, we could optionally fall back to a default file
     if (filePath !== DEFAULT_FILES[FileType.PDF]) {
-      console.log('Falling back to default PDF file');
       setFilePath(DEFAULT_FILES[FileType.PDF]);
     }
   }, [filePath, setIsLoading]);
@@ -177,7 +236,6 @@ const FileReaderContent = memo(() => {
   }, []);
 
   const handleScrollModeChange = useCallback((mode: ScrollMode) => {
-    console.log('Changing scroll mode to:', mode);
     setScrollMode(mode);
   }, []);
 
@@ -185,10 +243,9 @@ const FileReaderContent = memo(() => {
     navigate('/');
   }, [navigate]);
 
-  // Handle text search
-  const handleTextSearch = useCallback((searchTerm: string) => {
-    console.log('Searching for:', searchTerm);
-    // Implement document searching functionality
+  // Text search handler for DocumentViewer
+  const handleTextSearch = useCallback((searchFunction: any) => {
+    searchFunctionRef.current = searchFunction;
   }, []);
 
   // Handle zoom change with new ZoomValue type
@@ -207,32 +264,26 @@ const FileReaderContent = memo(() => {
     // When selecting the marker tool, automatically apply the selected color
     if (tool === 'marker') {
       // This will be applied when PDFViewer renders
-      console.log('Selected marker color:', selectedMarkerColor);
     } 
     // When selecting the pencil tool, automatically apply the selected color and line width
     else if (tool === 'pencil') {
       // This will be applied when PDFViewer renders
-      console.log('Selected drawing color:', selectedDrawingColor);
-      console.log('Selected line width:', drawingLineWidth);
     }
   }, [selectedMarkerColor, selectedDrawingColor, drawingLineWidth]);
 
   // Handle marker color change
   const handleMarkerColorChange = useCallback((color: string) => {
     setSelectedMarkerColor(color);
-    console.log('Marker color changed to:', color);
   }, []);
 
   // Handle drawing color change
   const handleDrawingColorChange = useCallback((color: string) => {
     setSelectedDrawingColor(color);
-    console.log('Drawing color changed to:', color);
   }, []);
 
   // Handle line width change
   const handleDrawingLineWidthChange = useCallback((width: number) => {
     setDrawingLineWidth(width);
-    console.log('Line width changed to:', width);
   }, []);
 
   const handleAddNote = useCallback(() => {
@@ -278,13 +329,46 @@ const FileReaderContent = memo(() => {
         e.preventDefault();
         redo();
       }
+
+      // Now add new shortcut keys for tools (without modifier keys)
+      if (!e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+        // M key for Move tool
+        if (e.key.toLowerCase() === 'm') {
+          e.preventDefault();
+          handleToolChange(activeTool === 'move' ? null : 'move');
+        }
+        
+        // D key for Draw (pencil) tool
+        if (e.key.toLowerCase() === 'd') {
+          e.preventDefault();
+          handleToolChange(activeTool === 'pencil' ? null : 'pencil');
+        }
+        
+        // E key for Eraser tool
+        if (e.key.toLowerCase() === 'e') {
+          e.preventDefault();
+          handleToolChange(activeTool === 'eraser' ? null : 'eraser');
+        }
+        
+        // K key for marKer tool
+        if (e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          handleToolChange(activeTool === 'marker' ? null : 'marker');
+        }
+        
+        // N key for Notes
+        if (e.key.toLowerCase() === 'n') {
+          e.preventDefault();
+          handleAddNote();
+        }
+      }
     };
     
     window.addEventListener('keydown', handleKeyboardShortcuts);
     return () => {
       window.removeEventListener('keydown', handleKeyboardShortcuts);
     };
-  }, [undo, redo]);
+  }, [undo, redo, activeTool, handleToolChange, handleAddNote]);
 
   // Group all effects together
   // Add wheel event listener for CTRL+SCROLLWHEEL zooming
@@ -388,6 +472,11 @@ const FileReaderContent = memo(() => {
     };
   }, [pageNumber, numPages, handlePageChange]);
 
+  // Handle search metadata updates
+  const handleSearchMetadataChange = useCallback((metadata: { totalMatches: number; currentMatch: number }) => {
+    setSearchMetadata(metadata);
+  }, []);
+
   return (
     <div className="flex flex-col h-screen">
       {/* Top navigation bar */}
@@ -395,13 +484,13 @@ const FileReaderContent = memo(() => {
         zoomLevel={zoomLevel}
         onZoomChange={handleZoomChange}
         onGoBack={handleGoBack}
-        onFindText={(text, direction) => console.log('Finding text:', text, direction)}
-        onFindAllText={(text) => console.log('Finding all occurrences of:', text)}
+        onFindText={toggleSearch}
         isNotesOpen={isNotesOpen}
         onToggleNotes={handleToggleNotes}
         scrollMode={scrollMode}
         onScrollModeChange={handleScrollModeChange}
         isLoading={isLoading}
+        searchMetadata={searchMetadata}
       />
 
       {/* Main document area */}
@@ -418,6 +507,7 @@ const FileReaderContent = memo(() => {
               onLoadSuccess={handleDocumentLoadSuccess}
               onLoadError={handleDocumentLoadError}
               onTextSearch={handleTextSearch}
+              onSearchMetadataChange={handleSearchMetadataChange}
               scrollMode={scrollMode}
               onPageChange={(page) => handlePageChange(page, false)}
               activeTool={activeTool}
@@ -463,6 +553,16 @@ const FileReaderContent = memo(() => {
           />
         )}
       </div>
+      
+      {/* SearchBar component */}
+      <SearchBar
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onFind={handleFindText}
+        recentSearches={recentSearches}
+        saveRecentSearch={saveRecentSearch}
+        searchMetadata={searchMetadata}
+      />
     </div>
   );
 });

@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeftIcon,
   Search,
-  Undo2,
-  Redo2,
   ZoomIn,
   ZoomOut,
   ChevronDown,
@@ -33,12 +31,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import DocumentSearchModal from '@/components/modals/DocumentSearchModal';
 import TabSwitcherModal, { FileTab } from '@/components/modals/TabSwitcherModal';
 import { useTabs } from '@/lib/contexts/TabsContext';
 import { cn } from '@/lib/utils';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
-import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
 
 // Custom CSS properties for Electron window drag regions
 interface ElectronCSSProperties extends CSSProperties {
@@ -52,13 +48,13 @@ interface FileReaderTopNavbarProps {
   zoomLevel: number;
   onZoomChange: (value: number) => void;
   onGoBack?: () => void;
-  onFindText?: (text: string, direction: 'forward' | 'backward') => void;
-  onFindAllText?: (text: string) => void;
+  onFindText?: () => void;
   isNotesOpen?: boolean;
   onToggleNotes?: () => void;
   scrollMode?: ScrollMode;
   onScrollModeChange?: (mode: ScrollMode) => void;
   isLoading?: boolean;
+  searchMetadata?: { totalMatches: number; currentMatch: number; };
 }
 
 // Memoized CSS style objects for better performance
@@ -460,21 +456,20 @@ const FileReaderTopNavbar = memo(({
   onZoomChange,
   onGoBack,
   onFindText,
-  onFindAllText,
-  scrollMode = ScrollMode.VERTICAL,
-  onScrollModeChange = () => {},
-  isLoading = false
-}: FileReaderTopNavbarProps & { isLoading?: boolean }) => {
+  isNotesOpen = false,
+  onToggleNotes,
+  scrollMode = ScrollMode.PAGE,
+  onScrollModeChange,
+  isLoading = false,
+  searchMetadata = { totalMatches: 0, currentMatch: 0 }
+}: FileReaderTopNavbarProps) => {
   const navigate = useNavigate();
   const { openTabs, activeTabId, setActiveTab } = useTabs();
-  const editHistory = useEditHistoryContext();
   
   // All state hooks at the top level
   const [searchQuery, setSearchQuery] = useState('');
   const [isMaximized, setIsMaximized] = useState(true);
   const [searchFocused, setSearchFocused] = useState(false);
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
   
   // Set up event listeners for window state
@@ -500,7 +495,9 @@ const FileReaderTopNavbar = memo(({
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
         e.preventDefault();
-        setIsSearchModalOpen(true);
+        if (onFindText) {
+          onFindText();
+        }
       }
     };
 
@@ -508,7 +505,7 @@ const FileReaderTopNavbar = memo(({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [onFindText]);
   
   // Set up keyboard shortcut for tab switcher
   useEffect(() => {
@@ -553,62 +550,32 @@ const FileReaderTopNavbar = memo(({
   
   // Search handlers
   const handleSearchClick = useCallback(() => {
-    setIsSearchModalOpen(true);
+    if (onFindText) {
+      onFindText();
+    }
+  }, [onFindText]);
+  
+  const handleSearchFocus = useCallback(() => {
+    setSearchFocused(true);
+    if (onFindText) {
+      onFindText();
+    }
+  }, [onFindText]);
+  
+  const handleSearchBlur = useCallback(() => {
+    setSearchFocused(false);
   }, []);
   
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   }, []);
   
-  const handleSearchFocus = useCallback(() => {
-    setSearchFocused(true);
-  }, []);
-  
-  const handleSearchBlur = useCallback(() => {
-    setSearchFocused(false);
-  }, []);
-  
-  // Edit handlers
-  const handleUndoClick = useCallback(() => {
-    // Use the undo function from the EditHistoryContext
-    editHistory.undo();
-  }, [editHistory]);
-  
-  const handleRedoClick = useCallback(() => {
-    // Use the redo function from the EditHistoryContext
-    editHistory.redo();
-  }, [editHistory]);
-  
   // Handle scroll mode change
   const handleScrollModeChange = useCallback((mode: ScrollMode) => {
-    onScrollModeChange(mode);
+    if (onScrollModeChange) {
+      onScrollModeChange(mode);
+    }
   }, [onScrollModeChange]);
-  
-  // Search modal handlers
-  const handleSaveRecentSearch = useCallback((search: string) => {
-    setRecentSearches(prev => {
-      if (prev.includes(search)) {
-        return prev;
-      }
-      return [search, ...prev].slice(0, 5);
-    });
-  }, []);
-  
-  const handleCloseSearchModal = useCallback(() => {
-    setIsSearchModalOpen(false);
-  }, []);
-  
-  const handleFind = useCallback((text: string, direction: 'forward' | 'backward') => {
-    if (onFindText) {
-      onFindText(text, direction);
-    }
-  }, [onFindText]);
-  
-  const handleFindAll = useCallback((text: string) => {
-    if (onFindAllText) {
-      onFindAllText(text);
-    }
-  }, [onFindAllText]);
   
   return (
     <>
@@ -676,16 +643,6 @@ const FileReaderTopNavbar = memo(({
           />
         </header>
       </TooltipProvider>
-      
-      {/* Search Modal */}
-      <DocumentSearchModal 
-        isOpen={isSearchModalOpen}
-        onClose={handleCloseSearchModal}
-        onFind={handleFind}
-        onFindAll={handleFindAll}
-        recentSearches={recentSearches}
-        saveRecentSearch={handleSaveRecentSearch}
-      />
       
       {/* Tab Switcher Modal */}
       <TabSwitcherModal

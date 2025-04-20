@@ -1,10 +1,10 @@
-type Sesso = 'M' | 'F';
-
 interface ElectronAPI {
   // Window controls
   minimize: () => void;
   maximize: () => void;
   close: () => void;
+  setWindowTitle: (title: string) => void;
+  updateWindowPreview: () => void;
   
   // Navigation controls
   goBack: () => void;

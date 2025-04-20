@@ -123,7 +123,6 @@ const FileViewport = ({
     
     // In a real app, this would identify the text being highlighted
     // and store the highlight information
-    console.log('Highlighting text');
   }, [currentTool]);
   
   const handleAddNote = useCallback((e: React.MouseEvent<HTMLDivElement>) => {

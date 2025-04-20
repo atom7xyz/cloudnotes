@@ -40,11 +40,30 @@ const toggleDevTools = () => {
     }
 };
 
+// Helper to update the window title
+const updateWindowTitle = (title: string) => {
+    if (mainWindow) {
+        // Append CloudNotes to the title for branding
+        const appTitle = title ? `${title} - CloudNotes` : 'CloudNotes';
+        mainWindow.setTitle(appTitle);
+    }
+};
+
+// Function to update the thumbnail preview for ALT+TAB on Windows
+const updateThumbnailClip = () => {
+    if (mainWindow && process.platform === 'win32') {
+        const { width, height } = mainWindow.getContentBounds();
+        // Create a clip area that excludes the title bar to show just the document content
+        mainWindow.setThumbnailClip({ x: 0, y: 48, width, height: height - 48 });
+    }
+};
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         frame: false,          // Remove the window frame (toolbar and title bar)
         show: false,           // Run in windowless mode (do not display the window)
         autoHideMenuBar: true, // Ensure the menu bar is hidden
+        title: 'CloudNotes',   // Set default window title
         webPreferences: {
             preload: getPreloadPath(),
             nodeIntegration: false,
@@ -57,6 +76,18 @@ function createWindow() {
     mainWindow.maximize();
     mainWindow.show();
     mainWindow.webContents.session.setSpellCheckerEnabled(false);
+
+    // Set the window title for taskbar and ALT+TAB
+    mainWindow.setTitle('CloudNotes');
+
+    // Set a thumbnail clip area for the ALT+TAB preview on Windows
+    // This will create a preview of the main content area, not including the custom titlebar
+    if (process.platform === 'win32') {
+        // Clip area starts below the title bar (48px height)
+        // Width and height are set to the main content area
+        const { width, height } = mainWindow.getContentBounds();
+        mainWindow.setThumbnailClip({ x: 0, y: 48, width, height: height - 48 });
+    }
 
     // Load the app
     if (isDev()) {
@@ -73,18 +104,15 @@ function createWindow() {
 
     // Listen for navigation events to update state
     mainWindow.webContents.on('did-navigate', () => {
-        console.log('did-navigate event triggered');
         updateNavigationState();
     });
     
     mainWindow.webContents.on('did-navigate-in-page', () => {
-        console.log('did-navigate-in-page event triggered');
         updateNavigationState();
     });
 
     // Add this event listener for SPA navigation
     mainWindow.webContents.on('page-title-updated', () => {
-        console.log('page-title-updated event triggered');
         updateNavigationState();
     });
 
@@ -124,9 +152,6 @@ function createWindow() {
 
 app.on('ready', () => {
     createWindow();
-    
-    // Log global shortcuts registered
-    console.log('Registering global shortcuts for DevTools');
     
     // Add IPC handler for toggling DevTools
     ipcMain.handle('toggle-dev-tools', () => {
@@ -254,6 +279,16 @@ ipcMain.on('navigate', (_, url) => {
 // Add an IPC handler to request navigation state update
 ipcMain.on('request-navigation-state-update', () => {
     updateNavigationState();
+});
+
+// Set window title handler
+ipcMain.on('set-window-title', (_event, title: string) => {
+    updateWindowTitle(title);
+});
+
+// Update window preview handler
+ipcMain.on('update-window-preview', () => {
+    updateThumbnailClip();
 });
 
 // Quit application when all windows are closed on macOS

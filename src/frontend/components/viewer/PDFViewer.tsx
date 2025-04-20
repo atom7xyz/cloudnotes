@@ -3,9 +3,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import { useZoom } from '@/lib/contexts/ZoomContext';
 import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Crosshair } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Highlight } from '@/lib/types';
 
@@ -34,6 +33,8 @@ interface PDFViewerProps {
   selectedMarkerColor?: string;
   selectedDrawingColor?: string;
   drawingLineWidth?: number;
+  onTextSearch?: (searchFn: (text: string, direction?: 'forward' | 'backward') => void) => void;
+  onSearchMetadataChange?: (metadata: { totalMatches: number; currentMatch: number }) => void;
 }
 
 // Error boundary component to catch PDF rendering errors
@@ -97,7 +98,9 @@ const PDFViewer = memo(({
   isPageNavigationEnabled = true,
   selectedMarkerColor = HIGHLIGHT_COLORS[0].value,
   selectedDrawingColor = '#FF0000',
-  drawingLineWidth = 2
+  drawingLineWidth = 2,
+  onTextSearch,
+  onSearchMetadataChange
 }: PDFViewerProps) => {
   // =========================================================================
   // IMPORTANT SCROLLING BEHAVIOR NOTES:
@@ -127,21 +130,9 @@ const PDFViewer = memo(({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [visiblePageNumber, setVisiblePageNumber] = useState<number>(currentPage);
-  const [debugMode, setDebugMode] = useState(false);
-  const [currentObservedPage, setCurrentObservedPage] = useState<number | null>(null);
-  const [debugInfo, setDebugInfo] = useState<{
-    bestVisibility: number;
-    centerOffset: number;
-    entries: Array<{pageNumber: number, visibility: number, centerValue: number}>
-  } | null>(null);
   const [isMiddleClickScrolling, setIsMiddleClickScrolling] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [selectedText, setSelectedText] = useState<{
-    content: string;
-    range: Range | null;
-    position: { x: number; y: number } | null;
-  } | null>(null);
   const [drawings, setDrawings] = useState<Drawing[]>([]);
   const [currentDrawing, setCurrentDrawing] = useState<Drawing | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -149,6 +140,17 @@ const PDFViewer = memo(({
   const [eraserPosition, setEraserPosition] = useState<{ x: number, y: number } | null>(null);
   const [pageSize, setPageSize] = useState<{ width: number, height: number } | null>(null);
   const [customZoomMode, setCustomZoomMode] = useState<'fit' | 'width' | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<Array<{
+    pageIndex: number;
+    rects: DOMRect[];
+    matchTexts: string[];
+  }>>([]);
+  const [currentSearchIndex, setCurrentSearchIndex] = useState<number>(-1);
+  const [searchMetadata, setSearchMetadata] = useState<{
+    totalMatches: number;
+    currentMatch: number;
+  }>({ totalMatches: 0, currentMatch: 0 });
 
   // Get zoom level from context
   const { zoomLevel, setZoomLevel } = useZoom();
@@ -207,12 +209,10 @@ const PDFViewer = memo(({
     // Fallback to manually checking for FileReaderContent's main scroll container
     const fileReaderScrollContainer = document.querySelector('.flex-1.overflow-y-auto.relative');
     if (fileReaderScrollContainer && fileReaderScrollContainer instanceof HTMLElement) {
-      console.log('Found FileReaderContent scroll container via selector');
       return fileReaderScrollContainer;
     }
     
     // Final fallback to viewport ref
-    console.log('Using viewport as scroll container (fallback)');
     return viewportRef.current;
   }, []);
 
@@ -246,27 +246,6 @@ const PDFViewer = memo(({
     // Reset custom zoom mode after applying
     setCustomZoomMode(null);
   }, [pageSize, customZoomMode, setZoomLevel, onZoomChange]);
-
-  // Auto-enable debug mode when devtools are open
-  useEffect(() => {
-    const checkDevTools = () => {
-      // Check if devtools is open
-      const isDevToolsOpen = window.outerHeight - window.innerHeight > 100 || 
-                             window.outerWidth - window.innerWidth > 100;
-      
-      setDebugMode(isDevToolsOpen);
-    };
-
-    // Initial check
-    checkDevTools();
-    
-    // Set up resize listener to detect devtools toggling
-    window.addEventListener('resize', checkDevTools);
-    
-    return () => {
-      window.removeEventListener('resize', checkDevTools);
-    };
-  }, []);
 
   // Handle middle click scrolling
   useEffect(() => {
@@ -350,7 +329,6 @@ const PDFViewer = memo(({
     
     // If the current page has changed externally, update the page array
     if (pageArray[0] !== currentPage) {
-      console.log('Current page changed in PAGE mode, updating pageArray from', pageArray[0], 'to', currentPage);
       setPageArray([currentPage]);
     }
   }, [currentPage, scrollMode, pageArray, numPages, isLoading]);
@@ -359,14 +337,10 @@ const PDFViewer = memo(({
   useEffect(() => {
     if (!numPages) return;
     
-    console.log('Scroll mode changed to:', scrollMode, 'Current page:', currentPage);
-    
     // Update page array based on scroll mode
     if (scrollMode === ScrollMode.PAGE) {
-      console.log('Setting page array to single page:', [currentPage]);
       setPageArray([currentPage]);
     } else {
-      console.log('Setting page array to all pages:', numPages);
       setPageArray(Array.from({ length: numPages }, (_, i) => i + 1));
       
       // IMPORTANT: When switching modes, do NOT automatically scroll to the current page
@@ -382,9 +356,6 @@ const PDFViewer = memo(({
       return;
     }
 
-    // Get the scroll container - either the parent container or our own viewport
-    const scrollContainer = getScrollContainer();
-
     // Clean up any existing observer
     if (observerRef.current) {
       observerRef.current.disconnect();
@@ -398,10 +369,6 @@ const PDFViewer = memo(({
       // Find the most visible page
       let bestPage = -1;
       let bestVisibility = 0;
-      let bestCenterOffset = 0;
-      
-      // Debug information collection
-      const debugEntries: Array<{pageNumber: number, visibility: number, centerValue: number}> = [];
       
       entries.forEach(entry => {
         // Get the viewport dimensions relative to window
@@ -448,35 +415,16 @@ const PDFViewer = memo(({
         // Calculate the score with stronger preference for centered pages
         const score = visibilityScore * (1 + (centerValue * centerWeight));
         
-        // Add data to debug array
+        // Get page number from element ID
         const pageNumber = parseInt(entry.target.id.replace('page-', ''), 10);
-        debugEntries.push({
-          pageNumber,
-          visibility: visibilityScore,
-          centerValue
-        });
         
         if (entry.isIntersecting && score > bestVisibility) {
           bestVisibility = score;
           bestPage = pageNumber;
-          bestCenterOffset = centerValue;
         }
       });
       
-      // Update debug information
-      if (debugMode) {
-        setDebugInfo({
-          bestVisibility,
-          centerOffset: bestCenterOffset,
-          entries: debugEntries.sort((a, b) => a.pageNumber - b.pageNumber)
-        });
-      }
-      
-      // Update debug display
-      setCurrentObservedPage(bestPage > 0 ? bestPage : null);
-      
-      // Add hysteresis to prevent oscillation (only change page if it's significantly better)
-      // This prevents the counter from going back and forth when between two pages
+      // Update page counter if needed
       const needsUpdate = bestPage > 0 && (
         bestPage !== visiblePageNumber && (
           // Either this is a new detection and we got nothing before
@@ -526,16 +474,10 @@ const PDFViewer = memo(({
         observerRef.current.disconnect();
       }
     };
-  }, [scrollMode, isLoading, numPages, visiblePageNumber, onPageChange, debugMode, isMiddleClickScrolling]);
-
-  // Toggle debug mode on double click
-  const toggleDebug = useCallback(() => {
-    setDebugMode(prev => !prev);
-  }, []);
+  }, [scrollMode, isLoading, numPages, visiblePageNumber, onPageChange, isMiddleClickScrolling]);
 
   // Function to handle document loading error
   const handleDocumentLoadError = useCallback((error: Error) => {
-    console.error('Error loading PDF document:', error);
     setError(error);
     setIsLoading(false);
 
@@ -577,75 +519,6 @@ const PDFViewer = memo(({
         return "flex flex-col items-center justify-center h-full pb-24";
     }
   }, [scrollMode]);
-
-  // Debug crosshair indicator
-  const renderDebugInfo = useCallback(() => {
-    if (!debugMode) {
-      return null;
-    }
-    
-    return (
-      <div className="fixed top-4 right-4 bg-black/70 text-white px-3 py-2 rounded-md z-50 text-sm flex flex-col items-start gap-2 max-w-sm">
-        <div className="flex items-center gap-2">
-          <Crosshair className="h-4 w-4 text-primary" />
-          <span className="font-medium">
-            {isMiddleClickScrolling ? (
-              <span className="text-yellow-400">Observer Paused (Middle-click)</span>
-            ) : (
-              <span>Observer Debug {currentObservedPage ? `(Page ${currentObservedPage}/${numPages})` : '(No page detected)'}</span>
-            )}
-          </span>
-        </div>
-        
-        {isMiddleClickScrolling && (
-          <div className="text-xs text-yellow-400 mt-1">
-            <p>Observer paused while middle-click is active.</p>
-            <p>Release middle mouse button to resume page observation.</p>
-          </div>
-        )}
-        
-        {debugInfo && !isMiddleClickScrolling && (
-          <>
-            <div className="text-xs flex flex-col gap-1">
-              <p>Best score: {debugInfo.bestVisibility.toFixed(2)}</p>
-              <p>Center value: {debugInfo.centerOffset.toFixed(2)}</p>
-              <p>Scroll mode: {scrollMode}</p>
-            </div>
-            
-            <div className="text-xs mt-1 max-h-32 overflow-y-auto w-full">
-              <p className="font-medium border-b border-white/20 pb-1 mb-1">Page Visibility Data:</p>
-              <div className="grid grid-cols-3 gap-x-2 gap-y-1">
-                <span className="font-medium">Page</span>
-                <span className="font-medium">Visible %</span>
-                <span className="font-medium">Center</span>
-                
-                {debugInfo.entries.map(entry => (
-                  <React.Fragment key={entry.pageNumber}>
-                    <span>{entry.pageNumber}</span>
-                    <span>{(entry.visibility * 100).toFixed(0)}%</span>
-                    <span>{entry.centerValue.toFixed(2)}</span>
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-        
-        <div className="text-xs text-muted mt-1 border-t border-white/20 pt-1 w-full">
-          {/* Indicator that debug is auto-enabled by devtools */}
-          <p className="text-gray-400">
-            <span className="inline-block h-2 w-2 rounded-full bg-green-500 mr-1"></span>
-            Debug auto-enabled by DevTools
-          </p>
-          <p className="text-gray-400">Middle-click: {isMiddleClickScrolling ? "Active" : "Inactive"}</p>
-          <p className="text-gray-400">Active Tool: {activeTool}</p>
-          {activeTool === 'move' && (
-            <p className="text-gray-400">Dragging: <span className={isDragging ? "text-green-400" : "text-red-400"}>{isDragging ? "Yes" : "No"}</span></p>
-          )}
-        </div>
-      </div>
-    );
-  }, [debugMode, currentObservedPage, numPages, debugInfo, scrollMode, isMiddleClickScrolling, activeTool, isDragging]);
 
   // Update cursor style based on tool and dragging state
   useEffect(() => {
@@ -1029,9 +902,6 @@ const PDFViewer = memo(({
   }, [editHistory]);
 
   // Remove drawing controls since they're now in the LeftToolbar
-  const renderDrawingControls = useCallback(() => {
-    return null; // No UI needed here anymore as it's in the LeftToolbar
-  }, []);
 
   // Render highlights (now markers)
   const renderHighlights = useCallback(() => {
@@ -1187,8 +1057,6 @@ const PDFViewer = memo(({
   const navigateToPage = useCallback((pageNumber: number) => {
     if (!numPages || pageNumber < 1 || pageNumber > numPages) return;
     
-    console.log(`PDFViewer: Navigating to page ${pageNumber} (Scroll mode: ${scrollMode})`);
-    
     // If we're in PAGE mode, just update the page number via props
     if (scrollMode === ScrollMode.PAGE) {
       // Update internal state
@@ -1204,8 +1072,6 @@ const PDFViewer = memo(({
     // For continuous modes, find the page element and scroll to it
     const pageElement = document.getElementById(`page-${pageNumber}`);
     if (!pageElement) {
-      console.error('Page element not found:', pageNumber);
-      
       // Special case for first and last pages - if we can't find the exact element
       if (pageNumber === 1 || pageNumber === numPages) {
         const scrollContainer = getScrollContainer();
@@ -1214,7 +1080,6 @@ const PDFViewer = memo(({
           
           // For first page, scroll to top
           if (pageNumber === 1) {
-            console.log('Navigating to first page by scrolling to top');
             scrollContainer.scrollTo({
               top: 0,
               left: 0,
@@ -1224,7 +1089,6 @@ const PDFViewer = memo(({
           
           // For last page, scroll to bottom
           if (pageNumber === numPages) {
-            console.log('Navigating to last page by scrolling to bottom');
             if (scrollMode === ScrollMode.HORIZONTAL) {
               // In horizontal mode, we need to scroll to the rightmost position
               scrollContainer.scrollTo({
@@ -1258,7 +1122,6 @@ const PDFViewer = memo(({
     // Get the scroll container
     const scrollContainer = getScrollContainer();
     if (!scrollContainer) {
-      console.error('Scroll container not found');
       return;
     }
     
@@ -1361,7 +1224,6 @@ const PDFViewer = memo(({
     const handleCustomNavigate = (event: Event) => {
       const customEvent = event as CustomEvent;
       if (customEvent.detail && customEvent.detail.pageNumber) {
-        console.log(`PDFViewer: Received custom navigate event to page ${customEvent.detail.pageNumber}`);
         navigateToPage(customEvent.detail.pageNumber);
       }
     };
@@ -1384,7 +1246,6 @@ const PDFViewer = memo(({
     const handleDirectNavigate = (event: Event) => {
       const customEvent = event as CustomEvent;
       if (customEvent.detail && customEvent.detail.pageNumber) {
-        console.log(`PDFViewer: Received direct navigation event to page ${customEvent.detail.pageNumber}`);
         navigateToPage(customEvent.detail.pageNumber);
       }
     };
@@ -1423,7 +1284,6 @@ const PDFViewer = memo(({
       if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
         if (editHistory.canUndo) {
-          console.log('Keyboard shortcut: Undo');
           editHistory.undo();
         }
       }
@@ -1432,7 +1292,6 @@ const PDFViewer = memo(({
       if ((e.ctrlKey && e.shiftKey && e.key === 'z') || (e.ctrlKey && e.key === 'y')) {
         e.preventDefault();
         if (editHistory.canRedo) {
-          console.log('Keyboard shortcut: Redo');
           editHistory.redo();
         }
       }
@@ -1463,10 +1322,350 @@ const PDFViewer = memo(({
   // When filePath changes, clear local state drawings and highlights
   // The EditHistoryContext will provide the correct ones for the new file
   useEffect(() => {
-    console.log('File path changed in PDFViewer:', filePath);
     // No need to manually clear drawings/highlights as they will be
     // updated from the EditHistoryContext when it changes file path
   }, [filePath]);
+
+  // Search functionality
+  const searchText = useCallback(async (text: string, direction: 'forward' | 'backward' = 'forward') => {
+    if (!viewportRef.current || !text.trim()) {
+      setSearchResults([]);
+      setCurrentSearchIndex(-1);
+      setSearchMetadata({ totalMatches: 0, currentMatch: 0 });
+      return;
+    }
+    
+    // If it's the same search term, just navigate to next/prev result
+    if (text === searchTerm && searchResults.length > 0) {
+      navigateSearchResults(direction);
+      return;
+    }
+    
+    // New search term, perform full search
+    setSearchTerm(text);
+    
+    try {
+      const results: Array<{ pageIndex: number; rects: DOMRect[]; matchTexts: string[] }> = [];
+      
+      // Different search behavior based on scroll mode
+      if (scrollMode === ScrollMode.PAGE) {
+        // In single page mode, only search the current page
+        const currentPageEl = document.getElementById(`page-${currentPage}`);
+        if (!currentPageEl) {
+          console.warn(`Current page element (page-${currentPage}) not found`);
+          return;
+        }
+        
+        const pageTextLayer = currentPageEl.querySelector('.react-pdf__Page__textContent');
+        if (!pageTextLayer) {
+          console.warn('Text layer not found in current page');
+          return;
+        }
+        
+        // Process the current page's text layer
+        const pageResults = processTextLayer(pageTextLayer, currentPage - 1, text);
+        if (pageResults && pageResults.rects.length > 0) {
+          results.push(pageResults);
+        }
+      } else {
+        // In continuous modes, search all visible pages
+        const textLayerElements = document.querySelectorAll('.react-pdf__Page__textContent');
+        if (textLayerElements.length === 0) {
+          console.warn('No text layers found in document');
+          return;
+        }
+        
+        // Process each text layer
+        textLayerElements.forEach((textLayerElement) => {
+          // Find which page this text layer belongs to
+          const pageElement = textLayerElement.closest('.pdf-page');
+          if (!pageElement || !pageElement.id) return;
+          
+          // Extract page number from id (format: "page-X")
+          const pageId = pageElement.id;
+          const pageIndex = parseInt(pageId.replace('page-', ''), 10) - 1;
+          
+          // Process this text layer
+          const pageResults = processTextLayer(textLayerElement, pageIndex, text);
+          if (pageResults && pageResults.rects.length > 0) {
+            results.push(pageResults);
+          }
+        });
+      }
+      
+      // Function to process a text layer and find matches
+      function processTextLayer(textLayerElement: Element, pageIndex: number, searchText: string) {
+        const textNodes = Array.from(textLayerElement.querySelectorAll('.textLayer > span'));
+        if (!textNodes.length) return null;
+        
+        const matchRects: DOMRect[] = [];
+        const matchTexts: string[] = [];
+        
+        // Process each text node to find precise matches
+        textNodes.forEach((node) => {
+          const nodeText = node.textContent || '';
+          if (!nodeText.toLowerCase().includes(searchText.toLowerCase())) return;
+          
+          // Create a regex for case-insensitive search
+          const nodeRegex = new RegExp(escapeRegExp(searchText), 'gi');
+          let match;
+          
+          // Find all matches in this text node
+          while ((match = nodeRegex.exec(nodeText)) !== null) {
+            // We need the node to have a text child to create ranges
+            if (!node.firstChild || node.firstChild.nodeType !== Node.TEXT_NODE) continue;
+            
+            const matchStart = match.index;
+            const matchEnd = matchStart + match[0].length;
+            
+            try {
+              // Create a range for the precise text match
+              const range = document.createRange();
+              range.setStart(node.firstChild, matchStart);
+              range.setEnd(node.firstChild, matchEnd);
+              
+              // Get client rects for the range
+              const clientRects = range.getClientRects();
+              
+              // Add each valid rect to our results
+              for (let i = 0; i < clientRects.length; i++) {
+                const rect = clientRects[i];
+                if (rect.width > 0 && rect.height > 0) {
+                  matchRects.push(rect);
+                  // Store the actual matched text
+                  matchTexts.push(match[0]);
+                }
+              }
+            } catch (err) {
+              console.error('Error creating range for text match:', err);
+            }
+          }
+        });
+        
+        return { pageIndex, rects: matchRects, matchTexts };
+      }
+      
+      // Set the search results
+      setSearchResults(results);
+      
+      // Calculate total matches
+      const totalMatches = results.reduce((total, page) => total + page.rects.length, 0);
+      const newSearchMetadata = { totalMatches, currentMatch: totalMatches > 0 ? 1 : 0 };
+      setSearchMetadata(newSearchMetadata);
+      
+      // Notify parent component about search metadata change
+      if (onSearchMetadataChange) {
+        onSearchMetadataChange(newSearchMetadata);
+      }
+      
+      // Set initial search index
+      if (results.length > 0) {
+        setCurrentSearchIndex(0);
+        // Scroll to the first result
+        scrollToSearchResult(0);
+      } else {
+        setCurrentSearchIndex(-1);
+      }
+      
+      return results;
+    } catch (error) {
+      console.error("Error searching text:", error);
+      setSearchResults([]);
+      setCurrentSearchIndex(-1);
+      setSearchMetadata({ totalMatches: 0, currentMatch: 0 });
+      return [];
+    }
+  }, [viewportRef, searchTerm, searchResults, scrollMode, currentPage]);
+  
+  // Navigate between search results
+  const navigateSearchResults = useCallback((direction: 'forward' | 'backward') => {
+    if (searchResults.length === 0) return;
+    
+    // Calculate the total number of matches
+    const totalResults = searchResults.reduce((sum, page) => sum + page.rects.length, 0);
+    if (totalResults === 0) return;
+    
+    // Calculate the next index
+    let nextIndex = currentSearchIndex;
+    if (direction === 'forward') {
+      nextIndex = (currentSearchIndex + 1) % totalResults;
+    } else {
+      nextIndex = (currentSearchIndex - 1 + totalResults) % totalResults;
+    }
+    
+    setCurrentSearchIndex(nextIndex);
+    scrollToSearchResult(nextIndex);
+    
+    // Update metadata
+    const newMetadata = {
+      totalMatches: totalResults,
+      currentMatch: nextIndex + 1
+    };
+    setSearchMetadata(newMetadata);
+    
+    // Notify parent component
+    if (onSearchMetadataChange) {
+      onSearchMetadataChange(newMetadata);
+    }
+  }, [currentSearchIndex, searchResults]);
+  
+  // Scroll to a specific search result
+  const scrollToSearchResult = useCallback((index: number) => {
+    if (searchResults.length === 0 || index < 0) return;
+    
+    // Find which page and rectangle this index corresponds to
+    let counter = 0;
+    for (let i = 0; i < searchResults.length; i++) {
+      const page = searchResults[i];
+      
+      if (counter + page.rects.length > index) {
+        // This is the page that contains our target
+        const rectIndex = index - counter;
+        const rect = page.rects[rectIndex];
+        
+        // First navigate to the page
+        navigateToPage(page.pageIndex + 1);
+        
+        // Then scroll to the element
+        setTimeout(() => {
+          if (!rect) return;
+          
+          // Get the viewport element
+          const viewport = viewportRef.current;
+          if (!viewport) return;
+          
+          // Calculate position
+          const scrollContainer = getScrollContainer();
+          if (!scrollContainer) return;
+          
+          // Get the element's position relative to the page
+          const pageElement = document.getElementById(`page-${page.pageIndex + 1}`);
+          if (!pageElement) return;
+          
+          const pageRect = pageElement.getBoundingClientRect();
+          
+          // Calculate scroll position
+          let scrollTopTarget = scrollContainer.scrollTop;
+          let scrollLeftTarget = scrollContainer.scrollLeft;
+          
+          // Adjust scroll position based on rect position
+          scrollTopTarget += rect.top - pageRect.top - scrollContainer.clientHeight / 2 + rect.height / 2;
+          scrollLeftTarget += rect.left - pageRect.left - scrollContainer.clientWidth / 2 + rect.width / 2;
+          
+          // Apply smooth scrolling
+          scrollContainer.scrollTo({
+            top: scrollTopTarget,
+            left: scrollLeftTarget,
+            behavior: 'smooth'
+          });
+        }, 300); // Short delay to ensure page navigation completes
+        
+        break;
+      }
+      
+      counter += page.rects.length;
+    }
+  }, [searchResults, navigateToPage]);
+
+  // Highlight all search results
+  
+  // Expose search method to parent
+  useEffect(() => {
+    if (onTextSearch) {
+      // Create a handler that parent can call
+      const handleTextSearch = (text: string, direction: 'forward' | 'backward' = 'forward') => {
+        searchText(text, direction);
+      };
+      
+      // "Register" this handler by calling onTextSearch with it
+      // This is a pattern to pass a callback up to parent
+      onTextSearch(handleTextSearch as any);
+    }
+  }, [onTextSearch, searchText]);
+  
+  // Utility to escape regex special characters
+  const escapeRegExp = (string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+  
+  // Function to render search highlights
+  const renderSearchHighlights = useCallback(() => {
+    if (!searchTerm || searchResults.length === 0) return null;
+    
+    return (pageNumber: number) => {
+      // Find highlights for this page
+      const pageIndex = pageNumber - 1;
+      const pageResults = searchResults.find(result => result.pageIndex === pageIndex);
+      
+      if (!pageResults) return null;
+      
+      // Render rectangles for each match
+      return (
+        <div className="search-highlights" style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          pointerEvents: 'none',
+          userSelect: 'none',
+          zIndex: 10
+        }}>
+          {pageResults.rects.map((rect, i) => {
+            // Calculate index of this highlight in the overall results
+            let absoluteIndex = 0;
+            for (let j = 0; j < searchResults.length; j++) {
+              if (searchResults[j].pageIndex === pageIndex) {
+                // If this is our page, add the current rect index
+                if (j === searchResults.findIndex(p => p.pageIndex === pageIndex)) {
+                  absoluteIndex += i;
+                  break;
+                }
+              } else if (searchResults[j].pageIndex < pageIndex) {
+                // Add all rects from previous pages
+                absoluteIndex += searchResults[j].rects.length;
+              }
+            }
+            
+            // Get page element position
+            const pageElement = document.getElementById(`page-${pageNumber}`);
+            if (!pageElement) return null;
+            
+            const pageRect = pageElement.getBoundingClientRect();
+            
+            // Calculate position relative to the page
+            const relativeTop = rect.top - pageRect.top;
+            const relativeLeft = rect.left - pageRect.left;
+            
+            // Determine if this is the current match
+            const isCurrentMatch = absoluteIndex === currentSearchIndex;
+            
+            return (
+              <div 
+                key={`search-${pageNumber}-${i}`}
+                style={{
+                  position: 'absolute',
+                  top: `${relativeTop}px`,
+                  left: `${relativeLeft}px`,
+                  width: `${rect.width}px`,
+                  height: `${rect.height}px`,
+                  backgroundColor: isCurrentMatch
+                    ? 'rgba(255, 190, 0, 0.7)' // Current match - more prominent
+                    : 'rgba(255, 255, 0, 0.35)', // Other matches
+                  borderRadius: '2px',
+                  transition: 'background-color 0.2s ease-in-out',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                  // Add a subtle outline to make the highlight stand out better
+                  outline: isCurrentMatch ? '1px solid rgba(255, 165, 0, 0.7)' : 'none',
+                }}
+              />
+            );
+          })}
+        </div>
+      );
+    };
+  }, [searchTerm, searchResults, currentSearchIndex]);
 
   return (
     <div 
@@ -1491,22 +1690,22 @@ const PDFViewer = memo(({
           left: 0;
           right: 0;
           bottom: 0;
-          z-index: 10; /* Set z-index to be above the canvas but below highlights */
+          z-index: 10;
           opacity: 0.25;
           pointer-events: none;
         }
         
         .react-pdf__Page__textContent span {
           color: transparent;
-          pointer-events: auto; /* Allow text selection */
+          pointer-events: auto;
         }
         
         .react-pdf__Page__textContent::selection {
-          background-color: rgba(255, 255, 0, 0.3); /* Default selection color */
+          background-color: rgba(255, 255, 0, 0.7);
         }
         
         .react-pdf__Page__textContent span::selection {
-          background-color: rgba(255, 255, 0, 0.3); /* Default selection color */
+          background-color: rgba(255, 255, 0, 0.7);
         }
         
         .react-pdf__Page__textContent mark {
@@ -1520,7 +1719,7 @@ const PDFViewer = memo(({
           left: 0;
           right: 0;
           bottom: 0;
-          z-index: 15; /* Above text layer */
+          z-index: 15;
           pointer-events: none;
         }
         
@@ -1535,7 +1734,7 @@ const PDFViewer = memo(({
           left: 0;
           right: 0;
           bottom: 0;
-          z-index: 40; /* Increased z-index to be above canvas and text */
+          z-index: 40;
           pointer-events: none;
         }
         
@@ -1570,7 +1769,6 @@ const PDFViewer = memo(({
       <div 
         className={`pdf-container ${containerClasses} overflow-y-auto h-full ${isDragging ? 'select-none touch-none dragging' : ''}`}
         ref={viewportRef}
-        onDoubleClick={toggleDebug}
         onMouseDown={
           activeTool === 'move' 
             ? handleDragStart 
@@ -1637,19 +1835,13 @@ const PDFViewer = memo(({
                       id={`page-${pageNumber}`}
                       className={`pdf-page bg-white rounded-md relative ${
                         scrollMode === ScrollMode.HORIZONTAL ? 'inline-flex mb-4' : ''
-                      } ${
-                        debugMode && currentObservedPage === pageNumber ? 'ring-2 ring-primary' : ''
-                      } ${
-                        debugMode && debugInfo && debugInfo.entries.some(e => e.pageNumber === pageNumber) 
-                          ? 'outline outline-offset-1 outline-yellow-500/30' 
-                          : ''
                       }`}
                       ref={pageNumber === 1 ? firstPageRef : null}
                     >
                       <Page
                         pageNumber={pageNumber}
                         scale={scale}
-                        renderTextLayer={activeTool !== 'move' && activeTool !== 'pencil' && activeTool !== 'eraser'} // Only render text layer when highlighting
+                        renderTextLayer={activeTool !== 'move' && activeTool !== 'pencil' && activeTool !== 'eraser'}
                         renderAnnotationLayer={activeTool !== 'move' && activeTool !== 'pencil' && activeTool !== 'eraser'}
                         className="shadow-md"
                         loading={
@@ -1661,11 +1853,19 @@ const PDFViewer = memo(({
                         onRenderSuccess={pageNumber === 1 ? handlePageRenderSuccess : undefined}
                       />
                       
-                      {/* Highlight container to ensure highlights are above text */}
+                      {/* Highlight container */}
                       <div className="highlight-layer">
                         {(() => {
                           const highlightRenderer = renderHighlights();
                           return highlightRenderer ? highlightRenderer(pageNumber) : null;
+                        })()}
+                      </div>
+                      
+                      {/* Search highlight layer */}
+                      <div className="search-highlight-layer">
+                        {(() => {
+                          const searchHighlights = renderSearchHighlights();
+                          return searchHighlights ? searchHighlights(pageNumber) : null;
                         })()}
                       </div>
                     </div>
@@ -1676,9 +1876,6 @@ const PDFViewer = memo(({
           </PDFErrorBoundary>
         )}
       </div>
-      
-      {/* Debug crosshair */}
-      {renderDebugInfo()}
     </div>
   );
 });

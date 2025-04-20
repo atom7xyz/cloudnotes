@@ -294,11 +294,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     };
   }, []);
 
-  // Function to play sound
+  // Function to play notification sound
   const playSound = () => {
-    if (audioRef.current && soundEnabled) {
+    if (audioRef.current) {
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(err => console.error("Error playing sound:", err));
+      audioRef.current.play().catch(() => {
+        // Silently handle error playing sound
+      });
     }
   };
 
@@ -309,7 +311,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         description: "John Doe shared a document with you: 'Project Proposal.pdf'",
         action: {
           label: "View",
-          onClick: () => console.log("Notification action clicked"),
+          onClick: () => {
+            // Action when notification is clicked
+          },
         },
         icon: <FileTextIcon size={16} />,
       });

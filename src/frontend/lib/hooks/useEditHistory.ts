@@ -18,7 +18,6 @@ export type HistoryItem<T> = {
 export function useEditHistory(filePath: string) {
   // Get initial data from storage
   const getInitialData = useCallback(() => {
-    console.log(`Loading annotations for file: ${filePath}`);
     const annotations = FileAnnotationStorage.getAnnotations(filePath);
     const historyData = FileAnnotationStorage.getHistory(filePath);
     return {
@@ -51,7 +50,6 @@ export function useEditHistory(filePath: string) {
   
   // Auto-save the current state to localStorage
   useEffect(() => {
-    console.log(`Auto-saving annotations for file: ${filePath}`);
     
     // Create a timer to save to localStorage
     const saveTimer = setTimeout(() => {
@@ -69,7 +67,6 @@ export function useEditHistory(filePath: string) {
         currentIndex
       });
       
-      console.log(`Saved annotations for file: ${filePath}`);
     }, 500); // Short delay to prevent excessive writes
     
     return () => {
@@ -141,7 +138,6 @@ export function useEditHistory(filePath: string) {
   
   // When filePath changes, reload data from storage
   useEffect(() => {
-    console.log(`File path changed to: ${filePath}, reloading annotations`);
     
     // Load new data for this file
     const data = getInitialData();

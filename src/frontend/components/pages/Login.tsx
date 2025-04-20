@@ -7,8 +7,14 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { PasswordInput } from "@/components/form-fields/PasswordInput";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Initialize form with react-hook-form and zod validation
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -20,9 +26,21 @@ export default function Login() {
   });
   
   // Handle form submission
-  const onSubmit = (values: LoginFormValues) => {
-    // Fake the process
-    console.log("Login submitted", values);
+  const onSubmit = async (values: LoginFormValues) => {
+    setIsLoading(true);
+    
+    try {
+      // Simulate API request
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // On success, navigate to dashboard
+      navigate('/');
+    } catch (error) {
+      // Handle login error
+      setError('Invalid credentials. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Check if form is empty

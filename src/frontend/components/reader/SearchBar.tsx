@@ -6,30 +6,27 @@ import {
   X,
   Clock
 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-interface DocumentSearchModalProps {
+interface SearchBarProps {
   isOpen: boolean;
   onClose: () => void;
   onFind: (query: string, direction: 'forward' | 'backward') => void;
-  onFindAll?: (query: string) => void;
   recentSearches?: string[];
   saveRecentSearch?: (query: string) => void;
   searchMetadata?: { totalMatches: number; currentMatch: number; };
 }
 
-const DocumentSearchModal = ({
+const SearchBar = ({
   isOpen,
   onClose,
   onFind,
-  onFindAll,
   recentSearches = [],
   saveRecentSearch,
   searchMetadata = { totalMatches: 0, currentMatch: 0 }
-}: DocumentSearchModalProps) => {
+}: SearchBarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showRecentSearches, setShowRecentSearches] = useState(false);
@@ -59,6 +56,22 @@ const DocumentSearchModal = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Auto-search whenever the query changes (for automatic highlighting)
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      // Add a small debounce to avoid excessive searches during typing
+      const debounceTimer = setTimeout(() => {
+        onFind(searchQuery, 'forward');
+        
+        if (saveRecentSearch) {
+          saveRecentSearch(searchQuery);
+        }
+      }, 300);
+      
+      return () => clearTimeout(debounceTimer);
+    }
+  }, [searchQuery, onFind, saveRecentSearch]);
 
   // Handle keyboard shortcuts
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -90,10 +103,10 @@ const DocumentSearchModal = ({
       saveRecentSearch(searchQuery);
     }
     
-    // Simulate loading state (remove in actual implementation)
+    // Short loading state
     setTimeout(() => {
       setIsLoading(false);
-    }, 300);
+    }, 200);
   }, [searchQuery, onFind, saveRecentSearch]);
 
   // Handle search in the backward direction
@@ -107,28 +120,11 @@ const DocumentSearchModal = ({
       saveRecentSearch(searchQuery);
     }
     
-    // Simulate loading state (remove in actual implementation)
+    // Short loading state
     setTimeout(() => {
       setIsLoading(false);
-    }, 300);
+    }, 200);
   }, [searchQuery, onFind, saveRecentSearch]);
-
-  // Handle find all occurrences
-  const handleFindAll = useCallback(() => {
-    if (!searchQuery.trim() || !onFindAll) return;
-    
-    setIsLoading(true);
-    onFindAll(searchQuery);
-    
-    if (saveRecentSearch) {
-      saveRecentSearch(searchQuery);
-    }
-    
-    // Simulate loading state (remove in actual implementation)
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 300);
-  }, [searchQuery, onFindAll, saveRecentSearch]);
 
   // Load a recent search into the search input
   const handleRecentSearchClick = useCallback((recentSearch: string) => {
@@ -222,19 +218,6 @@ const DocumentSearchModal = ({
           </Button>
         </div>
         
-        {/* Highlight all button */}
-        {onFindAll && searchQuery.trim() && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleFindAll}
-            disabled={isLoading}
-            className="justify-start text-sm"
-          >
-            Highlight All Matches
-          </Button>
-        )}
-        
         {/* Recent searches */}
         {showRecentSearches && recentSearches.length > 0 && (
           <div className="border-t pt-2 mt-1">
@@ -247,12 +230,9 @@ const DocumentSearchModal = ({
                 <button
                   key={`${term}-${index}`}
                   onClick={() => handleRecentSearchClick(term)}
-                  className={cn(
-                    "px-2 py-1 text-xs rounded-md bg-muted hover:bg-muted/80 transition-colors",
-                    "flex items-center gap-1 max-w-full truncate"
-                  )}
+                  className="px-2 py-1 text-xs rounded-md bg-muted hover:bg-muted/80 transition-colors"
                 >
-                  <span className="truncate">{term}</span>
+                  {term}
                 </button>
               ))}
             </div>
@@ -263,4 +243,4 @@ const DocumentSearchModal = ({
   );
 };
 
-export default DocumentSearchModal; 
+export default SearchBar; 

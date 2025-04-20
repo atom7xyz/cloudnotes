@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld('electron', {
   minimize: () => ipcRenderer.send('minimize-window'),
   maximize: () => ipcRenderer.send('maximize-window'),
   close: () => ipcRenderer.send('close-window'),
+  setWindowTitle: (title: string) => ipcRenderer.send('set-window-title', title),
+  updateWindowPreview: () => ipcRenderer.send('update-window-preview'),
   
   // Navigation controls
   goBack: () => ipcRenderer.send('go-back'),

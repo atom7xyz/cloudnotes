@@ -8,8 +8,7 @@ import {
   Eraser,
   X,
   Undo,
-  Redo,
-  ChevronDown
+  Redo
 } from 'lucide-react';
 import {
   Tooltip,
@@ -89,22 +88,22 @@ const LeftToolbar = memo(({
 
   // Create base tools array
   const baseTools: Tool[] = [
-    { id: 'move', icon: <Hand className="h-4 w-4" />, title: 'Move/drag document', tooltip: 'Click and drag to move around the document' },
+    { id: 'move', icon: <Hand className="h-4 w-4" />, title: 'Move/drag document', tooltip: 'Click and drag to move around the document\n\nKeybind: M' },
     { 
       id: 'marker', 
       icon: <Highlighter className="h-4 w-4" />, 
       title: 'Marker', 
-      tooltip: 'Select text to mark it with highlight color',
+      tooltip: 'Select text to mark it with highlight color\n\nKeybind: K',
       showPopover: true
     },
     { 
       id: 'pencil', 
       icon: <Pencil className="h-4 w-4" />, 
       title: 'Draw', 
-      tooltip: 'Draw directly on the document',
+      tooltip: 'Draw directly on the document\n\nKeybind: D',
       showPopover: true
     },
-    { id: 'eraser', icon: <Eraser className="h-4 w-4" />, title: 'Erase drawings', tooltip: 'Drag over drawings to erase them' },
+    { id: 'eraser', icon: <Eraser className="h-4 w-4" />, title: 'Erase drawings', tooltip: 'Drag over drawings to erase them\n\nKeybind: E' },
   ];
   
   // Add note tool with conditional rendering based on isNotesOpen state
@@ -112,7 +111,7 @@ const LeftToolbar = memo(({
     id: 'note',
     icon: isNotesOpen ? <X className="h-4 w-4 text-destructive" /> : <StickyNote className="h-4 w-4" />,
     title: isNotesOpen ? 'Close Notes' : 'Add Note',
-    tooltip: isNotesOpen ? 'Close the notes panel' : 'Add notes to the document',
+    tooltip: isNotesOpen ? 'Close the notes panel and hide all notes\n\nAny unsaved changes to notes will be lost\n\nKeybind: N' : 'Add notes to the document\n\nKeybind: N',
     onClick: onAddNote,
     variant: isNotesOpen ? "destructive" : undefined
   };
@@ -123,7 +122,7 @@ const LeftToolbar = memo(({
       id: 'undo', 
       icon: <Undo className="h-4 w-4" />, 
       title: 'Undo', 
-      tooltip: 'Undo last action',
+      tooltip: 'Undo last action\n\nKeybind: Ctrl+Z',
       onClick: undo,
       variant: canUndo ? undefined : "ghost"
     },
@@ -131,7 +130,7 @@ const LeftToolbar = memo(({
       id: 'redo', 
       icon: <Redo className="h-4 w-4" />, 
       title: 'Redo', 
-      tooltip: 'Redo last undone action',
+      tooltip: 'Redo last undone action\n\nKeybind: Ctrl+Shift+Z',
       onClick: redo,
       variant: canRedo ? undefined : "ghost"
     },
@@ -231,7 +230,7 @@ const LeftToolbar = memo(({
               <TooltipContent side="right" align="center" className="max-w-[200px]">
                 <div>
                   <p className="font-medium">{tool.title}</p>
-                  <p className="text-xs text-muted-foreground">{tool.tooltip}</p>
+                  <p className="text-xs text-muted-foreground whitespace-pre-line">{tool.tooltip}</p>
                 </div>
               </TooltipContent>
             </Tooltip>
@@ -285,7 +284,7 @@ const LeftToolbar = memo(({
                       <TooltipContent side="right" align="center" className="max-w-[200px]">
                         <div>
                           <p className="font-medium">{tool.title}</p>
-                          <p className="text-xs text-muted-foreground">{tool.tooltip}</p>
+                          <p className="text-xs text-muted-foreground whitespace-pre-line">{tool.tooltip}</p>
                         </div>
                       </TooltipContent>
                     </Tooltip>
@@ -404,7 +403,7 @@ const LeftToolbar = memo(({
                 <TooltipContent side="right" align="center" className="max-w-[200px]">
                   <div>
                     <p className="font-medium">{tool.title}</p>
-                    <p className="text-xs text-muted-foreground">{tool.tooltip}</p>
+                    <p className="text-xs text-muted-foreground whitespace-pre-line">{tool.tooltip}</p>
                   </div>
                 </TooltipContent>
               </Tooltip>
