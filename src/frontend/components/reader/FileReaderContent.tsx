@@ -14,7 +14,7 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 
 // Define default colors
-const DEFAULT_MARKER_COLOR = 'rgba(255, 255, 0, 0.3)'; // Yellow
+const DEFAULT_MARKER_COLOR = 'rgba(0, 196, 255, 0.3)'; // Blue
 const DEFAULT_DRAWING_COLOR = '#FF0000'; // Red
 const DEFAULT_LINE_WIDTH = 2;
 
@@ -22,7 +22,7 @@ const FileReaderContent = memo(() => {
   const navigate = useNavigate();
   const { zoomLevel, setZoomLevel, isDraggingZoom } = useZoom();
   const { activeTabId, getTabById, isLoading, setIsLoading } = useTabs();
-  const { undo, redo } = useEditHistoryContext();
+  const { undo, redo, setCurrentFilePath } = useEditHistoryContext();
   
   // Group all state hooks together at the top
   const [numPages, setNumPages] = useState<number | null>(10); // Default to 10 pages as placeholder
@@ -78,7 +78,17 @@ const FileReaderContent = memo(() => {
       if (activeTab) {
         // Only update the file path if it actually changed
         if (filePath !== activeTab.path) {
+          console.log(`Switching from ${filePath} to ${activeTab.path}`);
+          
+          // First set the current file path in the EditHistoryContext
+          // This will cause the EditHistoryContext to load annotations for the new file
+          setCurrentFilePath(activeTab.path);
+          
+          // Then update our local state
           setFilePath(activeTab.path);
+          
+          // Reset the active tool when switching documents
+          setActiveTool(null);
           
           // Check if we have a saved page position for this document
           if (documentPageMap.has(activeTab.path)) {
@@ -95,13 +105,21 @@ const FileReaderContent = memo(() => {
     } else {
       // If no active tab, use a default file based on file type preference
       if (filePath !== DEFAULT_FILES[FileType.PDF]) {
+        // First set the current file path in the EditHistoryContext
+        setCurrentFilePath(DEFAULT_FILES[FileType.PDF]);
+        
+        // Then update our local state
         setFilePath(DEFAULT_FILES[FileType.PDF]);
+        
+        // Reset the active tool
+        setActiveTool(null);
+        
         setPageNumber(1);
       }
       
       previousActiveTabIdRef.current = null;
     }
-  }, [activeTabId, getTabById, filePath, documentPageMap, pageNumber]);
+  }, [activeTabId, getTabById, filePath, documentPageMap, pageNumber, setCurrentFilePath]);
 
   const handleDocumentLoadSuccess = useCallback((numPages?: number) => {
     if (numPages) {
@@ -278,7 +296,7 @@ const FileReaderContent = memo(() => {
         
         // Calculate new zoom level based on wheel direction
         const delta = e.deltaY < 0 ? 25 : -25; // Increase/decrease by 25%
-        const newZoom = Math.min(Math.max(zoomLevel + delta, 50), 200); // Limit between 50% and 200%
+        const newZoom = Math.min(Math.max(zoomLevel + delta, 50), 400); // Limit between 50% and 400%
         
         setZoomLevel(newZoom);
       }

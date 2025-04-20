@@ -1016,7 +1016,7 @@ const PDFViewer = memo(({
     );
   }, [drawings, currentDrawing, scrollMode, currentPage, activeTool]);
 
-  // Update to use editHistory
+  // Update to use editHistory with file path awareness
   const deleteDrawing = useCallback((id: string) => {
     setDrawings(prev => {
       const updatedDrawings = prev.filter(d => d.id !== id);
@@ -1447,7 +1447,8 @@ const PDFViewer = memo(({
     };
   }, [editHistory]);
 
-  // Sync PDF viewer state with editHistory context
+  // Sync PDF viewer state with editHistory context when currentFilePath changes
+  // or when editHistory's drawings/highlights change
   useEffect(() => {
     // Ensure we have arrays to work with (prevent unintended side effects)
     if (Array.isArray(editHistory.drawings)) {
@@ -1457,7 +1458,15 @@ const PDFViewer = memo(({
     if (Array.isArray(editHistory.highlights)) {
       setHighlights(editHistory.highlights);
     }
-  }, [editHistory.drawings, editHistory.highlights]);
+  }, [editHistory.drawings, editHistory.highlights, editHistory.currentFilePath, filePath]);
+
+  // When filePath changes, clear local state drawings and highlights
+  // The EditHistoryContext will provide the correct ones for the new file
+  useEffect(() => {
+    console.log('File path changed in PDFViewer:', filePath);
+    // No need to manually clear drawings/highlights as they will be
+    // updated from the EditHistoryContext when it changes file path
+  }, [filePath]);
 
   return (
     <div 

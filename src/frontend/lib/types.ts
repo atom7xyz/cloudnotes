@@ -34,6 +34,23 @@ export interface Highlight {
 }
 
 /**
+ * Note annotation for a PDF page
+ */
+export interface Note {
+  id: string;
+  pageNumber: number;
+  content: string;
+  title?: string;
+  isGlobal?: boolean;
+  position?: {
+    x: number;
+    y: number;
+  };
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
  * Scroll modes for PDF viewing
  */
 export enum ScrollMode {

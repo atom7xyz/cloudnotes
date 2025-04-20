@@ -1,4 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { FileAnnotationStorage } from '@/lib/services/FileAnnotationStorage';
+import { Drawing, Highlight, Note } from '@/lib/types';
 
 /**
  * Generic type for edit history items
@@ -10,28 +12,77 @@ export type HistoryItem<T> = {
 };
 
 /**
- * Custom hook for managing edit history with undo and redo functionality
+ * Custom hook for managing edit history with undo and redo functionality.
+ * Provides file-specific history storage.
  */
-export function useEditHistory<T>(initialDrawings: T[] = [], initialHighlights: T[] = []) {
+export function useEditHistory(filePath: string) {
+  // Get initial data from storage
+  const getInitialData = useCallback(() => {
+    console.log(`Loading annotations for file: ${filePath}`);
+    const annotations = FileAnnotationStorage.getAnnotations(filePath);
+    const historyData = FileAnnotationStorage.getHistory(filePath);
+    return {
+      drawings: annotations.drawings,
+      highlights: annotations.highlights,
+      notes: annotations.notes,
+      history: historyData.history,
+      currentIndex: historyData.currentIndex
+    };
+  }, [filePath]);
+
   // Current state
-  const [drawings, setDrawings] = useState<T[]>(initialDrawings);
-  const [highlights, setHighlights] = useState<T[]>(initialHighlights);
+  const [drawings, setDrawings] = useState<Drawing[]>(() => getInitialData().drawings);
+  const [highlights, setHighlights] = useState<Highlight[]>(() => getInitialData().highlights);
+  const [notes, setNotes] = useState<Note[]>(() => getInitialData().notes);
   
   // History state
-  const [history, setHistory] = useState<HistoryItem<T>[]>([
-    { drawings: initialDrawings, highlights: initialHighlights, timestamp: Date.now() }
-  ]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [history, setHistory] = useState<Array<{
+    drawings: Drawing[];
+    highlights: Highlight[];
+    notes: Note[];
+    timestamp: number;
+  }>>(() => getInitialData().history);
+  
+  const [currentIndex, setCurrentIndex] = useState<number>(() => getInitialData().currentIndex);
   
   // Track if undo/redo is available
   const canUndo = currentIndex > 0;
   const canRedo = currentIndex < history.length - 1;
   
+  // Auto-save the current state to localStorage
+  useEffect(() => {
+    console.log(`Auto-saving annotations for file: ${filePath}`);
+    
+    // Create a timer to save to localStorage
+    const saveTimer = setTimeout(() => {
+      // Save annotations
+      FileAnnotationStorage.saveAnnotations(filePath, {
+        drawings,
+        highlights,
+        notes,
+        lastModified: Date.now()
+      });
+      
+      // Save history
+      FileAnnotationStorage.saveHistory(filePath, {
+        history,
+        currentIndex
+      });
+      
+      console.log(`Saved annotations for file: ${filePath}`);
+    }, 500); // Short delay to prevent excessive writes
+    
+    return () => {
+      clearTimeout(saveTimer);
+    };
+  }, [filePath, drawings, highlights, notes, history, currentIndex]);
+  
   // Add new state to history
-  const pushHistory = useCallback((newDrawings?: T[], newHighlights?: T[]) => {
-    const newHistoryItem: HistoryItem<T> = {
+  const pushHistory = useCallback((newDrawings?: Drawing[], newHighlights?: Highlight[], newNotes?: Note[]) => {
+    const newHistoryItem = {
       drawings: newDrawings || drawings,
       highlights: newHighlights || highlights,
+      notes: newNotes || notes,
       timestamp: Date.now()
     };
     
@@ -42,18 +93,24 @@ export function useEditHistory<T>(initialDrawings: T[] = [], initialHighlights: 
     // Add the new state and update index
     setHistory([...newHistory, newHistoryItem]);
     setCurrentIndex(newHistory.length);
-  }, [drawings, highlights, history, currentIndex]);
+  }, [drawings, highlights, notes, history, currentIndex]);
   
   // Update drawings and add to history
-  const updateDrawings = useCallback((newDrawings: T[]) => {
+  const updateDrawings = useCallback((newDrawings: Drawing[]) => {
     setDrawings(newDrawings);
-    pushHistory(newDrawings, undefined);
+    pushHistory(newDrawings, undefined, undefined);
   }, [pushHistory]);
   
   // Update highlights and add to history
-  const updateHighlights = useCallback((newHighlights: T[]) => {
+  const updateHighlights = useCallback((newHighlights: Highlight[]) => {
     setHighlights(newHighlights);
-    pushHistory(undefined, newHighlights);
+    pushHistory(undefined, newHighlights, undefined);
+  }, [pushHistory]);
+  
+  // Update notes and add to history
+  const updateNotes = useCallback((newNotes: Note[]) => {
+    setNotes(newNotes);
+    pushHistory(undefined, undefined, newNotes);
   }, [pushHistory]);
   
   // Undo the last action
@@ -63,14 +120,9 @@ export function useEditHistory<T>(initialDrawings: T[] = [], initialHighlights: 
     const newIndex = currentIndex - 1;
     const previousState = history[newIndex];
     
-    if (previousState.drawings) {
-      setDrawings(previousState.drawings);
-    }
-    
-    if (previousState.highlights) {
-      setHighlights(previousState.highlights);
-    }
-    
+    setDrawings(previousState.drawings);
+    setHighlights(previousState.highlights);
+    setNotes(previousState.notes);
     setCurrentIndex(newIndex);
   }, [canUndo, currentIndex, history]);
   
@@ -81,22 +133,34 @@ export function useEditHistory<T>(initialDrawings: T[] = [], initialHighlights: 
     const newIndex = currentIndex + 1;
     const nextState = history[newIndex];
     
-    if (nextState.drawings) {
-      setDrawings(nextState.drawings);
-    }
-    
-    if (nextState.highlights) {
-      setHighlights(nextState.highlights);
-    }
-    
+    setDrawings(nextState.drawings);
+    setHighlights(nextState.highlights);
+    setNotes(nextState.notes);
     setCurrentIndex(newIndex);
   }, [canRedo, currentIndex, history]);
+  
+  // When filePath changes, reload data from storage
+  useEffect(() => {
+    console.log(`File path changed to: ${filePath}, reloading annotations`);
+    
+    // Load new data for this file
+    const data = getInitialData();
+    
+    // Update all state values
+    setDrawings(data.drawings);
+    setHighlights(data.highlights);
+    setNotes(data.notes);
+    setHistory(data.history);
+    setCurrentIndex(data.currentIndex);
+  }, [filePath, getInitialData]);
   
   return {
     drawings,
     highlights,
+    notes,
     updateDrawings,
     updateHighlights,
+    updateNotes,
     undo,
     redo,
     canUndo,

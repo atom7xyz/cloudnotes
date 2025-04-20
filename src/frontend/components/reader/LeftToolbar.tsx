@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Hand, 
@@ -81,6 +81,11 @@ const LeftToolbar = memo(({
 }: LeftToolbarProps) => {
   const { undo, redo, canUndo, canRedo } = useEditHistoryContext();
   const [openPopover, setOpenPopover] = useState<string | null>(null);
+  const popoverTriggerRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const popoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Track whether a popover is open for tooltip control
+  const [isAnyPopoverOpen, setIsAnyPopoverOpen] = useState(false);
 
   // Create base tools array
   const baseTools: Tool[] = [
@@ -166,14 +171,38 @@ const LeftToolbar = memo(({
     return null;
   };
 
-  // Handle popover toggle
-  const togglePopover = (toolId: string) => {
-    if (openPopover === toolId) {
-      setOpenPopover(null);
-    } else {
+  // Handle popover hover behavior
+  const handlePopoverHover = (toolId: string, isHovering: boolean) => {
+    // Only show popovers for the active tool or if already open
+    if (toolId !== activeTool && openPopover !== toolId) {
+      return;
+    }
+    
+    if (popoverTimeoutRef.current) {
+      clearTimeout(popoverTimeoutRef.current);
+      popoverTimeoutRef.current = null;
+    }
+
+    if (isHovering) {
       setOpenPopover(toolId);
+      setIsAnyPopoverOpen(true);
+    } else {
+      // Add a small delay before closing to prevent flickering when moving between button and popover
+      popoverTimeoutRef.current = setTimeout(() => {
+        setOpenPopover(null);
+        setIsAnyPopoverOpen(false);
+      }, 300);
     }
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (popoverTimeoutRef.current) {
+        clearTimeout(popoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col items-center space-y-2 bg-background/90 backdrop-blur-sm p-2 rounded-lg shadow-md border border-border">
@@ -212,11 +241,27 @@ const LeftToolbar = memo(({
         {/* Main tools */}
         {tools.map(tool => (
           <div key={tool.id} className="relative">
-            {tool.showPopover ? (
-              <Popover open={openPopover === tool.id} onOpenChange={() => togglePopover(tool.id)}>
+            {tool.showPopover && (activeTool === tool.id) ? (
+              <Popover 
+                open={openPopover === tool.id} 
+                onOpenChange={(open) => {
+                  if (!open && openPopover === tool.id) {
+                    setOpenPopover(null);
+                    setIsAnyPopoverOpen(false);
+                  } else if (open) {
+                    setIsAnyPopoverOpen(true);
+                  }
+                }}
+              >
                 <PopoverTrigger asChild>
-                  <div className="relative">
-                    <Tooltip>
+                  <div 
+                    className="relative"
+                    ref={(ref: HTMLDivElement | null) => { popoverTriggerRefs.current[tool.id] = ref; }}
+                    onMouseEnter={() => handlePopoverHover(tool.id, true)}
+                    onMouseLeave={() => handlePopoverHover(tool.id, false)}
+                  >
+                    {/* Only hide tooltip when tool is active or popover is open */}
+                    <Tooltip open={activeTool === tool.id || openPopover === tool.id ? false : undefined}>
                       <TooltipTrigger asChild>
                         <Button
                           variant={tool.variant || (activeTool === tool.id ? "secondary" : "ghost")}
@@ -246,7 +291,13 @@ const LeftToolbar = memo(({
                     </Tooltip>
                   </div>
                 </PopoverTrigger>
-                <PopoverContent side="right" align="start" className="w-auto p-2">
+                <PopoverContent 
+                  side="right" 
+                  align="start" 
+                  className="w-auto p-2"
+                  onMouseEnter={() => handlePopoverHover(tool.id, true)}
+                  onMouseLeave={() => handlePopoverHover(tool.id, false)}
+                >
                   {tool.id === 'marker' && (
                     <div className="space-y-2">
                       <p className="text-xs font-medium">Marker Color</p>
@@ -329,7 +380,7 @@ const LeftToolbar = memo(({
                 </PopoverContent>
               </Popover>
             ) : (
-              <Tooltip>
+              <Tooltip open={activeTool === tool.id ? false : undefined}>
                 <TooltipTrigger asChild>
                   <Button
                     variant={tool.variant || (activeTool === tool.id ? "secondary" : "ghost")}
@@ -347,6 +398,7 @@ const LeftToolbar = memo(({
                     aria-pressed={activeTool === tool.id}
                   >
                     {tool.icon}
+                    {getColorIndicator(tool.id)}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right" align="center" className="max-w-[200px]">

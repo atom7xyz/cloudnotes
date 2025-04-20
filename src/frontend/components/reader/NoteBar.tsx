@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, memo } from 'react';
+import React, { useState, useCallback, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,32 +26,20 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
+import { Note } from '@/lib/types';
 
 interface NoteBarProps {
   currentPage: number;
   newNoteRef?: React.RefObject<HTMLTextAreaElement>;
 }
 
-interface Note {
-  id: number;
-  page: number;
-  text: string;
-  title: string;
-  isGlobal: boolean;
-}
-
-interface SortableNoteProps {
-  note: Note;
-  updateNoteTitle: (id: number, title: string) => void;
-  updateNote: (id: number, text: string) => void;
-  toggleNoteGlobal: (id: number) => void;
-  deleteNote: (id: number) => void;
-}
-
-// Memoized helper function for getting note location text
-const getNoteLocationText = (note: Note) => {
-  if (note.isGlobal) return "Global";
-  return `Page ${note.page}`;
+// Helper function to get a human-readable location string
+const getNoteLocationText = (note: Note): string => {
+  if (note.isGlobal) {
+    return "Global note (visible on all pages)";
+  }
+  return `Page ${note.pageNumber}`;
 };
 
 // Sortable note component with dnd-kit - now memoized
@@ -63,8 +51,13 @@ const SortableNote = memo(({
   deleteNote,
   notes,
   newNoteRef
-}: SortableNoteProps & { 
-  notes: Note[]; 
+}: {
+  note: Note;
+  updateNoteTitle: (id: string, title: string) => void;
+  updateNote: (id: string, text: string) => void;
+  toggleNoteGlobal: (id: string) => void;
+  deleteNote: (id: string) => void;
+  notes: Note[];
   newNoteRef?: React.RefObject<HTMLTextAreaElement>; 
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: note.id });
@@ -108,8 +101,12 @@ const SortableNote = memo(({
   
   // Get latest note id for auto-focusing
   const getLatestNoteId = useMemo(() => {
-    if (!notes || notes.length === 0) return -1;
-    return Math.max(...notes.map(n => n.id));
+    if (!notes || notes.length === 0) return '';
+    return notes.reduce((latest, note) => {
+      const currentCreatedAt = note.createdAt || 0;
+      const latestCreatedAt = latest.createdAt || 0;
+      return currentCreatedAt > latestCreatedAt ? note : latest;
+    }, notes[0]).id;
   }, [notes]);
   
   return (
@@ -129,7 +126,7 @@ const SortableNote = memo(({
               <input 
                 type="text"
                 className="text-xs border-none p-0 focus:ring-0 focus:outline-none hover:text-primary w-full bg-transparent font-medium"
-                value={note.title}
+                value={note.title || ''}
                 onChange={handleTitleChange}
                 onClick={handleInputClick}
                 onFocus={handleInputFocus}
@@ -178,7 +175,7 @@ const SortableNote = memo(({
         </div>
         <textarea
           className="mt-2 w-full text-sm p-2 border rounded-md"
-          value={note.text}
+          value={note.content || ''}
           rows={3}
           onChange={handleTextChange}
           onClick={(e) => e.stopPropagation()}
@@ -199,10 +196,9 @@ const NoteBar = memo(({
 }: NoteBarProps) => {
   // All state declarations at the top level
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [notes, setNotes] = useState<Note[]>([
-    { id: 1, page: 1, text: 'This is an example note on page 1', title: 'Note 1', isGlobal: false },
-    { id: 2, page: 2, text: 'This is another note on page 2', title: 'Note 2', isGlobal: false }
-  ]);
+  
+  // Use EditHistoryContext for file-specific notes
+  const { notes, updateNotes, currentFilePath } = useEditHistoryContext();
   
   // Create sensors for DnD - properly declared at the top level
   const sensors = useSensors(
@@ -214,7 +210,7 @@ const NoteBar = memo(({
   
   // Filter notes for current page - memoize to prevent recreation on every render
   const visibleNotes = useMemo(() => 
-    notes.filter(note => note.page === currentPage || note.isGlobal) || [],
+    notes.filter(note => note.pageNumber === currentPage || note.isGlobal) || [],
     [notes, currentPage]
   );
   
@@ -230,15 +226,19 @@ const NoteBar = memo(({
   }, []);
   
   const addNote = useCallback(() => {
-    const newNote = {
-      id: Date.now(),
-      page: currentPage,
-      text: `New note on page ${currentPage}`,
+    const newNote: Note = {
+      id: `note-${Date.now()}`,
+      pageNumber: currentPage,
+      content: `New note on page ${currentPage}`,
       title: `Note ${notes.length + 1}`,
-      isGlobal: false
+      isGlobal: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      position: { x: 0, y: 0 }
     };
     
-    setNotes(prevNotes => [newNote, ...prevNotes]);
+    const updatedNotes = [newNote, ...notes];
+    updateNotes(updatedNotes);
     
     // Focus on the newly created note if ref is provided
     if (newNoteRef?.current) {
@@ -248,48 +248,50 @@ const NoteBar = memo(({
         }
       }, 100);
     }
-  }, [currentPage, notes.length, newNoteRef]);
+  }, [currentPage, notes, updateNotes, newNoteRef]);
   
-  const updateNote = useCallback((id: number, text: string) => {
-    setNotes(prevNotes => prevNotes.map(note => 
-      note.id === id ? { ...note, text } : note
-    ));
-  }, []);
+  const updateNote = useCallback((id: string, content: string) => {
+    const updatedNotes = notes.map(note => 
+      note.id === id ? { ...note, content, updatedAt: Date.now() } : note
+    );
+    updateNotes(updatedNotes);
+  }, [notes, updateNotes]);
   
-  const updateNoteTitle = useCallback((id: number, title: string) => {
-    setNotes(prevNotes => prevNotes.map(note => 
-      note.id === id ? { ...note, title } : note
-    ));
-  }, []);
+  const updateNoteTitle = useCallback((id: string, title: string) => {
+    const updatedNotes = notes.map(note => 
+      note.id === id ? { ...note, title, updatedAt: Date.now() } : note
+    );
+    updateNotes(updatedNotes);
+  }, [notes, updateNotes]);
   
-  const toggleNoteGlobal = useCallback((id: number) => {
-    setNotes(prevNotes => prevNotes.map(note => 
-      note.id === id ? { ...note, isGlobal: !note.isGlobal } : note
-    ));
-  }, []);
+  const toggleNoteGlobal = useCallback((id: string) => {
+    const updatedNotes = notes.map(note => 
+      note.id === id ? { ...note, isGlobal: !note.isGlobal, updatedAt: Date.now() } : note
+    );
+    updateNotes(updatedNotes);
+  }, [notes, updateNotes]);
   
-  const deleteNote = useCallback((id: number) => {
-    setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
-  }, []);
+  const deleteNote = useCallback((id: string) => {
+    const updatedNotes = notes.filter(note => note.id !== id);
+    updateNotes(updatedNotes);
+  }, [notes, updateNotes]);
   
   // Handle drag end event for reordering
   const handleDragEnd = useCallback((event: any) => {
     const { active, over } = event;
     
     if (active.id !== over?.id) {
-      setNotes((items) => {
-        const activeIndex = items.findIndex(item => item.id === active.id);
-        const overIndex = items.findIndex(item => item.id === over.id);
-        
-        // Create a new array with the reordered items
-        const newItems = [...items];
-        const [movedItem] = newItems.splice(activeIndex, 1);
-        newItems.splice(overIndex, 0, movedItem);
-        
-        return newItems;
-      });
+      const updatedNotes = [...notes];
+      const activeIndex = updatedNotes.findIndex(item => item.id === active.id);
+      const overIndex = updatedNotes.findIndex(item => item.id === over.id);
+      
+      // Create a new array with the reordered items
+      const [movedItem] = updatedNotes.splice(activeIndex, 1);
+      updatedNotes.splice(overIndex, 0, movedItem);
+      
+      updateNotes(updatedNotes);
     }
-  }, []);
+  }, [notes, updateNotes]);
   
   // Render empty state when there are no notes
   const emptyNotesContent = useMemo(() => (

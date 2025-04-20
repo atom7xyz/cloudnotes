@@ -1,17 +1,21 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import useEditHistory from '../hooks/useEditHistory';
-import { Drawing, Highlight } from '@/lib/types';
+import { Drawing, Highlight, Note } from '@/lib/types';
 
 // Define the context shape
 type EditHistoryContextType = {
   drawings: Drawing[];
   highlights: Highlight[];
+  notes: Note[];
   updateDrawings: (drawings: Drawing[]) => void;
   updateHighlights: (highlights: Highlight[]) => void;
+  updateNotes: (notes: Note[]) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  setCurrentFilePath: (filePath: string) => void;
+  currentFilePath: string;
 };
 
 // Create the context with a default value
@@ -19,18 +23,26 @@ const EditHistoryContext = createContext<EditHistoryContextType | undefined>(und
 
 // Provider component
 export const EditHistoryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const historyManager = useEditHistory<Drawing | Highlight>([], []);
+  // Track the current file path
+  const [currentFilePath, setCurrentFilePath] = useState<string>('/assets/files/genesis.pdf');
+  
+  // Initialize history manager with the default file path
+  const historyManager = useEditHistory(currentFilePath);
   
   return (
     <EditHistoryContext.Provider value={{
-      drawings: historyManager.drawings as Drawing[],
-      highlights: historyManager.highlights as Highlight[],
-      updateDrawings: historyManager.updateDrawings as (d: Drawing[]) => void,
-      updateHighlights: historyManager.updateHighlights as (h: Highlight[]) => void,
+      drawings: historyManager.drawings,
+      highlights: historyManager.highlights,
+      notes: historyManager.notes,
+      updateDrawings: historyManager.updateDrawings,
+      updateHighlights: historyManager.updateHighlights,
+      updateNotes: historyManager.updateNotes,
       undo: historyManager.undo,
       redo: historyManager.redo,
       canUndo: historyManager.canUndo,
       canRedo: historyManager.canRedo,
+      setCurrentFilePath,
+      currentFilePath
     }}>
       {children}
     </EditHistoryContext.Provider>

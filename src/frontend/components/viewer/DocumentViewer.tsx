@@ -89,6 +89,8 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
       
       // Only show loading and reset state when file path changes
       if (filePath !== previousFilePath) {
+        console.log(`DocumentViewer: File path changed from ${previousFilePath} to ${filePath}`);
+        
         setIsLoading(true);
         setError(null);
         setShowLoadingModal(true);
