@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback, memo, useRef } from 'react';
+import type React from 'react';
+import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import LoadingModal from '@/components/modals/LoadingModal';
-import { ZoomValue } from '@/components/reader/FileReaderTopNavbar';
+import type { ZoomValue } from '@/components/reader/FileReaderTopNavbar';
 
 // Import the PDFViewer
 import PDFViewer, { ScrollMode } from './PDFViewer';
@@ -213,7 +214,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
             drawingLineWidth={drawingLineWidth}
           />
         );
-      case FileType.UNKNOWN:
+      //case FileType.UNKNOWN:
       default:
         // Only show the fallback PDF for unknown files
         return (
@@ -234,7 +235,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
       {/* Loading Modal - only shown when initially loading a file */}
       <LoadingModal 
         isOpen={showLoadingModal}
-        message={`Loading document...`}
+        message={"Loading document..."}
         fullScreen={false}
       />
     </>

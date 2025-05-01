@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import type React from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Search, 
   ArrowUp, 
@@ -169,6 +170,7 @@ const SearchBar = ({
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={handleClearSearch}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 aria-label="Clear search"
@@ -226,9 +228,10 @@ const SearchBar = ({
               Recent Searches
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {recentSearches.map((term, index) => (
+              {recentSearches.map((term) => (
                 <button
-                  key={`${term}-${index}`}
+                  type="button"
+                  key={term}
                   onClick={() => handleRecentSearchClick(term)}
                   className="px-2 py-1 text-xs rounded-md bg-muted hover:bg-muted/80 transition-colors"
                 >

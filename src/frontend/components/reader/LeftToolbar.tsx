@@ -1,4 +1,5 @@
-import React, { memo, useState, useRef, useEffect } from 'react';
+import type React from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Hand, 

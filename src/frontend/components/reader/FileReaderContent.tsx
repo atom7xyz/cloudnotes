@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect, memo, useCallback, useMemo } from 'react';
+import type React from 'react';
+import { useState, useRef, useEffect, memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useZoom } from '@/lib/contexts/ZoomContext';
 import { useTabs } from '@/lib/contexts/TabsContext';
 import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
 import { getElectronAPI } from '@/lib/navigation';
-import FileReaderTopNavbar, { ZoomValue } from '@/components/reader/FileReaderTopNavbar';
+import FileReaderTopNavbar, { type ZoomValue } from '@/components/reader/FileReaderTopNavbar';
 import NoteBar from '@/components/reader/NoteBar';
 import DocumentViewer, { DEFAULT_FILES, FileType } from '@/components/viewer/DocumentViewer';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
@@ -66,7 +67,7 @@ const FileReaderContent = memo(() => {
   }>({ totalMatches: 0, currentMatch: 0 });
 
   // Store the search function provided by PDFViewer
-  const searchFunctionRef = useRef<(text: string, direction: 'forward' | 'backward') => void | null>(null);
+  const searchFunctionRef = useRef<(text: string, direction: 'forward' | 'backward') => undefined | null>(null);
 
   // Handler for finding text (called from search modal)
   const handleFindText = useCallback((text: string, direction: 'forward' | 'backward') => {
@@ -199,7 +200,7 @@ const FileReaderContent = memo(() => {
   }, [filePath, setIsLoading]);
 
   // Handle page change
-  const handlePageChange = useCallback((newPage: number, manual: boolean = false) => {
+  const handlePageChange = useCallback((newPage: number, manual = false) => {
     if (newPage >= 1 && newPage <= (numPages || 1)) {
       // Update our internal state
       setPageNumber(newPage);

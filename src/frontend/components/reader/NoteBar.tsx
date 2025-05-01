@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useMemo, memo, useEffect } from 'react';
+import type React from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -27,7 +28,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
-import { Note } from '@/lib/types';
+import type { Note } from '@/lib/types';
 
 interface NoteBarProps {
   currentPage: number;
@@ -154,7 +155,7 @@ const SortableNote = memo(({
               className="h-6 w-6" 
               onClick={handleDelete}
             >
-              <span className="sr-only">Delete</span>
+              <span className="sr-only">Delete note</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -166,9 +167,11 @@ const SortableNote = memo(({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
               >
-                <path d="M18 6L6 18"></path>
-                <path d="M6 6l12 12"></path>
+                <title>Delete icon</title>
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
               </svg>
             </Button>
           </div>

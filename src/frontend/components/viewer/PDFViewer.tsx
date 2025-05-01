@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-import { Highlight } from '@/lib/types';
+import type { Highlight } from '@/lib/types';
 
 // Initialize PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -195,7 +195,7 @@ const PDFViewer = memo(({
     let element: HTMLElement | null = viewportRef.current;
     
     // Go up the parent chain until we find a scrollable container
-    while (element && element.parentElement) {
+    while (element?.parentElement) {
       element = element.parentElement;
       
       if (isScrollable(element)) {
@@ -291,7 +291,7 @@ const PDFViewer = memo(({
   }, [onLoadSuccess, currentPage, scrollMode]);
 
   // Handle when the first page is rendered - to get page dimensions
-  const handlePageRenderSuccess = useCallback((page: any) => {
+  const handlePageRenderSuccess = useCallback((page: { _pageInfo?: { width: number; height: number } }) => {
     if (!pageSize && page && page._pageInfo) {
       const { width, height } = page._pageInfo;
       setPageSize({ width, height });
@@ -370,7 +370,7 @@ const PDFViewer = memo(({
       let bestPage = -1;
       let bestVisibility = 0;
       
-      entries.forEach(entry => {
+      for (const entry of entries) {
         // Get the viewport dimensions relative to window
         const viewportHeight = window.innerHeight;
         const viewportWidth = window.innerWidth;
@@ -416,13 +416,13 @@ const PDFViewer = memo(({
         const score = visibilityScore * (1 + (centerValue * centerWeight));
         
         // Get page number from element ID
-        const pageNumber = parseInt(entry.target.id.replace('page-', ''), 10);
+        const pageNumber = Number.parseInt(entry.target.id.replace('page-', ''), 10);
         
         if (entry.isIntersecting && score > bestVisibility) {
           bestVisibility = score;
           bestPage = pageNumber;
         }
-      });
+      }
       
       // Update page counter if needed
       const needsUpdate = bestPage > 0 && (
@@ -464,9 +464,9 @@ const PDFViewer = memo(({
       if (!viewportRef.current) return;
       
       const pageElements = viewportRef.current.querySelectorAll('.pdf-page');
-      pageElements.forEach(page => {
+      for (const page of pageElements) {
         observerRef.current?.observe(page);
-      });
+      }
     }, 300);
     
     return () => {
@@ -474,7 +474,7 @@ const PDFViewer = memo(({
         observerRef.current.disconnect();
       }
     };
-  }, [scrollMode, isLoading, numPages, visiblePageNumber, onPageChange, isMiddleClickScrolling]);
+  }, [scrollMode, isLoading, numPages, visiblePageNumber, onPageChange, isMiddleClickScrolling, getScrollContainer]);
 
   // Function to handle document loading error
   const handleDocumentLoadError = useCallback((error: Error) => {
@@ -514,7 +514,7 @@ const PDFViewer = memo(({
         return "flex flex-col items-center gap-4 pb-24";
       case ScrollMode.HORIZONTAL:
         return "flex flex-wrap justify-center gap-4 p-4 pb-16";
-      case ScrollMode.PAGE:
+      //case ScrollMode.PAGE:
       default:
         return "flex flex-col items-center justify-center h-full pb-24";
     }
@@ -680,33 +680,88 @@ const PDFViewer = memo(({
         
         if (pageRect.top <= selectionY && pageRect.bottom >= selectionY) {
           const pageId = pageEl.id;
-          highlightPageNumber = parseInt(pageId.replace('page-', ''), 10);
+          highlightPageNumber = Number.parseInt(pageId.replace('page-', ''), 10);
           break;
         }
       }
     }
     
+    // Create an array of all valid rectangles
+    const validRects: DOMRect[] = [];
     for (let i = 0; i < rects.length; i++) {
       const rect = rects[i];
-      
       // Skip tiny highlight areas (likely selection artifacts)
       if (rect.width < 3 || rect.height < 3) continue;
+      validRects.push(rect);
+    }
+    
+    // Sort rectangles by their vertical position (top to bottom)
+    validRects.sort((a, b) => a.top - b.top);
+    
+    // Group rectangles into lines with a more robust approach
+    const lines: DOMRect[][] = [];
+    let currentLine: DOMRect[] = [];
+    
+    for (let i = 0; i < validRects.length; i++) {
+      const rect = validRects[i];
       
+      if (currentLine.length === 0) {
+        // Start a new line
+        currentLine.push(rect);
+      } else {
+        // Check if this rectangle belongs to the current line
+        // We use vertical overlap as the criterion
+        const lastRect = currentLine[currentLine.length - 1];
+        const verticalOverlap = Math.min(lastRect.bottom, rect.bottom) - Math.max(lastRect.top, rect.top);
+        const verticalOverlapRatio = verticalOverlap / Math.min(lastRect.height, rect.height);
+        
+        if (verticalOverlapRatio > 0.5) {
+          // More than 50% vertical overlap, same line
+          currentLine.push(rect);
+        } else {
+          // New line
+          lines.push([...currentLine]);
+          currentLine = [rect];
+        }
+      }
+    }
+    
+    // Add the last line if it's not empty
+    if (currentLine.length > 0) {
+      lines.push(currentLine);
+    }
+    
+    // Create a highlight for each line
+    lines.forEach((lineRects, lineIndex) => {
+      // Find the bounding box for this line
+      let minX = Number.POSITIVE_INFINITY;
+      let maxX = Number.NEGATIVE_INFINITY;
+      let minY = Number.POSITIVE_INFINITY;
+      let maxY = Number.NEGATIVE_INFINITY;
+      
+      for (const rect of lineRects) {
+        minX = Math.min(minX, rect.left);
+        maxX = Math.max(maxX, rect.right);
+        minY = Math.min(minY, rect.top);
+        maxY = Math.max(maxY, rect.bottom);
+      }
+      
+      // Create a single highlight for this line
       const highlightPosition = {
-        x: rect.left - viewportRect.left + viewportRef.current.scrollLeft,
-        y: rect.top - viewportRect.top + viewportRef.current.scrollTop,
-        width: rect.width,
-        height: rect.height
+        x: minX - viewportRect.left + (viewportRef.current?.scrollLeft || 0),
+        y: minY - viewportRect.top + (viewportRef.current?.scrollTop || 0),
+        width: maxX - minX,
+        height: maxY - minY
       };
       
       newHighlights.push({
-        id: `highlight-${Date.now()}-${i}`,
+        id: `highlight-${Date.now()}-${lineIndex}`,
         pageNumber: highlightPageNumber,
         position: highlightPosition,
         color: selectedMarkerColor,
         content: content
       });
-    }
+    });
     
     // Only apply highlights when we detect mouseup event
     if (newHighlights.length > 0) {
@@ -722,7 +777,7 @@ const PDFViewer = memo(({
       // Don't clear the selection immediately to allow for better UX
       // It will be cleared on next interaction
     }
-  }, [activeTool, currentPage, scrollMode, selectedMarkerColor, editHistory, viewportRef]);
+  }, [activeTool, currentPage, scrollMode, selectedMarkerColor, editHistory]);
 
   // Effect to handle text selection events - modified for two-step process
   useEffect(() => {
@@ -782,7 +837,7 @@ const PDFViewer = memo(({
         
         if (pageRect.top <= e.clientY && pageRect.bottom >= e.clientY) {
           const pageId = pageEl.id;
-          drawingPageNumber = parseInt(pageId.replace('page-', ''), 10);
+          drawingPageNumber = Number.parseInt(pageId.replace('page-', ''), 10);
           break;
         }
       }
@@ -858,6 +913,7 @@ const PDFViewer = memo(({
         className="absolute top-0 left-0 w-full h-full pointer-events-none" 
         style={{ zIndex: 40 }}
       >
+        <title>Drawings Layer</title>
         {visibleDrawings.map(drawing => {
           // Skip if less than 2 points
           if (drawing.path.length < 2) return null;
@@ -881,6 +937,8 @@ const PDFViewer = memo(({
                 strokeLinejoin="round"
                 className={activeTool === 'eraser' ? 'pointer-events-auto hover:stroke-destructive/70' : ''}
                 onClick={activeTool === 'eraser' ? () => deleteDrawing(drawing.id) : undefined}
+                tabIndex={activeTool === 'eraser' ? 0 : undefined}
+                onKeyDown={activeTool === 'eraser' ? (e) => { if (e.key === 'Enter' || e.key === ' ') deleteDrawing(drawing.id); } : undefined}
               />
             </g>
           );
@@ -916,11 +974,11 @@ const PDFViewer = memo(({
     // Group highlights by page number
     const highlightsByPage = new Map<number, Highlight[]>();
     
-    visibleHighlights.forEach(highlight => {
+    for (const highlight of visibleHighlights) {
       const pageHighlights = highlightsByPage.get(highlight.pageNumber) || [];
       pageHighlights.push(highlight);
       highlightsByPage.set(highlight.pageNumber, pageHighlights);
-    });
+    }
     
     // Return a function that accepts a page number and returns the highlights for that page
     return (pageNumber: number) => {
@@ -946,6 +1004,7 @@ const PDFViewer = memo(({
             <div 
               className="absolute inset-0 pointer-events-auto hover:bg-destructive/20"
               onClick={() => deleteHighlight(highlight.id)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') deleteHighlight(highlight.id); }}
             />
           )}
         </div>
@@ -1004,7 +1063,7 @@ const PDFViewer = memo(({
       const newDrawings = prevDrawings.filter(drawing => {
         // Check if any point in the drawing path is within range of the eraser
         const isErased = drawing.path.some(point => {
-          const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+          const distance = Math.sqrt((point.x - x) ** 2 + (point.y - y) ** 2);
           return distance <= eraserRadius;
         });
         
@@ -1029,8 +1088,8 @@ const PDFViewer = memo(({
         
         // Calculate distance from eraser to highlight center
         const distance = Math.sqrt(
-          Math.pow(highlightCenterX - x, 2) + 
-          Math.pow(highlightCenterY - y, 2)
+          (highlightCenterX - x) ** 2 + 
+          (highlightCenterY - y) ** 2
         );
         
         // Also check if eraser is within the highlight bounds
@@ -1223,7 +1282,7 @@ const PDFViewer = memo(({
   useEffect(() => {
     const handleCustomNavigate = (event: Event) => {
       const customEvent = event as CustomEvent;
-      if (customEvent.detail && customEvent.detail.pageNumber) {
+      if (customEvent.detail?.pageNumber) {
         navigateToPage(customEvent.detail.pageNumber);
       }
     };
@@ -1245,7 +1304,7 @@ const PDFViewer = memo(({
   useEffect(() => {
     const handleDirectNavigate = (event: Event) => {
       const customEvent = event as CustomEvent;
-      if (customEvent.detail && customEvent.detail.pageNumber) {
+      if (customEvent.detail?.pageNumber) {
         navigateToPage(customEvent.detail.pageNumber);
       }
     };
@@ -1317,14 +1376,14 @@ const PDFViewer = memo(({
     if (Array.isArray(editHistory.highlights)) {
       setHighlights(editHistory.highlights);
     }
-  }, [editHistory.drawings, editHistory.highlights, editHistory.currentFilePath, filePath]);
+  }, [editHistory.drawings, editHistory.highlights]);
 
   // When filePath changes, clear local state drawings and highlights
   // The EditHistoryContext will provide the correct ones for the new file
   useEffect(() => {
     // No need to manually clear drawings/highlights as they will be
     // updated from the EditHistoryContext when it changes file path
-  }, [filePath]);
+  }, []);
 
   // Search functionality
   const searchText = useCallback(async (text: string, direction: 'forward' | 'backward' = 'forward') => {
@@ -1376,21 +1435,21 @@ const PDFViewer = memo(({
         }
         
         // Process each text layer
-        textLayerElements.forEach((textLayerElement) => {
+        for (const textLayerElement of textLayerElements) {
           // Find which page this text layer belongs to
           const pageElement = textLayerElement.closest('.pdf-page');
-          if (!pageElement || !pageElement.id) return;
+          if (!pageElement || !pageElement.id) continue;
           
           // Extract page number from id (format: "page-X")
           const pageId = pageElement.id;
-          const pageIndex = parseInt(pageId.replace('page-', ''), 10) - 1;
+          const pageIndex = Number.parseInt(pageId.replace('page-', ''), 10) - 1;
           
           // Process this text layer
           const pageResults = processTextLayer(textLayerElement, pageIndex, text);
           if (pageResults && pageResults.rects.length > 0) {
             results.push(pageResults);
           }
-        });
+        }
       }
       
       // Function to process a text layer and find matches
@@ -1402,13 +1461,13 @@ const PDFViewer = memo(({
         const matchTexts: string[] = [];
         
         // Process each text node to find precise matches
-        textNodes.forEach((node) => {
+        for (const node of textNodes) {
           const nodeText = node.textContent || '';
-          if (!nodeText.toLowerCase().includes(searchText.toLowerCase())) return;
+          if (!nodeText.toLowerCase().includes(searchText.toLowerCase())) continue;
           
           // Create a regex for case-insensitive search
           const nodeRegex = new RegExp(escapeRegExp(searchText), 'gi');
-          let match;
+          let match: RegExpExecArray | null;
           
           // Find all matches in this text node
           while ((match = nodeRegex.exec(nodeText)) !== null) {
@@ -1440,7 +1499,7 @@ const PDFViewer = memo(({
               console.error('Error creating range for text match:', err);
             }
           }
-        });
+        }
         
         return { pageIndex, rects: matchRects, matchTexts };
       }
@@ -1507,7 +1566,7 @@ const PDFViewer = memo(({
     if (onSearchMetadataChange) {
       onSearchMetadataChange(newMetadata);
     }
-  }, [currentSearchIndex, searchResults]);
+  }, [currentSearchIndex, searchResults, onSearchMetadataChange]);
   
   // Scroll to a specific search result
   const scrollToSearchResult = useCallback((index: number) => {
@@ -1515,9 +1574,7 @@ const PDFViewer = memo(({
     
     // Find which page and rectangle this index corresponds to
     let counter = 0;
-    for (let i = 0; i < searchResults.length; i++) {
-      const page = searchResults[i];
-      
+    for (const page of searchResults) {
       if (counter + page.rects.length > index) {
         // This is the page that contains our target
         const rectIndex = index - counter;
@@ -1565,7 +1622,7 @@ const PDFViewer = memo(({
       
       counter += page.rects.length;
     }
-  }, [searchResults, navigateToPage]);
+  }, [searchResults, navigateToPage, getScrollContainer]);
 
   // Highlight all search results
   
@@ -1579,7 +1636,7 @@ const PDFViewer = memo(({
       
       // "Register" this handler by calling onTextSearch with it
       // This is a pattern to pass a callback up to parent
-      onTextSearch(handleTextSearch as any);
+      onTextSearch(handleTextSearch);
     }
   }, [onTextSearch, searchText]);
   
@@ -1614,16 +1671,16 @@ const PDFViewer = memo(({
           {pageResults.rects.map((rect, i) => {
             // Calculate index of this highlight in the overall results
             let absoluteIndex = 0;
-            for (let j = 0; j < searchResults.length; j++) {
-              if (searchResults[j].pageIndex === pageIndex) {
+            for (const result of searchResults) {
+              if (result.pageIndex === pageIndex) {
                 // If this is our page, add the current rect index
-                if (j === searchResults.findIndex(p => p.pageIndex === pageIndex)) {
+                if (searchResults.indexOf(result) === pageIndex) {
                   absoluteIndex += i;
                   break;
                 }
-              } else if (searchResults[j].pageIndex < pageIndex) {
+              } else if (result.pageIndex < pageIndex) {
                 // Add all rects from previous pages
-                absoluteIndex += searchResults[j].rects.length;
+                absoluteIndex += result.rects.length;
               }
             }
             
@@ -1642,7 +1699,7 @@ const PDFViewer = memo(({
             
             return (
               <div 
-                key={`search-${pageNumber}-${i}`}
+                key={`search-${pageNumber}-${pageResults.matchTexts[i] || i}`}
                 style={{
                   position: 'absolute',
                   top: `${relativeTop}px`,

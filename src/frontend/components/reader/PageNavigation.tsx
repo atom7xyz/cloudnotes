@@ -39,7 +39,7 @@ const PageNavigation = memo(({ pageNumber, numPages, onPageChange, isVisible, is
   
   // Process page input and navigate if valid
   const processPageInput = useCallback(() => {
-    const newPage = parseInt(inputValue) || pageNumber;
+    const newPage = Number.parseInt(inputValue) || pageNumber;
     const maxPage = numPages || 1;
     
     if (newPage >= 1 && newPage <= maxPage && newPage !== pageNumber) {

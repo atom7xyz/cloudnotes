@@ -1,4 +1,5 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react';
+import type React from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Card } from '../ui/card';
 
 interface FileViewportProps {

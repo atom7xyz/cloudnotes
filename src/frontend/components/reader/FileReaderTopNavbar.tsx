@@ -1,4 +1,4 @@
-import React, { useState, CSSProperties, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useState, type CSSProperties, useEffect, useCallback, useMemo, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeftIcon,
@@ -31,7 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import TabSwitcherModal, { FileTab } from '@/components/modals/TabSwitcherModal';
+import TabSwitcherModal, { type FileTab } from '@/components/modals/TabSwitcherModal';
 import { useTabs } from '@/lib/contexts/TabsContext';
 import { cn } from '@/lib/utils';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
@@ -290,6 +290,7 @@ const DropdownTabItem = memo(({
       }}
     >
       <button
+        type="button"
         className="flex-1 flex items-center text-left" 
         onClick={handleSelect}
       >
@@ -297,6 +298,7 @@ const DropdownTabItem = memo(({
         <span className="flex-1 truncate">{tab.name}</span>
       </button>
       <button
+        type="button"
         className="opacity-50 hover:opacity-100"
         onClick={handleClose}
         title="Close"
@@ -594,6 +596,7 @@ const FileReaderTopNavbar = memo(({
 
           {/* Middle section - Edit buttons, Search, View controls, and Zoom */}
           <div className="flex-1 flex items-center justify-center space-x-3" style={dragRegion}>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <div className="relative w-1/4 max-w-xs" onClick={handleSearchClick}>
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/70">
                 <Search className="h-4 w-4" />

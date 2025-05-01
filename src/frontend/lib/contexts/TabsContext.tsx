@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import type React from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { FileTab } from '@/components/modals/TabSwitcherModal';
-import { Document, Page, pdfjs } from 'react-pdf';
+import type { FileTab } from '@/components/modals/TabSwitcherModal';
+import { pdfjs } from 'react-pdf';
 
 // Set the pdf.js worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
