@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 
 interface LoadingModalProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
         <div className="flex flex-col items-center justify-center gap-6 w-full max-w-md px-8">
           {/* Simple loading spinner */}
           <div className="relative w-8 h-8">
-            <div className="w-8 h-8 rounded-full border-3 border-primary border-t-transparent animate-spin"></div>
+            <div className="w-8 h-8 rounded-full border-3 border-primary border-t-transparent animate-spin" />
           </div>
           
           {/* Loading message */}
@@ -43,7 +44,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
           
           {/* Simple progress bar */}
           <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
-            <div className="h-full bg-primary w-2/3 animate-pulse"></div>
+            <div className="h-full bg-primary w-2/3 animate-pulse" />
           </div>
         </div>
       </div>
@@ -59,7 +60,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
       <div className="bg-background rounded-lg shadow-lg p-6 flex flex-col items-center justify-center gap-4 max-w-sm border border-border">
         {/* Simple loading spinner */}
         <div className="relative w-5 h-5">
-          <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+          <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         </div>
         
         {/* Loading message */}
@@ -67,7 +68,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
         
         {/* Simple progress bar */}
         <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
-          <div className="h-full bg-primary w-1/2 animate-pulse"></div>
+          <div className="h-full bg-primary w-1/2 animate-pulse" />
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
-import React, { useEffect, useState, CSSProperties } from 'react';
+import type React from 'react';
+import { useEffect, useState, type CSSProperties } from 'react'
 import { 
   ArrowLeftIcon, 
   ArrowRightIcon, 

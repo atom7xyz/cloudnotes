@@ -7,7 +7,7 @@ import {
   FormLabel, 
   FormMessage 
 } from "@/components/ui/form";
-import { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
+import type { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { cn } from "@/lib/utils";

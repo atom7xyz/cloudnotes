@@ -1,7 +1,7 @@
-import React, { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import { Form } from "@/components/ui/form";
 import UnsavedChangesModal from "@/components/modals/UnsavedChangesModal";
-import { FieldValues, UseFormReturn } from "react-hook-form";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useFormNavigation } from "@/lib/hooks/useFormNavigation";
 
 interface FormContainerProps<TFieldValues extends FieldValues> {

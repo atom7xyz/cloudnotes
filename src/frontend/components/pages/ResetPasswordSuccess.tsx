@@ -16,10 +16,10 @@ export default function ResetPasswordSuccess() {
           {/* Success animation and icon */}
           <div className="relative">
             {/* Outer glow and animation */}
-            <div className="absolute inset-0 rounded-full bg-green-400/20 animate-pulse-slow"></div>
+            <div className="absolute inset-0 rounded-full bg-green-400/20 animate-pulse-slow" />
             
             {/* Ping animation */}
-            <div className="absolute inset-0 rounded-full bg-green-400/30 animate-ping"></div>
+            <div className="absolute inset-0 rounded-full bg-green-400/30 animate-ping" />
             
             {/* Main circle */}
             <div className="relative rounded-full bg-green-50 p-5 border-2 border-green-100 shadow-lg">

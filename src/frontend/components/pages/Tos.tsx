@@ -27,11 +27,11 @@ export default function Tos() {
       section.scrollIntoView({ behavior: "smooth" });
       
       // Clear any existing highlights first
-      Object.values(sectionRefs.current).forEach(ref => {
+      for (const ref of Object.values(sectionRefs.current)) {
         if (ref) {
           ref.classList.remove("bg-primary/[0.06]");
         }
-      });
+      }
       
       // Set new active section and highlight
       setActiveSection(sectionId);

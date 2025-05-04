@@ -1,7 +1,7 @@
 import { useAppNavigate } from "@/lib/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ForgotPasswordFormValues, forgotPasswordSchema } from "@/lib/validations/auth";
+import { type ForgotPasswordFormValues, forgotPasswordSchema } from "@/lib/validations/auth";
 import { FormInput } from "@/components/form-fields/FormInput";
 import { AppLink } from "@/components/ui/app-link";
 import { AuthCard } from "@/components/auth/AuthCard";

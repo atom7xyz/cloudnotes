@@ -6,7 +6,7 @@ import {
   FormLabel, 
   FormMessage 
 } from "@/components/ui/form";
-import { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
+import type { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
 import { cn } from "@/lib/utils";
 
 interface FormInputProps<

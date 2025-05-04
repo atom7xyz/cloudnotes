@@ -1,7 +1,8 @@
 import { Button } from "../ui/button";
 import { Modal } from "../ui/modal";
 import FormOTP from "../form-fields/FormOTP";
-import React, { useCallback, useEffect, useRef, useState, KeyboardEvent } from "react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react"
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

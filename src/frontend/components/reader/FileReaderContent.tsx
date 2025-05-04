@@ -61,23 +61,20 @@ const FileReaderContent = memo(() => {
   // State for search functionality
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [searchMetadata, setSearchMetadata] = useState<{ 
-    totalMatches: number; 
-    currentMatch: number; 
-  }>({ totalMatches: 0, currentMatch: 0 });
+  const [searchMetadata, setSearchMetadata] = useState<{ totalMatches: number; currentMatch: number }>({
+    totalMatches: 0,
+    currentMatch: 0
+  });
 
-  // Store the search function provided by PDFViewer
-  const searchFunctionRef = useRef<(text: string, direction: 'forward' | 'backward') => undefined | null>(null);
+  // State for search function registered by PDFViewer
+  const [searchFunction, setSearchFunction] = useState<((text: string, direction?: 'forward' | 'backward') => void) | null>(null);
 
   // Handler for finding text (called from search modal)
   const handleFindText = useCallback((text: string, direction: 'forward' | 'backward') => {
-    if (searchFunctionRef.current) {
-      searchFunctionRef.current(text, direction);
-      // The actual search metadata will be updated by the PDFViewer component,
-      // which internally tracks the total matches and current match index.
-      // No need to manually update metadata here as it was before.
+    if (searchFunction) {
+      searchFunction(text, direction);
     }
-  }, []);
+  }, [searchFunction]);
 
   // Save a recent search term
   const saveRecentSearch = useCallback((term: string) => {
@@ -245,8 +242,8 @@ const FileReaderContent = memo(() => {
   }, [navigate]);
 
   // Text search handler for DocumentViewer
-  const handleTextSearch = useCallback((searchFunction: any) => {
-    searchFunctionRef.current = searchFunction;
+  const handleTextSearch = useCallback((searchFunction: (text: string, direction?: 'forward' | 'backward') => void) => {
+    setSearchFunction(searchFunction);
   }, []);
 
   // Handle zoom change with new ZoomValue type
@@ -270,7 +267,7 @@ const FileReaderContent = memo(() => {
     else if (tool === 'pencil') {
       // This will be applied when PDFViewer renders
     }
-  }, [selectedMarkerColor, selectedDrawingColor, drawingLineWidth]);
+  }, []);
 
   // Handle marker color change
   const handleMarkerColorChange = useCallback((color: string) => {
@@ -478,6 +475,30 @@ const FileReaderContent = memo(() => {
     setSearchMetadata(metadata);
   }, []);
 
+  // This function will be passed to PDFViewer's onTextSearch prop
+  const handleRegisterSearchFunction = useCallback((searchFn: (text: string, direction?: 'forward' | 'backward') => void) => {
+    // Only update if the function has changed to prevent unnecessary rerenders
+    setSearchFunction((prevFn: ((text: string, direction?: 'forward' | 'backward') => void) | null) => {
+      // If it's the first registration or the function reference has changed
+      if (!prevFn || prevFn !== searchFn) {
+        return searchFn;
+      }
+      return prevFn; // Keep the previous function reference
+    });
+  }, []);
+
+  // This function will be passed to FileReaderTopNavbar's onFindText prop
+  const handleSearch = useCallback((text: string, direction: 'forward' | 'backward' = 'forward') => {
+    if (searchFunction) {
+      searchFunction(text, direction);
+      
+      // If this is a new search (not navigation), save it to recent searches
+      if (text?.trim() && (!searchMetadata.totalMatches || direction === 'forward')) {
+        saveRecentSearch(text);
+      }
+    }
+  }, [searchFunction, searchMetadata.totalMatches, saveRecentSearch]);
+
   return (
     <div className="flex flex-col h-screen">
       {/* Top navigation bar */}
@@ -485,7 +506,7 @@ const FileReaderContent = memo(() => {
         zoomLevel={zoomLevel}
         onZoomChange={handleZoomChange}
         onGoBack={handleGoBack}
-        onFindText={toggleSearch}
+        onFindText={handleSearch}
         isNotesOpen={isNotesOpen}
         onToggleNotes={handleToggleNotes}
         scrollMode={scrollMode}
@@ -507,7 +528,7 @@ const FileReaderContent = memo(() => {
               currentPage={pageNumber}
               onLoadSuccess={handleDocumentLoadSuccess}
               onLoadError={handleDocumentLoadError}
-              onTextSearch={handleTextSearch}
+              onTextSearch={handleRegisterSearchFunction}
               onSearchMetadataChange={handleSearchMetadataChange}
               scrollMode={scrollMode}
               onPageChange={(page) => handlePageChange(page, false)}

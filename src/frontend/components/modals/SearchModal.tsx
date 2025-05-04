@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, KeyboardEvent, useRef } from 'react';
+import type React from 'react';
+import { useState, useEffect, useCallback, type KeyboardEvent, useRef } from 'react'
 import { Modal } from '../ui/modal';
 import { Input } from '../ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -20,7 +21,7 @@ import {
   BookmarkIcon,
   HelpCircle
 } from 'lucide-react';
-import { mockDataService, MockDocument, MockUser } from '../../lib/mockData';
+import { mockDataService, type MockDocument, type MockUser } from '../../lib/mockData';
 import { debounce, throttle } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 

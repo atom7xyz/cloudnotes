@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { FormContainer } from "@/components/form-fields/FormContainer";
-import { ReactNode } from "react";
-import { FieldValues, UseFormReturn } from "react-hook-form";
+import type { ReactNode } from "react";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
 
 interface AuthFormContainerProps<TFieldValues extends FieldValues> {
   form: UseFormReturn<TFieldValues>;

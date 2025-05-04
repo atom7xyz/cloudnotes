@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { ZoomProvider } from '@/lib/contexts/ZoomContext';
 import { TabsProvider } from '@/lib/contexts/TabsContext';
 import { EditHistoryProvider } from '@/lib/contexts/EditHistoryContext';

@@ -1,7 +1,7 @@
 import { useAppNavigate } from "@/lib/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { OtpFormValues, otpSchema } from "@/lib/validations/auth";
+import { type OtpFormValues, otpSchema } from "@/lib/validations/auth";
 import { FormOTP } from "@/components/form-fields/FormOTP";
 import { AppLink } from "@/components/ui/app-link";
 import { AuthCard } from "@/components/auth/AuthCard";

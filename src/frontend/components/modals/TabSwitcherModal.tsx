@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogPortal, DialogOverlay } from '../ui/dialog';
+import { Dialog, DialogPortal, DialogOverlay } from '../ui/dialog';
 import { ScrollArea } from '../ui/scroll-area';
-import { FolderOpenIcon, FileIcon, X } from 'lucide-react';
+import { FileIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import * as DialogPrimitive from "@radix-ui/react-dialog";

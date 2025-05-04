@@ -1,4 +1,4 @@
-import React, { useState, type CSSProperties, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useState, type CSSProperties, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeftIcon,
@@ -14,7 +14,10 @@ import {
   FileIcon,
   ScrollText,
   MoveHorizontal,
-  MonitorSmartphone
+  MonitorSmartphone,
+  ChevronLeft,
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +38,7 @@ import TabSwitcherModal, { type FileTab } from '@/components/modals/TabSwitcherM
 import { useTabs } from '@/lib/contexts/TabsContext';
 import { cn } from '@/lib/utils';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
+import { useDebounce } from '../../lib/hooks/useDebounce';
 
 // Custom CSS properties for Electron window drag regions
 interface ElectronCSSProperties extends CSSProperties {
@@ -48,7 +52,7 @@ interface FileReaderTopNavbarProps {
   zoomLevel: number;
   onZoomChange: (value: number) => void;
   onGoBack?: () => void;
-  onFindText?: () => void;
+  onFindText?: (text: string, direction?: 'forward' | 'backward') => void;
   isNotesOpen?: boolean;
   onToggleNotes?: () => void;
   scrollMode?: ScrollMode;
@@ -108,17 +112,17 @@ const ZoomControl = memo(({
 }) => {
   // Predefined zoom levels
   const zoomLevels = [
-    { label: 'Actual size', value: 100 },
-    { label: 'Page fit', value: 'fit' },
-    { label: 'Page width', value: 'width' },
-    { label: '50%', value: 50 },
-    { label: '75%', value: 75 },
-    { label: '100%', value: 100 },
-    { label: '125%', value: 125 },
-    { label: '150%', value: 150 },
-    { label: '200%', value: 200 },
-    { label: '300%', value: 300 },
-    { label: '400%', value: 400 },
+    { label: 'Actual size', value: 100, id: 'zoom-actual' },
+    { label: 'Page fit', value: 'fit', id: 'zoom-fit' },
+    { label: 'Page width', value: 'width', id: 'zoom-width' },
+    { label: '50%', value: 50, id: 'zoom-50' },
+    { label: '75%', value: 75, id: 'zoom-75' },
+    { label: '100%', value: 100, id: 'zoom-100' },
+    { label: '125%', value: 125, id: 'zoom-125' },
+    { label: '150%', value: 150, id: 'zoom-150' },
+    { label: '200%', value: 200, id: 'zoom-200' },
+    { label: '300%', value: 300, id: 'zoom-300' },
+    { label: '400%', value: 400, id: 'zoom-400' },
   ];
 
   // Handle zoom level selection
@@ -173,9 +177,9 @@ const ZoomControl = memo(({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" className="w-32">
-          {zoomLevels.map((level, index) => (
-            <React.Fragment key={index}>
-              {(index === 0 || index === 3) && (
+          {zoomLevels.map((level) => (
+            <React.Fragment key={level.id}>
+              {(level.id === 'zoom-actual' || level.id === 'zoom-50') && (
                 <DropdownMenuSeparator />
               )}
               <DropdownMenuItem 
@@ -473,6 +477,13 @@ const FileReaderTopNavbar = memo(({
   const [isMaximized, setIsMaximized] = useState(true);
   const [searchFocused, setSearchFocused] = useState(false);
   const [isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  
+  // Create a debounced version of the search query with 250ms delay
+  const debouncedSearchQuery = useDebounce(searchQuery, 250);
+  
+  // Reference to the search input
+  const searchInputRef = useRef<HTMLInputElement>(null);
   
   // Set up event listeners for window state
   useEffect(() => {
@@ -497,9 +508,13 @@ const FileReaderTopNavbar = memo(({
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
         e.preventDefault();
-        if (onFindText) {
-          onFindText();
-        }
+        setIsSearchActive(true);
+        setTimeout(() => {
+          searchInputRef.current?.focus();
+        }, 100);
+      } else if (e.key === 'Escape' && isSearchActive) {
+        e.preventDefault();
+        handleCloseSearch();
       }
     };
 
@@ -507,7 +522,7 @@ const FileReaderTopNavbar = memo(({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onFindText]);
+  }, [isSearchActive]);
   
   // Set up keyboard shortcut for tab switcher
   useEffect(() => {
@@ -524,6 +539,18 @@ const FileReaderTopNavbar = memo(({
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+  
+  // Use the debounced search query to trigger searches
+  useEffect(() => {
+    if (onFindText && typeof onFindText === 'function') {
+      if (debouncedSearchQuery.trim().length > 0) {
+        onFindText(debouncedSearchQuery, 'forward');
+      } else if (isSearchActive) {
+        // Clear search results when the field is empty
+        onFindText('', 'forward');
+      }
+    }
+  }, [debouncedSearchQuery, onFindText, isSearchActive]);
   
   // All event handlers with useCallback
   const handleGoBack = useCallback(() => {
@@ -552,25 +579,76 @@ const FileReaderTopNavbar = memo(({
   
   // Search handlers
   const handleSearchClick = useCallback(() => {
-    if (onFindText) {
-      onFindText();
-    }
-  }, [onFindText]);
+    setIsSearchActive(true);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  }, []);
   
   const handleSearchFocus = useCallback(() => {
     setSearchFocused(true);
-    if (onFindText) {
-      onFindText();
-    }
-  }, [onFindText]);
+    setIsSearchActive(true);
+  }, []);
   
   const handleSearchBlur = useCallback(() => {
     setSearchFocused(false);
+    // Don't close search on blur to allow clicking navigation buttons
   }, []);
   
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+    const value = e.target.value;
+    setSearchQuery(value);
+    // The actual search will now be triggered by the useEffect with debouncedSearchQuery
   }, []);
+  
+  const handleSearchKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      // Trigger search immediately on Enter key (bypass debounce)
+      if (onFindText && typeof onFindText === 'function') {
+        onFindText(searchQuery, 'forward');
+      }
+    }
+  }, [searchQuery, onFindText]);
+  
+  const handleCloseSearch = useCallback(() => {
+    setIsSearchActive(false);
+    setSearchQuery('');
+    
+    // Clear search results by calling onFindText with empty string
+    if (onFindText && typeof onFindText === 'function') {
+      onFindText('', 'forward');
+    }
+  }, [onFindText]);
+  
+  const handlePrevResult = useCallback(() => {
+    if (onFindText && typeof onFindText === 'function' && searchQuery.trim()) {
+      onFindText(searchQuery, 'backward');
+      
+      // Move focus to document area to see the highlight
+      setTimeout(() => {
+        // Focus on document area for keyboard navigation
+        const documentContainer = document.querySelector('.pdf-container');
+        if (documentContainer instanceof HTMLElement) {
+          documentContainer.focus();
+        }
+      }, 100);
+    }
+  }, [searchQuery, onFindText]);
+  
+  const handleNextResult = useCallback(() => {
+    if (onFindText && typeof onFindText === 'function' && searchQuery.trim()) {
+      onFindText(searchQuery, 'forward');
+      
+      // Move focus to document area to see the highlight
+      setTimeout(() => {
+        // Focus on document container for keyboard navigation
+        const documentContainer = document.querySelector('.pdf-container');
+        if (documentContainer instanceof HTMLElement) {
+          documentContainer.focus();
+        }
+      }, 100);
+    }
+  }, [searchQuery, onFindText]);
   
   // Handle scroll mode change
   const handleScrollModeChange = useCallback((mode: ScrollMode) => {
@@ -596,30 +674,86 @@ const FileReaderTopNavbar = memo(({
 
           {/* Middle section - Edit buttons, Search, View controls, and Zoom */}
           <div className="flex-1 flex items-center justify-center space-x-3" style={dragRegion}>
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-            <div className="relative w-1/4 max-w-xs" onClick={handleSearchClick}>
+            {/* Search bar with expanded functionality when active */}
+            <div 
+              className={cn(
+                "relative transition-all duration-200 flex items-center",
+                isSearchActive ? "w-2/5 max-w-md" : "w-1/4 max-w-xs"
+              )} 
+              onClick={!isSearchActive ? handleSearchClick : undefined}
+              onKeyDown={!isSearchActive ? (e) => {
+                // Trigger click on Enter or Space
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleSearchClick();
+                }
+              } : undefined}
+              role={!isSearchActive ? "button" : undefined}
+              tabIndex={!isSearchActive ? 0 : undefined}
+            >
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/70">
                 <Search className="h-4 w-4" />
               </div>
               <Input
+                ref={searchInputRef}
                 id="document-search"
-                placeholder="Find in document..."
+                placeholder={isSearchActive ? "Search..." : "Find in document..."}
                 value={searchQuery}
                 onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
                 onFocus={handleSearchFocus}
                 onBlur={handleSearchBlur}
-                onClick={handleSearchClick}
                 className={cn(
                   "h-8 w-full rounded-full py-1.5 pl-10 pr-10 text-sm transition-all duration-200",
                   searchFocused ? "ring-2 ring-sidebar-ring border-sidebar-ring" : "border-muted-foreground/40",
                   "placeholder-sidebar-foreground/60 hover:border-primary/30"
                 )}
                 style={noDragRegion}
-                readOnly
+                readOnly={!isSearchActive}
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
-                <Badge variant="secondary" className="text-[10px] bg-muted border-0 shadow-none">Ctrl+F</Badge>
-              </div>
+              
+              {isSearchActive ? (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  {searchQuery && (
+                    <>
+                      <div className="text-xs text-muted-foreground mr-1">
+                        {searchMetadata.currentMatch > 0 
+                          ? `${searchMetadata.currentMatch} of ${searchMetadata.totalMatches}` 
+                          : "No results"}
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 rounded-full"
+                        onClick={handlePrevResult}
+                        disabled={searchMetadata.totalMatches === 0}
+                      >
+                        <ChevronLeft className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 rounded-full"
+                        onClick={handleNextResult}
+                        disabled={searchMetadata.totalMatches === 0}
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </>
+                  )}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6 rounded-full hover:bg-muted"
+                    onClick={handleCloseSearch}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                  <Badge variant="secondary" className="text-[10px] bg-muted border-0 shadow-none">Ctrl+F</Badge>
+                </div>
+              )}
             </div>
             
             <div className="flex items-center">

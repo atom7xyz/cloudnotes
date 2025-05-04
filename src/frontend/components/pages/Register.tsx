@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RegisterFormValues, registerSchema } from "@/lib/validations/auth";
+import { type RegisterFormValues, registerSchema } from "@/lib/validations/auth";
 import { FormInput } from "@/components/form-fields/FormInput";
 import { FormCheckbox } from "@/components/form-fields/FormCheckbox";
 import { AppLink } from "@/components/ui/app-link";

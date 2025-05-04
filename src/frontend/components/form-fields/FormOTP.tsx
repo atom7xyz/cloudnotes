@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef, ForwardedRef, useState } from "react";
+import React, { useEffect, useRef, forwardRef, type ForwardedRef, useState } from "react";
 import { 
   FormControl, 
   FormField, 
@@ -6,7 +6,7 @@ import {
   FormLabel, 
   FormMessage 
 } from "@/components/ui/form";
-import { UseFormReturn } from "react-hook-form";
+import type { UseFormReturn } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import {
   InputOTP,

@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import type React from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Search, 
   ArrowUp, 
@@ -8,7 +9,6 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 
 interface DocumentSearchModalProps {
@@ -173,6 +173,7 @@ const DocumentSearchModal = ({
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={handleClearSearch}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 aria-label="Clear search"
@@ -245,6 +246,7 @@ const DocumentSearchModal = ({
             <div className="flex flex-wrap gap-1.5">
               {recentSearches.map((term, index) => (
                 <button
+                  type="button"
                   key={`${term}-${index}`}
                   onClick={() => handleRecentSearchClick(term)}
                   className={cn(

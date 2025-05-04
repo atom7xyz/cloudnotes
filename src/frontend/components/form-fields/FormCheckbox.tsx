@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   FormControl, 
@@ -6,7 +6,7 @@ import {
   FormItem, 
   FormMessage 
 } from "@/components/ui/form";
-import { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
+import type { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
 import { cn } from "@/lib/utils";
 
 interface FormCheckboxProps<

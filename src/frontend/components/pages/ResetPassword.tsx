@@ -1,7 +1,7 @@
 import { useAppNavigate } from "@/lib/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ResetPasswordFormValues, resetPasswordSchema } from "@/lib/validations/auth";
+import { type ResetPasswordFormValues, resetPasswordSchema } from "@/lib/validations/auth";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";

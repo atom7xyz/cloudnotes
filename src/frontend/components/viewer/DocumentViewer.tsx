@@ -41,7 +41,7 @@ interface DocumentViewerProps {
   currentPage?: number;
   onLoadSuccess?: (numPages?: number) => void;
   onLoadError?: (error: Error) => void;
-  onTextSearch?: (searchFn: (text: string, direction: 'forward' | 'backward') => void) => void;
+  onTextSearch?: (searchFn: (text: string, direction?: 'forward' | 'backward') => void) => void;
   onSearchMetadataChange?: (metadata: { totalMatches: number; currentMatch: number }) => void;
   scrollMode?: ScrollMode;
   onPageChange?: (pageNumber: number) => void;
@@ -86,6 +86,9 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
   
   // Add a ref to store the search function provided by PDFViewer
   const searchFunctionRef = useRef<((text: string, direction: 'forward' | 'backward') => void) | null>(null);
+  
+  // Track if we've already registered a search function upstream
+  const hasRegisteredSearchRef = useRef<boolean>(false);
 
   // Create an adapter for text search
   const handlePDFTextSearch = useCallback((searchFunction: (text: string, direction?: 'forward' | 'backward') => void) => {
@@ -93,7 +96,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
     searchFunctionRef.current = searchFunction;
     
     // If parent component provided a callback to receive our search function
-    if (onTextSearch) {
+    if (onTextSearch && !hasRegisteredSearchRef.current) {
       // Pass up our function that will use the PDFViewer's search implementation
       onTextSearch((text: string, direction: 'forward' | 'backward' = 'forward') => {
         if (searchFunctionRef.current) {
@@ -101,8 +104,16 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
           searchFunctionRef.current(text, direction);
         }
       });
+      hasRegisteredSearchRef.current = true;
     }
   }, [onTextSearch]);
+
+  // Reset registration flag when component unmounts or onTextSearch changes
+  useEffect(() => {
+    return () => {
+      hasRegisteredSearchRef.current = false;
+    };
+  }, []); // Empty dependency array as we only need this to run on unmount
 
   // Update scroll mode
   useEffect(() => {

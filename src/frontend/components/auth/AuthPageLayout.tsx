@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import cloudsBackground from "../../assets/clouds3.jpg";
 
 interface AuthPageLayoutProps {
