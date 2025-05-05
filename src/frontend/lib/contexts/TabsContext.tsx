@@ -138,7 +138,7 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Generate thumbnails for initial tabs
   useEffect(() => {
     // Only run once on mount
-    initialTabs.forEach(tab => {
+    for (const tab of initialTabs) {
       if (tab.path.toLowerCase().endsWith('.pdf')) {
         generatePreview(tab.path).then(previewUrl => {
           if (previewUrl) {
@@ -152,7 +152,7 @@ export const TabsProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('Error generating preview for initial tab:', err);
         });
       }
-    });
+    }
   }, [generatePreview]);
 
   // Function to open a new tab

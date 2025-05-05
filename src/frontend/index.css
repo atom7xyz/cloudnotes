@@ -242,9 +242,7 @@
 
 .search-highlight.current {
   background-color: rgba(255, 125, 0, 0.7);
-  box-shadow: 0 0 8px rgba(255, 125, 0, 0.7);
-  transform-origin: center;
-  animation: search-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 4px rgba(255, 125, 0, 0.5);
   z-index: 11; /* Ensure current highlight is above others */
 }
 
@@ -252,35 +250,8 @@
   background-color: rgba(255, 230, 0, 0.4);
 }
 
-/* Add a dedicated animation for search highlights */
-@keyframes search-pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 4px rgba(255, 125, 0, 0.7);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(255, 125, 0, 0.9);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 4px rgba(255, 125, 0, 0.7);
-  }
-}
-
-/* Flash animation for when navigating between search results */
-@keyframes search-flash {
-  0% {
-    background-color: rgba(255, 125, 0, 0.7);
-  }
-  50% {
-    background-color: rgba(255, 255, 255, 0.9);
-  }
-  100% {
-    background-color: rgba(255, 125, 0, 0.7);
-  }
-}
-
-.search-highlight.current.flash {
-  animation: search-flash 0.5s ease-out, search-pulse 1.5s ease-in-out infinite 0.5s;
+/* Enhance disabled search navigation buttons */
+.search-navigation button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }

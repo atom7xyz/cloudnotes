@@ -8,7 +8,8 @@ import {
   BugIcon,
   UserIcon,
   BellIcon,
-  FileTextIcon
+  FileTextIcon,
+  LoaderIcon
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import SettingsModal from '../modals/SettingsModal';
 import SessionExpiredModal from '../modals/SessionExpiredModal';
 import { toggleDevTools } from '@/lib/utils';
+import { triggerLoadingScreen } from '@/App';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -24,9 +26,10 @@ interface NavItemProps {
   to: string;
   active?: boolean;
   onClick?: () => void;
+  title?: string;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick }) => {
+const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, title }) => {
   const buttonContent = (
     <Button
       variant="ghost"
@@ -37,6 +40,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick }) =
         "hover:bg-primary/10 rounded-none transition-all duration-200",
         active ? "bg-sidebar-accent/70 text-sidebar-foreground font-semibold" : "text-sidebar-foreground"
       )}
+      title={title || label}
     >
       <div className="mb-1">{icon}</div>
       <span className="text-[11px] font-medium select-none">{label}</span>
@@ -50,7 +54,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick }) =
 
   // Otherwise use AppLink for navigation
   return (
-    <AppLink href={to} className="w-full block hover:no-underline" preventNavigation>
+    <AppLink href={to} className="w-full block hover:no-underline" preventNavigation title={title}>
       {buttonContent}
     </AppLink>
   );
@@ -78,6 +82,11 @@ const LeftSidebar: React.FC = () => {
     busy: 'bg-red-500',
     offline: 'bg-gray-400'
   };
+
+  // Handler for the "Show Loading Screen" button
+  const handleShowLoadingScreen = () => {
+    triggerLoadingScreen();
+  };
   
   return (
     <>
@@ -89,6 +98,15 @@ const LeftSidebar: React.FC = () => {
           <NavItem icon={<BookmarkIcon size={32} />} label="SAVED" to="/saved" />
           <NavItem icon={<BellIcon size={32} />} label="NOTICE" to="/notifications" />
           <NavItem icon={<MoreHorizontalIcon size={32} />} label="MORE" to="/more" />
+          
+          {/* Loading screen trigger button */}
+          <NavItem 
+            icon={<LoaderIcon size={32} className="text-blue-500" />} 
+            label="SPLASH" 
+            to="#" 
+            onClick={handleShowLoadingScreen}
+            title="Show loading splash screen" 
+          />
           
           {/* Debug tools - only shown in development mode */}
           {isDev && (

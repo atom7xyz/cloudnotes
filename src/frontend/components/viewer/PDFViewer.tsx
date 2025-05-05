@@ -1469,7 +1469,66 @@ const PDFViewer = memo(({
     return { pageIndex, rects: matchRects, matchTexts };
   }, [escapeRegExp]);
 
-  // Define navigateSearchResults and scrollToSearchResult before searchText
+  // Scroll to a specific search result
+  const scrollToSearchResult = useCallback((index: number) => {
+    if (searchResults.length === 0 || index < 0) return;
+    
+    // Find which page and rectangle this index corresponds to
+    let counter = 0;
+    for (const page of searchResults) {
+      if (counter + page.rects.length > index) {
+        // This is the page that contains our target
+        const rectIndex = index - counter;
+        const rect = page.rects[rectIndex];
+        
+        // First navigate to the page
+        navigateToPage(page.pageIndex + 1);
+        
+        // Then scroll to the element after a short delay to ensure the page has loaded
+        setTimeout(() => {
+          if (!rect) return;
+          
+          // Get the scroll container
+          const scrollContainer = getScrollContainer();
+          if (!scrollContainer) return;
+          
+          // Get the element's position relative to the page
+          const pageElement = document.getElementById(`page-${page.pageIndex + 1}`);
+          if (!pageElement) return;
+          
+          const pageRect = pageElement.getBoundingClientRect();
+          
+          // Calculate absolute scroll position to element
+          // Get the absolute position of the highlight relative to the page
+          const absoluteTop = pageRect.top + rect.top - scrollContainer.getBoundingClientRect().top + scrollContainer.scrollTop;
+          const absoluteLeft = pageRect.left + rect.left - scrollContainer.getBoundingClientRect().left + scrollContainer.scrollLeft;
+          
+          // Center the highlight in the viewport
+          const scrollTop = absoluteTop - (scrollContainer.clientHeight / 2) + (rect.height / 2);
+          const scrollLeft = absoluteLeft - (scrollContainer.clientWidth / 2) + (rect.width / 2);
+          
+          // Apply smooth scrolling
+          isManualScrollRef.current = true; // Prevent intersection observer from triggering during scroll
+          
+          scrollContainer.scrollTo({
+            top: scrollTop,
+            left: scrollLeft,
+            behavior: 'smooth'
+          });
+          
+          // Clear the manual scroll flag after scrolling is likely complete
+          setTimeout(() => {
+            isManualScrollRef.current = false;
+          }, 500);
+        }, 300); // Short delay to ensure page navigation completes
+        
+        break;
+      }
+      
+      counter += page.rects.length;
+    }
+  }, [searchResults, navigateToPage, getScrollContainer]);
+
   // Navigate between search results
   const navigateSearchResults = useCallback((direction: 'forward' | 'backward') => {
     if (searchResults.length === 0) return;
@@ -1486,11 +1545,20 @@ const PDFViewer = memo(({
       nextIndex = (currentSearchIndex - 1 + totalResults) % totalResults;
     }
     
-    // Update the current search index
-    setCurrentSearchIndex(nextIndex);
+    // Debug log to track search index updates
+    console.log(`[Search Navigation] Direction: ${direction}, Current index: ${currentSearchIndex}, Next index: ${nextIndex}, Total results: ${totalResults}`);
     
-    // Scroll to the new current result
-    scrollToSearchResult(nextIndex);
+    // Explicitly set the index with a new value to force a re-render
+    setCurrentSearchIndex(prev => {
+      // Only update if it's different to avoid unnecessary re-renders
+      if (prev === nextIndex) {
+        console.log(`[Search Navigation] Index unchanged, forcing update`);
+        // Force a state update by using a temporary value and then setting it back
+        setTimeout(() => setCurrentSearchIndex(nextIndex), 0);
+        return -99; // Temporary value to force the update cycle
+      }
+      return nextIndex;
+    });
     
     // Update metadata
     const newMetadata = {
@@ -1505,83 +1573,14 @@ const PDFViewer = memo(({
     }
   }, [currentSearchIndex, searchResults, onSearchMetadataChange]);
 
-  // Scroll to a specific search result
-  const scrollToSearchResult = useCallback((index: number) => {
-    if (searchResults.length === 0 || index < 0) return;
-    
-    // Find which page and rectangle this index corresponds to
-    let counter = 0;
-    for (const page of searchResults) {
-      if (counter + page.rects.length > index) {
-        // This is the page that contains our target
-        const rectIndex = index - counter;
-        const rect = page.rects[rectIndex];
-        
-        // First navigate to the page
-        navigateToPage(page.pageIndex + 1);
-        
-        // Then scroll to the element
-        setTimeout(() => {
-          if (!rect) return;
-          
-          // Get the viewport element
-          const viewport = viewportRef.current;
-          if (!viewport) return;
-          
-          // Calculate position
-          const scrollContainer = getScrollContainer();
-          if (!scrollContainer) return;
-          
-          // Get the element's position relative to the page
-          const pageElement = document.getElementById(`page-${page.pageIndex + 1}`);
-          if (!pageElement) return;
-          
-          const pageRect = pageElement.getBoundingClientRect();
-          
-          // Calculate scroll position
-          let scrollTopTarget = scrollContainer.scrollTop;
-          let scrollLeftTarget = scrollContainer.scrollLeft;
-          
-          // Adjust scroll position based on rect position
-          scrollTopTarget += rect.top - pageRect.top - scrollContainer.clientHeight / 2 + rect.height / 2;
-          scrollLeftTarget += rect.left - pageRect.left - scrollContainer.clientWidth / 2 + rect.width / 2;
-          
-          // Apply smooth scrolling
-          scrollContainer.scrollTo({
-            top: scrollTopTarget,
-            left: scrollLeftTarget,
-            behavior: 'smooth'
-          });
-          
-          // Add a brief flash animation to the current highlight
-          // Find the current highlight element and add a class for attention
-          setTimeout(() => {
-            const currentHighlight = pageElement.querySelector('.search-highlight.current');
-            if (currentHighlight) {
-              currentHighlight.classList.add('flash');
-              // Remove the class after animation completes
-              setTimeout(() => {
-                if (currentHighlight) {
-                  currentHighlight.classList.remove('flash');
-                }
-              }, 1000);
-            }
-          }, 300);
-        }, 300); // Short delay to ensure page navigation completes
-        
-        break;
-      }
-      
-      counter += page.rects.length;
-    }
-  }, [searchResults, navigateToPage, getScrollContainer]);
-
   // Then define searchText which depends on the above functions
   const searchText = useCallback(async (text: string | undefined, direction: 'forward' | 'backward' = 'forward') => {
     // Safely handle null/undefined text input
     if (!viewportRef.current || !text || !text.trim()) {
+      // Clear all search results and highlights when empty text is passed
       setSearchResults([]);
       setCurrentSearchIndex(-1);
+      setSearchTerm(''); // Make sure to clear the search term too
       setSearchMetadata({ totalMatches: 0, currentMatch: 0 });
       
       // Notify parent component about search metadata change
@@ -1591,14 +1590,22 @@ const PDFViewer = memo(({
       return;
     }
     
+    // Extract just the text content without any potential modifiers
+    const cleanText = text.trim();
+    
+    // Always navigate if a direction is explicitly provided and we have existing results
+    const forceNavigation = direction && searchResults.length > 0;
+    
     // If it's the same search term, just navigate to next/prev result
-    if (text === searchTerm && searchResults.length > 0) {
+    if (cleanText === searchTerm.trim() && searchResults.length > 0) {
+      console.log('[Search] Navigating through results for term "' + cleanText + '" in direction "' + direction + '" (force: ' + forceNavigation + ')');
       navigateSearchResults(direction);
       return;
     }
     
     // New search term, perform full search
-    setSearchTerm(text);
+    console.log('[Search] Performing new search for term "' + cleanText + '"');
+    setSearchTerm(cleanText);
     
     try {
       const results: Array<{ pageIndex: number; rects: DOMRect[]; matchTexts: string[] }> = [];
@@ -1617,26 +1624,42 @@ const PDFViewer = memo(({
         }
         
         // Process the current page's text layer
-        const pageResults = processTextLayer(pageTextLayer, currentPage - 1, text);
+        const pageResults = processTextLayer(pageTextLayer, currentPage - 1, cleanText);
         if (pageResults && pageResults.rects.length > 0) {
           results.push(pageResults);
         }
       } else {
-        // In continuous modes, search all visible pages
+        // In continuous modes, search ALL pages (not just visible ones)
+        // This ensures we find matches on all pages, not just the ones currently visible
         const pageElements = document.querySelectorAll('.pdf-page');
         
-        for (let i = 0; i < pageElements.length; i++) {
-          const pageEl = pageElements[i];
-          const pageId = pageEl.id;
-          const pageNumber = Number.parseInt(pageId.replace('page-', ''), 10);
-          
-          const pageTextLayer = pageEl.querySelector('.react-pdf__Page__textContent');
-          if (!pageTextLayer) continue;
-          
-          // Process this page's text layer
-          const pageResults = processTextLayer(pageTextLayer, pageNumber - 1, text);
-          if (pageResults && pageResults.rects.length > 0) {
-            results.push(pageResults);
+        // If we have pages rendered, search across all rendered pages
+        if (pageElements.length > 0) {
+          for (let i = 0; i < pageElements.length; i++) {
+            const pageEl = pageElements[i];
+            const pageId = pageEl.id;
+            const pageNumber = Number.parseInt(pageId.replace('page-', ''), 10);
+            
+            const pageTextLayer = pageEl.querySelector('.react-pdf__Page__textContent');
+            if (!pageTextLayer) continue;
+            
+            // Process this page's text layer
+            const pageResults = processTextLayer(pageTextLayer, pageNumber - 1, cleanText);
+            if (pageResults && pageResults.rects.length > 0) {
+              results.push(pageResults);
+            }
+          }
+        } else {
+          // If no pages are rendered yet (unlikely), fall back to current page
+          const currentPageEl = document.getElementById(`page-${currentPage}`);
+          if (currentPageEl) {
+            const pageTextLayer = currentPageEl.querySelector('.react-pdf__Page__textContent');
+            if (pageTextLayer) {
+              const pageResults = processTextLayer(pageTextLayer, currentPage - 1, cleanText);
+              if (pageResults && pageResults.rects.length > 0) {
+                results.push(pageResults);
+              }
+            }
           }
         }
       }
@@ -1646,6 +1669,8 @@ const PDFViewer = memo(({
       
       // Calculate total matches
       const totalMatches = results.reduce((total, page) => total + page.rects.length, 0);
+      console.log('[Search] Found ' + totalMatches + ' matches for "' + cleanText + '"');
+      
       const newSearchMetadata = { totalMatches, currentMatch: totalMatches > 0 ? 1 : 0 };
       setSearchMetadata(newSearchMetadata);
       
@@ -1657,8 +1682,7 @@ const PDFViewer = memo(({
       // Set initial search index
       if (results.length > 0 && totalMatches > 0) {
         setCurrentSearchIndex(0);
-        // Scroll to the first result
-        scrollToSearchResult(0);
+        // No scrolling to the first result - just set the highlight index
       } else {
         setCurrentSearchIndex(-1);
       }
@@ -1679,7 +1703,7 @@ const PDFViewer = memo(({
       
       return [];
     }
-  }, [searchTerm, searchResults, scrollMode, currentPage, onSearchMetadataChange, navigateSearchResults, scrollToSearchResult, processTextLayer]);
+  }, [searchTerm, searchResults, scrollMode, currentPage, onSearchMetadataChange, navigateSearchResults, processTextLayer]);
 
   // Create a stable reference to the search function to prevent constant re-registrations
   const stableSearchFnRef = useRef<((text: string, direction?: 'forward' | 'backward') => void) | null>(null);
@@ -1713,6 +1737,9 @@ const PDFViewer = memo(({
   const renderSearchHighlights = useCallback(() => {
     if (!searchTerm || searchResults.length === 0) return null;
     
+    // Debug log to help track highlight rendering
+    console.log(`[Search Highlights] Rendering highlights with current index: ${currentSearchIndex}`);
+    
     return (pageNumber: number) => {
       // Find highlights for this page
       const pageIndex = pageNumber - 1;
@@ -1727,37 +1754,51 @@ const PDFViewer = memo(({
       const textLayer = pageElement.querySelector('.react-pdf__Page__textContent');
       if (!textLayer) return null;
       
+      // Calculate global indices for this page's matches
+      const pageGlobalIndices: number[] = [];
+      let globalIndexStart = 0;
+      
+      // Calculate the starting global index for this page
+      for (const page of searchResults) {
+        if (page.pageIndex < pageIndex) {
+          globalIndexStart += page.rects.length;
+        }
+      }
+      
+      // Create array of global indices for this page's matches
+      for (let i = 0; i < pageResults.rects.length; i++) {
+        pageGlobalIndices.push(globalIndexStart + i);
+      }
+      
       // Render rectangles for each match
       return (
-        <div className="search-highlights" style={{ 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
-          bottom: 0, 
-          pointerEvents: 'none',
-          userSelect: 'none',
-          zIndex: 10
-        }}>
+        <div 
+          className="search-highlights"
+          key={`search-highlights-page-${pageNumber}-currentIndex-${currentSearchIndex}`}
+          style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 10
+          }}
+        >
           {pageResults.rects.map((rect, i) => {
-            // Get total matches across all pages up to current page
-            let globalIndex = 0;
-            for (const page of searchResults) {
-              if (page.pageIndex < pageIndex) {
-                globalIndex += page.rects.length;
-              } else if (page.pageIndex === pageIndex) {
-                globalIndex += i;
-                break;
-              }
-            }
+            // Use precalculated global index
+            const globalIndex = pageGlobalIndices[i];
             
             // Check if this is the current match across all pages
             const isCurrentMatch = globalIndex === currentSearchIndex;
             
             return (
               <div
-                key={`search-${pageNumber}-${pageResults.matchTexts?.[i] || i}-${rect.x}-${rect.y}`}
+                key={`search-${pageNumber}-${i}-${rect.x}-${rect.y}-current-${isCurrentMatch}`}
                 className={`search-highlight ${isCurrentMatch ? 'current' : 'other'}`}
+                data-global-index={globalIndex}
+                data-current={isCurrentMatch ? 'true' : 'false'}
                 style={{
                   top: `${rect.y}px`,
                   left: `${rect.x}px`,

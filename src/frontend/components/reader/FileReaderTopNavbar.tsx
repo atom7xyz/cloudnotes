@@ -602,53 +602,53 @@ const FileReaderTopNavbar = memo(({
   }, []);
   
   const handleSearchKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      // Trigger search immediately on Enter key (bypass debounce)
-      if (onFindText && typeof onFindText === 'function') {
-        onFindText(searchQuery, 'forward');
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent form submission
+      
+      const timestamp = Date.now();
+      console.log(`[${timestamp}] Search enter key pressed`);
+      
+      if (!onFindText) return;
+      
+      if (searchMetadata?.totalMatches > 0) {
+        // If we already have search results, navigate to the next match
+        console.log(`[${timestamp}] Navigating to next match of existing search`);
+        onFindText(searchQuery.trim(), 'forward');
+      } else {
+        // Otherwise perform the initial search
+        console.log(`[${timestamp}] Performing initial search for: ${searchQuery}`);
+        onFindText(searchQuery.trim());
       }
     }
-  }, [searchQuery, onFindText]);
+  }, [onFindText, searchQuery, searchMetadata?.totalMatches]);
   
   const handleCloseSearch = useCallback(() => {
     setIsSearchActive(false);
     setSearchQuery('');
     
     // Clear search results by calling onFindText with empty string
+    // Make sure to explicitly call this to clear all highlights
     if (onFindText && typeof onFindText === 'function') {
       onFindText('', 'forward');
     }
   }, [onFindText]);
   
+  // Search navigation handlers
   const handlePrevResult = useCallback(() => {
-    if (onFindText && typeof onFindText === 'function' && searchQuery.trim()) {
-      onFindText(searchQuery, 'backward');
-      
-      // Move focus to document area to see the highlight
-      setTimeout(() => {
-        // Focus on document area for keyboard navigation
-        const documentContainer = document.querySelector('.pdf-container');
-        if (documentContainer instanceof HTMLElement) {
-          documentContainer.focus();
-        }
-      }, 100);
-    }
-  }, [searchQuery, onFindText]);
+    if (!onFindText) return;
+    
+    const timestamp = Date.now();
+    console.log(`[${timestamp}] Navigate to previous search result`);
+    onFindText(searchQuery.trim(), 'backward');
+  }, [onFindText, searchQuery]);
   
   const handleNextResult = useCallback(() => {
-    if (onFindText && typeof onFindText === 'function' && searchQuery.trim()) {
-      onFindText(searchQuery, 'forward');
-      
-      // Move focus to document area to see the highlight
-      setTimeout(() => {
-        // Focus on document container for keyboard navigation
-        const documentContainer = document.querySelector('.pdf-container');
-        if (documentContainer instanceof HTMLElement) {
-          documentContainer.focus();
-        }
-      }, 100);
-    }
-  }, [searchQuery, onFindText]);
+    if (!onFindText) return;
+    
+    const timestamp = Date.now();
+    console.log(`[${timestamp}] Navigate to next search result`);
+    onFindText(searchQuery.trim(), 'forward');
+  }, [onFindText, searchQuery]);
   
   // Handle scroll mode change
   const handleScrollModeChange = useCallback((mode: ScrollMode) => {
@@ -716,28 +716,30 @@ const FileReaderTopNavbar = memo(({
                   {searchQuery && (
                     <>
                       <div className="text-xs text-muted-foreground mr-1">
-                        {searchMetadata.currentMatch > 0 
+                        {searchMetadata.totalMatches > 0 
                           ? `${searchMetadata.currentMatch} of ${searchMetadata.totalMatches}` 
                           : "No results"}
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 rounded-full"
-                        onClick={handlePrevResult}
-                        disabled={searchMetadata.totalMatches === 0}
-                      >
-                        <ChevronLeft className="h-3 w-3" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 rounded-full"
-                        onClick={handleNextResult}
-                        disabled={searchMetadata.totalMatches === 0}
-                      >
-                        <ChevronRight className="h-3 w-3" />
-                      </Button>
+                      <div className="search-navigation flex items-center gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 rounded-full"
+                          onClick={handlePrevResult}
+                          disabled={searchMetadata.totalMatches === 0 || searchMetadata.currentMatch === 1}
+                        >
+                          <ChevronLeft className="h-3 w-3" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 rounded-full"
+                          onClick={handleNextResult}
+                          disabled={searchMetadata.totalMatches === 0 || searchMetadata.currentMatch === searchMetadata.totalMatches}
+                        >
+                          <ChevronRight className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </>
                   )}
                   <Button 
