@@ -13,6 +13,9 @@ interface ElectronAPI {
   navigate: (url: string) => void;
   requestNavigationStateUpdate: () => void;
   
+  // File operations
+  openFile: () => Promise<string | null>; // Opens file dialog, returns path or null if canceled
+  
   // DevTools controls
   toggleDevTools: () => Promise<void>;
   

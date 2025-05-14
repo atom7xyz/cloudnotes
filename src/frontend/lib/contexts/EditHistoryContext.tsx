@@ -1,6 +1,7 @@
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import type React from 'react';
+import { createContext, useContext, type ReactNode, useState } from 'react'
 import useEditHistory from '../hooks/useEditHistory';
-import { Drawing, Highlight, Note } from '@/lib/types';
+import type { Drawing, Highlight, Note } from '@/lib/types';
 
 // Define the context shape
 type EditHistoryContextType = {

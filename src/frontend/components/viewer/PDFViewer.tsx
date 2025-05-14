@@ -1552,7 +1552,7 @@ const PDFViewer = memo(({
     setCurrentSearchIndex(prev => {
       // Only update if it's different to avoid unnecessary re-renders
       if (prev === nextIndex) {
-        console.log(`[Search Navigation] Index unchanged, forcing update`);
+        console.log("[Search Navigation] Index unchanged, forcing update");
         // Force a state update by using a temporary value and then setting it back
         setTimeout(() => setCurrentSearchIndex(nextIndex), 0);
         return -99; // Temporary value to force the update cycle
@@ -1598,13 +1598,13 @@ const PDFViewer = memo(({
     
     // If it's the same search term, just navigate to next/prev result
     if (cleanText === searchTerm.trim() && searchResults.length > 0) {
-      console.log('[Search] Navigating through results for term "' + cleanText + '" in direction "' + direction + '" (force: ' + forceNavigation + ')');
+      console.log(`[Search] Navigating through results for term "${cleanText}" in direction "${direction}" (force: ${forceNavigation})`);
       navigateSearchResults(direction);
       return;
     }
     
     // New search term, perform full search
-    console.log('[Search] Performing new search for term "' + cleanText + '"');
+    console.log(`[Search] Performing new search for term "${cleanText}"`);
     setSearchTerm(cleanText);
     
     try {
@@ -1669,7 +1669,7 @@ const PDFViewer = memo(({
       
       // Calculate total matches
       const totalMatches = results.reduce((total, page) => total + page.rects.length, 0);
-      console.log('[Search] Found ' + totalMatches + ' matches for "' + cleanText + '"');
+      console.log(`[Search] Found ${totalMatches} matches for "${cleanText}"`);
       
       const newSearchMetadata = { totalMatches, currentMatch: totalMatches > 0 ? 1 : 0 };
       setSearchMetadata(newSearchMetadata);

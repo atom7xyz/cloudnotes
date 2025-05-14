@@ -1,4 +1,4 @@
-import { Drawing, Highlight, Note } from '@/lib/types';
+import type { Drawing, Highlight, Note } from '@/lib/types';
 
 // Define interfaces for our storage
 export interface FileAnnotations {

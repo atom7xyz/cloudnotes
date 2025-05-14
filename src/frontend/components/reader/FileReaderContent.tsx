@@ -19,7 +19,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 // Define default colors
 const DEFAULT_MARKER_COLOR = 'rgba(0, 196, 255, 0.3)'; // Blue
 const DEFAULT_DRAWING_COLOR = '#FF0000'; // Red
-const DEFAULT_LINE_WIDTH = 2;
+const DEFAULT_LINE_WIDTH = 3; // Medium line width
 
 const FileReaderContent = memo(() => {
   const navigate = useNavigate();

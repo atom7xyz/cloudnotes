@@ -156,7 +156,7 @@ const FileViewport = ({
       if (context) {
         // Set up the canvas
         context.strokeStyle = '#000000';
-        context.lineWidth = 2;
+        context.lineWidth = 3; // Medium line width 
         context.lineCap = 'round';
         context.lineJoin = 'round';
       }

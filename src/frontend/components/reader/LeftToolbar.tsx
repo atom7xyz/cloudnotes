@@ -42,6 +42,9 @@ const DRAWING_COLORS = [
   { label: 'Orange', value: '#FFA500' },
 ];
 
+// Default drawing line width - medium (3px)
+const DEFAULT_DRAWING_LINE_WIDTH = 3;
+
 // Add an interface for tool object
 interface Tool {
   id: string;
@@ -76,7 +79,7 @@ const LeftToolbar = memo(({
   onMarkerColorChange,
   selectedDrawingColor,
   onDrawingColorChange,
-  drawingLineWidth,
+  drawingLineWidth = DEFAULT_DRAWING_LINE_WIDTH,
   onDrawingLineWidthChange
 }: LeftToolbarProps) => {
   const { undo, redo, canUndo, canRedo } = useEditHistoryContext();

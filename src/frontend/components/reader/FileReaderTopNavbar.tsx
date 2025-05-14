@@ -17,7 +17,10 @@ import {
   MonitorSmartphone,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  FolderOpenIcon,
+  Files,
+  Folder
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +42,7 @@ import { useTabs } from '@/lib/contexts/TabsContext';
 import { cn } from '@/lib/utils';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
 import { useDebounce } from '../../lib/hooks/useDebounce';
+import FileBrowserModal from '@/components/modals/FileBrowserModal';
 
 // Custom CSS properties for Electron window drag regions
 interface ElectronCSSProperties extends CSSProperties {
@@ -383,6 +387,7 @@ ScrollModeSelector.displayName = 'ScrollModeSelector';
 const RecentFilesDropdown = memo(({ isLoading }: { isLoading?: boolean }) => {
   const { openTabs, activeTabId, setActiveTab, closeTab } = useTabs();
   const [isOpen, setIsOpen] = useState(false);
+  const [isFileBrowserOpen, setIsFileBrowserOpen] = useState(false);
   
   // Close dropdown when loading
   useEffect(() => {
@@ -407,51 +412,86 @@ const RecentFilesDropdown = memo(({ isLoading }: { isLoading?: boolean }) => {
   const handleTabClose = useCallback((tabId: string) => {
     closeTab(tabId);
   }, [closeTab]);
+
+  // Handle opening a file from the system
+  const handleOpenFile = useCallback(() => {
+    setIsOpen(false);
+    const api = getElectronAPI();
+    if (api?.openFile) {
+      api.openFile();
+    } else {
+      // Fallback for web environment
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.pdf,.doc,.docx,.txt,.ppt,.pptx,.epub';
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement)?.files?.[0];
+        if (file) {
+          // Handle file opening in web context
+          console.log('Selected file:', file.name);
+        }
+      };
+      input.click();
+    }
+  }, []);
+
+  // Handle browsing all files
+  const handleBrowseAllFiles = useCallback(() => {
+    setIsOpen(false);
+    setIsFileBrowserOpen(true);
+  }, []);
   
   return (
-    <div className="ml-2" style={noDragRegion}>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild disabled={isLoading}>
-          <Button variant="outline" size="sm" className={`gap-1 rounded-full ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-            <NotebookText className="h-4 w-4" />
-            <span>Your cloudnotes</span>
-            <ChevronDown className="h-3 w-3 opacity-50" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-80">
-          <DropdownMenuLabel>Open Files</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          
-          {sortedTabs.length === 0 ? (
-            <div className="py-2 px-2 text-sm text-muted-foreground">
-              No files open
-            </div>
-          ) : (
-            sortedTabs.map(tab => (
-              <DropdownTabItem
-                key={tab.id}
-                tab={tab}
-                isActive={tab.id === activeTabId}
-                onSelect={handleTabSelect}
-                onClose={handleTabClose}
-              />
-            ))
-          )}
-          
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Button variant="ghost" size="sm" className="w-full justify-start p-0">
-              Open File...
+    <>
+      <div className="ml-2" style={noDragRegion}>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+          <DropdownMenuTrigger asChild disabled={isLoading}>
+            <Button variant="outline" size="sm" className={`gap-1 rounded-full ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              <NotebookText className="h-4 w-4" />
+              <span>Your cloudnotes</span>
+              <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Button variant="ghost" size="sm" className="w-full justify-start p-0">
-              Browse All Files
-            </Button>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-80">
+            <DropdownMenuLabel>Open Files</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            
+            {sortedTabs.length === 0 ? (
+              <div className="py-2 px-2 text-sm text-muted-foreground">
+                No files open
+              </div>
+            ) : (
+              sortedTabs.map(tab => (
+                <DropdownTabItem
+                  key={tab.id}
+                  tab={tab}
+                  isActive={tab.id === activeTabId}
+                  onSelect={handleTabSelect}
+                  onClose={handleTabClose}
+                />
+              ))
+            )}
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={(e) => {
+              e.preventDefault();
+              handleBrowseAllFiles();
+            }}>
+              <Button variant="ghost" size="sm" className="w-full justify-start p-0 gap-2">
+                <FolderOpenIcon size={16} className="text-blue-500" />
+                <span>Browse All Files</span>
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* FileBrowser Modal */}
+      <FileBrowserModal 
+        isOpen={isFileBrowserOpen}
+        onClose={() => setIsFileBrowserOpen(false)}
+      />
+    </>
   );
 });
 

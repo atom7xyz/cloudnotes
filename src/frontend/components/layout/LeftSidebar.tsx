@@ -1,15 +1,13 @@
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   HomeIcon, 
   BookmarkIcon, 
   MoreHorizontalIcon,
   SettingsIcon,
-  BugIcon,
   UserIcon,
   BellIcon,
-  FileTextIcon,
-  LoaderIcon
+  FileTextIcon
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -17,8 +15,6 @@ import { AppLink } from "../ui/app-link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import SettingsModal from '../modals/SettingsModal';
 import SessionExpiredModal from '../modals/SessionExpiredModal';
-import { toggleDevTools } from '@/lib/utils';
-import { triggerLoadingScreen } from '@/App';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -66,14 +62,7 @@ type UserStatus = 'online' | 'away' | 'busy' | 'offline';
 const LeftSidebar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSessionExpiredOpen, setIsSessionExpiredOpen] = useState(false);
-  const [isDev, setIsDev] = useState(false);
   const [userStatus, _setUserStatus] = useState<UserStatus>('online');
-  
-  // Check if we're in development mode
-  useEffect(() => {
-    // Check if we're in development mode
-    setIsDev(process.env.NODE_ENV === 'development');
-  }, []);
   
   // Status color mapping
   const statusColors = {
@@ -81,11 +70,6 @@ const LeftSidebar: React.FC = () => {
     away: 'bg-yellow-500',
     busy: 'bg-red-500',
     offline: 'bg-gray-400'
-  };
-
-  // Handler for the "Show Loading Screen" button
-  const handleShowLoadingScreen = () => {
-    triggerLoadingScreen();
   };
   
   return (
@@ -98,25 +82,6 @@ const LeftSidebar: React.FC = () => {
           <NavItem icon={<BookmarkIcon size={32} />} label="SAVED" to="/saved" />
           <NavItem icon={<BellIcon size={32} />} label="NOTICE" to="/notifications" />
           <NavItem icon={<MoreHorizontalIcon size={32} />} label="MORE" to="/more" />
-          
-          {/* Loading screen trigger button */}
-          <NavItem 
-            icon={<LoaderIcon size={32} className="text-blue-500" />} 
-            label="SPLASH" 
-            to="#" 
-            onClick={handleShowLoadingScreen}
-            title="Show loading splash screen" 
-          />
-          
-          {/* Debug tools - only shown in development mode */}
-          {isDev && (
-            <NavItem 
-              icon={<BugIcon size={28} className="text-yellow-600" />} 
-              label="DEBUG" 
-              to="#" 
-              onClick={() => toggleDevTools()}
-            />
-          )}
         </div>
         
         {/* Bottom Items - Settings and Profile */}
