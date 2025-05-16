@@ -14,6 +14,8 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import SearchModal from '../modals/SearchModal';
+import SettingsModal from '../modals/SettingsModal';
+import Notifications, { type NotificationItem } from './Notifications';
 import { cn } from '@/lib/utils';
 import { goBack, goForward, reloadPage, getElectronAPI } from '@/lib/navigation';
 
@@ -61,6 +63,36 @@ const TopNavbar: React.FC = () => {
   const [canGoForward, setCanGoForward] = useState(false);
   const [isMaximized, setIsMaximized] = useState(true); // Default to true as we maximize on startup
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [settingsActiveTab, setSettingsActiveTab] = useState<string>("account");
+  
+  // Mock notifications data (in a real app, this would come from a database or API)
+  const [notifications, setNotifications] = useState<NotificationItem[]>([
+    {
+      id: '1',
+      title: 'Document shared',
+      message: 'Jane Doe shared "Project Budget.pdf" with you',
+      timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+      isRead: false,
+      type: 'share'
+    },
+    {
+      id: '2',
+      title: 'New comment',
+      message: 'Alex commented on "Meeting Notes.pdf": "Great summary, thanks!"',
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      isRead: false,
+      type: 'comment'
+    },
+    {
+      id: '3',
+      title: 'Document updated',
+      message: 'Marketing Plan.docx has been updated with new revisions',
+      timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
+      isRead: true,
+      type: 'document'
+    }
+  ]);
 
   // CSS style objects
   const dragRegion: ElectronCSSProperties = { WebkitAppRegion: 'drag' };
@@ -72,7 +104,7 @@ const TopNavbar: React.FC = () => {
     if (api?.requestNavigationStateUpdate) {
       api.requestNavigationStateUpdate();
     }
-  }, [window.location.pathname]);
+  }, []);
 
   // Set up event listeners
   useEffect(() => {
@@ -176,6 +208,41 @@ const TopNavbar: React.FC = () => {
   const openSearchModal = () => setIsSearchModalOpen(true);
   const closeSearchModal = () => setIsSearchModalOpen(false);
 
+  // Settings modal handlers
+  const openSettingsModal = (tab = "account") => {
+    setSettingsActiveTab(tab);
+    setIsSettingsModalOpen(true);
+  };
+  const closeSettingsModal = () => setIsSettingsModalOpen(false);
+  
+  // Notifications handlers
+  const getUnreadNotificationsCount = () => {
+    return notifications.filter(notification => !notification.isRead).length;
+  };
+  
+  const handleOpenNotificationSettings = () => {
+    openSettingsModal("notifications");
+  };
+  
+  const handleMarkAllAsRead = () => {
+    setNotifications(notifications.map(notification => ({
+      ...notification,
+      isRead: true
+    })));
+  };
+  
+  const handleNotificationClick = (notification: NotificationItem) => {
+    // Mark the notification as read
+    setNotifications(notifications.map(n => 
+      n.id === notification.id 
+        ? { ...n, isRead: true }
+        : n
+    ));
+    
+    // Handle specific action based on notification type (could navigate to a page, etc.)
+    console.log('Notification clicked:', notification);
+  };
+
   return (
     <>
       <header className="flex h-12 bg-sidebar text-sidebar-foreground items-center justify-between select-none" style={dragRegion}>
@@ -228,6 +295,17 @@ const TopNavbar: React.FC = () => {
               <Badge variant="secondary" className="text-[10px] bg-muted border-0 shadow-none">CTRL + F</Badge>
             </div>
           </div>
+          
+          {/* Notifications */}
+          <div className="ml-2" style={noDragRegion}>
+            <Notifications 
+              unreadCount={getUnreadNotificationsCount()}
+              notifications={notifications}
+              onOpenSettings={handleOpenNotificationSettings}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onNotificationClick={handleNotificationClick}
+            />
+          </div>
         </div>
 
         {/* Right section - Window controls */}
@@ -268,6 +346,13 @@ const TopNavbar: React.FC = () => {
       <SearchModal 
         isOpen={isSearchModalOpen} 
         onClose={closeSearchModal} 
+      />
+      
+      {/* Settings Modal */}
+      <SettingsModal 
+        isOpen={isSettingsModalOpen}
+        onClose={closeSettingsModal}
+        activeTab={settingsActiveTab}
       />
     </>
   );

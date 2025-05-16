@@ -72,7 +72,16 @@ const ToggleItem: React.FC<ToggleProps> = ({
       "flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-md transition-colors cursor-pointer select-none",
       disabled && "opacity-60"
     )}
-    onClick={() => !disabled && onCheckedChange(!checked)}>
+    onClick={() => !disabled && onCheckedChange(!checked)}
+    onKeyDown={(e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+        e.preventDefault();
+        onCheckedChange(!checked);
+      }
+    }}
+    tabIndex={disabled ? -1 : 0}
+    role="switch"
+    aria-checked={checked}>
       <div className="flex items-start gap-3 flex-1">
         {icon && <div className="pt-0.5 text-muted-foreground">{icon}</div>}
         <div className="flex-1">
@@ -125,8 +134,8 @@ const ActionItem: React.FC<ActionItemProps> = ({
           <div className="font-medium">{label}</div>
           {descriptionLines.length > 0 && (
             <div className="text-sm text-muted-foreground space-y-1">
-              {descriptionLines.map((line, index) => (
-                <p key={index}>{line}</p>
+              {descriptionLines.map((line, i) => (
+                <p key={`desc-line-${i}-${line.substring(0, 10)}`}>{line}</p>
               ))}
             </div>
           )}
@@ -248,11 +257,12 @@ const DeviceItem: React.FC<DeviceItemProps> = ({
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  activeTab?: string;
 }
 
-export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+export default function SettingsModal({ isOpen, onClose, activeTab = "account" }: SettingsModalProps) {
   // Settings state
-  const [activeTab, setActiveTab] = useState<string>("account");
+  const [activeTabState, setActiveTabState] = useState<string>(activeTab);
   const [darkMode, setDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -532,6 +542,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     });
   };
 
+  // When activeTab prop changes, update the active tab state
+  useEffect(() => {
+    if (activeTab) {
+      setActiveTabState(activeTab);
+    }
+  }, [activeTab]);
+
   return (
     <>
       <Modal
@@ -548,9 +565,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         scrollBody={false}
       >
         <Tabs 
-          defaultValue="account" 
-          value={activeTab} 
-          onValueChange={setActiveTab}
+          defaultValue={activeTabState} 
+          value={activeTabState} 
+          onValueChange={setActiveTabState}
           className="flex flex-col h-full select-none"
         >
           <div className="border-b sticky top-0 bg-background z-10">
@@ -936,6 +953,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                           selectedLanguage === lang.id ? "bg-primary/10" : "hover:bg-muted/50"
                         )}
                         onClick={() => handleLanguageSelect(lang.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleLanguageSelect(lang.id);
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-pressed={selectedLanguage === lang.id}
                       >
                         <span>{lang.label}</span>
                         {selectedLanguage === lang.id && (

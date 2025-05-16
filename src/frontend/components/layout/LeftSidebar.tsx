@@ -15,6 +15,7 @@ import { AppLink } from "../ui/app-link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import SettingsModal from '../modals/SettingsModal';
 import SessionExpiredModal from '../modals/SessionExpiredModal';
+import { Separator } from '../ui/separator';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -78,10 +79,8 @@ const LeftSidebar: React.FC = () => {
         {/* Top Navigation Items - Centered */}
         <div className="flex-grow flex flex-col items-center justify-center">
           <NavItem icon={<HomeIcon size={32} />} label="HOME" to="/home" active />
-          <NavItem icon={<FileTextIcon size={32} />} label="READER" to="/reader" />
+          <Separator className="w-full my-2 border-1" />
           <NavItem icon={<BookmarkIcon size={32} />} label="SAVED" to="/saved" />
-          <NavItem icon={<BellIcon size={32} />} label="NOTICE" to="/notifications" />
-          <NavItem icon={<MoreHorizontalIcon size={32} />} label="MORE" to="/more" />
         </div>
         
         {/* Bottom Items - Settings and Profile */}
