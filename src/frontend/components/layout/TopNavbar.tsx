@@ -71,7 +71,7 @@ const TopNavbar: React.FC = () => {
     {
       id: '1',
       title: 'Document shared',
-      message: 'Jane Doe shared "Project Budget.pdf" with you',
+      message: 'Jane Simpson shared "Project Budget.pdf" with you',
       timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
       isRead: false,
       type: 'share'

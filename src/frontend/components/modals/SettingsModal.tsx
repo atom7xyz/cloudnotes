@@ -321,7 +321,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const showNotificationExample = () => {
     if (notificationsEnabled) {
       toast("New Document Added", {
-        description: "John Doe shared a document with you: 'Project Proposal.pdf'",
+        description: "Bart Simpson shared a document with you: 'Project Proposal.pdf'",
         action: {
           label: "View",
           onClick: () => {
@@ -625,7 +625,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                   <img src="https://github.com/shadcn.png" alt="User Avatar" />
                 </Avatar>
                 <div className="space-y-1">
-                  <h2 className="text-xl font-semibold">John Doe</h2>
+                  <h2 className="text-xl font-semibold">Bart Simpson</h2>
                   <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100 px-2 py-1">
                     @johndoe
                   </Badge>
@@ -648,7 +648,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 <ActionItem
                   icon={<AtSignIcon size={18} />}
                   label="Email Address"
-                  description="john.doe@example.com"
+                  description="bart.simpson@example.com"
                   actionLabel="Change"
                   onClick={() => {}}
                 />
@@ -1119,7 +1119,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
       <ExportDataModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
-        email="john.doe@example.com"
+        email="bart.simpson@example.com"
         onExportComplete={handleExportComplete}
         notificationsEnabled={notificationsEnabled}
         playSound={playSound}

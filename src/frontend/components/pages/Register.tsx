@@ -91,14 +91,14 @@ export default function Register() {
                 form={form}
                 name="firstName"
                 label="First Name"
-                placeholder="John"
+                placeholder="Bart"
                 required
               />
               <FormInput
                 form={form}
                 name="lastName"
                 label="Last Name"
-                placeholder="Doe"
+                placeholder="Simpson"
                 required
               />
             </div>
@@ -108,7 +108,7 @@ export default function Register() {
               name="email"
               label="Email"
               type="email"
-              placeholder="john.doe@example.com"
+              placeholder="bart.simpson@example.com"
               autoComplete="email"
               required
             />

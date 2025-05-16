@@ -85,7 +85,7 @@ export default function ForgotPassword() {
             name="email"
             label="Email"
             type="email"
-            placeholder="john.doe@example.com"
+            placeholder="bart.simpson@example.com"
             autoComplete="email"
             required
           />
