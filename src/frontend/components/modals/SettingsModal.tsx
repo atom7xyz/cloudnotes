@@ -48,6 +48,7 @@ import { useAppNavigate } from '@/lib/navigation';
 import PINLockModal from './PINLockModal';
 import SignOutConfirmationModal from './SignOutConfirmationModal';
 import ExportDataModal from './ExportDataModal';
+import { useAppLock } from '@/lib/contexts/AppLockContext';
 
 // Toggle switch component with label
 interface ToggleProps {
@@ -267,8 +268,6 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [rememberLogin, setRememberLogin] = useState(true);
-  const [pinEnabled, setPinEnabled] = useState(false);
-  const [pinValue, setPinValue] = useState<string | null>(null);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [systemLanguage, setSystemLanguage] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState("english");
@@ -287,6 +286,9 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
     { id: 2, icon: <SmartphoneIcon size={16} />, name: "iPhone 13", lastActive: "2 hours ago", isCurrent: false },
     { id: 3, icon: <TabletIcon size={16} />, name: "iPad Air", lastActive: "Yesterday", isCurrent: false }
   ]);
+  
+  // App lock context
+  const { isPinSet, currentPin, setPinCode, lockApp } = useAppLock();
   
   // Import app navigation
   const appNavigate = useAppNavigate();
@@ -444,8 +446,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const handleSavePin = (pin: string | null) => {
     // Only update if pin is not null (we've removed "Turn Off PIN" option)
     if (pin !== null) {
-      setPinValue(pin);
-      setPinEnabled(true);
+      setPinCode(pin);
       
       toast.success("PIN set successfully", {
         description: "Your application is now protected with a PIN",
@@ -787,7 +788,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     <div className="flex-1">
                       <div className="font-medium">PIN Lock</div>
                       <p className="text-sm text-muted-foreground">
-                        {pinEnabled 
+                        {isPinSet 
                           ? "Secure access to the application with a PIN" 
                           : "Add an extra layer of security by setting up a PIN"}
                       </p>
@@ -799,7 +800,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     onClick={handleSetupPin}
                     className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
                   >
-                    {pinEnabled ? 
+                    {isPinSet ? 
                       (<>
                         <PencilIcon size={14} />
                         Change
@@ -811,6 +812,40 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     }
                   </Button>
                 </div>
+                {isPinSet && (
+                  <>
+                    <Separator />
+                    <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-md transition-colors select-none">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="pt-0.5 text-muted-foreground">
+                          <ShieldIcon size={18} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium">Lock Screen</div>
+                          <p className="text-sm text-muted-foreground">
+                            Manually lock the application
+                          </p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        onClick={() => {
+                          // First close the modal
+                          onClose();
+                          // Then lock the app after a short delay
+                          setTimeout(() => {
+                            lockApp();
+                          }, 300);
+                        }}
+                        className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                      >
+                        <LockIcon size={14} />
+                        <span className="select-none">Lock Now</span>
+                      </Button>
+                    </div>
+                  </>
+                )}
               </SettingsSection>
             </TabsContent>
 
@@ -947,27 +982,21 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                       { id: 'italian', label: 'Italiano' },
                       { id: 'japanese', label: '日本語' }
                     ].map((lang) => (
-                      <div key={lang.id} 
+                      <button 
+                        key={lang.id}
+                        type="button" 
                         className={cn(
-                          "flex items-center justify-between py-2 px-3 rounded-md transition-colors cursor-pointer select-none",
+                          "flex items-center justify-between w-full py-2 px-3 rounded-md transition-colors cursor-pointer select-none text-left",
                           selectedLanguage === lang.id ? "bg-primary/10" : "hover:bg-muted/50"
                         )}
                         onClick={() => handleLanguageSelect(lang.id)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            handleLanguageSelect(lang.id);
-                          }
-                        }}
-                        tabIndex={0}
-                        role="button"
                         aria-pressed={selectedLanguage === lang.id}
                       >
                         <span>{lang.label}</span>
                         {selectedLanguage === lang.id && (
                           <CheckIcon size={18} className="text-primary" />
                         )}
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -1073,7 +1102,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
       <PINLockModal
         isOpen={isPinModalOpen}
         onClose={() => setIsPinModalOpen(false)}
-        currentPin={pinValue}
+        currentPin={currentPin}
         onSave={handleSavePin}
       />
 

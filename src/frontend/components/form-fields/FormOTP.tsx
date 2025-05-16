@@ -65,7 +65,7 @@ const FormOTP = forwardRef(function FormOTPComponent(
       
       return () => clearTimeout(timeout);
     }
-  }, [autoFocus]);
+  }, [autoFocus, inputRef]);
   
   // Reset the form value when form state changes (e.g., form reset)
   useEffect(() => {
@@ -127,11 +127,14 @@ const FormOTP = forwardRef(function FormOTPComponent(
     }
   }, [ref, focusInput]);
 
+  // Get the current input value
+  const value = form.watch(name) || "";
+
   return (
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem className={cn("space-y-2", className)}>
           {label && <FormLabel className="mb-1 select-none">{label}</FormLabel>}
           <FormControl>
@@ -156,7 +159,10 @@ const FormOTP = forwardRef(function FormOTPComponent(
                     <InputOTPSlot 
                       key={index}
                       index={index}
-                      className="h-12 w-12 text-lg border-muted-foreground/40"
+                      className={cn(
+                        "h-12 w-12 text-lg border-muted-foreground/40",
+                        fieldState.error && "border-destructive"
+                      )}
                     />
                   ))}
                 </InputOTPGroup>
@@ -172,7 +178,10 @@ const FormOTP = forwardRef(function FormOTPComponent(
                             <InputOTPSlot 
                               key={index}
                               index={index}
-                              className="h-12 w-12 text-lg border-muted-foreground/40"
+                              className={cn(
+                                "h-12 w-12 text-lg border-muted-foreground/40",
+                                fieldState.error && "border-destructive"
+                              )}
                             />
                           ) : null;
                         })}
@@ -186,7 +195,7 @@ const FormOTP = forwardRef(function FormOTPComponent(
               )}
             </InputOTP>
           </FormControl>
-          <FormMessage className="text-xs mt-16 text-center absolute w-full left-0" />
+          <FormMessage className="text-xs mt-16 text-center absolute w-full left-0 select-none" />
         </FormItem>
       )}
     />

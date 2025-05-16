@@ -17,10 +17,8 @@ export interface PINLockModalProps {
   onSave: (pin: string | null) => void;
 }
 
-// PIN validation schemas with detailed error messages
-const pinDigitSchema = z.string().regex(/^\d{4}$/, {
-  message: "PIN must be exactly 4 digits",
-});
+// PIN validation schema - with empty validation message
+const pinDigitSchema = z.string().regex(/^\d{4}$/, { message: '' });
 
 // Schema for verifying existing PIN
 const verifyPinSchema = z.object({
@@ -96,6 +94,30 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
   
   // Create refs for the submit buttons
   const submitBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Get current PIN values for each form to check if they're complete
+  const currentVerifyPin = verifyForm.watch('pin') || '';
+  const isVerifyPinComplete = currentVerifyPin.length === 4;
+  
+  const currentCreatePin = createForm.watch('pin') || '';
+  const isCreatePinComplete = currentCreatePin.length === 4;
+  
+  const currentConfirmPin = confirmForm.watch('pin') || '';
+  const isConfirmPinComplete = currentConfirmPin.length === 4;
+
+  // Helper to get whether the submit button should be disabled based on current stage
+  const isSubmitDisabled = () => {
+    switch (stage) {
+      case "verify":
+        return !isVerifyPinComplete;
+      case "create":
+        return !isCreatePinComplete;
+      case "confirm":
+        return !isConfirmPinComplete;
+      default:
+        return true;
+    }
+  };
 
   // Helper to get the active input ref based on current stage
   const getActiveInputRef = () => {
@@ -340,7 +362,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
       isOpen={isOpen} 
       onClose={onClose}
       title={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 select-none">
           <LockIcon size={18} />
           <span>PIN Lock</span>
         </div>
@@ -348,7 +370,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
       maxWidth="max-w-md"
     >
       <div className="p-4 space-y-4 overflow-hidden" onKeyDown={handleKeyDown}>
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 select-none">
           <h3 className="text-lg font-semibold">{title()}</h3>
           <p className="text-sm text-muted-foreground">{description()}</p>
         </div>
@@ -415,7 +437,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
               onClick={handleBackFromConfirm}
               className="w-1/3 mr-2 rounded-full cursor-pointer"
             >
-              Back
+              <span className="select-none">Back</span>
             </Button>
           )}
           
@@ -424,8 +446,9 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
             onClick={handleSubmit}
             className={`${stage === "confirm" ? "w-2/3" : "w-full"} rounded-full h-10 font-medium transition-all cursor-pointer`}
             ref={submitBtnRef}
+            disabled={isSubmitDisabled()}
           >
-            {buttonText()}
+            <span className="select-none">{buttonText()}</span>
           </Button>
         </div>
       </div>

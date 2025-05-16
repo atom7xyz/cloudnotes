@@ -13,6 +13,8 @@ import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import FileReader from './components/pages/FileReader';
 import ApplicationSplash from './components/modals/ApplicationSplash';
 import { AnimatePresence } from 'framer-motion';
+import { AppLockProvider } from './lib/contexts/AppLockContext';
+import ScreenLockModal from './components/modals/ScreenLockModal';
 
 // Key for session storage to check if app has been loaded before
 const APP_LOADED_KEY = 'cloudnotes-app-loaded';
@@ -57,11 +59,14 @@ function App() {
   }, []);
 
   return (
-    <>
+    <AppLockProvider>
       {/* Splash screen with animation */}
       <AnimatePresence>
         {isLoading && <ApplicationSplash isOpen={true} />}
       </AnimatePresence>
+
+      {/* Application Lock Screen Modal */}
+      <ScreenLockModal />
 
       {/* Render the app regardless of loading state, but it will be hidden behind the splash screen */}
       <div className={isLoading ? 'invisible' : 'visible'}>
@@ -117,7 +122,7 @@ function App() {
           </Routes>
         </Router>
       </div>
-    </>
+    </AppLockProvider>
   );
 }
 
