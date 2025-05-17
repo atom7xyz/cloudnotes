@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { Modal } from '../ui/modal';
 import { Input } from '../ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -16,9 +15,7 @@ import {
   Eye, 
   FileIcon,
   X,
-  BookmarkIcon,
-  FolderOpenIcon
-} from 'lucide-react';
+  BookmarkIcon} from 'lucide-react';
 import { mockDataService, type MockDocument } from '../../lib/mockData';
 import { debounce } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -265,7 +262,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
             <div className="flex justify-between items-center mt-2">
               {document.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
-                  {document.tags.map((tag, index) => {
+                  {document.tags.map((tag) => {
                     // Check if it's a file type tag
                     const isFileType = fileTypeTags.includes(tag);
                     let tagStyles = "text-xs px-1.5 py-0 cursor-pointer border ";

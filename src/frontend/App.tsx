@@ -15,6 +15,7 @@ import ApplicationSplash from './components/modals/ApplicationSplash';
 import { AnimatePresence } from 'framer-motion';
 import { AppLockProvider } from './lib/contexts/AppLockContext';
 import ScreenLockModal from './components/modals/ScreenLockModal';
+import Home from './components/pages/Home';
 
 // Key for session storage to check if app has been loaded before
 const APP_LOADED_KEY = 'cloudnotes-app-loaded';
@@ -114,11 +115,18 @@ function App() {
               </MainLayout>
             } />
             
+            {/* Home route */}
+            <Route path="/home" element={
+              <MainLayout>
+                <Home />
+              </MainLayout>
+            } />
+            
             {/* FileReader route without MainLayout */}
             <Route path="/reader" element={<FileReader />} />
             
             {/* Default route */}
-            <Route path="*" element={<Navigate to="/register" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </Router>
       </div>

@@ -19,14 +19,14 @@ export function toggleDevTools() {
         console.error('Error toggling DevTools:', err);
         return false;
       });
-    } else {
-      console.warn('toggleDevTools function not found in electron API');
-      return false;
     }
-  } else {
-    console.warn('DevTools toggling is only available in Electron environment');
+
+    console.warn('toggleDevTools function not found in electron API');
     return false;
   }
+  
+  console.warn('DevTools toggling is only available in Electron environment');
+  return false;
 }
 
 /**
