@@ -76,7 +76,7 @@ const ScreenLockModal: FC = () => {
   };
 
   // Get user's email (in a real app, this would come from user data)
-  const userEmail = 'bart.simpson@example.com';
+  const userEmail = 'bart@simpson.tv';
   const obscuredEmail = getObscuredEmail(userEmail);
 
   // Handle sending recovery email

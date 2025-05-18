@@ -21,9 +21,15 @@ import {
   BookmarkIcon,
   HelpCircle
 } from 'lucide-react';
-import { mockDataService, type MockDocument, type MockUser } from '../../lib/mockData';
+import { mockService } from '../../lib/mocking/mockedData';
+import type { MockDocument, MockUser, MockBookmark } from '../../lib/mocking/mocked';
 import { debounce, throttle } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { cn } from '../../lib/utils';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { ExternalLinkIcon, FacebookIcon, MailIcon, Share2Icon, Twitter } from 'lucide-react';
+import { AppLink } from '../ui/app-link';
+import DocumentView from './DocumentView';
 
 // Import placeholder images
 import placeholder1 from '../../assets/placeholders/placeholder (1).png';
@@ -63,7 +69,15 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 
 // Format the date to a user-friendly string
 const formatDate = (date: Date): string => {
-  return dateFormatter.format(date);
+  const now = new Date();
+  const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffInDays === 0) return 'Today';
+  if (diffInDays === 1) return 'Yesterday';
+  if (diffInDays < 7) return `${diffInDays} days ago`;
+  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
+  return `${Math.floor(diffInDays / 365)} years ago`;
 };
 
 // Extract any tag currently being typed - moved outside component
@@ -140,6 +154,44 @@ const getDocumentPlaceholder = (docId: string) => {
   return placeholderImages[index];
 };
 
+// Function to render thumbnail from color:text format
+const renderThumbnail = (thumbnailData: string, title: string) => {
+  // Parse the thumbnail format "color:text"
+  const [color, text] = thumbnailData.split(':');
+  
+  return (
+    <div 
+      style={{ backgroundColor: color }} 
+      className="w-full h-full flex items-center justify-center"
+    >
+      <span className="text-white font-medium text-center px-2 text-xs">
+        {decodeURIComponent(text || title)}
+      </span>
+    </div>
+  );
+};
+
+// Mock document search results adapter function 
+// Converts new MockDocument format to match the structure expected by DocumentItem
+const adaptDocumentForDisplay = (doc: MockDocument) => {
+  return {
+    id: doc.id,
+    name: doc.title,
+    uploadDate: doc.file.uploadedAt,
+    rating: doc.rating.rating,
+    commentCount: doc.comments.length,
+    uploaderUsername: doc.author.username,
+    uploaderAvatar: doc.author.avatar,
+    thumbnailUrl: doc.file.thumbnail,
+    fileType: doc.file.type,
+    fileSize: doc.file.size,
+    viewCount: doc.file.viewCount,
+    downloadCount: doc.file.downloadCount,
+    tags: doc.file.tags,
+    isPublic: doc.file.isPublic
+  };
+};
+
 // Document item component - optimized with proper memoization
 const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToDocument, navigateToUserProfile, navigateToReviews, navigateToComments, bookmarkResults }: { 
   document: MockDocument;
@@ -151,6 +203,9 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
   navigateToComments: (id: string) => void;
   bookmarkResults: MockDocument[];
 }) => {
+  // Adapt the document to the display format
+  const displayDoc = useMemo(() => adaptDocumentForDisplay(document), [document]);
+  
   // Check if the document is bookmarked (in a real app, this would use actual user data)
   const isBookmarked = useMemo(() => 
     bookmarkResults.some(bookmark => bookmark.id === document.id), 
@@ -164,13 +219,13 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
   );
 
   const formattedDate = useMemo(() => 
-    formatDate(document.uploadDate), 
-    [document.uploadDate]
+    formatDate(displayDoc.uploadDate), 
+    [displayDoc.uploadDate]
   );
 
   // Get file icon based on file type
   const fileIcon = useMemo(() => {
-    const fileTypeLower = document.fileType.toLowerCase();
+    const fileTypeLower = displayDoc.fileType.toLowerCase();
     const isSelected = selectedTags.includes(fileTypeLower);
     
     const handleFileTypeClick = (e: React.MouseEvent) => {
@@ -222,18 +277,18 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
         className={getBadgeStyles()}
         onClick={handleFileTypeClick}
       >
-        {document.fileType.toUpperCase()}
+        {displayDoc.fileType.toUpperCase()}
       </Badge>
     );
-  }, [document.fileType, selectedTags, handleTagClick]);
+  }, [displayDoc.fileType, selectedTags, handleTagClick]);
   
   // Memoize the rendered tags to prevent unnecessary re-renders
   const renderedTags = useMemo(() => {
-    if (document.tags.length === 0) return null;
+    if (displayDoc.tags.length === 0) return null;
     
     return (
       <div className="flex flex-wrap gap-1">
-        {document.tags.map((tag) => {
+        {displayDoc.tags.map((tag: string) => {
           // Check if it's a file type tag - unlikely but let's handle it anyway
           const isFileType = fileTypeTags.includes(tag);
           let tagStyles = "text-xs px-1.5 py-0 cursor-pointer border ";
@@ -283,22 +338,18 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
         })}
       </div>
     );
-  }, [document.tags, selectedTags, handleTagClick]);
+  }, [displayDoc.tags, selectedTags, handleTagClick]);
   
   return (
     <Card className="p-4 mb-3 hover:bg-muted/20 transition-colors select-none">
       <div className="flex items-start gap-3">
         <button 
-          className="flex-shrink-0 w-16 h-16 bg-muted/30 rounded flex items-center justify-center overflow-hidden cursor-pointer relative"
+          className="flex-shrink-0 w-24 h-32 bg-muted/30 rounded flex items-center justify-center overflow-hidden cursor-pointer relative"
           onClick={() => navigateToDocument(document.id)}
-          aria-label={`Open ${document.name}`}
+          aria-label={`Open ${displayDoc.name}`}
           type="button"
         >
-          <img 
-            src={documentPlaceholder} 
-            alt={document.name} 
-            className="w-full h-full object-cover"
-          />
+          {renderThumbnail(displayDoc.thumbnailUrl, displayDoc.name)}
           {isBookmarked && (
             <div className="absolute top-1 right-1 bg-primary/80 rounded-full p-0.5">
               <BookmarkIcon size={12} className="text-primary-foreground" />
@@ -306,101 +357,76 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
           )}
         </button>
         
-        <div className="flex-grow min-w-0">
-          <div className="flex items-center justify-between">
-            <button
-              className="font-medium truncate cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0"
-              onClick={() => navigateToDocument(document.id)}
-              type="button"
-            >
-              {document.name}
-            </button>
-            {fileIcon}
-          </div>
-          
-          <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
-            <div className="flex items-center gap-1">
-              <Clock size={14} />
-              <span>{formattedDate}</span>
+        <div className="flex-grow min-w-0 flex flex-col justify-between h-32">
+          <div>
+            <div className="flex items-center justify-between">
+              <button
+                className="font-medium truncate cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0"
+                onClick={() => navigateToDocument(document.id)}
+                type="button"
+              >
+                {displayDoc.name}
+              </button>
+              {fileIcon}
             </div>
             
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className="flex items-center gap-1 cursor-pointer hover:text-primary bg-transparent border-0 p-0"
-                  onClick={() => navigateToReviews(document.id)}
-                  type="button"
-                >
-                  <Star size={14} className="text-yellow-500" />
-                  <span>{document.rating.toFixed(1)}</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Rating</TooltipContent>
-            </Tooltip>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className="flex items-center gap-1 cursor-pointer hover:text-primary bg-transparent border-0 p-0"
-                  onClick={() => navigateToComments(document.id)}
-                  type="button"
-                >
-                  <MessageSquare size={14} />
-                  <span>{document.commentCount}</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Comments</TooltipContent>
-            </Tooltip>
-          </div>
-          
-          <div className="flex items-center gap-1.5 mt-2">
-            <Avatar 
-              className="h-5 w-5 cursor-pointer"
-              onClick={() => navigateToUserProfile(document.uploaderUsername)}
-            >
-              <img src={document.uploaderAvatar} alt={document.uploaderUsername} />
-            </Avatar>
-            <button
-              className="text-sm cursor-pointer hover:text-primary bg-transparent border-0 p-0 text-left"
-              onClick={() => navigateToUserProfile(document.uploaderUsername)}
-              type="button"
-            >
-              {document.uploaderUsername}
-            </button>
-          </div>
-          
-          <div className="flex justify-between items-center mt-2">
-            {renderedTags}
-            
-            <div className="flex items-center gap-2 text-xs text-muted-foreground ml-auto">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+              <div className="flex items-center gap-1">
+                <Clock size={14} />
+                <span>{formattedDate}</span>
+              </div>
+              
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-1">
-                    <Eye size={12} />
-                    <span>{document.viewCount}</span>
+                    <Star size={14} className="text-yellow-500" />
+                    <span>{displayDoc.rating.toFixed(1)}</span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>Views</TooltipContent>
+                <TooltipContent>Rating</TooltipContent>
               </Tooltip>
               
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className={`flex items-center gap-1 ${isBookmarked ? 'text-primary font-medium' : ''}`}>
-                    <BookmarkIcon size={12} className={isBookmarked ? 'text-primary fill-primary' : ''} />
-                    <span>{document.downloadCount}</span>
+                  <div className="flex items-center gap-1">
+                    <MessageSquare size={14} />
+                    <span>{displayDoc.commentCount}</span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>Bookmarks</TooltipContent>
+                <TooltipContent>Comments</TooltipContent>
               </Tooltip>
+            </div>
+            
+            <div className="flex items-center gap-1.5 mt-2">
+              <Avatar 
+                className="h-5 w-5 cursor-pointer"
+                onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
+              >
+                <img src={displayDoc.uploaderAvatar} alt={displayDoc.uploaderUsername} />
+              </Avatar>
+              <button
+                className="text-sm cursor-pointer hover:text-primary bg-transparent border-0 p-0 text-left"
+                onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
+                type="button"
+              >
+                {displayDoc.uploaderUsername}
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex justify-between items-center mt-auto">
+            {renderedTags}
+            
+            <div className="flex items-center gap-2 text-xs text-muted-foreground ml-auto">
+              <div className="flex items-center gap-1">
+                <Eye size={12} />
+                <span>{displayDoc.viewCount} views</span>
+              </div>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <span>{document.fileSize}</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>File size</TooltipContent>
-              </Tooltip>
+              <div className="flex items-center gap-1">
+                <BookmarkIcon size={12} />
+                <span>{displayDoc.downloadCount} bookmarks</span>
+              </div>
             </div>
           </div>
         </div>
@@ -419,54 +445,62 @@ const UserItem = memo(({
   user: MockUser;
   navigateToUserProfile: (username: string) => void;
   navigateToUserUploads: (userId: string) => void;
-}) => (
-  <Card className="p-4 mb-3 hover:bg-muted/20 transition-colors select-none">
-    <div className="flex items-start gap-3">
-      <button 
-        className="h-12 w-12 relative rounded-full overflow-hidden flex-shrink-0 cursor-pointer"
-        onClick={() => navigateToUserProfile(user.username)}
-        aria-label={`View ${user.username}'s profile`}
-        type="button"
-      >
-        <img src={user.avatar} alt={user.username} className="h-full w-full object-cover" />
-      </button>
-      
-      <div className="flex-grow min-w-0">
-        <div className="flex items-center justify-between">
-          <button 
-            className="font-medium cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0"
-            onClick={() => navigateToUserProfile(user.username)}
-            type="button"
-          >
-            {user.firstName} {user.lastName}
-          </button>
-          <Badge 
-            variant="outline" 
-            className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100"
-            onClick={() => navigateToUserProfile(user.username)}
-          >
-            @{user.username}
-          </Badge>
-        </div>
+}) => {
+  // Calculate number of public documents
+  const publicDocumentsCount = useMemo(() => 
+    user.documents.filter(doc => doc.file.isPublic).length,
+    [user.documents]
+  );
+  
+  return (
+    <Card className="p-4 mb-3 hover:bg-muted/20 transition-colors select-none">
+      <div className="flex items-start gap-3">
+        <button 
+          className="h-12 w-12 relative rounded-full overflow-hidden flex-shrink-0 cursor-pointer"
+          onClick={() => navigateToUserProfile(user.username)}
+          aria-label={`View ${user.username}'s profile`}
+          type="button"
+        >
+          <img src={user.avatar} alt={user.username} className="h-full w-full object-cover" />
+        </button>
         
-        <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{user.bio}</p>
-        
-        <div className="flex items-center justify-between mt-2">
-          {user.publicDocumentsCount > 0 && (
-            <button
-              className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-primary bg-transparent border-0 p-0"
-              onClick={() => navigateToUserUploads(user.id)}
+        <div className="flex-grow min-w-0">
+          <div className="flex items-center justify-between">
+            <button 
+              className="font-medium cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0"
+              onClick={() => navigateToUserProfile(user.username)}
               type="button"
             >
-              <FileIcon size={14} />
-              <span>{user.publicDocumentsCount} public documents</span>
+              {user.firstName} {user.lastName}
             </button>
-          )}
+            <Badge 
+              variant="outline" 
+              className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100"
+              onClick={() => navigateToUserProfile(user.username)}
+            >
+              @{user.username}
+            </Badge>
+          </div>
+          
+          <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{user.bio}</p>
+          
+          <div className="flex items-center justify-between mt-2">
+            {publicDocumentsCount > 0 && (
+              <button
+                className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-primary bg-transparent border-0 p-0"
+                onClick={() => navigateToUserUploads(user.id)}
+                type="button"
+              >
+                <FileIcon size={14} />
+                <span>{publicDocumentsCount} public documents</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  </Card>
-));
+    </Card>
+  );
+});
 UserItem.displayName = 'UserItem';
 
 // Optimized search input component with proper memoization
@@ -616,7 +650,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [documentResults, setDocumentResults] = useState<MockDocument[]>([]);
   const [userResults, setUserResults] = useState<MockUser[]>([]);
   const [bookmarkResults, setBookmarkResults] = useState<MockDocument[]>([]);
-  const [recentSearches] = useState<string[]>(mockDataService.getRecentSearches());
+  const [recentSearches] = useState<string[]>(mockService.getRecentSearches());
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [currentTag, setCurrentTag] = useState<string | null>(null);
@@ -626,6 +660,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const latestSearchRequestRef = useRef<number>(0);
   // Store the last text query (without tags) for user search persistence
   const lastTextQueryRef = useRef<string>('');
+  const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
+  const [isDocModalOpen, setIsDocModalOpen] = useState(false);
 
   // Function to perform a search and apply tag filters - optimized with useCallback
   const performSearch = useCallback(async (query: string, tags: string[]) => {
@@ -664,8 +700,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       
       // Reduce number of async operations by parallel fetching
       const [documents, bookmarks] = await Promise.all([
-        mockDataService.searchDocuments(query),
-        mockDataService.searchBookmarks(query)
+        mockService.searchDocuments(query),
+        mockService.searchBookmarks(query)
       ]);
       
       // Check again if this search is still relevant
@@ -677,7 +713,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       const currentUserResults = userResultsRef.current;
       if (query.trim()) {
         if (query.trim() !== lastTextQueryRef.current || currentUserResults.length === 0) {
-          updatedUsers = await mockDataService.searchUsers(query);
+          updatedUsers = await mockService.searchUsers(query);
           lastTextQueryRef.current = query.trim();
         } else {
           // Keep existing results if query hasn't changed
@@ -707,14 +743,14 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
           // Apply regular tag filtering
           if (regularTags.length > 0) {
             filtered = filtered.filter(doc => 
-              doc.tags.some(tag => regularTags.includes(tag))
+              doc.file.tags.some(tag => regularTags.includes(tag))
             );
           }
           
           // Apply file type filtering
           if (fileTypeFilters.length > 0) {
             filtered = filtered.filter(doc => 
-              fileTypeFilters.includes(doc.fileType.toLowerCase())
+              fileTypeFilters.includes(doc.file.type.toLowerCase())
             );
           }
           
@@ -755,7 +791,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         setSearchCompleted(true);
       }
     }
-  }, []); // Keep this dependency array empty to avoid re-creating the function
+  }, []);
 
   // Complete the current tag and add it to selected tags
   const completeTag = useCallback(() => {
@@ -790,7 +826,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const debouncedSearch = useMemo(() => 
     debounce((query: string, tags: string[]) => {
       performSearch(query, tags);
-    }, 1000), // Increased to 1000ms (1 second) for better performance
+    }, 500),
     [performSearch]
   );
 
@@ -949,8 +985,13 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   }, []);
 
   const navigateToDocument = useCallback((documentId: string) => {
-    // In a real app, we would use a router here
-  }, []);
+    // Find the document and open the document modal
+    const doc = [...documentResults, ...bookmarkResults].find(doc => doc.id === documentId);
+    if (doc) {
+      setSelectedDoc(doc);
+      setIsDocModalOpen(true);
+    }
+  }, [documentResults, bookmarkResults]);
 
   const navigateToComments = useCallback((documentId: string) => {
     // In a real app, we would use a router here
@@ -1041,6 +1082,25 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     const hash = value.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return `${prefix}-${value}-${hash}${fallback ? `-${fallback}` : ''}`;
   }, []);
+
+  // Check if a document is bookmarked
+  const isBookmarked = useCallback((docId: string) => {
+    return bookmarkResults.some(doc => doc.id === docId);
+  }, [bookmarkResults]);
+
+  // Toggle bookmark status (in a real app, this would call an API)
+  const toggleBookmark = useCallback((docId: string) => {
+    if (bookmarkResults.some(doc => doc.id === docId)) {
+      // Remove from bookmarks
+      setBookmarkResults(prev => prev.filter(doc => doc.id !== docId));
+    } else {
+      // Add to bookmarks
+      const docToAdd = documentResults.find(doc => doc.id === docId);
+      if (docToAdd) {
+        setBookmarkResults(prev => [...prev, docToAdd]);
+      }
+    }
+  }, [documentResults, bookmarkResults]);
 
   return (
     <Modal
@@ -1216,10 +1276,12 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             ) : (
               // Results state - documents found
               <>
-                <div className="mb-2 text-sm text-muted-foreground select-none">
-                  Found {documentResults.length} document{documentResults.length !== 1 ? 's' : ''}
-                  {selectedTags.length > 0 && ' matching your filters'}
-                </div>
+                {searchCompleted && (
+                  <div className="mb-2 text-sm text-muted-foreground select-none">
+                    Found {documentResults.length} document{documentResults.length !== 1 ? 's' : ''}
+                    {selectedTags.length > 0 && ' matching your filters'}
+                  </div>
+                )}
                 {documentResults.map((doc) => (
                   <DocumentItem 
                     key={doc.id} 
@@ -1258,9 +1320,11 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             ) : searchQuery ? (
               // Results state
               <>
-                <div className="mb-2 text-sm text-muted-foreground select-none">
-                  Found {userResults.length} user{userResults.length !== 1 ? 's' : ''}
-                </div>
+                {searchCompleted && (
+                  <div className="mb-2 text-sm text-muted-foreground select-none">
+                    Found {userResults.length} user{userResults.length !== 1 ? 's' : ''}
+                  </div>
+                )}
                 {userResults.map((user) => (
                   <UserItem 
                     key={user.id} 
@@ -1317,10 +1381,12 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             ) : (
               // Results state
               <>
-                <div className="mb-2 text-sm text-muted-foreground select-none">
-                  Found {bookmarkResults.length} bookmark{bookmarkResults.length !== 1 ? 's' : ''}
-                  {selectedTags.length > 0 && ' matching your filters'}
-                </div>
+                {searchCompleted && (
+                  <div className="mb-2 text-sm text-muted-foreground select-none">
+                    Found {bookmarkResults.length} bookmark{bookmarkResults.length !== 1 ? 's' : ''}
+                    {selectedTags.length > 0 && ' matching your filters'}
+                  </div>
+                )}
                 {bookmarkResults.map((doc) => (
                   <DocumentItem 
                     key={doc.id} 
@@ -1338,6 +1404,17 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Document Modal */}
+        <DocumentView 
+          isOpen={isDocModalOpen} 
+          onClose={() => setIsDocModalOpen(false)}
+          document={selectedDoc}
+          isBookmarked={(docId) => bookmarkResults.some(doc => doc.id === docId)}
+          toggleBookmark={toggleBookmark}
+          formatDate={formatDate}
+          renderThumbnail={renderThumbnail}
+        />
       </div>
     </Modal>
   );

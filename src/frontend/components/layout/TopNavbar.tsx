@@ -276,23 +276,26 @@ const TopNavbar: React.FC = () => {
           </div>
           
           <div className="relative w-1/4 max-w-md" style={noDragRegion}>
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/70">
-              <SearchIcon size={16} />
-            </div>
-            <Input
-              type="text"
-              placeholder="Search"
-              className={cn(
-                "h-8 w-full rounded-full py-1.5 pl-10 pr-16 text-sm transition-all duration-200 cursor-pointer",
-                "border border-muted-foreground/40",
-                "focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring",
-                "placeholder-sidebar-foreground/60"
-              )}
-              onClick={openSearchModal}
-              readOnly
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-0 flex items-center justify-center pointer-events-none">
               <Badge variant="secondary" className="text-[10px] bg-muted border-0 shadow-none">CTRL + F</Badge>
+            </div>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/70 transition-all duration-200 group-hover:scale-[1.02]">
+              <SearchIcon size={16} className="transition-all duration-200 group-hover:text-sidebar-ring" />
+            </div>
+            <div className="group">
+              <Input
+                type="text"
+                placeholder="Search"
+                className={cn(
+                  "h-8 w-full rounded-full py-1.5 pl-10 pr-16 text-sm transition-all duration-200 cursor-pointer z-10 relative",
+                  "border border-muted-foreground/40",
+                  "focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring",
+                  "placeholder-sidebar-foreground/60",
+                  "hover:scale-[1.02] hover:border-sidebar-ring hover:shadow-sm"
+                )}
+                onClick={openSearchModal}
+                readOnly
+              />
             </div>
           </div>
           

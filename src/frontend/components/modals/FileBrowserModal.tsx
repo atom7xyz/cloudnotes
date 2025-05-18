@@ -16,9 +16,10 @@ import {
   FileIcon,
   X,
   BookmarkIcon} from 'lucide-react';
-import { mockDataService, type MockDocument } from '../../lib/mockData';
 import { debounce } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import type { MockBookmark, MockDocument } from '@/lib/mocking/mocked';
+import { mockService } from '@/lib/mocking/mockedData';
 
 interface FileBrowserModalProps {
   isOpen: boolean;
@@ -51,8 +52,8 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
 
     try {
       // Get initial document data
-      const documents = await mockDataService.searchDocuments(query);
-      const bookmarks = await mockDataService.searchBookmarks(query);
+      const documents = await mockService.searchDocuments(query);
+      const bookmarks = await mockService.searchBookmarks(query);
       
       // Apply tag filtering if there are selected tags
       let filteredDocuments = documents;
@@ -70,14 +71,14 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
           // Apply regular tag filtering
           if (regularTags.length > 0) {
             filtered = filtered.filter(doc => 
-              doc.tags.some(tag => regularTags.includes(tag))
+              doc.file.tags.some(tag => regularTags.includes(tag))
             );
           }
           
           // Apply file type filtering
           if (fileTypeFilters.length > 0) {
             filtered = filtered.filter(doc => 
-              fileTypeFilters.includes(doc.fileType.toLowerCase())
+              fileTypeFilters.includes(doc.file.type.toLowerCase())
             );
           }
           
@@ -219,15 +220,15 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
           <div className="flex-grow min-w-0">
             <div className="flex items-center justify-between">
               <h3 className="font-medium truncate">
-                {document.name}
+                {document.title}
               </h3>
-              {getFileIcon(document.fileType)}
+              {getFileIcon(document.file.type)}
             </div>
             
             <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
               <div className="flex items-center gap-1">
                 <Clock size={14} />
-                <span>{formatDate(document.uploadDate)}</span>
+                <span>{formatDate(document.file.uploadedAt)}</span>
               </div>
               
               <TooltipProvider>
@@ -235,7 +236,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1">
                       <Star size={14} className="text-yellow-500" />
-                      <span>{document.rating.toFixed(1)}</span>
+                      <span>{document.rating.rating}</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -249,7 +250,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1">
                       <MessageSquare size={14} />
-                      <span>{document.commentCount}</span>
+                      <span>{document.comments.length}</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -260,9 +261,9 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
             </div>
             
             <div className="flex justify-between items-center mt-2">
-              {document.tags.length > 0 && (
+              {document.file.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
-                  {document.tags.map((tag) => {
+                  {document.file.tags.map((tag) => {
                     // Check if it's a file type tag
                     const isFileType = fileTypeTags.includes(tag);
                     let tagStyles = "text-xs px-1.5 py-0 cursor-pointer border ";
@@ -320,7 +321,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-1">
                         <Eye size={12} />
-                        <span>{document.viewCount}</span>
+                        <span>{document.file.viewCount}</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -334,7 +335,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
                     <TooltipTrigger asChild>
                       <div className={`flex items-center gap-1 ${isBookmarked ? 'text-primary font-medium' : ''}`}>
                         <BookmarkIcon size={12} className={isBookmarked ? 'text-primary fill-primary' : ''} />
-                        <span>{document.downloadCount}</span>
+                        <span>{document.file.downloadCount}</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -347,7 +348,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
-                        <span>{document.fileSize}</span>
+                        <span>{document.file.size}</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -400,11 +401,11 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
       
       // Always load documents and bookmarks when opening
       Promise.all([
-        mockDataService.getDocuments(),
-        mockDataService.getBookmarkedDocuments()
+        mockService.getDocuments(),
+        mockService.getBookmarks()
       ]).then(([documents, bookmarks]) => {
         setDocumentResults(documents);
-        setBookmarkResults(bookmarks);
+        setBookmarkResults(bookmarks.map(bookmark => bookmark.document));
         setIsLoading(false);
       }).catch(error => {
         console.error('Error loading initial data:', error);
@@ -569,8 +570,8 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
                   Found {bookmarkResults.length} bookmark{bookmarkResults.length !== 1 ? 's' : ''}
                   {selectedTags.length > 0 && ' matching your filters'}
                 </div>
-                {bookmarkResults.map((doc) => (
-                  <DocumentItem key={doc.id} document={doc} />
+                {bookmarkResults.map((bookmark) => (
+                  <DocumentItem key={bookmark.id} document={bookmark} />
                 ))}
               </>
             )}

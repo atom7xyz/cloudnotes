@@ -107,7 +107,7 @@ const Notifications: React.FC<NotificationsProps> = ({
         </Button>
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className="w-80 select-none">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notifications</span>
           {unreadCount > 0 && (
@@ -137,7 +137,7 @@ const Notifications: React.FC<NotificationsProps> = ({
               <DropdownMenuItem
                 key={notification.id}
                 className={cn(
-                  "flex flex-col items-start p-3 cursor-pointer relative transition-all duration-200",
+                  "flex flex-col items-start p-3 relative transition-all duration-200",
                   notification.isRead ? "opacity-80" : "bg-primary/5"
                 )}
                 onClick={() => handleNotificationClick(notification)}
@@ -178,12 +178,12 @@ const Notifications: React.FC<NotificationsProps> = ({
         <DropdownMenuSeparator />
         
         <DropdownMenuItem 
-          className="p-2 cursor-pointer"
+          className="p-2 hover:bg-primary/5 hover:text-foreground transition-all duration-200 cursor-pointer group"
           onClick={handleSettingsClick}
         >
-          <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground w-full justify-center">
+          <div className="flex items-center gap-2 text-muted-foreground w-full justify-center group-hover:text-foreground">
             <SettingsIcon size={14} />
-            <span>Notification Settings</span>
+            <span className="group-hover:text-foreground transition-colors duration-200">Notification Settings</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

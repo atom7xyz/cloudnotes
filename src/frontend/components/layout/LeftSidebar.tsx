@@ -80,6 +80,8 @@ const LeftSidebar: React.FC = () => {
         <div className="flex-grow flex flex-col items-center justify-center">
           <NavItem icon={<HomeIcon size={32} />} label="HOME" to="/home" active />
           <Separator className="w-full my-2 border-1" />
+          <NavItem icon={<FileTextIcon size={32} />} label="READER" to="/reader" />
+          <Separator className="w-full my-2 border-1" />
           <NavItem icon={<BookmarkIcon size={32} />} label="SAVED" to="/saved" />
         </div>
         

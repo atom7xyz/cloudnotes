@@ -627,7 +627,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 <div className="space-y-1">
                   <h2 className="text-xl font-semibold">Bart Simpson</h2>
                   <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100 px-2 py-1">
-                    @johndoe
+                    @bartsimpson
                   </Badge>
                 </div>
                 <Button 
@@ -648,7 +648,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 <ActionItem
                   icon={<AtSignIcon size={18} />}
                   label="Email Address"
-                  description="bart.simpson@example.com"
+                  description="bart@simpson.tv"
                   actionLabel="Change"
                   onClick={() => {}}
                 />
@@ -1119,7 +1119,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
       <ExportDataModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
-        email="bart.simpson@example.com"
+        email="bart@simpson.tv"
         onExportComplete={handleExportComplete}
         notificationsEnabled={notificationsEnabled}
         playSound={playSound}
