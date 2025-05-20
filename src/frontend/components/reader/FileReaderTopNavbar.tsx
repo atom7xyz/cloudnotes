@@ -94,7 +94,7 @@ const NavButton: React.FC<NavButtonProps> = memo(({
         ? "opacity-50 cursor-default" 
         : active
           ? "bg-primary/20 text-primary hover:bg-primary/30" 
-          : "hover:bg-primary/10 hover:text-primary"
+          : "hover:bg-primary/5 hover:border-primary/20 hover:text-primary"
     )}
     title={title}
     disabled={disabled}
@@ -174,7 +174,7 @@ const ZoomControl = memo(({
           <Button 
             variant="outline" 
             size="sm" 
-            className="h-8 px-2 flex items-center gap-1 text-xs font-medium"
+            className="h-8 px-2 flex items-center gap-1 text-xs font-medium hover:bg-primary/5 hover:border-primary/20 transition-colors"
           >
             {currentZoomLabel}
             <ChevronDown className="h-3 w-3 opacity-50" />
@@ -331,7 +331,7 @@ const ScrollModeSelector = memo(({
     <div className="flex items-center gap-2" style={noDragRegion}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-1 rounded-full">
+          <Button variant="outline" size="sm" className="gap-1 rounded-full hover:bg-primary/5 hover:border-primary/20 transition-colors">
             {currentMode === ScrollMode.PAGE && <MonitorSmartphone className="h-4 w-4" />}
             {currentMode === ScrollMode.VERTICAL && <ScrollText className="h-4 w-4" />}
             {currentMode === ScrollMode.HORIZONTAL && <MoveHorizontal className="h-4 w-4" />}
@@ -446,7 +446,7 @@ const RecentFilesDropdown = memo(({ isLoading }: { isLoading?: boolean }) => {
       <div className="ml-2" style={noDragRegion}>
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger asChild disabled={isLoading}>
-            <Button variant="outline" size="sm" className={`gap-1 rounded-full ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <Button variant="outline" size="sm" className={`gap-1 rounded-full ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} hover:bg-primary/5 hover:border-primary/20 transition-colors`}>
               <NotebookText className="h-4 w-4" />
               <span>Your cloudnotes</span>
               <ChevronDown className="h-3 w-3 opacity-50" />

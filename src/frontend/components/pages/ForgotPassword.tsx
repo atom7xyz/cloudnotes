@@ -77,7 +77,6 @@ export default function ForgotPassword() {
           form={form}
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
-          unsavedMessage="You have unsaved changes in the forgot password form. If you leave, your information will be lost."
           submitLabel="Send Reset Code"
         >
           <FormInput

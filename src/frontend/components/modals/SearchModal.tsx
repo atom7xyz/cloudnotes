@@ -19,7 +19,11 @@ import {
   FileIcon,
   X,
   BookmarkIcon,
-  HelpCircle
+  HelpCircle,
+  LayoutGrid,
+  Compass,
+  FolderHeart,
+  Users
 } from 'lucide-react';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockUser, MockBookmark } from '../../lib/mocking/mocked';
@@ -287,7 +291,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
     if (displayDoc.tags.length === 0) return null;
     
     return (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1 max-w-[300px]">
         {displayDoc.tags.map((tag: string) => {
           // Check if it's a file type tag - unlikely but let's handle it anyway
           const isFileType = fileTypeTags.includes(tag);
@@ -475,7 +479,7 @@ const UserItem = memo(({
             </button>
             <Badge 
               variant="outline" 
-              className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100"
+              className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100 hover:border-primary/20 transition-colors"
               onClick={() => navigateToUserProfile(user.username)}
             >
               @{user.username}
@@ -644,12 +648,13 @@ SearchInput.displayName = 'SearchInput';
 
 const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'documents' | 'users' | 'bookmarks'>('documents');
+  const [activeTab, setActiveTab] = useState<'discover' | 'users' | 'bookmarks' | 'user'>('user');
   const [isLoading, setIsLoading] = useState(false);
   const [searchCompleted, setSearchCompleted] = useState(false);
   const [documentResults, setDocumentResults] = useState<MockDocument[]>([]);
   const [userResults, setUserResults] = useState<MockUser[]>([]);
   const [bookmarkResults, setBookmarkResults] = useState<MockDocument[]>([]);
+  const [userDocuments, setUserDocuments] = useState<MockDocument[]>([]);
   const [recentSearches] = useState<string[]>(mockService.getRecentSearches());
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -662,6 +667,41 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const lastTextQueryRef = useRef<string>('');
   const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+
+  // Load initial data when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      // Create async function to handle data loading
+      const loadInitialData = async () => {
+        try {
+          // In a real app, these would be actual API calls
+          const [docs, users, currentUser] = await Promise.all([
+            mockService.getDocuments(),
+            mockService.getUsers(),
+            // Get the current user (bartsimpson for demo purposes)
+            Promise.resolve(mockService.getUsers().find(user => user.username === "bartsimpson"))
+          ]);
+          
+          // Set user documents if there's a current user
+          if (currentUser) {
+            // Load user documents
+            const userDocs = await mockService.getDocumentsForUser(currentUser.id);
+            setUserDocuments(userDocs);
+            
+            // Load bookmarks for the current user
+            const bookmarks = await mockService.getBookmarksForUser(currentUser.id);
+            const bookmarkedDocs = bookmarks.map((bookmark: MockBookmark) => bookmark.document);
+            setBookmarkResults(bookmarkedDocs);
+          }
+        } catch (error) {
+          console.error("Error loading initial data:", error);
+        }
+      };
+      
+      // Execute the async function
+      loadInitialData();
+    }
+  }, [isOpen]);
 
   // Function to perform a search and apply tag filters - optimized with useCallback
   const performSearch = useCallback(async (query: string, tags: string[]) => {
@@ -679,6 +719,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         setDocumentResults([]);
         setUserResults([]);
         setBookmarkResults([]);
+        setUserDocuments([]);
         setIsLoading(false);
         setSearchCompleted(true);
         return;
@@ -693,15 +734,15 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         return;
       }
       
-      // Batch state updates to reduce renders
-      let updatedDocuments: MockDocument[] = [];
-      let updatedBookmarks: MockDocument[] = [];
-      let updatedUsers: MockUser[] = [];
+      // Get the current user for user documents and bookmarks
+      const users = mockService.getUsers();
+      const currentUser = users.find(user => user.username === "bartsimpson");
       
-      // Reduce number of async operations by parallel fetching
-      const [documents, bookmarks] = await Promise.all([
+      // Batch document fetching operations in parallel
+      const [documents, allUserDocs, allBookmarks] = await Promise.all([
         mockService.searchDocuments(query),
-        mockService.searchBookmarks(query)
+        currentUser ? mockService.getDocumentsForUser(currentUser.id) : Promise.resolve([]),
+        currentUser ? mockService.getBookmarksForUser(currentUser.id) : Promise.resolve([])
       ]);
       
       // Check again if this search is still relevant
@@ -709,8 +750,13 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         return;
       }
       
+      // Convert bookmarks to MockDocument type
+      const allBookmarkedDocs = allBookmarks.map(bookmark => bookmark.document);
+      
       // For users search - only perform if text query has changed or no current results
       const currentUserResults = userResultsRef.current;
+      let updatedUsers: MockUser[] = [];
+      
       if (query.trim()) {
         if (query.trim() !== lastTextQueryRef.current || currentUserResults.length === 0) {
           updatedUsers = await mockService.searchUsers(query);
@@ -731,12 +777,14 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       }
       
       // Apply tag filtering if there are selected tags
+      let filteredDocuments = documents;
+      
       if (tags.length > 0) {
         // Split tags into normal tags and file type tags
         const fileTypeFilters = tags.filter(tag => fileTypeTags.includes(tag));
         const regularTags = tags.filter(tag => !fileTypeTags.includes(tag));
         
-        // Apply filtering function to both documents and bookmarks
+        // Apply filtering function to both documents
         const applyFilters = (docs: MockDocument[]) => {
           let filtered = docs;
           
@@ -757,12 +805,17 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
           return filtered;
         };
         
-        updatedDocuments = applyFilters(documents);
-        updatedBookmarks = applyFilters(bookmarks);
-      } else {
-        updatedDocuments = documents;
-        updatedBookmarks = bookmarks;
+        filteredDocuments = applyFilters(documents);
       }
+      
+      // Filter each collection based on the search results
+      const filteredUserDocs = allUserDocs.filter(doc => 
+        filteredDocuments.some(searchDoc => searchDoc.id === doc.id)
+      );
+      
+      const filteredBookmarks = allBookmarkedDocs.filter(doc => 
+        filteredDocuments.some(searchDoc => searchDoc.id === doc.id)
+      );
 
       // One final check before updating state
       if (latestSearchRequestRef.current !== currentRequestId) {
@@ -775,8 +828,9 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         if (latestSearchRequestRef.current === currentRequestId) {
           // Use a microtask to batch these state updates
           Promise.resolve().then(() => {
-            setDocumentResults(updatedDocuments);
-            setBookmarkResults(updatedBookmarks);
+            setDocumentResults(filteredDocuments);
+            setUserDocuments(filteredUserDocs);
+            setBookmarkResults(filteredBookmarks);
             setUserResults(updatedUsers);
             userResultsRef.current = updatedUsers;
             setIsLoading(false);
@@ -1145,7 +1199,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                     key={getUniqueKey('recent', term)}
                     variant="outline"
                     size="sm"
-                    className={`cursor-pointer rounded-full text-sm select-none ${hasTags ? 'bg-muted/10' : ''}`}
+                    className={`cursor-pointer rounded-full text-sm select-none hover:bg-primary/5 hover:border-primary/20 transition-colors ${hasTags ? 'bg-muted/10' : ''}`}
                     onClick={() => handleRecentSearchClick(term)}
                   >
                     {hasTags ? (
@@ -1200,20 +1254,35 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
           </div>
         )}
 
-        <Tabs defaultValue="documents" value={activeTab} onValueChange={(value) => setActiveTab(value as 'documents' | 'users' | 'bookmarks')}>
+        <Tabs defaultValue="user" value={activeTab} onValueChange={(value) => setActiveTab(value as 'discover' | 'users' | 'bookmarks' | 'user')}>
           <div className="flex justify-between items-center mb-4">
-            <TabsList className="bg-background p-1 border border-muted-foreground/20 shadow select-none">
-              <TabsTrigger value="documents" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
-                <FileText size={16} className="select-none" />
-                <span>Documents</span>
-                {documentResults.length > 0 && (
+            <TabsList className="bg-background p-1 border border-muted-foreground/20 shadow select-none flex gap-1">
+              <TabsTrigger value="user" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                <FolderHeart size={16} className="select-none" />
+                <span>Your Documents</span>
+                {userDocuments.length > 0 && (
                   <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
-                    {documentResults.length}
+                    {userDocuments.length}
                   </Badge>
                 )}
               </TabsTrigger>
+              
+              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              
+              <TabsTrigger value="bookmarks" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                <BookmarkIcon size={16} className="select-none" />
+                <span>Bookmarks</span>
+                {bookmarkResults.length > 0 && (
+                  <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
+                    {bookmarkResults.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              
+              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              
               <TabsTrigger value="users" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
-                <User size={16} className="select-none" />
+                <Users size={16} className="select-none" />
                 <span>Users</span>
                 {userResults.length > 0 && (
                   <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
@@ -1221,12 +1290,15 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="bookmarks" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
-                <BookmarkIcon size={16} className="select-none" />
-                <span>Bookmarks</span>
-                {bookmarkResults.length > 0 && (
+              
+              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              
+              <TabsTrigger value="discover" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                <Compass size={16} className="select-none" />
+                <span>Discover</span>
+                {documentResults.length > 0 && (
                   <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
-                    {bookmarkResults.length}
+                    {documentResults.length}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -1241,9 +1313,10 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             )}
           </div>
 
-          <TabsContent value="documents" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
+          {/* Tabs content sections */}
+          {/* Discover Tab */}
+          <TabsContent value="discover" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
             {isLoading && !searchCompleted ? (
-              // Loading state - only show when actually loading and search not completed
               <>
                 <DocumentSkeleton />
                 <DocumentSkeleton />
@@ -1251,9 +1324,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 <DocumentSkeleton />
               </>
             ) : documentResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
-              // No results state - only show when search completed with no results
               <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <FileText className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                <Compass className="h-12 w-12 text-muted-foreground/50 mb-2" />
                 <h3 className="text-lg font-medium">No documents found</h3>
                 <p className="text-muted-foreground max-w-sm">
                   {searchQuery ? 
@@ -1265,16 +1337,14 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 </p>
               </div>
             ) : documentResults.length === 0 && !searchQuery && !selectedTags.length ? (
-              // Initial state - no search performed yet
               <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                 <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">Search for documents</h3>
+                <h3 className="text-lg font-medium">Discover documents</h3>
                 <p className="text-muted-foreground max-w-sm">
                   Enter a search term to find documents by name, content, or tags.
                 </p>
               </div>
             ) : (
-              // Results state - documents found
               <>
                 {searchCompleted && (
                   <div className="mb-2 text-sm text-muted-foreground select-none">
@@ -1299,9 +1369,9 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             )}
           </TabsContent>
 
+          {/* Users Tab */}
           <TabsContent value="users" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
             {isLoading && !searchCompleted ? (
-              // Loading state - only show when actually loading and search not completed
               <>
                 <UserSkeleton />
                 <UserSkeleton />
@@ -1309,7 +1379,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 <UserSkeleton />
               </>
             ) : searchQuery && userResults.length === 0 && searchCompleted ? (
-              // No results state
               <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                 <User className="h-12 w-12 text-muted-foreground/50 mb-2" />
                 <h3 className="text-lg font-medium">No users found</h3>
@@ -1318,7 +1387,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 </p>
               </div>
             ) : searchQuery ? (
-              // Results state
               <>
                 {searchCompleted && (
                   <div className="mb-2 text-sm text-muted-foreground select-none">
@@ -1335,7 +1403,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 ))}
               </>
             ) : (
-              // Empty state - no search yet
               <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                 <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
                 <h3 className="text-lg font-medium">Search for users</h3>
@@ -1346,9 +1413,64 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             )}
           </TabsContent>
           
+          {/* Your Documents Tab */}
+          <TabsContent value="user" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
+            {isLoading && !searchCompleted ? (
+              <>
+                <DocumentSkeleton />
+                <DocumentSkeleton />
+                <DocumentSkeleton />
+                <DocumentSkeleton />
+              </>
+            ) : userDocuments.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                <FolderHeart className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                <h3 className="text-lg font-medium">No user documents found</h3>
+                <p className="text-muted-foreground max-w-sm">
+                  {searchQuery ? 
+                    `We couldn't find any of your documents matching "${searchQuery}"` : 
+                    "None of your documents match the selected filters"}
+                  {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
+                  {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
+                  {selectedTags.length > 0 ? ' or remove some tags' : ''}.
+                </p>
+              </div>
+            ) : userDocuments.length === 0 && !searchQuery && !selectedTags.length ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                <FolderHeart className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                <h3 className="text-lg font-medium">No user documents</h3>
+                <p className="text-muted-foreground max-w-sm">
+                  You haven't uploaded any documents yet. Upload files to access them here.
+                </p>
+              </div>
+            ) : (
+              <>
+                {searchCompleted && (
+                  <div className="mb-2 text-sm text-muted-foreground select-none">
+                    Found {userDocuments.length} document{userDocuments.length !== 1 ? 's' : ''} 
+                    uploaded by you
+                    {selectedTags.length > 0 && ' matching your filters'}
+                  </div>
+                )}
+                {userDocuments.map((doc) => (
+                  <DocumentItem 
+                    key={doc.id} 
+                    document={doc} 
+                    selectedTags={selectedTags} 
+                    handleTagClick={handleTagClick} 
+                    navigateToDocument={navigateToDocument} 
+                    navigateToUserProfile={navigateToUserProfile} 
+                    navigateToReviews={navigateToReviews} 
+                    navigateToComments={navigateToComments} 
+                    bookmarkResults={bookmarkResults} 
+                  />
+                ))}
+              </>
+            )}
+          </TabsContent>
+          
           <TabsContent value="bookmarks" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
             {isLoading && !searchCompleted ? (
-              // Loading state - only show when actually loading and search not completed
               <>
                 <DocumentSkeleton />
                 <DocumentSkeleton />
@@ -1356,7 +1478,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 <DocumentSkeleton />
               </>
             ) : bookmarkResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
-              // No results state - only show when a search was attempted
               <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                 <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
                 <h3 className="text-lg font-medium">No bookmarks found</h3>
@@ -1370,7 +1491,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 </p>
               </div>
             ) : bookmarkResults.length === 0 && !searchQuery && !selectedTags.length ? (
-              // Initial state - no search performed yet
               <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                 <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
                 <h3 className="text-lg font-medium">Search your bookmarks</h3>
@@ -1379,7 +1499,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 </p>
               </div>
             ) : (
-              // Results state
               <>
                 {searchCompleted && (
                   <div className="mb-2 text-sm text-muted-foreground select-none">

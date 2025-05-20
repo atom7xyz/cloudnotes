@@ -201,6 +201,13 @@
   } */
 }
 
+@layer utilities {
+  /* Utility class for consistent hover effect on buttons and interactive elements */
+  .hover-primary-effect {
+    @apply hover:bg-primary/10 hover:border-primary/20 transition-colors;
+  }
+}
+
 /* Custom animations */
 .animate-shimmer {
   animation: shimmer 2.5s infinite linear;

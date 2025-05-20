@@ -50,7 +50,6 @@ export default function ResetPassword() {
           form={form}
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
-          unsavedMessage="You have unsaved changes in the password reset form. If you leave, your information will be lost."
           submitLabel="Reset Password"
         >
           <PasswordInput

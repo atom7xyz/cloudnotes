@@ -11,20 +11,14 @@ interface UseFormNavigationOptions {
    * Function to determine if the form is empty
    */
   isFormEmpty?: () => boolean;
-  
-  /**
-   * Custom message for the unsaved changes dialog
-   */
-  unsavedMessage?: string;
 }
 
 /**
- * Custom hook for managing form navigation and unsaved changes
+ * Custom hook for managing form navigation
  */
 export function useFormNavigation({ 
   bypassPaths = [], 
   isFormEmpty = () => false,
-  unsavedMessage = "You have unsaved changes. If you leave, your information will be lost."
 }: UseFormNavigationOptions = {}) {
   const appNavigate = useAppNavigate();
   const [isDirty, setIsDirty] = useState(false);
@@ -81,7 +75,6 @@ export function useFormNavigation({
     handleNavigate,
     confirmNavigation,
     cancelNavigation,
-    unsavedMessage
   };
 }
 

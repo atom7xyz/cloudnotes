@@ -633,7 +633,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 <Button 
                   variant="outline"
                   size="sm" 
-                  className="ml-auto cursor-pointer"
+                  className="ml-auto cursor-pointer hover-primary-effect"
                   onClick={() => {}}
                 >
                   <ExternalLinkIcon size={14} className="mr-2" />
@@ -798,7 +798,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     variant="outline" 
                     size="sm" 
                     onClick={handleSetupPin}
-                    className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                    className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
                   >
                     {isPinSet ? 
                       (<>
@@ -881,7 +881,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                           variant="outline"
                           onClick={showNotificationExample}
                           disabled={!notificationsEnabled}
-                          className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                          className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
                         >
                           <EyeIcon size={14} />
                           <span>Preview</span>
@@ -900,7 +900,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     onCheckedChange={handleSoundToggle}
                     disabled={!notificationsEnabled}
                     icon={<Volume2Icon size={18} />}
-                  />
+                  >
+                  </ToggleItem>
                   {/* Sound Effect Preview */}
                   {soundEnabled && (
                     <div className="pb-2 px-4 pl-12">
@@ -919,7 +920,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                           variant="outline"
                           onClick={demonstrateSound}
                           disabled={!soundEnabled}
-                          className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                          className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
                         >
                           <Volume2Icon size={14} />
                           <span>Play</span>
@@ -1077,7 +1078,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     variant="outline" 
                     size="sm" 
                     onClick={handleCheckForUpdates}
-                    className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                    className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
                     disabled={updatesLoading}
                   >
                     {updatesLoading ? (

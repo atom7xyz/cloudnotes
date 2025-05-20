@@ -82,7 +82,6 @@ export default function Register() {
             onSubmit={onSubmit}
             bypassPaths={['/tos']}
             isFormEmpty={isFormEmpty}
-            unsavedMessage="You have unsaved changes in the registration form. If you leave, your information will be lost."
             submitLabel="Register"
             disabled={!form.watch("acceptTerms")}
           >

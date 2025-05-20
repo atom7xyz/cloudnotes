@@ -5,6 +5,8 @@ import { FileIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 // Define FileTab type for tab management
 export interface FileTab {
@@ -52,7 +54,9 @@ const CustomDialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+        "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", 
+        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)]", 
+        "translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
         className
       )}
       {...props}
@@ -63,6 +67,15 @@ const CustomDialogContent = React.forwardRef<
   </DialogPortal>
 ));
 CustomDialogContent.displayName = "CustomDialogContent";
+
+// Add this helper function to format tab paths
+const formatTabPath = (path: string): string => {
+  // Extract the directory part without the filename
+  const parts = path.split(/[/\\]/);
+  const fileName = parts.pop() || '';
+  const directory = parts.join('/');
+  return directory || 'Root';
+};
 
 const TabSwitcherModal: React.FC<TabSwitcherModalProps> = ({
   isOpen,
@@ -177,10 +190,7 @@ const TabSwitcherModal: React.FC<TabSwitcherModalProps> = ({
     }
   }, [isOpen]);
 
-  // Skip opening the modal if loading
-  if (isLoading) return null;
-
-  if (!isOpen) return null;
+  if (isLoading || !isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -191,7 +201,7 @@ const TabSwitcherModal: React.FC<TabSwitcherModalProps> = ({
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="absolute right-3 top-3 h-8 w-8 rounded-full"
+            className="absolute right-3 top-3 h-8 w-8 rounded-full hover-primary-effect"
             aria-label="Close"
           >
             <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
@@ -200,47 +210,71 @@ const TabSwitcherModal: React.FC<TabSwitcherModalProps> = ({
         <ScrollArea className="max-h-[70vh]">
           <div 
             ref={modalRef}
-            className="grid grid-cols-3 gap-4 p-4 focus:outline-none" 
-            tabIndex={0}
+            className="grid grid-cols-3 gap-4 p-4 focus:outline-none"
           >
-            {tabsWithPreviews.length > 0 ? tabsWithPreviews.map((tab, index) => (
-              <div
-                key={tab.id}
-                className={cn(
-                  "p-2 rounded-lg border cursor-pointer transition-all",
-                  selectedIndex === index 
-                    ? "ring-2 ring-primary border-primary bg-primary/5" 
-                    : "bg-card hover:bg-accent"
-                )}
-                onClick={() => {
-                  setSelectedIndex(index);
-                  onSelectTab(tab.id);
-                  onClose();
-                }}
-              >
-                <div className="flex flex-col items-center space-y-2">
-                  {tab.preview ? (
-                    <div className="w-32 h-40 bg-muted rounded overflow-hidden">
+            {isLoading ? (
+              // Loading state with skeletons
+              Array.from({ length: 9 }).map((_, index) => (
+                <div 
+                  key={`skeleton-loading-${index}-${Date.now()}`} 
+                  className="relative p-2 rounded-lg border border-primary/20 hover:border-primary/40 transition-colors h-40 animate-pulse bg-muted/50" 
+                />
+              ))
+            ) : tabs.length === 0 ? (
+              <p className="col-span-3 text-center text-muted-foreground py-12">No open files</p>
+            ) : (
+              tabs.map((tab, index) => (
+                <button
+                  type="button"
+                  key={tab.id}
+                  data-tab-id={tab.id}
+                  className={cn(
+                    "relative p-2 rounded-lg border transition-colors duration-150 h-40 flex flex-col items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/60 hover:bg-primary/5",
+                    selectedIndex === index ? "border-primary/50 bg-primary/5" : "border-primary/20 hover:border-primary/40"
+                  )}
+                  onClick={() => {
+                    if (selectedIndex === index) {
+                      // Already selected, so open the file
+                      onSelectTab(tab.id);
+                      onClose();
+                    } else {
+                      // Just select it but don't open yet
+                      setSelectedIndex(index);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onSelectTab(tab.id);
+                      onClose();
+                    }
+                  }}
+                  aria-selected={selectedIndex === index}
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    {tab.preview ? (
                       <img 
                         src={tab.preview} 
-                        alt={tab.name} 
-                        className="w-full h-full object-cover"
+                        alt={`Preview of ${tab.name}`} 
+                        className="w-24 h-24 object-cover rounded border border-muted"
                       />
+                    ) : (
+                      <div className="w-24 h-24 bg-muted flex items-center justify-center rounded border border-muted text-muted-foreground">
+                        <FileIcon size={32} />
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <p className="font-medium text-sm line-clamp-1 max-w-[95%]">{tab.name}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{formatTabPath(tab.path)}</p>
                     </div>
-                  ) : (
-                    <div className="w-32 h-40 bg-muted rounded flex items-center justify-center">
-                      <FileIcon className="w-12 h-12 text-muted-foreground/40" />
-                    </div>
-                  )}
-                  <div className="text-sm font-medium truncate max-w-full">
-                    {tab.name}
                   </div>
-                </div>
-              </div>
-            )) : (
-              <div className="col-span-3 p-8 text-center text-muted-foreground">
-                No files are currently open
-              </div>
+                  
+                  {tab.id === activeTabId && (
+                    <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">Active</Badge>
+                  )}
+                </button>
+              ))
             )}
           </div>
         </ScrollArea>

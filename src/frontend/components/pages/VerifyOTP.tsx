@@ -63,7 +63,6 @@ export default function VerifyOTP() {
           form={form}
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
-          unsavedMessage="You have unsaved changes in the OTP verification form. If you leave, your information will be lost."
           submitLabel="Verify Code"
         >
           <FormOTP

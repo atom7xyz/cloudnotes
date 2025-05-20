@@ -47,7 +47,7 @@ const NavButton: React.FC<NavButtonProps> = ({
       "p-1 h-8 w-8 rounded-full transition-all duration-200",
       disabled 
         ? "opacity-50 cursor-default" 
-        : "hover:bg-primary/10 hover:text-primary"
+        : "hover-primary-effect"
     )}
     title={title}
     disabled={disabled}
@@ -291,7 +291,7 @@ const TopNavbar: React.FC = () => {
                   "border border-muted-foreground/40",
                   "focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring",
                   "placeholder-sidebar-foreground/60",
-                  "hover:scale-[1.02] hover:border-sidebar-ring hover:shadow-sm"
+                  "hover:border-sidebar-ring hover-primary-effect"
                 )}
                 onClick={openSearchModal}
                 readOnly
@@ -317,7 +317,7 @@ const TopNavbar: React.FC = () => {
             onClick={handleMinimize}
             variant="ghost"
             size="icon"
-            className="h-12 w-[50px] rounded-none hover:bg-primary/10 hover:text-primary transition-all duration-200"
+            className="h-12 w-[50px] rounded-none hover-primary-effect transition-all duration-200"
             title="Minimize"
           >
             <MinusIcon size={16} />
@@ -327,7 +327,7 @@ const TopNavbar: React.FC = () => {
             onClick={handleMaximize}
             variant="ghost"
             size="icon"
-            className="h-12 w-[50px] rounded-none hover:bg-primary/10 hover:text-primary transition-all duration-200" 
+            className="h-12 w-[50px] rounded-none hover-primary-effect transition-all duration-200" 
             title={isMaximized ? "Restore" : "Maximize"}
           >
             {isMaximized ? <SquareIcon size={16} /> : <MaximizeIcon size={16} />}

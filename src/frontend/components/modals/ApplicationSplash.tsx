@@ -10,26 +10,27 @@ const ApplicationSplash: React.FC<ApplicationSplashProps> = ({
   isOpen,
   message = "Getting things ready..."
 }) => {
+  // Lock body scroll when splash is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+      
+      return () => {
+        document.body.style.overflow = '';
+      };
     }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
+    
+    document.body.style.overflow = '';
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
     <motion.div
-      initial={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: 0.5 }}
       className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center"
       aria-modal="true"
     >
@@ -37,10 +38,10 @@ const ApplicationSplash: React.FC<ApplicationSplashProps> = ({
         {/* App Name with the same font as TopNavbar */}
         <motion.h1 
           className="font-bigshot-one italic text-primary text-6xl tracking-tight"
-          initial={{ y: 20, opacity: 0 }}
+          initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -20, opacity: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
+          exit={{ y: -10, opacity: 0 }}
+          transition={{ duration: 0.6 }}
         >
           CloudNotes
         </motion.h1>
@@ -51,7 +52,7 @@ const ApplicationSplash: React.FC<ApplicationSplashProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ delay: 1, duration: 0.8 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
         >
           {message}
         </motion.p>
@@ -61,8 +62,8 @@ const ApplicationSplash: React.FC<ApplicationSplashProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
-          className="mt-4"
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="mt-2"
         >
           <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
         </motion.div>

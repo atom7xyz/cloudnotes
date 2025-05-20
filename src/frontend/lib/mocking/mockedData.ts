@@ -2,7 +2,7 @@ import type { MockUser, MockDocument, MockComment, MockRating, MockBookmark, Moc
 import { faker } from '@faker-js/faker';
 
 // Set a fixed seed for reproducible data
-faker.seed(123);
+faker.seed(101);
 
 // =========== DATA STORE CLASS ===========
 class MockDataStore {
@@ -65,6 +65,23 @@ class MockDataStore {
       
       this.users.push(user);
     }
+
+    // Add a special "bartsimpson" user for demonstration purposes
+    const bartSimpson: MockUser = {
+      id: faker.string.uuid(),
+      firstName: "Bart",
+      lastName: "Simpson",
+      username: "bartsimpson",
+      avatar: "https://github.com/shadcn.png",
+      comments: [],
+      ratings: [],
+      documents: [],
+      savedDocuments: [],
+      bio: "Opera enthusiast and classical music aficionado with expertise in European opera history",
+      joinDate: faker.date.past({ years: 1 })
+    };
+    
+    this.users.push(bartSimpson);
   }
   
   private generateDocuments(): void {
@@ -144,7 +161,7 @@ class MockDataStore {
         id: faker.string.uuid(),
         author: author,
         document: {} as MockDocument, // Will be updated
-        rating: 0,
+        rating: i === 3 ? 5 : 0,
         timestamp: new Date()
       };
       
@@ -165,6 +182,104 @@ class MockDataStore {
       
       // Add document to author's documents
       author.documents.push(document);
+    }
+
+    // Find the bartsimpson user
+    const bartUser = this.users.find(user => user.username === "bartsimpson");
+    if (bartUser) {
+      // Add European opera documents for Bart Simpson
+      const operaDocuments = [
+        {
+          title: "Wagner's Ring Cycle: A Complete Analysis",
+          description: "A comprehensive exploration of Richard Wagner's monumental four-opera cycle 'Der Ring des Nibelungen', examining its revolutionary musical techniques, complex mythology, and profound philosophical themes.",
+          tags: ['opera', 'wagner', 'classical', 'music', 'german', 'mythology', 'leitmotif', 'nibelungen'],
+          type: 'pdf',
+          color: '#8C4646', // Darker red for good contrast with white text
+          text: 'Wagner%27s%20Ring'
+        },
+        {
+          title: "Verdi's Italian Operas and Political Influence",
+          description: "An examination of Giuseppe Verdi's operatic masterpieces within the context of Italian unification, analyzing how his works reflected and inspired the Risorgimento movement while establishing a distinctly Italian operatic tradition.",
+          tags: ['opera', 'verdi', 'classical', 'music', 'italian', 'political', 'risorgimento', 'nationalism'],
+          type: 'epub',
+          color: '#3A5683', // Dark blue for good contrast with white text
+          text: 'Verdi%20Operas'
+        },
+        {
+          title: "Mozart's Operas: The Evolution of a Genius",
+          description: "An in-depth study of Wolfgang Amadeus Mozart's operatic works, tracing his development from youthful compositions to his mature masterpieces, with analysis of his innovative musical language and character development techniques.",
+          tags: ['opera', 'mozart', 'classical', 'music', 'austrian', 'enlightenment', 'character', 'composition'],
+          type: 'pdf',
+          color: '#2C4770', // Dark blue-gray for good contrast with white text
+          text: 'Mozart%20Operas'
+        },
+        {
+          title: "Puccini and Italian Verismo: Realism in Opera",
+          description: "A detailed examination of Giacomo Puccini's contributions to the verismo movement in Italian opera, analyzing his realistic portrayal of everyday characters and emotional directness that revolutionized late 19th and early 20th century operatic composition.",
+          tags: ['opera', 'puccini', 'classical', 'music', 'italian', 'verismo', 'realism', 'boheme', 'butterfly'],
+          type: 'epub',
+          color: '#56452C', // Dark brown for good contrast with white text
+          text: 'Puccini%20Verismo'
+        },
+        {
+          title: "The History of Opera Houses in Europe",
+          description: "A comprehensive architectural and cultural history of Europe's greatest opera houses, from La Scala in Milan to the Paris Opera, exploring their design, acoustics, social significance, and ongoing legacy in contemporary performance spaces.",
+          tags: ['opera', 'architecture', 'europe', 'cultural', 'history', 'performance', 'acoustics', 'design'],
+          type: 'pdf',
+          color: '#644D7A', // Deep purple for good contrast with white text
+          text: 'Opera%20Houses'
+        }
+      ];
+      
+      // Create the opera documents and assign to Bart
+      for (const operaDoc of operaDocuments) {
+        // Create the file
+        const file: MockFile = {
+          id: faker.string.uuid(),
+          author: bartUser,
+          thumbnail: `${operaDoc.color}:${operaDoc.text}`,
+          type: operaDoc.type as 'pdf' | 'epub',
+          size: `${faker.number.float({ min: 3, max: 12, fractionDigits: 1 })} MB`,
+          viewCount: faker.number.int({ min: 200, max: 1000 }),
+          downloadCount: faker.number.int({ min: 50, max: 300 }),
+          tags: operaDoc.tags,
+          isPublic: true,
+          uploadedAt: faker.date.recent({ days: 20 })
+        };
+        
+        this.files.push(file);
+        
+        // Create placeholder rating
+        const placeholderRating: MockRating = {
+          id: faker.string.uuid(),
+          author: bartUser,
+          document: {} as MockDocument,
+          rating: 0,
+          timestamp: new Date()
+        };
+        
+        // Create the document
+        const document: MockDocument = {
+          id: faker.string.uuid(),
+          title: operaDoc.title,
+          description: operaDoc.description,
+          rating: placeholderRating,
+          comments: [],
+          author: bartUser,
+          file: file
+        };
+        
+        // Update the placeholder reference
+        placeholderRating.document = document;
+        
+        // Add high ratings
+        document.rating.rating = 4.8;
+        
+        this.documents.push(document);
+        
+        // Add document to user's documents
+        bartUser.documents.push(document);
+      }
     }
   }
   

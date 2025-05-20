@@ -17,7 +17,8 @@ import {
   KeyboardSensor, 
   PointerSensor, 
   useSensor, 
-  useSensors
+  useSensors,
+  type DragEndEvent
 } from '@dnd-kit/core';
 import { 
   SortableContext, 
@@ -143,7 +144,7 @@ const SortableNote = memo(({
             <Button 
               variant="ghost" 
               size="icon" 
-              className={`h-6 w-6 ${note.isGlobal ? 'text-primary' : 'text-muted-foreground'}`}
+              className={`h-6 w-6 ${note.isGlobal ? 'text-primary' : 'text-muted-foreground'} hover-primary-effect`}
               onClick={handleToggleGlobal}
               title={note.isGlobal ? "Global note (click to make page-specific)" : "Page-specific note (click to make global)"}
             >
@@ -152,7 +153,7 @@ const SortableNote = memo(({
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-6 w-6" 
+              className="h-6 w-6 hover-primary-effect" 
               onClick={handleDelete}
             >
               <span className="sr-only">Delete note</span>
@@ -182,6 +183,13 @@ const SortableNote = memo(({
           rows={3}
           onChange={handleTextChange}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              // Optionally handle Escape key to blur the textarea
+              e.currentTarget.blur();
+            }
+            // Don't stop propagation for other keys to allow normal textarea behavior
+          }}
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
           ref={note.id === getLatestNoteId ? newNoteRef || null : null}
@@ -280,10 +288,10 @@ const NoteBar = memo(({
   }, [notes, updateNotes]);
   
   // Handle drag end event for reordering
-  const handleDragEnd = useCallback((event: any) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     
-    if (active.id !== over?.id) {
+    if (active.id !== over?.id && over) {
       const updatedNotes = [...notes];
       const activeIndex = updatedNotes.findIndex(item => item.id === active.id);
       const overIndex = updatedNotes.findIndex(item => item.id === over.id);
@@ -340,7 +348,7 @@ const NoteBar = memo(({
           <Button 
             variant="outline" 
             size="icon" 
-            className="h-10 w-10 rounded-full shadow-md bg-background"
+            className="h-10 w-10 rounded-full shadow-md bg-background hover-primary-effect"
             onClick={toggleSidebar}
             title="Hide sidebar"
           >
@@ -356,7 +364,7 @@ const NoteBar = memo(({
                 variant="outline"
                 size="sm"
                 onClick={addNote}
-                className="select-none"
+                className="select-none hover-primary-effect"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Note
@@ -375,7 +383,7 @@ const NoteBar = memo(({
           <Button 
             variant="outline" 
             size="icon" 
-            className="h-10 w-10 rounded-full shadow-md bg-background"
+            className="h-10 w-10 rounded-full shadow-md bg-background hover-primary-effect"
             onClick={toggleSidebar}
             title="Show sidebar"
           >

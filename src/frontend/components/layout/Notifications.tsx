@@ -92,7 +92,7 @@ const Notifications: React.FC<NotificationsProps> = ({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="p-1 h-8 w-8 rounded-full transition-all duration-200 hover:bg-primary/10 hover:text-primary relative"
+          className="p-1 h-8 w-8 rounded-full transition-all duration-200 hover-primary-effect relative"
           title="Notifications"
         >
           <BellIcon size={16} />
@@ -114,7 +114,7 @@ const Notifications: React.FC<NotificationsProps> = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-7 text-xs flex items-center gap-1 hover:text-primary"
+              className="h-7 text-xs flex items-center gap-1 hover-primary-effect"
               onClick={handleMarkAllAsRead}
             >
               <CheckIcon size={12} />
@@ -137,7 +137,7 @@ const Notifications: React.FC<NotificationsProps> = ({
               <DropdownMenuItem
                 key={notification.id}
                 className={cn(
-                  "flex flex-col items-start p-3 relative transition-all duration-200",
+                  "flex flex-col items-start p-3 relative transition-all duration-200 hover-primary-effect",
                   notification.isRead ? "opacity-80" : "bg-primary/5"
                 )}
                 onClick={() => handleNotificationClick(notification)}
@@ -178,12 +178,12 @@ const Notifications: React.FC<NotificationsProps> = ({
         <DropdownMenuSeparator />
         
         <DropdownMenuItem 
-          className="p-2 hover:bg-primary/5 hover:text-foreground transition-all duration-200 cursor-pointer group"
+          className="p-2 hover-primary-effect cursor-pointer group"
           onClick={handleSettingsClick}
         >
-          <div className="flex items-center gap-2 text-muted-foreground w-full justify-center group-hover:text-foreground">
+          <div className="flex items-center gap-2 text-foreground w-full justify-center">
             <SettingsIcon size={14} />
-            <span className="group-hover:text-foreground transition-colors duration-200">Notification Settings</span>
+            <span>Notification Settings</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

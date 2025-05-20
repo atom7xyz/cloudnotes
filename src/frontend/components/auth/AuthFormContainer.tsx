@@ -7,7 +7,6 @@ interface AuthFormContainerProps<TFieldValues extends FieldValues> {
   form: UseFormReturn<TFieldValues>;
   onSubmit: (values: TFieldValues) => void;
   isFormEmpty?: () => boolean;
-  unsavedMessage?: string;
   bypassPaths?: string[];
   submitLabel: string;
   children: ReactNode;
@@ -21,7 +20,6 @@ export function AuthFormContainer<TFieldValues extends FieldValues>({
   form,
   onSubmit,
   isFormEmpty,
-  unsavedMessage,
   bypassPaths = [],
   submitLabel,
   children,
@@ -32,7 +30,6 @@ export function AuthFormContainer<TFieldValues extends FieldValues>({
       form={form}
       onSubmit={onSubmit}
       isFormEmpty={isFormEmpty}
-      unsavedMessage={unsavedMessage}
       bypassPaths={bypassPaths}
       className="space-y-4"
     >

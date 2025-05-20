@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./button";
 import { XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -63,22 +64,26 @@ export function Modal({
   footer,
   showCloseButton = true,
   scrollBody = true,
-  id = "modal-" + Math.random().toString(36).substr(2, 9),
+  id = `modal-${Math.random().toString(36).substr(2, 9)}`,
 }: ModalProps) {
-  // Generate a unique ID for this modal instance if not provided
+  const [isVisible, setIsVisible] = useState(false);
 
   // Register and unregister modal in the stack
   useEffect(() => {
     if (isOpen) {
-      // Add this modal to the stack when opened
+      setIsVisible(true);
       modalStack = [...modalStack, id];
     } else {
-      // Remove this modal from the stack when closed
-      modalStack = modalStack.filter(modalId => modalId !== id);
+      // Start closing animation
+      setIsVisible(false);
+      // Wait for animation to complete before removing from stack
+      const timeout = setTimeout(() => {
+        modalStack = modalStack.filter(modalId => modalId !== id);
+      }, 200); // Match animation duration
+      return () => clearTimeout(timeout);
     }
 
     return () => {
-      // Clean up when component unmounts
       modalStack = modalStack.filter(modalId => modalId !== id);
     };
   }, [isOpen, id]);
@@ -99,7 +104,6 @@ export function Modal({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen && closeOnEscape) {
-        // Only close if this is the topmost modal
         if (modalStack[modalStack.length - 1] === id) {
           onClose();
         }
@@ -114,7 +118,7 @@ export function Modal({
     }
   }, [isOpen, onClose, closeOnEscape, id]);
 
-  if (!isOpen) return null;
+  if (!isOpen && !isVisible) return null;
 
   // Determine content max height based on fullScreen and the presence of header and footer
   let contentMaxHeight = "max-h-full";
@@ -132,12 +136,16 @@ export function Modal({
     <div 
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto",
+        "transition-opacity duration-200",
+        isVisible ? "opacity-100" : "opacity-0",
         backdropClassName
       )}
     >
       <div 
         className={cn(
           "bg-background rounded-lg shadow-xl flex flex-col w-full",
+          "transform transition-all duration-200",
+          isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0",
           maxWidth,
           fullScreen ? "h-screen max-h-screen" : "max-h-[90vh]",
           className
@@ -154,7 +162,7 @@ export function Modal({
                 <Button 
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-full hover:bg-primary/10 hover:text-primary"
+                  className="h-9 w-9 rounded-full hover-primary-effect"
                   onClick={onClose}
                   aria-label="Close"
                 >

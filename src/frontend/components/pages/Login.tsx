@@ -69,7 +69,6 @@ export default function Login() {
           onSubmit={onSubmit}
           bypassPaths={['/forgot-password']}
           isFormEmpty={isFormEmpty}
-          unsavedMessage="You have unsaved changes in the login form. If you leave, your information will be lost."
           submitLabel="Login"
         >
           <FormInput

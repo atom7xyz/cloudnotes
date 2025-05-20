@@ -34,7 +34,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, tit
       size="icon"
       className={cn(
         "w-full flex flex-col items-center justify-center py-2 px-1 h-auto",
-        "hover:bg-primary/10 rounded-none transition-all duration-200",
+        "hover-primary-effect rounded-none transition-all duration-200",
         active ? "bg-sidebar-accent/70 text-sidebar-foreground font-semibold" : "text-sidebar-foreground"
       )}
       title={title || label}
@@ -79,9 +79,9 @@ const LeftSidebar: React.FC = () => {
         {/* Top Navigation Items - Centered */}
         <div className="flex-grow flex flex-col items-center justify-center">
           <NavItem icon={<HomeIcon size={32} />} label="HOME" to="/home" active />
-          <Separator className="w-full my-2 border-1" />
+          <Separator className="w-full my-2" />
           <NavItem icon={<FileTextIcon size={32} />} label="READER" to="/reader" />
-          <Separator className="w-full my-2 border-1" />
+          <Separator className="w-full my-2" />
           <NavItem icon={<BookmarkIcon size={32} />} label="SAVED" to="/saved" />
         </div>
         
@@ -94,7 +94,7 @@ const LeftSidebar: React.FC = () => {
             onClick={() => setIsSettingsOpen(true)} 
           />
           <AppLink href="/profile" className="w-full block hover:no-underline" preventNavigation>
-            <div className="w-full flex flex-col items-center justify-center py-3 px-1 hover:bg-primary/10 rounded-none transition-all duration-200 cursor-pointer text-sidebar-foreground">
+            <div className="w-full flex flex-col items-center justify-center py-3 px-1 hover-primary-effect rounded-none transition-all duration-200 text-sidebar-foreground cursor-default">
               <div className="relative mb-1">
                 <Avatar className="h-8 w-8 border-2 border-sidebar">
                   <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />

@@ -1,6 +1,5 @@
 import React, { type ReactNode } from "react";
 import { Form } from "@/components/ui/form";
-import UnsavedChangesModal from "@/components/modals/UnsavedChangesModal";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useFormNavigation } from "@/lib/hooks/useFormNavigation";
 
@@ -10,33 +9,22 @@ interface FormContainerProps<TFieldValues extends FieldValues> {
   onSubmit: (values: TFieldValues) => void;
   bypassPaths?: string[];
   isFormEmpty?: () => boolean;
-  unsavedMessage?: string;
   className?: string;
   noValidate?: boolean;
 }
 
-/**
- * A container for forms that handles unsaved changes modals and navigation
- */
 export function FormContainer<TFieldValues extends FieldValues>({
   children,
   form,
   onSubmit,
   bypassPaths = [],
   isFormEmpty,
-  unsavedMessage,
   className = "",
   noValidate = true,
 }: FormContainerProps<TFieldValues>) {
-  const {
-    isModalOpen,
-    targetPath,
-    cancelNavigation,
-    unsavedMessage: defaultUnsavedMessage,
-  } = useFormNavigation({
+  useFormNavigation({
     bypassPaths,
     isFormEmpty,
-    unsavedMessage,
   });
 
   // Update the dirty state when the form state changes
@@ -68,13 +56,6 @@ export function FormContainer<TFieldValues extends FieldValues>({
           {children}
         </form>
       </Form>
-
-      <UnsavedChangesModal
-        isOpen={isModalOpen}
-        onClose={cancelNavigation}
-        targetPath={targetPath}
-        message={unsavedMessage || defaultUnsavedMessage}
-      />
     </>
   );
 }

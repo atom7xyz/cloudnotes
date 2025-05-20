@@ -327,10 +327,8 @@ export default function PrivacyPolicy() {
               <p className="text-sm text-black mt-1 select-none">Last updated: {lastUpdated}</p>
             </div>
             <Button 
-              variant="default" 
-              className="rounded-full flex items-center gap-2 !px-8 cursor-pointer select-none"
+              className="h-9 px-3 rounded-full bg-background text-foreground gap-1.5 shadow-sm border hover:bg-primary/5 hover:border-primary/20 transition-colors"
               onClick={() => setIsPrintModalOpen(true)}
-              aria-label="Print Privacy Policy"
             >
               <PrinterIcon className="size-4" />
               Print
@@ -349,9 +347,10 @@ export default function PrivacyPolicy() {
                       <div key={section.id}>
                         {index > 0 && <Separator className="my-2" />}
                         <button
+                          type="button"
                           className={cn(
                             "tos-nav-link w-full text-left py-2 px-3 rounded-md text-sm transition-colors flex items-start",
-                            "hover:bg-primary/10 hover:text-primary cursor-pointer",
+                            "hover:bg-primary/5 hover:border-primary/20 hover:text-primary cursor-pointer",
                             activeSection === section.id 
                               ? "text-primary font-medium bg-primary/5" 
                               : "text-black"

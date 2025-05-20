@@ -33,6 +33,7 @@ interface DocumentViewProps {
   toggleBookmark: (docId: string) => void;
   formatDate: (date: Date) => string;
   renderThumbnail: (thumbnailData: string, title: string) => React.ReactNode;
+  maxWidth?: string;
 }
 
 const DocumentView = ({
@@ -42,7 +43,8 @@ const DocumentView = ({
   isBookmarked,
   toggleBookmark,
   formatDate,
-  renderThumbnail
+  renderThumbnail,
+  maxWidth = "max-w-4xl"
 }: DocumentViewProps) => {
   if (!document) return null;
 
@@ -51,7 +53,7 @@ const DocumentView = ({
       isOpen={isOpen} 
       onClose={onClose}
       title="Document View"
-      maxWidth="max-w-4xl"
+      maxWidth={maxWidth}
     >
       <div className="p-6 select-none">
         <div className="flex gap-8">
