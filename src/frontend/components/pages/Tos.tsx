@@ -284,11 +284,11 @@ export default function Tos() {
       
       {/* Main content */}
       <main className="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-6 py-8 pb-16">
-        <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-md p-6 sm:p-8">
+        <div className="bg-background/95 backdrop-blur-sm rounded-xl shadow-md p-6 sm:p-8">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold select-none">Terms of Service</h2>
-              <p className="text-sm text-black mt-1 select-none">Last updated: {lastUpdated}</p>
+              <p className="text-sm text-foreground/80 mt-1 select-none">Last updated: {lastUpdated}</p>
             </div>
             <Button 
               variant="default" 
@@ -306,19 +306,20 @@ export default function Tos() {
             {/* Sidebar navigation */}
             <aside className="lg:w-1/5 xl:w-3/10">
               <div className="lg:sticky lg:top-8">
-                <nav className="bg-white/50 backdrop-blur-sm rounded-lg shadow-sm p-4 select-none">
-                  <h3 className="text-lg font-semibold mb-4 text-black">Navigation</h3>
+                <nav className="bg-background/50 backdrop-blur-sm rounded-lg shadow-sm p-4 select-none">
+                  <h3 className="text-lg font-semibold mb-4 text-foreground">Navigation</h3>
                   <div className="space-y-1 custom-scrollbar">
                     {sections.map((section, index) => (
                       <div key={section.id}>
                         {index > 0 && <Separator className="my-2" />}
                         <button
+                          type="button"
                           className={cn(
                             "tos-nav-link w-full text-left py-2 px-3 rounded-md text-sm transition-colors flex items-start",
-                            "hover:bg-primary/10 hover:text-primary cursor-pointer",
+                            "hover-primary-effect cursor-pointer",
                             activeSection === section.id 
                               ? "text-primary font-medium bg-primary/5" 
-                              : "text-black"
+                              : "text-foreground"
                           )}
                           onClick={() => scrollToSection(section.id)}
                           data-section={section.id}
@@ -352,11 +353,11 @@ export default function Tos() {
                     >
                       <h3 
                         id={`heading-${section.id}`}
-                        className="text-xl font-semibold mb-4 text-black flex items-center"
+                        className="text-xl font-semibold mb-4 text-foreground flex items-center"
                       >
                         <span className="inline-block mr-2 text-primary font-bold">{index + 1}.</span> {section.title}
                       </h3>
-                      <div className="text-black leading-relaxed">
+                      <div className="text-foreground leading-relaxed">
                         {section.content}
                       </div>
                     </section>

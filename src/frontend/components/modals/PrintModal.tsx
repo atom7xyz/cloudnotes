@@ -59,14 +59,14 @@ export default function PrintModal({
       <div className="p-8 print:p-0">
         <div className="print:max-w-none mx-auto print:mx-0">
           <h1 className="text-3xl font-bold mb-1 select-none">{title}</h1>
-          <p className="text-sm text-black mb-6 select-none">Last updated: {lastUpdated}</p>
+          <p className="text-sm text-foreground/80 mb-6 select-none">Last updated: {lastUpdated}</p>
           
           {sections.map((section, index) => (
             <div key={section.id} className="mb-8">
               <h2 className="text-xl font-semibold mb-3 select-none">
                 {index + 1}. {section.title}
               </h2>
-              <div className="text-black">
+              <div className="text-foreground">
                 {section.content}
               </div>
               {index < sections.length - 1 && <Separator className="mt-6" />}

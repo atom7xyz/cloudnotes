@@ -765,7 +765,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
             ) : (
               <>
                 <div className="mb-2 text-sm text-muted-foreground select-none">
-                  {recentDocuments.length} {recentDocuments.length === 1 ? 'file' : 'files'} recently viewed
+                  Found {recentDocuments.length} document{recentDocuments.length === 1 ? '' : 's'} recently viewed
                 </div>
                 {recentDocuments.map((doc) => (
                   <DocumentItem 
@@ -800,7 +800,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
             ) : (
               <>
                 <div className="mb-2 text-sm text-muted-foreground select-none">
-                  {bookmarkedDocuments.length} {bookmarkedDocuments.length === 1 ? 'file' : 'files'} bookmarked
+                  Found {bookmarkedDocuments.length} bookmark{bookmarkedDocuments.length === 1 ? '' : 's'}
                 </div>
                 {bookmarkedDocuments.map((doc) => (
                   <DocumentItem 
@@ -849,8 +849,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
               <>
                 {searchCompleted && (
                   <div className="mb-2 text-sm text-muted-foreground select-none">
-                    Found {discoverDocuments.length} {discoverDocuments.length === 1 ? 'file' : 'files'}
-                    {selectedTags.length > 0 && ' matching your filters'}
+                    Found {discoverDocuments.length} document{discoverDocuments.length === 1 ? '' : 's'}
                   </div>
                 )}
                 {discoverDocuments.map((doc) => (
@@ -886,7 +885,7 @@ const FileBrowserModal: React.FC<FileBrowserModalProps> = ({ isOpen, onClose }) 
             ) : (
               <>
                 <div className="mb-2 text-sm text-muted-foreground select-none">
-                  {userDocuments.length} {userDocuments.length === 1 ? 'file' : 'files'} uploaded by you
+                  Found {userDocuments.length} document{userDocuments.length === 1 ? '' : 's'} uploaded by you
                 </div>
                 {userDocuments.map((doc) => (
                   <DocumentItem 

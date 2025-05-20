@@ -648,7 +648,7 @@ SearchInput.displayName = 'SearchInput';
 
 const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'discover' | 'users' | 'bookmarks' | 'user'>('user');
+  const [activeTab, setActiveTab] = useState<'discover' | 'users' | 'bookmarks' | 'user'>('discover');
   const [isLoading, setIsLoading] = useState(false);
   const [searchCompleted, setSearchCompleted] = useState(false);
   const [documentResults, setDocumentResults] = useState<MockDocument[]>([]);
@@ -1157,374 +1157,375 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   }, [documentResults, bookmarkResults]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={
-        <div className="flex items-center gap-2 text-lg font-medium select-none">
-          <Search size={18} />
-          <span>Search CloudNotes</span>
-        </div>
-      }
-      maxWidth="max-w-3xl"
-      className="h-[calc(90vh-8rem)]"
-      scrollBody={false}
-    >
-      <div className="p-4 h-full">
-        <SearchInput 
-          inputValue={inputValue}
-          selectedTags={selectedTags}
-          currentTag={currentTag}
-          handleSearchInputChange={handleSearchInputChange}
-          handleKeyPress={handleKeyPress}
-          handleRemoveTagFromInput={handleRemoveTagFromInput}
-          handleSuggestionClick={handleSuggestionClick}
-          inputRef={inputRef}
-          searchContainerRef={searchContainerRef}
-          fileTypeTags={fileTypeTags}
-        />
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={
+          <div className="flex items-center gap-2 text-lg font-medium select-none">
+            <Search size={18} />
+            <span>Search CloudNotes</span>
+          </div>
+        }
+        maxWidth="max-w-3xl"
+        className="h-[calc(90vh-8rem)]"
+        scrollBody={false}
+      >
+        <div className="p-4 h-full">
+          <SearchInput 
+            inputValue={inputValue}
+            selectedTags={selectedTags}
+            currentTag={currentTag}
+            handleSearchInputChange={handleSearchInputChange}
+            handleKeyPress={handleKeyPress}
+            handleRemoveTagFromInput={handleRemoveTagFromInput}
+            handleSuggestionClick={handleSuggestionClick}
+            inputRef={inputRef}
+            searchContainerRef={searchContainerRef}
+            fileTypeTags={fileTypeTags}
+          />
 
-        {!searchQuery && !selectedTags.length && (
-          <div className="mb-6">
-            <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5 select-none">
-              <Clock size={14} className="select-none" />
-              Recent Searches
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {recentSearches.map((term) => {
-                // Check if term contains tags
-                const hasTags = term.includes('@');
-                return (
-                  <Button
-                    key={getUniqueKey('recent', term)}
-                    variant="outline"
-                    size="sm"
-                    className={`cursor-pointer rounded-full text-sm select-none hover:bg-primary/5 hover:border-primary/20 transition-colors ${hasTags ? 'bg-muted/10' : ''}`}
-                    onClick={() => handleRecentSearchClick(term)}
-                  >
-                    {hasTags ? (
-                      <div className="flex items-center gap-1.5">
-                        {term.split(/\s+/).map((part) => {
-                          if (part.startsWith('@')) {
-                            const tagName = part.slice(1).toLowerCase();
-                            let tagStyles = "text-xs px-1.5 py-0 mr-1 border select-none ";
-                            
-                            // Apply file type specific styling
-                            if (fileTypeTags.includes(tagName)) {
-                              switch (tagName) {
-                                case 'pdf':
-                                  tagStyles += "bg-red-200 text-red-800 border-red-300";
-                                  break;
-                                case 'word':
-                                  tagStyles += "bg-blue-200 text-blue-800 border-blue-300";
-                                  break;
-                                case 'powerpoint':
-                                  tagStyles += "bg-orange-200 text-orange-800 border-orange-300";
-                                  break;
-                                case 'txt':
-                                  tagStyles += "bg-gray-200 text-gray-800 border-gray-300";
-                                  break;
-                                case 'epub':
-                                  tagStyles += "bg-green-200 text-green-800 border-green-300";
-                                  break;
-                                default:
-                                  tagStyles += "bg-primary/80 text-primary-foreground border-primary";
-                              }
-                            } else {
-                              // Regular tag styling
-                              tagStyles += "bg-primary/80 text-primary-foreground border-primary";
-                            }
-                            
-                            return (
-                              <Badge key={getUniqueKey('tag', tagName)} className={tagStyles}>
-                                {tagName}
-                              </Badge>
-                            );
-                          }
-                          return <span key={getUniqueKey('text', part)}>{part}</span>;
-                        })}
-                      </div>
-                    ) : (
-                      term
-                    )}
-                  </Button>
-                );
-              })}
+          <Tabs defaultValue="discover" value={activeTab} onValueChange={(value) => setActiveTab(value as 'discover' | 'users' | 'bookmarks' | 'user')}>
+            <div className="flex justify-between items-center mb-4">
+              <TabsList className="bg-background p-1 border border-muted-foreground/20 shadow select-none flex gap-1">
+                <TabsTrigger value="discover" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                  <Compass size={16} className="select-none" />
+                  <span>Discover</span>
+                  {documentResults.length > 0 && (
+                    <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
+                      {documentResults.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                
+                <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+                
+                <TabsTrigger value="users" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                  <Users size={16} className="select-none" />
+                  <span>Users</span>
+                  {userResults.length > 0 && (
+                    <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
+                      {userResults.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                
+                <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+                
+                <TabsTrigger value="bookmarks" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                  <BookmarkIcon size={16} className="select-none" />
+                  <span>Bookmarks</span>
+                  {bookmarkResults.length > 0 && (
+                    <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
+                      {bookmarkResults.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                
+                <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+                
+                <TabsTrigger value="user" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                  <FolderHeart size={16} className="select-none" />
+                  <span>Your Documents</span>
+                  {userDocuments.length > 0 && (
+                    <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
+                      {userDocuments.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+              
+              {/* Tag information message moved to right side of tabs */}
+              {selectedTags.length > 0 && activeTab === 'users' && (
+                <div className="text-xs text-muted-foreground flex items-center gap-1 select-none">
+                  <HelpCircle size={12} className="select-none" />
+                  <span>Tags are not applicable to users search</span>
+                </div>
+              )}
             </div>
-          </div>
-        )}
 
-        <Tabs defaultValue="user" value={activeTab} onValueChange={(value) => setActiveTab(value as 'discover' | 'users' | 'bookmarks' | 'user')}>
-          <div className="flex justify-between items-center mb-4">
-            <TabsList className="bg-background p-1 border border-muted-foreground/20 shadow select-none flex gap-1">
-              <TabsTrigger value="user" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
-                <FolderHeart size={16} className="select-none" />
-                <span>Your Documents</span>
-                {userDocuments.length > 0 && (
-                  <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
-                    {userDocuments.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              
-              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
-              
-              <TabsTrigger value="bookmarks" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
-                <BookmarkIcon size={16} className="select-none" />
-                <span>Bookmarks</span>
-                {bookmarkResults.length > 0 && (
-                  <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
-                    {bookmarkResults.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              
-              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
-              
-              <TabsTrigger value="users" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
-                <Users size={16} className="select-none" />
-                <span>Users</span>
-                {userResults.length > 0 && (
-                  <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
-                    {userResults.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              
-              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
-              
-              <TabsTrigger value="discover" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
-                <Compass size={16} className="select-none" />
-                <span>Discover</span>
-                {documentResults.length > 0 && (
-                  <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
-                    {documentResults.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-            </TabsList>
+            {/* Show Recent Searches only in Discover tab */}
+            {!searchQuery && !selectedTags.length && activeTab === 'discover' && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5 select-none">
+                  <Clock size={14} className="select-none" />
+                  Recent Searches
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {recentSearches.map((term) => {
+                    // Check if term contains tags
+                    const hasTags = term.includes('@');
+                    return (
+                      <Button
+                        key={getUniqueKey('recent', term)}
+                        variant="outline"
+                        size="sm"
+                        className={`cursor-pointer rounded-full text-sm select-none hover:bg-primary/5 hover:border-primary/20 transition-colors ${hasTags ? 'bg-muted/10' : ''}`}
+                        onClick={() => handleRecentSearchClick(term)}
+                      >
+                        {hasTags ? (
+                          <div className="flex items-center gap-1.5">
+                            {term.split(/\s+/).map((part) => {
+                              if (part.startsWith('@')) {
+                                const tagName = part.slice(1).toLowerCase();
+                                let tagStyles = "text-xs px-1.5 py-0 mr-1 border select-none ";
+                                
+                                // Apply file type specific styling
+                                if (fileTypeTags.includes(tagName)) {
+                                  switch (tagName) {
+                                    case 'pdf':
+                                      tagStyles += "bg-red-200 text-red-800 border-red-300";
+                                      break;
+                                    case 'word':
+                                      tagStyles += "bg-blue-200 text-blue-800 border-blue-300";
+                                      break;
+                                    case 'powerpoint':
+                                      tagStyles += "bg-orange-200 text-orange-800 border-orange-300";
+                                      break;
+                                    case 'txt':
+                                      tagStyles += "bg-gray-200 text-gray-800 border-gray-300";
+                                      break;
+                                    case 'epub':
+                                      tagStyles += "bg-green-200 text-green-800 border-green-300";
+                                      break;
+                                    default:
+                                      tagStyles += "bg-primary/80 text-primary-foreground border-primary";
+                                  }
+                                } else {
+                                  // Regular tag styling
+                                  tagStyles += "bg-primary/80 text-primary-foreground border-primary";
+                                }
+                                
+                                return (
+                                  <Badge key={getUniqueKey('tag', tagName)} className={tagStyles}>
+                                    {tagName}
+                                  </Badge>
+                                );
+                              }
+                              return <span key={getUniqueKey('text', part)}>{part}</span>;
+                            })}
+                          </div>
+                        ) : (
+                          term
+                        )}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Tabs content sections */}
+            {/* Discover Tab */}
+            <TabsContent value="discover" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
+              {isLoading && !searchCompleted ? (
+                <>
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                </>
+              ) : documentResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                  <Compass className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <h3 className="text-lg font-medium">No documents found</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    {searchQuery ? 
+                      `We couldn't find any documents matching "${searchQuery}"` : 
+                      "No documents match the selected filters"}
+                    {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
+                    {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
+                    {selectedTags.length > 0 ? ' or remove some tags' : ''}.
+                  </p>
+                </div>
+              ) : documentResults.length === 0 && !searchQuery && !selectedTags.length ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                  <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <h3 className="text-lg font-medium">Discover documents</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    Enter a search term to find documents by name, content, or tags.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {searchCompleted && (
+                    <div className="mb-2 text-sm text-muted-foreground select-none">
+                      Found {documentResults.length} document{documentResults.length !== 1 ? 's' : ''}
+                    </div>
+                  )}
+                  {documentResults.map((doc) => (
+                    <DocumentItem 
+                      key={doc.id} 
+                      document={doc} 
+                      selectedTags={selectedTags} 
+                      handleTagClick={handleTagClick} 
+                      navigateToDocument={navigateToDocument} 
+                      navigateToUserProfile={navigateToUserProfile} 
+                      navigateToReviews={navigateToReviews} 
+                      navigateToComments={navigateToComments} 
+                      bookmarkResults={bookmarkResults} 
+                    />
+                  ))}
+                </>
+              )}
+            </TabsContent>
+
+            {/* Users Tab */}
+            <TabsContent value="users" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
+              {isLoading && !searchCompleted ? (
+                <>
+                  <UserSkeleton />
+                  <UserSkeleton />
+                  <UserSkeleton />
+                  <UserSkeleton />
+                </>
+              ) : searchQuery && userResults.length === 0 && searchCompleted ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                  <User className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <h3 className="text-lg font-medium">No users found</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    We couldn't find any users matching "{searchQuery}". Try a different search term.
+                  </p>
+                </div>
+              ) : searchQuery ? (
+                <>
+                  {searchCompleted && (
+                    <div className="mb-2 text-sm text-muted-foreground select-none">
+                      Found {userResults.length} user{userResults.length !== 1 ? 's' : ''}
+                    </div>
+                  )}
+                  {userResults.map((user) => (
+                    <UserItem 
+                      key={user.id} 
+                      user={user} 
+                      navigateToUserProfile={navigateToUserProfile} 
+                      navigateToUserUploads={navigateToUserUploads} 
+                    />
+                  ))}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                  <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <h3 className="text-lg font-medium">Search for users</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    Enter a search term to find users by name or username.
+                  </p>
+                </div>
+              )}
+            </TabsContent>
             
-            {/* Tag information message moved to right side of tabs */}
-            {selectedTags.length > 0 && activeTab === 'users' && (
-              <div className="text-xs text-muted-foreground flex items-center gap-1 select-none">
-                <HelpCircle size={12} className="select-none" />
-                <span>Tags are not applicable to users search</span>
-              </div>
-            )}
-          </div>
+            <TabsContent value="bookmarks" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
+              {isLoading && !searchCompleted ? (
+                <>
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                </>
+              ) : bookmarkResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                  <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <h3 className="text-lg font-medium">No bookmarks found</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    {searchQuery ? 
+                      `We couldn't find any bookmarked documents matching "${searchQuery}"` : 
+                      "No bookmarked documents match the selected filters"}
+                    {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
+                    {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
+                    {selectedTags.length > 0 ? ' or remove some tags' : ''}.
+                  </p>
+                </div>
+              ) : bookmarkResults.length === 0 && !searchQuery && !selectedTags.length ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                  <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <h3 className="text-lg font-medium">No bookmarks yet</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    You haven't bookmarked any documents yet. Bookmarked documents will appear here.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {searchCompleted && (
+                    <div className="mb-2 text-sm text-muted-foreground select-none">
+                      Found {bookmarkResults.length} bookmark{bookmarkResults.length !== 1 ? 's' : ''}
+                    </div>
+                  )}
+                  {bookmarkResults.map((doc) => (
+                    <DocumentItem 
+                      key={doc.id} 
+                      document={doc} 
+                      selectedTags={selectedTags} 
+                      handleTagClick={handleTagClick} 
+                      navigateToDocument={navigateToDocument} 
+                      navigateToUserProfile={navigateToUserProfile} 
+                      navigateToReviews={navigateToReviews} 
+                      navigateToComments={navigateToComments} 
+                      bookmarkResults={bookmarkResults} 
+                    />
+                  ))}
+                </>
+              )}
+            </TabsContent>
+            
+            {/* Your Documents Tab */}
+            <TabsContent value="user" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
+              {isLoading && !searchCompleted ? (
+                <>
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                  <DocumentSkeleton />
+                </>
+              ) : userDocuments.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                  <FolderHeart className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <h3 className="text-lg font-medium">No user documents found</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    {searchQuery ? 
+                      `We couldn't find any of your documents matching "${searchQuery}"` : 
+                      "None of your documents match the selected filters"}
+                    {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
+                    {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
+                    {selectedTags.length > 0 ? ' or remove some tags' : ''}.
+                  </p>
+                </div>
+              ) : userDocuments.length === 0 && !searchQuery && !selectedTags.length ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center select-none">
+                  <FolderHeart className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <h3 className="text-lg font-medium">No user documents</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    You haven't uploaded any documents yet. Upload files to access them here.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {searchCompleted && (
+                    <div className="mb-2 text-sm text-muted-foreground select-none">
+                      Found {userDocuments.length} document{userDocuments.length !== 1 ? 's' : ''} uploaded by you
+                    </div>
+                  )}
+                  {userDocuments.map((doc) => (
+                    <DocumentItem 
+                      key={doc.id} 
+                      document={doc} 
+                      selectedTags={selectedTags} 
+                      handleTagClick={handleTagClick} 
+                      navigateToDocument={navigateToDocument} 
+                      navigateToUserProfile={navigateToUserProfile} 
+                      navigateToReviews={navigateToReviews} 
+                      navigateToComments={navigateToComments} 
+                      bookmarkResults={bookmarkResults} 
+                    />
+                  ))}
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+      </Modal>
 
-          {/* Tabs content sections */}
-          {/* Discover Tab */}
-          <TabsContent value="discover" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
-            {isLoading && !searchCompleted ? (
-              <>
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-              </>
-            ) : documentResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <Compass className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">No documents found</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  {searchQuery ? 
-                    `We couldn't find any documents matching "${searchQuery}"` : 
-                    "No documents match the selected filters"}
-                  {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
-                  {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
-                  {selectedTags.length > 0 ? ' or remove some tags' : ''}.
-                </p>
-              </div>
-            ) : documentResults.length === 0 && !searchQuery && !selectedTags.length ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">Discover documents</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  Enter a search term to find documents by name, content, or tags.
-                </p>
-              </div>
-            ) : (
-              <>
-                {searchCompleted && (
-                  <div className="mb-2 text-sm text-muted-foreground select-none">
-                    Found {documentResults.length} document{documentResults.length !== 1 ? 's' : ''}
-                    {selectedTags.length > 0 && ' matching your filters'}
-                  </div>
-                )}
-                {documentResults.map((doc) => (
-                  <DocumentItem 
-                    key={doc.id} 
-                    document={doc} 
-                    selectedTags={selectedTags} 
-                    handleTagClick={handleTagClick} 
-                    navigateToDocument={navigateToDocument} 
-                    navigateToUserProfile={navigateToUserProfile} 
-                    navigateToReviews={navigateToReviews} 
-                    navigateToComments={navigateToComments} 
-                    bookmarkResults={bookmarkResults} 
-                  />
-                ))}
-              </>
-            )}
-          </TabsContent>
-
-          {/* Users Tab */}
-          <TabsContent value="users" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
-            {isLoading && !searchCompleted ? (
-              <>
-                <UserSkeleton />
-                <UserSkeleton />
-                <UserSkeleton />
-                <UserSkeleton />
-              </>
-            ) : searchQuery && userResults.length === 0 && searchCompleted ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <User className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">No users found</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  We couldn't find any users matching "{searchQuery}". Try a different search term.
-                </p>
-              </div>
-            ) : searchQuery ? (
-              <>
-                {searchCompleted && (
-                  <div className="mb-2 text-sm text-muted-foreground select-none">
-                    Found {userResults.length} user{userResults.length !== 1 ? 's' : ''}
-                  </div>
-                )}
-                {userResults.map((user) => (
-                  <UserItem 
-                    key={user.id} 
-                    user={user} 
-                    navigateToUserProfile={navigateToUserProfile} 
-                    navigateToUserUploads={navigateToUserUploads} 
-                  />
-                ))}
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">Search for users</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  Enter a search term to find users by name or username.
-                </p>
-              </div>
-            )}
-          </TabsContent>
-          
-          {/* Your Documents Tab */}
-          <TabsContent value="user" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
-            {isLoading && !searchCompleted ? (
-              <>
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-              </>
-            ) : userDocuments.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <FolderHeart className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">No user documents found</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  {searchQuery ? 
-                    `We couldn't find any of your documents matching "${searchQuery}"` : 
-                    "None of your documents match the selected filters"}
-                  {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
-                  {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
-                  {selectedTags.length > 0 ? ' or remove some tags' : ''}.
-                </p>
-              </div>
-            ) : userDocuments.length === 0 && !searchQuery && !selectedTags.length ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <FolderHeart className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">No user documents</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  You haven't uploaded any documents yet. Upload files to access them here.
-                </p>
-              </div>
-            ) : (
-              <>
-                {searchCompleted && (
-                  <div className="mb-2 text-sm text-muted-foreground select-none">
-                    Found {userDocuments.length} document{userDocuments.length !== 1 ? 's' : ''} 
-                    uploaded by you
-                    {selectedTags.length > 0 && ' matching your filters'}
-                  </div>
-                )}
-                {userDocuments.map((doc) => (
-                  <DocumentItem 
-                    key={doc.id} 
-                    document={doc} 
-                    selectedTags={selectedTags} 
-                    handleTagClick={handleTagClick} 
-                    navigateToDocument={navigateToDocument} 
-                    navigateToUserProfile={navigateToUserProfile} 
-                    navigateToReviews={navigateToReviews} 
-                    navigateToComments={navigateToComments} 
-                    bookmarkResults={bookmarkResults} 
-                  />
-                ))}
-              </>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="bookmarks" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
-            {isLoading && !searchCompleted ? (
-              <>
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-                <DocumentSkeleton />
-              </>
-            ) : bookmarkResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">No bookmarks found</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  {searchQuery ? 
-                    `We couldn't find any bookmarked documents matching "${searchQuery}"` : 
-                    "No bookmarked documents match the selected filters"}
-                  {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
-                  {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
-                  {selectedTags.length > 0 ? ' or remove some tags' : ''}.
-                </p>
-              </div>
-            ) : bookmarkResults.length === 0 && !searchQuery && !selectedTags.length ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center select-none">
-                <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                <h3 className="text-lg font-medium">Search your bookmarks</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  Enter a search term to find your bookmarked documents.
-                </p>
-              </div>
-            ) : (
-              <>
-                {searchCompleted && (
-                  <div className="mb-2 text-sm text-muted-foreground select-none">
-                    Found {bookmarkResults.length} bookmark{bookmarkResults.length !== 1 ? 's' : ''}
-                    {selectedTags.length > 0 && ' matching your filters'}
-                  </div>
-                )}
-                {bookmarkResults.map((doc) => (
-                  <DocumentItem 
-                    key={doc.id} 
-                    document={doc} 
-                    selectedTags={selectedTags} 
-                    handleTagClick={handleTagClick} 
-                    navigateToDocument={navigateToDocument} 
-                    navigateToUserProfile={navigateToUserProfile} 
-                    navigateToReviews={navigateToReviews} 
-                    navigateToComments={navigateToComments} 
-                    bookmarkResults={bookmarkResults} 
-                  />
-                ))}
-              </>
-            )}
-          </TabsContent>
-        </Tabs>
-
-        {/* Document Modal */}
+      {/* Document Modal - moved outside of the SearchModal container */}
+      {selectedDoc && (
         <DocumentView 
           isOpen={isDocModalOpen} 
           onClose={() => setIsDocModalOpen(false)}
@@ -1534,8 +1535,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
           formatDate={formatDate}
           renderThumbnail={renderThumbnail}
         />
-      </div>
-    </Modal>
+      )}
+    </>
   );
 });
 

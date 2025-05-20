@@ -248,7 +248,7 @@ const TopNavbar: React.FC = () => {
       <header className="flex h-12 bg-sidebar text-sidebar-foreground items-center justify-between select-none" style={dragRegion}>
         {/* Logo on the left side */}
         <div className="w-[120px] flex items-center justify-start pl-4">
-          <h1 className="font-bigshot-one italic text-black text-3xl tracking-tight">CN</h1>
+          <h1 className="font-bigshot-one italic text-primary text-3xl tracking-tight">CN</h1>
         </div>
 
         {/* Middle section - Navigation and Search */}

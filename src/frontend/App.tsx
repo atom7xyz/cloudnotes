@@ -27,6 +27,7 @@ const FileReader = lazy(() => import('./components/pages/FileReader'));
 const ScreenLockModal = lazy(() => import('./components/modals/ScreenLockModal'));
 const Home = lazy(() => import('./components/pages/Home'));
 const AppLockProvider = lazy(() => import('./lib/contexts/AppLockContext').then(module => ({ default: module.AppLockProvider })));
+const ThemeProvider = lazy(() => import('./lib/contexts/ThemeContext').then(module => ({ default: module.ThemeProvider })));
 
 // Utility function loaded later
 const LazyLoadUtils = lazy(() => 
@@ -143,69 +144,71 @@ function App() {
           <LazyLoadUtils />
           <div className={isLoading ? 'invisible' : 'visible'}>
             <Suspense fallback={null}>
-              <AppLockProvider>
-                {/* Application Lock Screen Modal */}
-                <ScreenLockModal />
+              <ThemeProvider>
+                <AppLockProvider>
+                  {/* Application Lock Screen Modal */}
+                  <ScreenLockModal />
 
-                <Router>
-                  <Routes>
-                    {/* Auth routes with MainLayout */}
-                    <Route path="/register" element={
-                      <MainLayout>
-                        <Register />
-                      </MainLayout>
-                    } />
-                    <Route path="/login" element={
-                      <MainLayout>
-                        <Login />
-                      </MainLayout>
-                    } />
-                    <Route path="/tos" element={
-                      <MainLayout>
-                        <Tos />
-                      </MainLayout>
-                    } />
-                    <Route path="/privacy-policy" element={
-                      <MainLayout>
-                        <PrivacyPolicy />
-                      </MainLayout>
-                    } />
-                    <Route path="/forgot-password" element={
-                      <MainLayout>
-                        <ForgotPassword />
-                      </MainLayout>
-                    } />
-                    <Route path="/verify-otp" element={
-                      <MainLayout>
-                        <VerifyOTP />
-                      </MainLayout>
-                    } />
-                    <Route path="/reset-password" element={
-                      <MainLayout>
-                        <ResetPassword />
-                      </MainLayout>
-                    } />
-                    <Route path="/reset-password-success" element={
-                      <MainLayout>
-                        <ResetPasswordSuccess />
-                      </MainLayout>
-                    } />
-                    
-                    {/* Home route */}
-                    <Route path="/home" element={
-                      <MainLayout>
-                        <Home />
-                      </MainLayout>
-                    } />
-                    
-                    {/* FileReader route without MainLayout */}
-                    <Route path="/reader" element={<FileReader />} />
-                    
-                    {/* Default route */}
-                    <Route path="*" element={<Navigate to="/login" replace />} />
-                  </Routes>
-                </Router>
-              </AppLockProvider>
+                  <Router>
+                    <Routes>
+                      {/* Auth routes with MainLayout */}
+                      <Route path="/register" element={
+                        <MainLayout>
+                          <Register />
+                        </MainLayout>
+                      } />
+                      <Route path="/login" element={
+                        <MainLayout>
+                          <Login />
+                        </MainLayout>
+                      } />
+                      <Route path="/tos" element={
+                        <MainLayout>
+                          <Tos />
+                        </MainLayout>
+                      } />
+                      <Route path="/privacy-policy" element={
+                        <MainLayout>
+                          <PrivacyPolicy />
+                        </MainLayout>
+                      } />
+                      <Route path="/forgot-password" element={
+                        <MainLayout>
+                          <ForgotPassword />
+                        </MainLayout>
+                      } />
+                      <Route path="/verify-otp" element={
+                        <MainLayout>
+                          <VerifyOTP />
+                        </MainLayout>
+                      } />
+                      <Route path="/reset-password" element={
+                        <MainLayout>
+                          <ResetPassword />
+                        </MainLayout>
+                      } />
+                      <Route path="/reset-password-success" element={
+                        <MainLayout>
+                          <ResetPasswordSuccess />
+                        </MainLayout>
+                      } />
+                      
+                      {/* Home route */}
+                      <Route path="/home" element={
+                        <MainLayout>
+                          <Home />
+                        </MainLayout>
+                      } />
+                      
+                      {/* FileReader route without MainLayout */}
+                      <Route path="/reader" element={<FileReader />} />
+                      
+                      {/* Default route */}
+                      <Route path="*" element={<Navigate to="/login" replace />} />
+                    </Routes>
+                  </Router>
+                </AppLockProvider>
+              </ThemeProvider>
             </Suspense>
           </div>
         </Suspense>

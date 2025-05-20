@@ -3,10 +3,8 @@ import { useState } from 'react';
 import { 
   HomeIcon, 
   BookmarkIcon, 
-  MoreHorizontalIcon,
   SettingsIcon,
   UserIcon,
-  BellIcon,
   FileTextIcon
 } from 'lucide-react';
 import { Button } from "../ui/button";

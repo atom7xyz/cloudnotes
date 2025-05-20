@@ -27,7 +27,6 @@ import {
   AlertTriangleIcon,
   RefreshCwIcon,
   SmartphoneIcon,
-  TabletIcon,
   LaptopIcon,
   ExternalLinkIcon,
   MessageSquareIcon,
@@ -49,6 +48,7 @@ import PINLockModal from './PINLockModal';
 import SignOutConfirmationModal from './SignOutConfirmationModal';
 import ExportDataModal from './ExportDataModal';
 import { useAppLock } from '@/lib/contexts/AppLockContext';
+import { useTheme } from '@/lib/contexts/ThemeContext';
 
 // Toggle switch component with label
 interface ToggleProps {
@@ -106,7 +106,7 @@ const ToggleItem: React.FC<ToggleProps> = ({
 interface ActionItemProps {
   icon?: React.ReactNode;
   label: string;
-  description?: string;
+  description?: React.ReactNode;
   actionLabel: React.ReactNode;
   onClick?: () => void;
   href?: string;
@@ -124,21 +124,23 @@ const ActionItem: React.FC<ActionItemProps> = ({
   variant = "outline",
   disabled = false
 }) => {
-  // Split description by newline character to handle line breaks
-  const descriptionLines = description ? description.split('\n') : [];
+  // Only split description if it's a string
+  const descriptionLines = typeof description === 'string' && description ? description.split('\n') : [];
   
   return (
-    <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-md transition-colors select-none">
+    <div className="flex items-center justify-between py-3 px-4 rounded-md transition-colors select-none">
       <div className="flex items-start gap-3 flex-1">
         {icon && <div className="pt-0.5 text-muted-foreground">{icon}</div>}
         <div className="flex-1">
           <div className="font-medium">{label}</div>
-          {descriptionLines.length > 0 && (
+          {typeof description === 'string' && descriptionLines.length > 0 ? (
             <div className="text-sm text-muted-foreground space-y-1">
               {descriptionLines.map((line, i) => (
                 <p key={`desc-line-${i}-${line.substring(0, 10)}`}>{line}</p>
               ))}
             </div>
+          ) : (
+            description && <div className="text-sm">{description}</div>
           )}
         </div>
       </div>
@@ -228,7 +230,7 @@ const DeviceItem: React.FC<DeviceItemProps> = ({
   onLogout
 }) => {
   return (
-    <div className="flex items-center justify-between py-2 px-4 hover:bg-muted/30 rounded-md transition-colors select-none">
+    <div className="flex items-center justify-between py-2 px-4 rounded-md transition-colors select-none">
       <div className="flex items-center gap-3">
         <div className="text-muted-foreground">
           {icon}
@@ -264,7 +266,7 @@ interface SettingsModalProps {
 export default function SettingsModal({ isOpen, onClose, activeTab = "account" }: SettingsModalProps) {
   // Settings state
   const [activeTabState, setActiveTabState] = useState<string>(activeTab);
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [rememberLogin, setRememberLogin] = useState(true);
@@ -282,9 +284,9 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportInProgress, setExportInProgress] = useState(false);
   const [activeDevices, setActiveDevices] = useState([
-    { id: 1, icon: <LaptopIcon size={16} />, name: "MacBook Pro", lastActive: "Now", isCurrent: true },
-    { id: 2, icon: <SmartphoneIcon size={16} />, name: "iPhone 13", lastActive: "2 hours ago", isCurrent: false },
-    { id: 3, icon: <TabletIcon size={16} />, name: "iPad Air", lastActive: "Yesterday", isCurrent: false }
+    { id: 1, icon: <LaptopIcon size={16} />, name: "Windows PC", lastActive: "Now", isCurrent: true },
+    { id: 2, icon: <SmartphoneIcon size={16} />, name: "iPhone 15 Max Pro", lastActive: "2 hours ago", isCurrent: false },
+    { id: 3, icon: <LaptopIcon size={16} />, name: "Linux PC", lastActive: "Yesterday", isCurrent: false }
   ]);
   
   // App lock context
@@ -575,42 +577,57 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
             <TabsList className="w-full justify-start p-1 h-auto bg-transparent">
               <TabsTrigger 
                 value="account" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer"
+                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <UserIcon size={16} />
                 <span>Account</span>
               </TabsTrigger>
+              
+              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              
               <TabsTrigger 
                 value="appearance" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer"
+                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <EyeIcon size={16} />
                 <span>Appearance</span>
               </TabsTrigger>
+              
+              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              
               <TabsTrigger 
                 value="security" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer"
+                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <ShieldIcon size={16} />
                 <span>Security</span>
               </TabsTrigger>
+              
+              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              
               <TabsTrigger 
                 value="notifications" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer"
+                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <BellIcon size={16} />
                 <span>Notifications</span>
               </TabsTrigger>
+              
+              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              
               <TabsTrigger 
                 value="language" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer"
+                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <GlobeIcon size={16} />
                 <span>Language</span>
               </TabsTrigger>
+              
+              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              
               <TabsTrigger 
                 value="about" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer"
+                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <InfoIcon size={16} />
                 <span>About</span>
@@ -626,7 +643,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 </Avatar>
                 <div className="space-y-1">
                   <h2 className="text-xl font-semibold">Bart Simpson</h2>
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100 px-2 py-1">
+                  <Badge variant="outline" className="bg-primary/5 text-primary border-primary px-2 py-1">
                     @bartsimpson
                   </Badge>
                 </div>
@@ -676,7 +693,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     disabled={exportInProgress}
                   />
                   {exportInProgress && (
-                    <div className="px-4 py-2 -mt-2 mb-1 bg-muted/20 rounded-b-md flex items-center justify-end">
+                    <div className="px-4 py-2 -mt-2 mb-1 rounded-b-md flex items-center justify-end">
                       <p className="text-sm text-muted-foreground justify-end">The data will be sent to your email in 24-72 hours</p>
                     </div>
                   )}
@@ -739,28 +756,28 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 <div className="py-3 px-4">
                   <div className="grid grid-cols-2 gap-2">
                     <Button
-                      variant={darkMode ? "outline" : "default"}
+                      variant={theme === 'dark' ? "outline" : "default"}
                       className={cn(
                         "h-[88px] flex flex-col gap-2 justify-center border-2 cursor-pointer",
-                        !darkMode && "border-primary"
+                        theme !== 'dark' && "border-primary"
                       )}
-                      onClick={() => setDarkMode(false)}
+                      onClick={() => setTheme('light')}
                     >
                       <SunIcon size={24} />
                       <span>Light</span>
-                      {!darkMode && <span className="text-xs font-normal">Selected</span>}
+                      {theme !== 'dark' && <span className="text-xs font-normal">Selected</span>}
                     </Button>
                     <Button 
-                      variant={darkMode ? "default" : "outline"}
+                      variant={theme === 'dark' ? "default" : "outline"}
                       className={cn(
                         "h-[88px] flex flex-col gap-2 justify-center border-2 cursor-pointer",
-                        darkMode && "border-primary"
+                        theme === 'dark' && "border-primary"
                       )}
-                      onClick={() => setDarkMode(true)}
+                      onClick={() => setTheme('dark')}
                     >
                       <MoonIcon size={24} />
                       <span>Dark</span>
-                      {darkMode && <span className="text-xs font-normal">Selected</span>}
+                      {theme === 'dark' && <span className="text-xs font-normal">Selected</span>}
                     </Button>
                   </div>
                 </div>
@@ -1007,7 +1024,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
             <TabsContent value="about" className="space-y-6 mt-0 data-[state=active]:block">
               <div className="p-4 space-y-4 bg-card rounded-lg border shadow-sm">
                 <div className="flex flex-col items-center justify-center text-center py-4">
-                  <h1 className="font-bigshot-one italic text-black text-4xl tracking-tight pb-2 select-none">CloudNotes</h1>
+                  <h1 className="font-bigshot-one italic text-primary text-4xl tracking-tight pb-2 select-none">CloudNotes</h1>
                   <p className="text-muted-foreground italic text-lg select-none">Your virtual oasis of knowledge</p>
                   <Badge variant="outline" className="mt-2 select-none">Version 1.0.0</Badge>
                 </div>
@@ -1054,46 +1071,30 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                   onClick={handleViewPrivacyPolicy}
                 />
                 <Separator />
-                <div 
-                  className={cn(
-                    "flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-md transition-colors select-none",
-                    updateSuccess && "update-success-animation"
-                  )}
-                >
-                  <div className="flex items-start gap-3 flex-1">
-                    <div className="pt-0.5 text-muted-foreground">
-                      <RefreshCwIcon size={18} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium">Check for Updates</div>
-                      <p className={cn(
-                        "text-sm",
-                        updateSuccess ? "text-green-600" : "text-muted-foreground"
-                      )}>
-                        {updateStatus || "Make sure you're using the latest version"}
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleCheckForUpdates}
-                    className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
-                    disabled={updatesLoading}
-                  >
-                    {updatesLoading ? (
+                <ActionItem
+                  icon={<RefreshCwIcon size={18} />}
+                  label="Check for Updates"
+                  description={
+                    <p className={cn(
+                      updateSuccess ? "text-green-500" : "text-muted-foreground"
+                    )}>
+                      {updateStatus || "Make sure you're using the latest version"}
+                    </p>
+                  }
+                  actionLabel={
+                    updatesLoading ? (
                       <div className="flex items-center gap-1.5">
                         <RefreshCwIcon size={14} className="animate-spin" />
                         Checking...
                       </div>
                     ) : (
-                      <>
-                        <RefreshCwIcon size={14} />
-                        Check
-                      </>
-                    )}
-                  </Button>
-                </div>
+                      "Check"
+                    )
+                  }
+                  onClick={handleCheckForUpdates}
+                  disabled={updatesLoading}
+                  variant="outline"
+                />
               </SettingsSection>
             </TabsContent>
           </div>

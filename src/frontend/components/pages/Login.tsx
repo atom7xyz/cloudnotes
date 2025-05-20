@@ -76,7 +76,7 @@ export default function Login() {
             name="email"
             label="Email"
             type="email"
-            placeholder="example@example.com"
+            placeholder="bart@simpson.tv"
             autoComplete="email"
             required
           />
