@@ -1237,8 +1237,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               
               {/* Tag information message moved to right side of tabs */}
               {selectedTags.length > 0 && activeTab === 'users' && (
-                <div className="text-xs text-muted-foreground flex items-center gap-1 select-none">
-                  <HelpCircle size={12} className="select-none" />
+                <div className="text-xs text-muted-foreground flex items-center gap-1 select-none ml-2">
+                  <HelpCircle size={24} className="select-none" />
                   <span>Tags are not applicable to users search</span>
                 </div>
               )}

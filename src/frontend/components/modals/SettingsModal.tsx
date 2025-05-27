@@ -49,6 +49,7 @@ import SignOutConfirmationModal from './SignOutConfirmationModal';
 import ExportDataModal from './ExportDataModal';
 import { useAppLock } from '@/lib/contexts/AppLockContext';
 import { useTheme } from '@/lib/contexts/ThemeContext';
+import { Card, CardContent } from '../ui/card';
 
 // Toggle switch component with label
 interface ToggleProps {
@@ -70,7 +71,7 @@ const ToggleItem: React.FC<ToggleProps> = ({
 }) => {
   return (
     <div className={cn(
-      "flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-md transition-colors cursor-pointer select-none",
+      "flex items-center justify-between py-3 px-4 hover-primary-effect rounded-md cursor-pointer select-none",
       disabled && "opacity-60"
     )}
     onClick={() => !disabled && onCheckedChange(!checked)}
@@ -151,7 +152,7 @@ const ActionItem: React.FC<ActionItemProps> = ({
             "inline-flex h-9 min-w-24 px-4 py-2 items-center justify-center gap-1.5 whitespace-nowrap rounded-md",
             "text-sm font-medium ring-offset-background transition-colors", 
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer",
-            variant === "default" && "bg-primary text-primary-foreground hover:bg-primary/90",
+            variant === "default" && "bg-primary text-primary-foreground hover-primary-effect",
             variant === "destructive" && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
             variant === "outline" && "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
             variant === "secondary" && "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -167,7 +168,8 @@ const ActionItem: React.FC<ActionItemProps> = ({
           onClick={onClick}
           className={cn(
             "whitespace-nowrap min-w-24 flex items-center gap-1.5 justify-center",
-            disabled ? "cursor-not-allowed" : "cursor-pointer"
+            disabled ? "cursor-not-allowed" : "cursor-pointer",
+            actionLabel === "Delete" ? "" : "hover-primary-effect"
           )}
           disabled={disabled}
         >
@@ -637,26 +639,33 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
 
           <div className="overflow-y-auto flex-1 p-4">
             <TabsContent value="account" className="space-y-6 mt-0 data-[state=active]:block">
-              <div className="flex items-center gap-4 pb-4">
-                <Avatar className="h-16 w-16 cursor-pointer">
-                  <img src="https://github.com/shadcn.png" alt="User Avatar" />
-                </Avatar>
-                <div className="space-y-1">
-                  <h2 className="text-xl font-semibold">Bart Simpson</h2>
-                  <Badge variant="outline" className="bg-primary/5 text-primary border-primary px-2 py-1">
-                    @bartsimpson
-                  </Badge>
-                </div>
-                <Button 
-                  variant="outline"
-                  size="sm" 
-                  className="ml-auto cursor-pointer hover-primary-effect"
-                  onClick={() => {}}
-                >
-                  <ExternalLinkIcon size={14} className="mr-2" />
-                  View Profile
-                </Button>
-              </div>
+              <Card className="overflow-hidden border-primary/10">
+                <CardContent className="p-6 flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <Avatar className="h-20 w-20 border-2 border-primary/10">
+                      <img src="https://github.com/shadcn.png" alt="Bart Simpson" />
+                    </Avatar>
+                    <div className="space-y-1">
+                      <h2 className="text-2xl font-semibold">Bart Simpson</h2>
+                      <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 px-2 py-1">
+                        @bartsimpson
+                      </Badge>
+                      <p className="text-muted-foreground mt-1">
+                        Opera enthusiast and classical music aficionado
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    className="gap-1.5 hover-primary-effect" 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {}}
+                  >
+                      <ExternalLinkIcon size={14} />
+                      Edit Profile
+                  </Button>
+                </CardContent>
+              </Card>
 
               <SettingsSection 
                 title="Personal Information" 
@@ -765,7 +774,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     >
                       <SunIcon size={24} />
                       <span>Light</span>
-                      {theme !== 'dark' && <span className="text-xs font-normal">Selected</span>}
+                      {theme !== 'dark' && <span className="text-xs italic font-normal">Selected</span>}
                     </Button>
                     <Button 
                       variant={theme === 'dark' ? "default" : "outline"}
@@ -777,7 +786,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     >
                       <MoonIcon size={24} />
                       <span>Dark</span>
-                      {theme === 'dark' && <span className="text-xs font-normal">Selected</span>}
+                      {theme === 'dark' && <span className="text-xs italic font-normal">Selected</span>}
                     </Button>
                   </div>
                 </div>
@@ -797,7 +806,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                   icon={<KeyIcon size={18} />}
                 />
                 <Separator />
-                <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-md transition-colors select-none">
+                <div className="flex items-center justify-between py-3 px-4 rounded-md select-none">
                   <div className="flex items-start gap-3 flex-1">
                     <div className="pt-0.5 text-muted-foreground">
                       <LockIcon size={18} />
@@ -832,7 +841,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 {isPinSet && (
                   <>
                     <Separator />
-                    <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-md transition-colors select-none">
+                    <div className="flex items-center justify-between py-3 px-4 rounded-md transition-colors select-none">
                       <div className="flex items-start gap-3 flex-1">
                         <div className="pt-0.5 text-muted-foreground">
                           <ShieldIcon size={18} />
@@ -991,7 +1000,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     onCheckedChange={handleSystemLanguageToggle}
                     icon={<GlobeIcon size={18} />}
                   />
-                  <div className="space-y-3 p-4">
+                  <div className="space-y-2 p-4">
                     {[
                       { id: 'english', label: 'English' },
                       { id: 'spanish', label: 'Español' },
@@ -1005,7 +1014,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                         type="button" 
                         className={cn(
                           "flex items-center justify-between w-full py-2 px-3 rounded-md transition-colors cursor-pointer select-none text-left",
-                          selectedLanguage === lang.id ? "bg-primary/10" : "hover:bg-muted/50"
+                          selectedLanguage === lang.id ? "bg-primary/10" : "hover-primary-effect"
                         )}
                         onClick={() => handleLanguageSelect(lang.id)}
                         aria-pressed={selectedLanguage === lang.id}

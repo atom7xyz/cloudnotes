@@ -222,7 +222,7 @@ const LeftToolbar = memo(({
                     "h-8 w-8 rounded-full transition-all duration-200",
                     (tool.id === 'undo' && !canUndo) || (tool.id === 'redo' && !canRedo)
                       ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-primary/10 hover:text-primary"
+                      : "hover-primary-effect"
                   )}
                   onClick={tool.onClick}
                   aria-label={tool.title}
@@ -275,7 +275,7 @@ const LeftToolbar = memo(({
                               ? "bg-primary/20 text-primary ring-2 ring-primary/30" 
                               : tool.variant === "destructive" 
                                 ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                                : "hover:bg-primary/10 hover:text-primary"
+                                : "hover-primary-effect"
                           )}
                           onClick={() => handleToolClick(tool.id)}
                           aria-label={tool.title}
@@ -394,7 +394,7 @@ const LeftToolbar = memo(({
                         ? "bg-primary/20 text-primary ring-2 ring-primary/30" 
                         : tool.variant === "destructive" 
                           ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                          : "hover:bg-primary/10 hover:text-primary"
+                          : "hover-primary-effect"
                     )}
                     onClick={tool.onClick || (() => handleToolClick(tool.id))}
                     aria-label={tool.title}

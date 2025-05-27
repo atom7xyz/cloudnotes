@@ -93,8 +93,8 @@ const NavButton: React.FC<NavButtonProps> = memo(({
       disabled 
         ? "opacity-50 cursor-default" 
         : active
-          ? "bg-primary/20 text-primary hover:bg-primary/30" 
-          : "hover:bg-primary/5 hover:border-primary/20 hover:text-primary"
+          ? "active-primary-effect"
+          : "hover-primary-effect"
     )}
     title={title}
     disabled={disabled}
@@ -174,7 +174,7 @@ const ZoomControl = memo(({
           <Button 
             variant="outline" 
             size="sm" 
-            className="h-8 px-2 flex items-center gap-1 text-xs font-medium hover:bg-primary/5 hover:border-primary/20 transition-colors"
+            className="h-8 px-2 flex items-center gap-1 text-xs font-medium hover-primary-effect"
           >
             {currentZoomLabel}
             <ChevronDown className="h-3 w-3 opacity-50" />
@@ -188,11 +188,11 @@ const ZoomControl = memo(({
               )}
               <DropdownMenuItem 
                 className={cn(
-                  "flex justify-between",
+                  "flex justify-between hover-primary-effect",
                   (typeof level.value === 'number' && level.value === zoomLevel) || 
                   (level.value === 'fit' && zoomLevel === -1) ||
                   (level.value === 'width' && zoomLevel === -2)
-                    ? "bg-muted" 
+                    ? "active-primary-effect" 
                     : ""
                 )}
                 onClick={() => handleZoomSelect(level.value)}
@@ -233,7 +233,7 @@ const WindowControls = memo(({
         onClick={onMinimize}
         variant="ghost"
         size="icon"
-        className="h-12 w-[50px] rounded-none hover:bg-primary/10 hover:text-primary transition-all duration-200" style={noDragRegion}
+        className="h-12 w-[50px] rounded-none hover-primary-effect" style={noDragRegion}
         title="Minimize"
       >
         <MinusIcon size={16} />
@@ -243,7 +243,7 @@ const WindowControls = memo(({
         onClick={onMaximize}
         variant="ghost"
         size="icon"
-        className="h-12 w-[50px] rounded-none hover:bg-primary/10 hover:text-primary transition-all duration-200" style={noDragRegion}
+        className="h-12 w-[50px] rounded-none hover-primary-effect" style={noDragRegion}
         title={isMaximized ? "Restore" : "Maximize"}
       >
         {isMaximized ? <SquareIcon size={16} /> : <MaximizeIcon size={16} />}
@@ -288,8 +288,8 @@ const DropdownTabItem = memo(({
   return (
     <DropdownMenuItem
       key={tab.id}
-      className={`flex gap-2 items-center py-2 ${
-        isActive ? 'bg-muted' : ''
+      className={`flex gap-2 items-center py-2 hover-primary-effect ${
+        isActive ? 'active-primary-effect' : ''
       }`}
       onSelect={(e) => {
         // Prevent the default behavior to avoid closing the dropdown immediately
@@ -331,7 +331,7 @@ const ScrollModeSelector = memo(({
     <div className="flex items-center gap-2" style={noDragRegion}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-1 rounded-full hover:bg-primary/5 hover:border-primary/20 transition-colors">
+          <Button variant="outline" size="sm" className="gap-1 rounded-full hover-primary-effect">
             {currentMode === ScrollMode.PAGE && <MonitorSmartphone className="h-4 w-4" />}
             {currentMode === ScrollMode.VERTICAL && <ScrollText className="h-4 w-4" />}
             {currentMode === ScrollMode.HORIZONTAL && <MoveHorizontal className="h-4 w-4" />}
@@ -344,7 +344,7 @@ const ScrollModeSelector = memo(({
           <DropdownMenuSeparator />
           
           <DropdownMenuItem 
-            className={`flex gap-2 items-center ${currentMode === ScrollMode.PAGE ? 'bg-muted' : ''}`}
+            className={`flex gap-2 hover-primary-effect items-center ${currentMode === ScrollMode.PAGE ? 'active-primary-effect' : ''}`}
             onClick={() => onChange(ScrollMode.PAGE)}
           >
             <MonitorSmartphone className="h-4 w-4" />
@@ -355,7 +355,7 @@ const ScrollModeSelector = memo(({
           </DropdownMenuItem>
           
           <DropdownMenuItem 
-            className={`flex gap-2 items-center ${currentMode === ScrollMode.VERTICAL ? 'bg-muted' : ''}`}
+            className={`flex gap-2 hover-primary-effect items-center ${currentMode === ScrollMode.VERTICAL ? 'active-primary-effect' : ''}`}
             onClick={() => onChange(ScrollMode.VERTICAL)}
           >
             <ScrollText className="h-4 w-4" />
@@ -366,7 +366,7 @@ const ScrollModeSelector = memo(({
           </DropdownMenuItem>
           
           <DropdownMenuItem 
-            className={`flex gap-2 items-center ${currentMode === ScrollMode.HORIZONTAL ? 'bg-muted' : ''}`}
+            className={`flex gap-2 hover-primary-effect items-center ${currentMode === ScrollMode.HORIZONTAL ? 'active-primary-effect' : ''}`}
             onClick={() => onChange(ScrollMode.HORIZONTAL)}
           >
             <MoveHorizontal className="h-4 w-4" />
@@ -446,7 +446,7 @@ const RecentFilesDropdown = memo(({ isLoading }: { isLoading?: boolean }) => {
       <div className="ml-2" style={noDragRegion}>
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger asChild disabled={isLoading}>
-            <Button variant="outline" size="sm" className={`gap-1 rounded-full ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} hover:bg-primary/5 hover:border-primary/20 transition-colors`}>
+            <Button variant="outline" size="sm" className={`gap-1 rounded-full ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} hover-primary-effect`}>
               <NotebookText className="h-4 w-4" />
               <span>Your cloudnotes</span>
               <ChevronDown className="h-3 w-3 opacity-50" />
@@ -473,14 +473,14 @@ const RecentFilesDropdown = memo(({ isLoading }: { isLoading?: boolean }) => {
             )}
             
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={(e) => {
-              e.preventDefault();
-              handleBrowseAllFiles();
-            }}>
-              <Button variant="ghost" size="sm" className="w-full justify-start p-0 gap-2">
-                <FolderOpenIcon size={16} className="text-blue-500" />
-                <span>Browse All Files</span>
-              </Button>
+            <DropdownMenuItem 
+              className="hover-primary-effect"
+              onSelect={(e) => {
+                e.preventDefault();
+                handleBrowseAllFiles();
+              }}>
+              <FolderOpenIcon size={16} className="text-blue-500 mr-2" />
+              <span>Browse All Files</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -745,7 +745,7 @@ const FileReaderTopNavbar = memo(({
                 className={cn(
                   "h-8 w-full rounded-full py-1.5 pl-10 pr-10 text-sm transition-all duration-200",
                   searchFocused ? "ring-2 ring-sidebar-ring border-sidebar-ring" : "border-muted-foreground/40",
-                  "placeholder-sidebar-foreground/60 hover:border-primary/30"
+                  "placeholder-sidebar-foreground/60 hover-primary-effect"
                 )}
                 style={noDragRegion}
                 readOnly={!isSearchActive}
@@ -785,7 +785,7 @@ const FileReaderTopNavbar = memo(({
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-6 w-6 rounded-full hover:bg-muted"
+                    className="h-6 w-6 rounded-full hover-primary-effect"
                     onClick={handleCloseSearch}
                   >
                     <X className="h-3 w-3" />

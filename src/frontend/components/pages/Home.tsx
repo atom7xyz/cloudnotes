@@ -661,8 +661,11 @@ const Home = () => {
               <Avatar className="h-20 w-20 border-2 border-primary/10">
                 <img src="https://github.com/shadcn.png" alt="Bart Simpson" />
               </Avatar>
-              <div>
+              <div className="space-y-1">
                 <h2 className="text-2xl font-semibold">Bart Simpson</h2>
+                <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 px-2 py-1">
+                  @bartsimpson
+                </Badge>
                 <p className="text-muted-foreground mt-1">
                   Opera enthusiast and classical music aficionado
                 </p>

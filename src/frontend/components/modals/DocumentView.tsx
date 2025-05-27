@@ -7,7 +7,8 @@ import {
   ClockIcon,
   EyeIcon,
   ExternalLinkIcon,
-  Mail as MailIcon
+  Mail as MailIcon,
+  LinkIcon
 } from 'lucide-react';
 import { 
   FaFacebook, 
@@ -24,7 +25,7 @@ import { cn } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '../ui/dropdown-menu';
 import type { MockDocument } from '../../lib/mocking/mocked';
-
+import { toast } from 'sonner';
 interface DocumentViewProps {
   isOpen: boolean;
   onClose: () => void;
@@ -47,6 +48,23 @@ const DocumentView = ({
   maxWidth = "max-w-4xl"
 }: DocumentViewProps) => {
   if (!document) return null;
+
+  // Function to copy document link to clipboard
+  const handleCopyLink = useCallback(async () => {
+    try {
+      const documentUrl = `${window.location.origin}/reader/${document.id}`;
+      await navigator.clipboard.writeText(documentUrl);
+
+      toast.success("Link copied to clipboard", {
+        description: "You can now paste it anywhere",
+        icon: <LinkIcon size={16} />,
+      });
+
+      // You could add a toast notification here if you have a toast system
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  }, [document.id]);
 
   return (
     <Modal 
@@ -95,6 +113,11 @@ const DocumentView = ({
                 </TooltipProvider>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>Share via</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer flex items-center" onClick={handleCopyLink}>
+                    <LinkIcon className="mr-2 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    <span>Copy Link</span>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="cursor-pointer flex items-center">
                     <FaFacebook className="mr-2 h-4 w-4 flex-shrink-0 text-[#1877F2]" />

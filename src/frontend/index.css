@@ -258,6 +258,10 @@
   .hover-primary-effect {
     @apply hover:bg-primary/10 hover:border-primary/20 transition-colors;
   }
+
+  .active-primary-effect {
+    @apply bg-primary/10;
+  }
 }
 
 /* Custom animations */
