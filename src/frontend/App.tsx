@@ -24,6 +24,7 @@ const VerifyOTP = lazy(() => import('./components/pages/VerifyOTP'));
 const MainLayout = lazy(() => import('./components/layout/MainLayout'));
 const PrivacyPolicy = lazy(() => import('./components/pages/PrivacyPolicy'));
 const FileReader = lazy(() => import('./components/pages/FileReader'));
+const Document = lazy(() => import('./components/pages/Document'));
 const ScreenLockModal = lazy(() => import('./components/modals/ScreenLockModal'));
 const Home = lazy(() => import('./components/pages/Home'));
 const AppLockProvider = lazy(() => import('./lib/contexts/AppLockContext').then(module => ({ default: module.AppLockProvider })));
@@ -201,7 +202,14 @@ function App() {
                       } />
                       
                       {/* FileReader route without MainLayout */}
-                      <Route path="/reader" element={<FileReader />} />
+                      <Route path="/reader/:id" element={<FileReader />} />
+                      
+                      {/* Document route with MainLayout */}
+                      <Route path="/document/:id" element={
+                        <MainLayout>
+                          <Document />
+                        </MainLayout>
+                      } />
                       
                       {/* Default route */}
                       <Route path="*" element={<Navigate to="/login" replace />} />

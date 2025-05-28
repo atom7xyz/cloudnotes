@@ -37,7 +37,7 @@ const ApplicationSplash: React.FC<ApplicationSplashProps> = ({
       <div className="flex flex-col items-center justify-center gap-8 w-full max-w-md px-8">
         {/* App Name with the same font as TopNavbar */}
         <motion.h1 
-          className="font-bigshot-one italic text-primary text-6xl tracking-tight"
+          className="font-bigshot-one italic text-primary text-6xl tracking-tight select-none"
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -10, opacity: 0 }}
@@ -48,7 +48,7 @@ const ApplicationSplash: React.FC<ApplicationSplashProps> = ({
         
         {/* Loading message */}
         <motion.p 
-          className="text-lg text-muted-foreground text-center"
+          className="text-lg text-muted-foreground text-center select-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

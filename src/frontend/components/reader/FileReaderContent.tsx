@@ -238,8 +238,8 @@ const FileReaderContent = memo(() => {
   }, []);
 
   const handleGoBack = useCallback(() => {
-    navigate('/');
-  }, [navigate]);
+    window.history.back();
+  }, []);
 
   // Text search handler for DocumentViewer
   const handleTextSearch = useCallback((searchFunction: (text: string, direction?: 'forward' | 'backward') => void) => {

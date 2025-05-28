@@ -23,7 +23,8 @@ import {
   LayoutGrid,
   Compass,
   FolderHeart,
-  Users
+  Users,
+  CalendarIcon
 } from 'lucide-react';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockUser, MockBookmark } from '../../lib/mocking/mocked';
@@ -238,7 +239,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
     };
     
     const getBadgeStyles = () => {
-      const baseStyles = "cursor-pointer ";
+      const baseStyles = "cursor-pointer transition-colors ";
       
       if (isSelected) {
         // Selected state styling
@@ -291,11 +292,11 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
     if (displayDoc.tags.length === 0) return null;
     
     return (
-      <div className="flex flex-wrap gap-1 max-w-[300px]">
-        {displayDoc.tags.map((tag: string) => {
+      <div className="flex flex-wrap gap-1.5 max-w-[400px]">
+        {displayDoc.tags.slice(0, 4).map((tag: string) => {
           // Check if it's a file type tag - unlikely but let's handle it anyway
           const isFileType = fileTypeTags.includes(tag);
-          let tagStyles = "text-xs px-1.5 py-0 cursor-pointer border ";
+          let tagStyles = "text-xs px-2 py-1 cursor-pointer border transition-colors ";
           
           if (selectedTags.includes(tag)) {
             // Selected styles 
@@ -326,7 +327,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
             }
           } else {
             // Unselected styles
-            tagStyles += "bg-muted/50 text-muted-foreground hover:bg-muted border-primary/30";
+            tagStyles += "bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30 hover:bg-primary/15";
           }
           
           return (
@@ -340,32 +341,40 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
             </Badge>
           );
         })}
+        {displayDoc.tags.length > 4 && (
+          <Badge 
+            variant="outline"
+            className="text-xs px-2 py-1 bg-muted/50 text-muted-foreground border-primary/30 hover:bg-muted transition-colors"
+          >
+            +{displayDoc.tags.length - 4}
+          </Badge>
+        )}
       </div>
     );
   }, [displayDoc.tags, selectedTags, handleTagClick]);
   
   return (
-    <Card className="p-4 mb-3 hover:bg-muted/20 transition-colors select-none">
-      <div className="flex items-start gap-3">
+    <Card className="p-5 mb-4 transition-all duration-200 select-none shadow-sm border border-primary/10">
+      <div className="flex items-start gap-4">
         <button 
-          className="flex-shrink-0 w-24 h-32 bg-muted/30 rounded flex items-center justify-center overflow-hidden cursor-pointer relative"
+          className="flex-shrink-0 w-28 h-36 bg-muted/30 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer relative shadow-md border border-primary/10 hover:shadow-lg transition-all duration-200"
           onClick={() => navigateToDocument(document.id)}
           aria-label={`Open ${displayDoc.name}`}
           type="button"
         >
           {renderThumbnail(displayDoc.thumbnailUrl, displayDoc.name)}
           {isBookmarked && (
-            <div className="absolute top-1 right-1 bg-primary/80 rounded-full p-0.5">
-              <BookmarkIcon size={12} className="text-primary-foreground" />
+            <div className="absolute top-2 right-2 bg-primary/90 rounded-full p-1 shadow-sm">
+              <BookmarkIcon size={14} className="text-primary-foreground" />
             </div>
           )}
         </button>
         
-        <div className="flex-grow min-w-0 flex flex-col justify-between h-32">
-          <div>
-            <div className="flex items-center justify-between">
+        <div className="flex-grow min-w-0 flex flex-col justify-between h-36">
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
               <button
-                className="font-medium truncate cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0"
+                className="font-semibold text-base truncate cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0 transition-colors"
                 onClick={() => navigateToDocument(document.id)}
                 type="button"
               >
@@ -374,64 +383,75 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
               {fileIcon}
             </div>
             
-            <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
-              <div className="flex items-center gap-1">
-                <Clock size={14} />
-                <span>{formattedDate}</span>
+            {/* Enhanced Stats Section */}
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <CalendarIcon size={16} />
+                <span className="font-medium">Published:</span>
+                <span className="text-muted-foreground">{formattedDate}</span>
               </div>
+              
+              <div className="h-4 w-px bg-muted-foreground/20" />
               
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Star size={14} className="text-yellow-500" />
-                    <span>{displayDoc.rating.toFixed(1)}</span>
+                    <span className="font-medium">{displayDoc.rating.toFixed(1)}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>Rating</TooltipContent>
               </Tooltip>
               
+              <div className="h-4 w-px bg-muted-foreground/20" />
+              
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1">
-                    <MessageSquare size={14} />
-                    <span>{displayDoc.commentCount}</span>
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <BookmarkIcon size={14} className="text-primary" />
+                    <span className="font-medium">{displayDoc.downloadCount.toLocaleString()}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>Bookmarks</TooltipContent>
+              </Tooltip>
+              
+              <div className="h-4 w-px bg-muted-foreground/20" />
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <MessageSquare size={14} className="text-primary" />
+                    <span className="font-medium">{displayDoc.commentCount}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>Comments</TooltipContent>
               </Tooltip>
             </div>
             
-            <div className="flex items-center gap-1.5 mt-2">
+            {/* Enhanced Author Section */}
+            <div className="flex items-center gap-2 bg-muted/20 rounded-lg">
               <Avatar 
-                className="h-5 w-5 cursor-pointer"
+                className="h-6 w-6 cursor-pointer border border-primary/20"
                 onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
               >
                 <img src={displayDoc.uploaderAvatar} alt={displayDoc.uploaderUsername} />
               </Avatar>
-              <button
-                className="text-sm cursor-pointer hover:text-primary bg-transparent border-0 p-0 text-left"
-                onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
-                type="button"
-              >
-                {displayDoc.uploaderUsername}
-              </button>
+              <div className="flex flex-col">
+                <button
+                  className="text-sm font-medium cursor-pointer hover:text-primary bg-transparent border-0 p-0 text-left transition-colors"
+                  onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
+                  type="button"
+                >
+                  {document.author.firstName} {document.author.lastName}
+                </button>
+                <span className="text-xs text-muted-foreground">@{displayDoc.uploaderUsername}</span>
+              </div>
             </div>
           </div>
           
-          <div className="flex justify-between items-center mt-auto">
+          {/* Enhanced Bottom Section */}
+          <div className="flex justify-between items-center mt-auto pt-3">
             {renderedTags}
-            
-            <div className="flex items-center gap-2 text-xs text-muted-foreground ml-auto">
-              <div className="flex items-center gap-1">
-                <Eye size={12} />
-                <span>{displayDoc.viewCount} views</span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <BookmarkIcon size={12} />
-                <span>{displayDoc.downloadCount} bookmarks</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -455,12 +475,19 @@ const UserItem = memo(({
     user.documents.filter(doc => doc.file.isPublic).length,
     [user.documents]
   );
+
+  // Calculate join date (using a mock date for demo)
+  const joinDate = useMemo(() => {
+    // In a real app, this would come from user.joinedAt or similar
+    const mockJoinDate = new Date(2023, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
+    return formatDate(mockJoinDate);
+  }, []);
   
   return (
-    <Card className="p-4 mb-3 hover:bg-muted/20 transition-colors select-none">
+    <Card className="p-4 mb-3 transition-all duration-200 select-none shadow-sm border border-primary/10">
       <div className="flex items-start gap-3">
         <button 
-          className="h-12 w-12 relative rounded-full overflow-hidden flex-shrink-0 cursor-pointer"
+          className="flex-shrink-0 w-14 h-14 relative rounded-full overflow-hidden cursor-pointer shadow-md border border-primary/20 hover:shadow-lg hover:border-primary/30 transition-all duration-200 mr-3"
           onClick={() => navigateToUserProfile(user.username)}
           aria-label={`View ${user.username}'s profile`}
           type="button"
@@ -468,37 +495,49 @@ const UserItem = memo(({
           <img src={user.avatar} alt={user.username} className="h-full w-full object-cover" />
         </button>
         
-        <div className="flex-grow min-w-0">
-          <div className="flex items-center justify-between">
-            <button 
-              className="font-medium cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0"
-              onClick={() => navigateToUserProfile(user.username)}
-              type="button"
-            >
-              {user.firstName} {user.lastName}
-            </button>
-            <Badge 
-              variant="outline" 
-              className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100 hover:border-primary/20 transition-colors"
-              onClick={() => navigateToUserProfile(user.username)}
-            >
-              @{user.username}
-            </Badge>
+        <div className="flex-grow min-w-0 flex flex-col justify-between min-h-[80px]">
+          <div className="space-y-2">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col">
+                <button 
+                  className="font-semibold text-base cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0 transition-colors"
+                  onClick={() => navigateToUserProfile(user.username)}
+                  type="button"
+                >
+                  {user.firstName} {user.lastName}
+                </button>
+                <span className="text-xs text-muted-foreground">@{user.username}</span>
+              </div>
+            </div>
+            
+            <p className="text-sm text-muted-foreground line-clamp-1 leading-relaxed">{user.bio}</p>
           </div>
           
-          <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{user.bio}</p>
-          
-          <div className="flex items-center justify-between mt-2">
-            {publicDocumentsCount > 0 && (
-              <button
-                className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-primary bg-transparent border-0 p-0"
-                onClick={() => navigateToUserUploads(user.id)}
-                type="button"
-              >
-                <FileIcon size={14} />
-                <span>{publicDocumentsCount} public documents</span>
-              </button>
-            )}
+          {/* Enhanced Stats Section */}
+          <div className="flex items-center justify-between mt-auto pt-2 border-t border-muted/20">
+            <div className="flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <CalendarIcon size={12} />
+                <span className="font-medium">Joined:</span>
+                <span className="text-muted-foreground">{joinDate}</span>
+              </div>
+              
+              {publicDocumentsCount > 0 && (
+                <>
+                  <div className="h-3 w-px bg-muted-foreground/20" />
+                  
+                  <button
+                    className="flex items-center gap-1 text-muted-foreground cursor-pointer hover:text-primary bg-transparent border-0 p-0 transition-colors"
+                    onClick={() => navigateToUserUploads(user.id)}
+                    type="button"
+                  >
+                    <FileIcon size={12} />
+                    <span className="font-medium">{publicDocumentsCount}</span>
+                    <span>document{publicDocumentsCount !== 1 ? 's' : ''}</span>
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -1137,11 +1176,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     return `${prefix}-${value}-${hash}${fallback ? `-${fallback}` : ''}`;
   }, []);
 
-  // Check if a document is bookmarked
-  const isBookmarked = useCallback((docId: string) => {
-    return bookmarkResults.some(doc => doc.id === docId);
-  }, [bookmarkResults]);
-
   // Toggle bookmark status (in a real app, this would call an API)
   const toggleBookmark = useCallback((docId: string) => {
     if (bookmarkResults.some(doc => doc.id === docId)) {
@@ -1534,6 +1568,10 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
           toggleBookmark={toggleBookmark}
           formatDate={formatDate}
           renderThumbnail={renderThumbnail}
+          onCloseAllModals={() => {
+            setIsDocModalOpen(false);
+            onClose(); // Close the SearchModal
+          }}
         />
       )}
     </>

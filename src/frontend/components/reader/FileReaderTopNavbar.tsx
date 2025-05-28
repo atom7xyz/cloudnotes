@@ -18,9 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  FolderOpenIcon,
-  Files,
-  Folder
+  FolderOpenIcon
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
