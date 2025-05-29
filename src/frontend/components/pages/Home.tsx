@@ -154,7 +154,7 @@ const Home = () => {
     return favoriteDocs.some(doc => doc.id === docId);
   }, [favoriteDocs]);
 
-  // Render thumbnail
+  // Render thumbnail with enhanced styling
   const renderThumbnail = useCallback((thumbnailData: string, title: string) => {
     // Parse the thumbnail format "color:text"
     const [color, text] = thumbnailData.split(':');
@@ -162,9 +162,10 @@ const Home = () => {
     return (
       <div 
         style={{ backgroundColor: color }} 
-        className="w-full h-full flex items-center justify-center"
+        className="w-full h-full flex items-center justify-center relative overflow-hidden"
       >
-        <span className="text-white font-medium text-center px-2 text-sm">
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/20" />
+        <span className="text-white font-medium text-center px-2 text-sm relative z-10 drop-shadow-lg">
           {decodeURIComponent(text)}
         </span>
       </div>
@@ -216,8 +217,8 @@ const Home = () => {
       {/* Trending Documents Carousel */}
       {trendingDocs.length > 0 && (
         <section className="mb-8 relative">
-          <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-            <TrendingUpIcon size={20} className="text-primary" />
+          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+            <TrendingUpIcon size={24} className="text-primary" />
             Trending Documents
           </h2>
           
@@ -227,7 +228,7 @@ const Home = () => {
               {/* Left navigation button - positioned outside the overflow area */}
               <button 
                 onClick={previousSlide} 
-                className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-md transition-colors cursor-pointer"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-lg transition-colors cursor-pointer"
                 aria-label="Previous slide"
                 type="button"
               >
@@ -245,36 +246,36 @@ const Home = () => {
                   {trendingDocs.map((doc) => (
                     <div key={doc.id} className="min-w-[33.333%] px-2">
                       <Card 
-                        className="h-full hover:bg-primary/5 hover:border-primary/20 transition-colors overflow-hidden cursor-pointer"
+                        className="h-full hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
                         onClick={() => openDocModal(doc)}
                       >
-                        <CardContent className="p-3 pb-4">
+                        <CardContent className="p-4 pb-5">
                           <div className="flex items-start gap-3">
-                            <div className="w-24 h-32 rounded-md overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative">
+                            <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative shadow-sm border border-primary/10">
                               {renderThumbnail(doc.file.thumbnail, doc.title)}
                             </div>
                             
                             <div className="flex-grow min-w-0 flex flex-col h-32">
                               <div className="flex justify-between items-start">
-                                <h3 className="font-medium text-sm line-clamp-1">{doc.title}</h3>
+                                <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
                               </div>
                               
-                              <div className="flex items-center gap-1.5 mt-2">
-                                <Avatar className="h-4 w-4">
+                              <div className="flex items-center gap-2 mt-2">
+                                <Avatar className="h-5 w-5 border border-primary/20">
                                   <img src={doc.author.avatar} alt={doc.author.username} />
                                 </Avatar>
-                                <span className="text-xs text-muted-foreground">{doc.author.username}</span>
+                                <span className="text-xs text-muted-foreground font-medium">{doc.author.username}</span>
                               </div>
                               
                               <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                 <div className="flex items-center gap-1">
-                                  <ClockIcon size={10} />
+                                  <ClockIcon size={12} className="text-primary" />
                                   <span>{formatRelativeDate(doc.file.uploadedAt)}</span>
                                 </div>
                                 
                                 <div className="flex items-center gap-1">
-                                      <StarIcon size={10} className="text-yellow-500" />
-                                  <span>{doc.rating.rating.toFixed(1)}</span>
+                                  <StarIcon size={12} className="text-yellow-500" />
+                                  <span className="font-medium">{doc.rating.rating.toFixed(1)}</span>
                                 </div>
                               </div>
                               
@@ -283,7 +284,7 @@ const Home = () => {
                                   <Badge 
                                     key={tag} 
                                     variant="outline"
-                                    className="text-xs px-1.5 py-0 bg-muted/50 text-muted-foreground border-primary/30 hover:bg-muted"
+                                    className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
                                   >
                                     {tag}
                                   </Badge>
@@ -291,7 +292,7 @@ const Home = () => {
                                 {doc.file.tags.length > 3 && (
                                   <Badge 
                                     variant="outline"
-                                    className="text-xs px-1.5 py-0 bg-muted/50 text-muted-foreground border-primary/30 hover:bg-muted"
+                                    className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
                                   >
                                     +{doc.file.tags.length - 3}
                                   </Badge>
@@ -309,7 +310,7 @@ const Home = () => {
               {/* Right navigation button - positioned outside the overflow area */}
               <button 
                 onClick={nextSlide} 
-                className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-md transition-colors cursor-pointer"
+                className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-lg transition-colors cursor-pointer"
                 aria-label="Next slide"
                 type="button"
               >
@@ -318,17 +319,17 @@ const Home = () => {
             </div>
             
             {/* Pagination dots */}
-            <div className="flex justify-center items-center gap-1.5 mt-4">
+            <div className="flex justify-center items-center gap-2 mt-6">
               {trendingDocs.slice(0, trendingDocs.length - 2).map((doc, index) => (
                 <button
                   key={`dot-${doc.id}`}
                   type="button"
                   aria-label={`Go to slide ${index + 1}`}
                   className={cn(
-                    "h-1.5 rounded-full transition-all bg-muted-foreground/30 hover:bg-muted-foreground/50 cursor-pointer",
+                    "h-2 rounded-full transition-all bg-muted-foreground/30 hover:bg-muted-foreground/50 cursor-pointer shadow-sm",
                     index === carouselIndex 
-                      ? "w-6 bg-primary" 
-                      : "w-1.5"
+                      ? "w-8 bg-primary shadow-md" 
+                      : "w-2"
                   )}
                   onClick={() => setCarouselIndex(index)}
                 />
@@ -339,23 +340,23 @@ const Home = () => {
       )}
       
       {/* Your Documents Section */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-          <FileTextIcon size={20} className="text-primary" />
+      <section className="mb-10">
+        <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+          <FileTextIcon size={24} className="text-primary" />
           Your Documents
         </h2>
         
         <div className="grid grid-cols-3 lg:grid-cols-5 gap-4">
           {/* Upload New Document Card */}
           <Card 
-            className="group cursor-pointer h-[220px] hover:bg-primary/5 hover:border-primary/20 transition-colors"
+            className="group cursor-pointer h-[220px] hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 shadow-md hover:shadow-lg border-primary/10"
             onClick={handleNewDocumentClick}
           >
             <CardContent className="p-0 h-full flex flex-col items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-muted/50 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-muted/50 to-muted/80 group-hover:from-primary/10 group-hover:to-primary/20 flex items-center justify-center transition-all duration-200 shadow-sm">
                 <PlusIcon size={36} className="text-muted-foreground group-hover:text-primary transition-colors" />
               </div>
-              <p className="mt-4 text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+              <p className="mt-4 text-sm font-semibold text-muted-foreground group-hover:text-primary transition-colors">
                 Upload Document
               </p>
             </CardContent>
@@ -367,21 +368,21 @@ const Home = () => {
             .map((doc) => (
               <Card 
                 key={doc.id} 
-                className="overflow-hidden cursor-pointer h-[220px] hover:bg-primary/5 hover:border-primary/20 transition-colors"
+                className="overflow-hidden cursor-pointer h-[220px] hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 shadow-md hover:shadow-lg border-primary/10"
                 onClick={() => openDocModal(doc)}
               >
-                <div className="h-[140px] overflow-hidden bg-muted/30 relative">
+                <div className="h-[140px] overflow-hidden bg-muted/30 relative border-b border-primary/10">
                   {renderThumbnail(doc.file.thumbnail, doc.title)}
                 </div>
                 <CardContent className="p-3">
-                  <h3 className="font-medium text-sm line-clamp-1">{doc.title}</h3>
-                  <div className="flex flex-col gap-1 mt-1.5">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <CalendarIcon size={10} />
+                  <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
+                  <div className="flex flex-col gap-1.5 mt-2">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <CalendarIcon size={12} className="text-primary" />
                       <span>Uploaded: {formatRelativeDate(doc.file.uploadedAt)}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <EditIcon size={10} />
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <EditIcon size={12} className="text-primary" />
                       <span>Last edited: {getLastEditedTime(doc)}</span>
                     </div>
                   </div>
@@ -391,7 +392,7 @@ const Home = () => {
           
           {/* Show empty state cards if there are no documents */}
           {userDocs.length === 0 && (
-            <Card className="h-[220px] overflow-hidden border-dashed border-muted-foreground/30">
+            <Card className="h-[220px] overflow-hidden border-dashed border-muted-foreground/30 shadow-sm">
               <CardContent className="h-full flex items-center justify-center p-3 text-center">
                 <p className="text-muted-foreground text-sm">
                   You haven't uploaded any documents yet
@@ -403,12 +404,12 @@ const Home = () => {
 
         {/* View More Documents Button */}
         {userDocs.length > 4 && (
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center mt-6">
             <Button 
               variant="outline" 
               size="sm"
               onClick={toggleShowAllUserDocs}
-              className="gap-1 hover-primary-effect"
+              className="gap-2 hover-primary-effect shadow-sm"
             >
               {showAllUserDocs ? (
                 <>
@@ -437,40 +438,40 @@ const Home = () => {
         renderThumbnail={renderThumbnail}
       />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
         {/* Recent Documents */}
         <section>
-          <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-            <ClockIcon size={20} />
+          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+            <ClockIcon size={24} className="text-primary" />
             Recent Documents
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {recentDocs.slice(0, showAllRecentDocs ? 5 : 3).map((doc) => (
               <Card 
                 key={doc.id} 
-                className="hover:bg-primary/5 hover:border-primary/20 transition-colors overflow-hidden cursor-pointer"
+                className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
                 onClick={() => openDocModal(doc)}
               >
-                <CardContent className="p-3 pb-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-24 h-32 rounded-md overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative">
+                <CardContent className="p-4 pb-5">
+                  <div className="flex items-start gap-4">
+                    <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative shadow-sm border border-primary/10">
                       {renderThumbnail(doc.file.thumbnail, doc.title)}
                     </div>
                     
                     <div className="flex-grow min-w-0 flex flex-col h-32">
                       <div className="flex justify-between items-start">
-                        <h3 className="font-medium text-sm line-clamp-1">{doc.title}</h3>
+                        <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-6 w-6 ml-1 flex-shrink-0 cursor-pointer hover:bg-primary/10"
+                          className="h-7 w-7 ml-2 flex-shrink-0 cursor-pointer hover:bg-primary/10 shadow-sm"
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent card click
                             toggleFavorite(doc.id);
                           }}
                         >
                           <BookmarkIcon 
-                            size={14} 
+                            size={16} 
                             className={isDocumentFavorite(doc.id) 
                               ? "fill-primary text-primary" 
                               : "hover:text-primary hover:fill-primary/30"
@@ -479,16 +480,16 @@ const Home = () => {
                         </Button>
                       </div>
                       
-                      <div className="flex items-center gap-1.5 mt-2">
-                        <Avatar className="h-4 w-4">
+                      <div className="flex items-center gap-2 mt-2">
+                        <Avatar className="h-5 w-5 border border-primary/20">
                           <img src={doc.author.avatar} alt={doc.author.username} />
                         </Avatar>
-                        <span className="text-xs text-muted-foreground">{doc.author.username}</span>
+                        <span className="text-xs text-muted-foreground font-medium">{doc.author.username}</span>
                       </div>
                       
                       <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <HistoryIcon size={10} />
+                        <div className="flex items-center gap-1.5">
+                          <HistoryIcon size={12} className="text-primary" />
                           <span>Last opened: {getLastOpenedTime(doc)}</span>
                         </div>
                       </div>
@@ -498,7 +499,7 @@ const Home = () => {
                           <Badge 
                             key={tag} 
                             variant="outline"
-                            className="text-xs px-1.5 py-0 bg-muted/50 text-muted-foreground border-primary/30 hover:bg-muted"
+                            className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
                           >
                             {tag}
                           </Badge>
@@ -506,7 +507,7 @@ const Home = () => {
                         {doc.file.tags.length > 3 && (
                           <Badge 
                             variant="outline"
-                            className="text-xs px-1.5 py-0 bg-muted/50 text-muted-foreground border-primary/30 hover:bg-muted"
+                            className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
                           >
                             +{doc.file.tags.length - 3}
                           </Badge>
@@ -519,11 +520,11 @@ const Home = () => {
             ))}
           </div>
           {recentDocs.length > 3 && (
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-6">
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="gap-1 hover-primary-effect"
+                className="gap-2 hover-primary-effect shadow-sm"
                 onClick={toggleShowAllRecentDocs}
               >
                 {showAllRecentDocs ? (
@@ -544,53 +545,53 @@ const Home = () => {
         
         {/* Favorite Documents */}
         <section>
-          <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-            <BookmarkIcon size={20} className="text-primary" />
+          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+            <BookmarkIcon size={24} className="text-primary" />
             Bookmarked
           </h2>
           {favoriteDocs.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {favoriteDocs.slice(0, showAllBookmarkedDocs ? 5 : 3).map((doc) => (
                 <Card 
                   key={doc.id} 
-                  className="hover:bg-primary/5 hover:border-primary/20 transition-colors overflow-hidden cursor-pointer"
+                  className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
                   onClick={() => openDocModal(doc)}
                 >
-                  <CardContent className="p-3 pb-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-24 h-32 rounded-md overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative">
+                  <CardContent className="p-4 pb-5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative shadow-sm border border-primary/10">
                         {renderThumbnail(doc.file.thumbnail, doc.title)}
                       </div>
                       
                       <div className="flex-grow min-w-0 flex flex-col h-32">
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium text-sm line-clamp-1">{doc.title}</h3>
+                          <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-6 w-6 ml-1 flex-shrink-0 cursor-pointer hover:bg-primary/10"
+                            className="h-7 w-7 ml-2 flex-shrink-0 cursor-pointer hover:bg-primary/10 shadow-sm"
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent card click
                               toggleFavorite(doc.id);
                             }}
                           >
                             <BookmarkIcon 
-                              size={14}
+                              size={16}
                               className="fill-primary text-primary hover:fill-primary/80 hover:text-primary/80" 
                             />
                           </Button>
                         </div>
                         
-                        <div className="flex items-center gap-1.5 mt-2">
-                          <Avatar className="h-4 w-4">
+                        <div className="flex items-center gap-2 mt-2">
+                          <Avatar className="h-5 w-5 border border-primary/20">
                             <img src={doc.author.avatar} alt={doc.author.username} />
                           </Avatar>
-                          <span className="text-xs text-muted-foreground">{doc.author.username}</span>
+                          <span className="text-xs text-muted-foreground font-medium">{doc.author.username}</span>
                         </div>
                         
                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <HistoryIcon size={10} />
+                          <div className="flex items-center gap-1.5">
+                            <HistoryIcon size={12} className="text-primary" />
                             <span>Last opened: {getLastOpenedTime(doc)}</span>
                           </div>
                         </div>
@@ -600,7 +601,7 @@ const Home = () => {
                             <Badge 
                               key={tag} 
                               variant="outline"
-                              className="text-xs px-1.5 py-0 bg-muted/50 text-muted-foreground border-primary/30 hover:bg-muted"
+                              className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
                             >
                               {tag}
                             </Badge>
@@ -608,7 +609,7 @@ const Home = () => {
                           {doc.file.tags.length > 3 && (
                             <Badge 
                               variant="outline"
-                              className="text-xs px-1.5 py-0 bg-muted/50 text-muted-foreground border-primary/30 hover:bg-muted"
+                              className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
                             >
                               +{doc.file.tags.length - 3}
                             </Badge>
@@ -621,19 +622,19 @@ const Home = () => {
               ))}
             </div>
           ) : (
-            <Card className="bg-muted/30">
-              <CardContent className="p-6 text-center">
-                <p className="text-muted-foreground">You haven't added any bookmarks yet.</p>
-                <Button variant="outline" className="mt-4 hover-primary-effect">Browse Documents</Button>
+            <Card className="bg-gradient-to-r from-muted/20 to-muted/40 shadow-md border-primary/10">
+              <CardContent className="p-8 text-center">
+                <BookmarkIcon size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground font-medium">You haven't added any bookmarks yet.</p>
               </CardContent>
             </Card>
           )}
           {favoriteDocs.length > 3 && (
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-6">
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="gap-1 hover-primary-effect"
+                className="gap-2 hover-primary-effect shadow-sm"
                 onClick={toggleShowAllBookmarkedDocs}
               >
                 {showAllBookmarkedDocs ? (
@@ -653,31 +654,31 @@ const Home = () => {
         </section>
       </div>
       
-      {/* Profile Section */}
-      <section className="mt-12 mb-6">
-        <Card className="overflow-hidden border-primary/20">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <Avatar className="h-20 w-20 border-2 border-primary/10">
+      {/* Enhanced Profile Section */}
+      <section className="mt-16 mb-8">
+        <Card className="overflow-hidden border-primary/20 shadow-lg">
+          <CardContent className="p-8 flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <Avatar className="h-24 w-24 border-4 border-primary/20 shadow-md">
                 <img src="https://github.com/shadcn.png" alt="Bart Simpson" />
               </Avatar>
-              <div className="space-y-1">
-                <h2 className="text-2xl font-semibold">Bart Simpson</h2>
-                <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 px-2 py-1">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-bold">Bart Simpson</h2>
+                <Badge variant="outline" className="bg-gradient-to-r from-primary/10 to-primary/20 text-primary border-primary/30 px-3 py-1.5 font-medium">
                   @bartsimpson
                 </Badge>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-2 text-base">
                   Opera enthusiast and classical music aficionado
                 </p>
               </div>
             </div>
             <Button 
-              className="gap-1.5 hover-primary-effect" 
+              className="gap-2 hover-primary-effect shadow-md" 
               variant="outline"
-              size="sm"
+              size="lg"
             >
-                <ExternalLinkIcon size={14} />
-                View Profile
+              <ExternalLinkIcon size={16} />
+              View Profile
             </Button>
           </CardContent>
         </Card>

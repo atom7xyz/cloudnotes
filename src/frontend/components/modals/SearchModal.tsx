@@ -10,17 +10,14 @@ import { Avatar } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { 
   Search, 
-  FileText, 
   User, 
   Clock, 
   Star, 
   MessageSquare, 
-  Eye, 
   FileIcon,
   X,
   BookmarkIcon,
   HelpCircle,
-  LayoutGrid,
   Compass,
   FolderHeart,
   Users,
@@ -29,11 +26,7 @@ import {
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockUser, MockBookmark } from '../../lib/mocking/mocked';
 import { debounce, throttle } from '../../lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { cn } from '../../lib/utils';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { ExternalLinkIcon, FacebookIcon, MailIcon, Share2Icon, Twitter } from 'lucide-react';
-import { AppLink } from '../ui/app-link';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import DocumentView from './DocumentView';
 
 // Import placeholder images

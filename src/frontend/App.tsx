@@ -25,6 +25,7 @@ const MainLayout = lazy(() => import('./components/layout/MainLayout'));
 const PrivacyPolicy = lazy(() => import('./components/pages/PrivacyPolicy'));
 const FileReader = lazy(() => import('./components/pages/FileReader'));
 const Document = lazy(() => import('./components/pages/Document'));
+const Profile = lazy(() => import('./components/pages/Profile'));
 const ScreenLockModal = lazy(() => import('./components/modals/ScreenLockModal'));
 const Home = lazy(() => import('./components/pages/Home'));
 const AppLockProvider = lazy(() => import('./lib/contexts/AppLockContext').then(module => ({ default: module.AppLockProvider })));
@@ -198,6 +199,13 @@ function App() {
                       <Route path="/home" element={
                         <MainLayout>
                           <Home />
+                        </MainLayout>
+                      } />
+                      
+                      {/* Profile route */}
+                      <Route path="/profile" element={
+                        <MainLayout>
+                          <Profile />
                         </MainLayout>
                       } />
                       
