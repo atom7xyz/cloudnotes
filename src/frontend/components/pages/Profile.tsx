@@ -16,16 +16,28 @@ import {
   ArrowLeftIcon,
   HistoryIcon,
   ChevronUpIcon,
-  Share2Icon
+  Share2Icon,
+  ChevronDownIcon,
+  EyeIcon,
+  EyeOffIcon,
+  Link2Icon,
+  Mail as MailIcon,
+  ChevronRightIcon
 } from 'lucide-react';
+import { 
+  FaFacebook, 
+  FaTwitter, 
+  FaTelegram, 
+  FaWhatsapp 
+} from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Avatar } from '../ui/avatar';
 import { Card, CardContent } from '../ui/card';
 import { Separator } from '../ui/separator';
-import { Switch } from '../ui/switch';
 import { cn, formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '../ui/dropdown-menu';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
@@ -128,26 +140,54 @@ const Profile = () => {
   }, []);
 
   // Toggle document visibility
-  const toggleDocumentVisibility = useCallback((docId: string, isPublic: boolean, event?: React.MouseEvent) => {
+  const setDocumentVisibility = useCallback((docId: string, visibility: 'private' | 'public' | 'link-only', event?: React.MouseEvent) => {
     if (event) {
       event.stopPropagation(); // Prevent opening the document modal
     }
     
     setUserDocuments(prev => prev.map(doc => 
       doc.id === docId 
-        ? { ...doc, file: { ...doc.file, isPublic: !isPublic } }
+        ? { ...doc, file: { ...doc.file, visibility } }
         : doc
     ));
     
+    const visibilityLabels = {
+      'private': 'Private',
+      'public': 'Public', 
+      'link-only': 'Link Only'
+    };
+    
+    const visibilityDescriptions = {
+      'private': 'Only visible to you',
+      'public': 'Visible to everyone',
+      'link-only': 'Only accessible via direct link'
+    };
+    
+    const visibilityIcons = {
+      'private': <LockIcon size={16} />,
+      'public': <UnlockIcon size={16} />,
+      'link-only': <Link2Icon size={16} />
+    };
+    
     toast.success(
-      !isPublic ? "Document made public" : "Document made private",
+      `Document set to ${visibilityLabels[visibility]}`,
       {
-        description: !isPublic 
-          ? "This document is now visible to everyone" 
-          : "This document is now only visible to you",
-        icon: !isPublic ? <UnlockIcon size={16} /> : <LockIcon size={16} />,
+        description: visibilityDescriptions[visibility],
+        icon: visibilityIcons[visibility],
       }
     );
+  }, []);
+
+  // Get visibility display info
+  const getVisibilityInfo = useCallback((visibility: 'private' | 'public' | 'link-only') => {
+    switch (visibility) {
+      case 'private':
+        return { icon: LockIcon, color: 'text-muted-foreground', label: 'Private' };
+      case 'public':
+        return { icon: UnlockIcon, color: 'text-primary', label: 'Public' };
+      case 'link-only':
+        return { icon: Link2Icon, color: 'text-blue-500', label: 'Link Only' };
+    }
   }, []);
 
   // Open document modal
@@ -170,12 +210,23 @@ const Profile = () => {
   }, []);
 
   // Handle share profile
-  const handleShareProfile = useCallback(() => {
-    toast.success("Profile link copied", {
-      description: "Profile URL has been copied to clipboard",
-      icon: <LinkIcon size={16} />,
-    });
-  }, []);
+  const handleShareProfile = useCallback(async () => {
+    try {
+      const profileUrl = `${window.location.origin}/profile/${currentUser.username}`;
+      await navigator.clipboard.writeText(profileUrl);
+
+      toast.success("Profile link copied", {
+        description: "Profile URL has been copied to clipboard",
+        icon: <LinkIcon size={16} />,
+      });
+    } catch (err) {
+      console.error('Failed to copy profile link:', err);
+      toast.error("Failed to copy link", {
+        description: "Could not copy profile URL to clipboard",
+        icon: <LinkIcon size={16} />,
+      });
+    }
+  }, [currentUser.username]);
 
   return (
     <div className="p-6 max-w-[1200px] mx-auto select-none">
@@ -220,21 +271,53 @@ const Profile = () => {
                   </Tooltip>
                 </TooltipProvider>
                 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-12 w-12 hover-primary-effect shadow-sm"
-                        onClick={handleShareProfile}
-                      >
-                        <Share2Icon size={20} />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Share profile</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <DropdownMenu>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="h-12 w-12 hover-primary-effect shadow-sm"
+                          >
+                            <Share2Icon size={20} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>Share profile</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Share via</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="cursor-pointer flex items-center" onClick={handleShareProfile}>
+                      <LinkIcon className="mr-2 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                      <span>Copy Link</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="cursor-pointer flex items-center">
+                      <FaFacebook className="mr-2 h-4 w-4 flex-shrink-0 text-[#1877F2]" />
+                      <span>Facebook</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer flex items-center">
+                      <FaTwitter className="mr-2 h-4 w-4 flex-shrink-0 text-[#1DA1F2]" />
+                      <span>X / Twitter</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer flex items-center">
+                      <FaTelegram className="mr-2 h-4 w-4 flex-shrink-0 text-[#0088CC]" />
+                      <span>Telegram</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer flex items-center">
+                      <FaWhatsapp className="mr-2 h-4 w-4 flex-shrink-0 text-[#25D366]" />
+                      <span>WhatsApp</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer flex items-center">
+                      <MailIcon className="mr-2 h-4 w-4 flex-shrink-0 text-gray-600" />
+                      <span>Email</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
             
@@ -277,14 +360,14 @@ const Profile = () => {
 
       {/* Documents Management Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-        {/* My Documents */}
+        {/* Your Documents */}
         <div>
-          <h2 className="text-2xl font-semibold mb-8 flex items-center gap-3">
+          <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
             <FileTextIcon size={24} className="text-primary" />
-            My Documents ({userDocuments.length})
+            Your Documents ({userDocuments.length})
           </h2>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {userDocuments.length === 0 ? (
               <div className="text-center py-12">
                 <FileTextIcon size={64} className="mx-auto text-muted-foreground/30 mb-4" />
@@ -293,65 +376,90 @@ const Profile = () => {
               </div>
             ) : (
               userDocuments
-                .slice(0, showAllDocs ? undefined : 5)
+                .slice(0, showAllDocs ? undefined : 3)
                 .map((doc) => (
                   <Card 
                     key={doc.id}
                     className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
                     onClick={() => openDocModal(doc)}
                   >
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 pb-5">
                       <div className="flex items-start gap-4">
-                        <div className="w-20 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-muted/30 relative shadow-sm border border-primary/10">
+                        <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative shadow-sm border border-primary/10">
                           {renderThumbnail(doc.file.thumbnail, doc.title)}
                         </div>
                         
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-3">
-                            <h3 className="font-semibold text-base line-clamp-1">{doc.title}</h3>
-                            <div className="flex items-center gap-2 ml-4">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="flex items-center gap-2">
-                                      <Switch
-                                        checked={doc.file.isPublic}
-                                        onCheckedChange={() => toggleDocumentVisibility(doc.id, doc.file.isPublic)}
-                                        className="data-[state=checked]:bg-primary"
-                                        onClick={(e) => e.stopPropagation()}
-                                      />
-                                      {!doc.file.isPublic ? (
-                                        <LockIcon size={16} className="text-muted-foreground" />
-                                      ) : (
-                                        <UnlockIcon size={16} className="text-primary" />
-                                      )}
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    {!doc.file.isPublic ? "Make public" : "Make private"}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                        <div className="flex-grow min-w-0 flex flex-col h-32">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-semibold line-clamp-1">{doc.title}</h3>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 ml-2 flex-shrink-0 cursor-pointer hover:bg-primary/10 shadow-sm"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {(() => {
+                                    const { icon: Icon, color } = getVisibilityInfo(doc.file.visibility);
+                                    return <Icon size={14} className={color} />;
+                                  })()}
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem
+                                  onClick={(e) => setDocumentVisibility(doc.id, 'public', e)}
+                                  className="gap-2 cursor-pointer hover-primary-effect"
+                                >
+                                  <UnlockIcon size={14} className="text-primary" />
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">Public</span>
+                                    <span className="text-xs text-muted-foreground">Visible to everyone</span>
+                                  </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => setDocumentVisibility(doc.id, 'link-only', e)}
+                                  className="gap-2 cursor-pointer hover-primary-effect"
+                                >
+                                  <Link2Icon size={14} className="text-blue-500" />
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">Link Only</span>
+                                    <span className="text-xs text-muted-foreground">Only accessible via direct link</span>
+                                  </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => setDocumentVisibility(doc.id, 'private', e)}
+                                  className="gap-2 cursor-pointer hover-primary-effect"
+                                >
+                                  <LockIcon size={14} className="text-muted-foreground" />
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">Private</span>
+                                    <span className="text-xs text-muted-foreground">Only visible to you</span>
+                                  </div>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 mt-2">
+                            <Avatar className="h-6 w-6 border border-primary/20">
+                              <img src={doc.author.avatar} alt={doc.author.username} />
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                              <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
                               <CalendarIcon size={12} className="text-primary" />
                               <span>Uploaded: {formatRelativeDate(doc.file.uploadedAt)}</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <DownloadIcon size={12} className="text-primary" />
-                              <span>{doc.file.downloadCount} downloads</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <StarIcon size={12} className="text-yellow-500" />
-                              <span>{doc.rating.rating.toFixed(1)}</span>
-                            </div>
                           </div>
                           
-                          <div className="flex flex-wrap gap-1.5">
-                            {doc.file.tags.slice(0, 4).map((tag) => (
+                          <div className="flex flex-wrap gap-1 mt-auto">
+                            {doc.file.tags.slice(0, 3).map((tag) => (
                               <Badge 
                                 key={tag} 
                                 variant="outline"
@@ -360,12 +468,12 @@ const Profile = () => {
                                 {tag}
                               </Badge>
                             ))}
-                            {doc.file.tags.length > 4 && (
+                            {doc.file.tags.length > 3 && (
                               <Badge 
                                 variant="outline"
                                 className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
                               >
-                                +{doc.file.tags.length - 4}
+                                +{doc.file.tags.length - 3}
                               </Badge>
                             )}
                           </div>
@@ -376,14 +484,24 @@ const Profile = () => {
                 ))
             )}
             
-            {userDocuments.length > 5 && (
+            {userDocuments.length > 3 && (
               <div className="flex justify-center mt-6">
                 <Button 
                   variant="outline" 
                   onClick={() => setShowAllDocs(!showAllDocs)}
                   className="gap-2 hover-primary-effect shadow-sm"
                 >
-                  {showAllDocs ? "Show Less" : `View All ${userDocuments.length} Documents`}
+                  {showAllDocs ? (
+                    <>
+                      Show Less
+                      <ChevronUpIcon size={16} />
+                    </>
+                  ) : (
+                    <>
+                      View All Documents
+                      <ChevronRightIcon size={16} />
+                    </>
+                  )}
                 </Button>
               </div>
             )}
@@ -412,7 +530,7 @@ const Profile = () => {
                       
                       <div className="flex-grow min-w-0 flex flex-col h-32">
                         <div className="flex justify-between items-start">
-                          <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
+                          <h3 className="font-semibold line-clamp-1">{doc.title}</h3>
                           <Button 
                             variant="ghost" 
                             size="icon" 
@@ -424,16 +542,19 @@ const Profile = () => {
                           >
                             <BookmarkIcon 
                               size={16}
-                              className="fill-primary text-primary hover:fill-primary/80 hover:text-primary/80" 
+                              className="fill-primary text-primary hover-primary-effect" 
                             />
                           </Button>
                         </div>
                         
                         <div className="flex items-center gap-2 mt-2">
-                          <Avatar className="h-5 w-5 border border-primary/20">
+                          <Avatar className="h-6 w-6 border border-primary/20">
                             <img src={doc.author.avatar} alt={doc.author.username} />
                           </Avatar>
-                          <span className="text-xs text-muted-foreground font-medium">{doc.author.username}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                            <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
+                          </div>
                         </div>
                         
                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
@@ -492,7 +613,7 @@ const Profile = () => {
                 ) : (
                   <>
                     View All Saved
-                    <ChevronUpIcon size={16} />
+                    <ChevronRightIcon size={16} />
                   </>
                 )}
               </Button>
@@ -508,35 +629,104 @@ const Profile = () => {
           Activity Summary
         </h3>
         
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ClockIcon size={16} className="text-primary" />
-              <span className="text-sm">Last active</span>
-            </div>
-            <span className="text-sm text-muted-foreground">2 hours ago</span>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <Card className="border-primary/10 shadow-sm">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-3">
+                <FileTextIcon size={20} className="text-primary" />
+              </div>
+              <div className="text-2xl font-bold text-primary">{userDocuments.length}</div>
+              <div className="text-sm text-muted-foreground">Documents</div>
+            </CardContent>
+          </Card>
           
-          <Separator />
+          <Card className="border-primary/10 shadow-sm">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-500/10 rounded-full mx-auto mb-3">
+                <EyeIcon size={20} className="text-blue-500" />
+              </div>
+              <div className="text-2xl font-bold text-blue-500">
+                {userDocuments.reduce((total, doc) => total + doc.file.viewCount, 0).toLocaleString()}
+              </div>
+              <div className="text-sm text-muted-foreground">Total Views</div>
+            </CardContent>
+          </Card>
           
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MessageSquareIcon size={16} className="text-primary" />
-              <span className="text-sm">Comments</span>
-            </div>
-            <span className="text-sm text-muted-foreground">24 this month</span>
-          </div>
+          <Card className="border-primary/10 shadow-sm">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-green-500/10 rounded-full mx-auto mb-3">
+                <DownloadIcon size={20} className="text-green-500" />
+              </div>
+              <div className="text-2xl font-bold text-green-500">
+                {userDocuments.reduce((total, doc) => total + doc.file.downloadCount, 0).toLocaleString()}
+              </div>
+              <div className="text-sm text-muted-foreground">Downloads</div>
+            </CardContent>
+          </Card>
           
-          <Separator />
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FileTextIcon size={16} className="text-primary" />
-              <span className="text-sm">Documents uploaded</span>
-            </div>
-            <span className="text-sm text-muted-foreground">3 this month</span>
-          </div>
+          <Card className="border-primary/10 shadow-sm">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-yellow-500/10 rounded-full mx-auto mb-3">
+                <StarIcon size={20} className="text-yellow-500" />
+              </div>
+              <div className="text-2xl font-bold text-yellow-500">
+                {userDocuments.length > 0 
+                  ? (userDocuments.reduce((total, doc) => total + doc.rating.rating, 0) / userDocuments.length).toFixed(1)
+                  : '0.0'
+                }
+              </div>
+              <div className="text-sm text-muted-foreground">Avg Rating</div>
+            </CardContent>
+          </Card>
         </div>
+        
+        <Card className="border-primary/10 shadow-sm">
+          <CardContent className="p-6">
+            <h4 className="font-semibold mb-4 flex items-center gap-2">
+              <ClockIcon size={16} className="text-primary" />
+              Recent Activity
+            </h4>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ClockIcon size={16} className="text-primary" />
+                  <span className="text-sm">Last active</span>
+                </div>
+                <span className="text-sm text-muted-foreground">2 hours ago</span>
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MessageSquareIcon size={16} className="text-primary" />
+                  <span className="text-sm">Comments this month</span>
+                </div>
+                <span className="text-sm text-muted-foreground">24</span>
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileTextIcon size={16} className="text-primary" />
+                  <span className="text-sm">Documents uploaded this month</span>
+                </div>
+                <span className="text-sm text-muted-foreground">3</span>
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BookmarkIcon size={16} className="text-primary" />
+                  <span className="text-sm">Documents saved</span>
+                </div>
+                <span className="text-sm text-muted-foreground">{favoriteDocuments.length}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Document Modal */}

@@ -17,7 +17,10 @@ import {
   TagIcon,
   DownloadIcon,
   XIcon,
-  TimerIcon
+  TimerIcon,
+  AlertTriangleIcon,
+  CheckIcon,
+  TrashIcon
 } from 'lucide-react';
 import { 
   FaFacebook, 
@@ -36,10 +39,11 @@ import { cn, formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '../ui/dropdown-menu';
 import { mockService } from '../../lib/mocking/mockedData';
-import type { MockDocument, MockComment } from '../../lib/mocking/mocked';
+import type { MockDocument, MockComment, MockReport } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import { useTheme } from '../../lib/contexts/ThemeContext';
+import ReportProblemModal from '../modals/ReportProblemModal';
 
 const Document = () => {
   const { id } = useParams<{ id: string }>();
@@ -51,6 +55,17 @@ const Document = () => {
   const [comments, setComments] = useState<MockComment[]>([]);
   const [userRating, setUserRating] = useState<number>(0);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reports, setReports] = useState<MockReport[]>([]);
+
+  // Mock current user - in a real app this would come from auth context
+  const currentUser = {
+    id: 'current-user',
+    username: 'bartsimpson'
+  };
+
+  // Check if current user is the author
+  const isAuthor = document?.author.username === currentUser.username;
 
   // Load document data
   useEffect(() => {
@@ -64,6 +79,9 @@ const Document = () => {
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
         );
         setComments(sortedComments);
+        // Load reports for this document
+        const documentReports = mockService.getReportsForDocument(id);
+        setReports(documentReports);
         // In a real app, check if document is saved by current user
         setIsBookmarked(false);
       }
@@ -176,6 +194,32 @@ const Document = () => {
       description: "Your document has been downloaded",
       icon: <DownloadIcon size={16} />,
     });
+  }, []);
+
+  // Handle report deletion
+  const handleDeleteReport = useCallback((reportId: string) => {
+    const success = mockService.removeReport(reportId);
+    if (success) {
+      setReports(prev => prev.filter(report => report.id !== reportId));
+      toast.success("Report deleted", {
+        description: "The report has been removed",
+        icon: <TrashIcon size={16} />,
+      });
+    }
+  }, []);
+
+  // Handle report status change
+  const handleMarkReportDone = useCallback((reportId: string) => {
+    const success = mockService.updateReportStatus(reportId, 'resolved');
+    if (success) {
+      setReports(prev => prev.map(report => 
+        report.id === reportId ? { ...report, status: 'resolved' } : report
+      ));
+      toast.success("Report marked as resolved", {
+        description: "The report has been marked as done",
+        icon: <CheckIcon size={16} />,
+      });
+    }
   }, []);
 
   if (!document) {
@@ -319,6 +363,24 @@ const Document = () => {
                     <TooltipContent>Download document</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+
+                {!isAuthor && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 hover-primary-effect text-orange-600 hover:text-orange-700 hover:border-orange-300"
+                          onClick={() => setIsReportModalOpen(true)}
+                        >
+                          <AlertTriangleIcon size={20} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Report a problem</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
 
               {/* User Rating Section - Moved here */}
@@ -499,8 +561,63 @@ const Document = () => {
         </CardContent>
       </Card>
 
+      {/* Reports Management Section - Only visible to authors */}
+      {isAuthor && reports.length > 0 && (
+        <Card className="overflow-hidden border-orange-200 mb-8 shadow-lg">
+          <CardContent className="p-8">
+            <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
+              <AlertTriangleIcon size={24} className="text-orange-600" />
+              Document Reports ({reports.length})
+            </h2>
+            
+            <div className="space-y-4">
+              {reports.map((report) => (
+                <div key={report.id} className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8 border-2 border-orange-200">
+                        <img src={report.author.avatar} alt={report.author.username} />
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{report.author.firstName} {report.author.lastName}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">@{report.author.username}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {relativeDateFormatted(report.timestamp)}
+                      </span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:border-red-300"
+                              onClick={() => handleDeleteReport(report.id)}
+                            >
+                              <TrashIcon size={14} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete report</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                  <p className="text-sm leading-relaxed text-orange-800 dark:text-orange-200 bg-white/50 dark:bg-black/20 p-3 rounded border border-orange-200 dark:border-orange-700">
+                    {report.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Enhanced Comments Section */}
-      <Card className="overflow-hidden border-primary/20 shadow-lg">
+      <Card className="overflow-hidden border-primary/20 mb-8 shadow-lg">
         <CardContent className="p-8">
           <h2 className="text-2xl font-semibold mb-8 flex items-center gap-3">
             <MessageSquareIcon size={24} className="text-primary" />
@@ -555,11 +672,14 @@ const Document = () => {
                       <div className="bg-muted/30 rounded-lg p-4 border border-primary/10">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <span className="font-semibold">{comment.author.username}</span>
-                            <span className="text-sm text-muted-foreground">
-                              {relativeDateFormatted(comment.timestamp)}
-                            </span>
+                            <div className="flex flex-col">
+                              <span className="font-semibold">{comment.author.firstName} {comment.author.lastName}</span>
+                              <span className="text-xs text-muted-foreground">@{comment.author.username}</span>
+                            </div>
                           </div>
+                          <span className="text-sm text-muted-foreground">
+                            {relativeDateFormatted(comment.timestamp)}
+                          </span>
                         </div>
                         <p className="text-sm leading-relaxed">{comment.content}</p>
                       </div>
@@ -576,6 +696,13 @@ const Document = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Report Problem Modal */}
+      <ReportProblemModal 
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        document={document}
+      />
     </div>
   );
 };

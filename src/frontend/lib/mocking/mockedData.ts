@@ -1,4 +1,4 @@
-import type { MockUser, MockDocument, MockComment, MockRating, MockBookmark, MockFile } from './mocked';
+import type { MockUser, MockDocument, MockComment, MockRating, MockBookmark, MockFile, MockReport } from './mocked';
 import { faker } from '@faker-js/faker';
 
 // Set a fixed seed for reproducible data
@@ -14,6 +14,7 @@ class MockDataStore {
   private ratings: MockRating[] = [];
   private bookmarks: MockBookmark[] = [];
   private files: MockFile[] = [];
+  private reports: MockReport[] = [];
   
   private constructor() {
     console.log('Initializing mock data store');
@@ -21,6 +22,7 @@ class MockDataStore {
     this.generateDocuments();
     this.generateCommentsAndRatings();
     this.generateBookmarks();
+    this.generateReports();
   }
   
   public static getInstance(): MockDataStore {
@@ -149,7 +151,12 @@ class MockDataStore {
         viewCount: i === 3 ? 15000 : faker.number.int({ min: 500, max: 5000 }),
         downloadCount: i === 3 ? 7500 : faker.number.int({ min: 100, max: 2500 }),
         tags: tagsPool[i],
-        isPublic: Math.random() > 0.2, // 80% chance of being public
+        visibility: (() => {
+          const rand = Math.random();
+          if (rand < 0.6) return 'private';
+          if (rand < 0.8) return 'link-only';
+          return 'public';
+        })(), // 60% private, 20% link-only, 20% public
         uploadedAt: i === 3 ? new Date() : faker.date.recent({ days: 90 }) // Make the Bible more recent
       };
       
@@ -172,7 +179,8 @@ class MockDataStore {
         rating: placeholderRating,
         comments: [],
         author: author,
-        file: file
+        file: file,
+        reports: []
       };
       
       // Update the placeholder reference
@@ -243,7 +251,12 @@ class MockDataStore {
           viewCount: faker.number.int({ min: 200, max: 1000 }),
           downloadCount: faker.number.int({ min: 50, max: 300 }),
           tags: operaDoc.tags,
-          isPublic: true,
+          visibility: (() => {
+            const rand = Math.random();
+            if (rand < 0.6) return 'public';
+            if (rand < 0.8) return 'link-only';
+            return 'private';
+          })(), // 60% public, 20% link-only, 20% private
           uploadedAt: faker.date.recent({ days: 20 })
         };
         
@@ -266,7 +279,8 @@ class MockDataStore {
           rating: placeholderRating,
           comments: [],
           author: bartUser,
-          file: file
+          file: file,
+          reports: []
         };
         
         // Update the placeholder reference
@@ -375,6 +389,58 @@ class MockDataStore {
     }
   }
   
+  private generateReports(): void {
+    // Generate 0-2 reports for some documents (about 30% of documents will have reports)
+    for (const document of this.documents) {
+      // For Bart Simpson's documents, always generate 1-3 reports for demonstration
+      const isBartDocument = document.author.username === 'bartsimpson';
+      const shouldHaveReports = isBartDocument || Math.random() < 0.3; // 30% chance for others, 100% for Bart
+      if (!shouldHaveReports) continue;
+      
+      const reportCount = isBartDocument 
+        ? faker.number.int({ min: 1, max: 3 }) // 1-3 reports for Bart's docs
+        : faker.number.int({ min: 1, max: 2 }); // 1-2 reports for others
+      
+      for (let i = 0; i < reportCount; i++) {
+        // Pick a random user (not the author)
+        const availableUsers = this.users.filter(user => user.id !== document.author.id);
+        if (availableUsers.length === 0) continue;
+        
+        const authorIndex = faker.number.int({ min: 0, max: availableUsers.length - 1 });
+        const author = availableUsers[authorIndex];
+        
+        const reportReasons = [
+          'This document contains inappropriate content that violates community guidelines.',
+          'The content appears to be plagiarized from another source without proper attribution.',
+          'The document contains factual errors and misleading information.',
+          'This content is spam or promotional material disguised as academic work.',
+          'The document violates copyright laws by including unauthorized material.',
+          'The content is offensive and discriminatory towards certain groups.',
+          'This document appears to be AI-generated without disclosure.',
+          'The content is not relevant to the academic nature of this platform.',
+          'The document title is misleading and does not match the content.',
+          'This content promotes harmful or dangerous activities.',
+          'The document contains personal information that should not be shared publicly.',
+          'This content violates the platform\'s terms of service regarding academic integrity.'
+        ];
+        
+        const report: MockReport = {
+          id: faker.string.uuid(),
+          author: author,
+          document: document,
+          content: reportReasons[faker.number.int({ min: 0, max: reportReasons.length - 1 })],
+          timestamp: faker.date.recent({ days: 30 }),
+          status: isBartDocument 
+            ? (Math.random() < 0.6 ? 'pending' : 'resolved') // 60% pending, 40% resolved for Bart
+            : (Math.random() < 0.7 ? 'pending' : 'resolved') // 70% pending, 30% resolved for others
+        };
+        
+        this.reports.push(report);
+        document.reports.push(report);
+      }
+    }
+  }
+  
   // =========== DATA ACCESS ===========
   
   public getUsers(): MockUser[] {
@@ -386,7 +452,7 @@ class MockDataStore {
   }
   
   public getPublicDocuments(): MockDocument[] {
-    return this.documents.filter(doc => doc.file.isPublic);
+    return this.documents.filter(doc => doc.file.visibility === 'public');
   }
   
   public getBookmarks(): MockBookmark[] {
@@ -484,7 +550,12 @@ class MockDataStore {
       viewCount: docData.file?.viewCount || 0,
       downloadCount: docData.file?.downloadCount || 0,
       tags: docData.file?.tags || [],
-      isPublic: docData.file?.isPublic !== undefined ? docData.file.isPublic : true,
+      visibility: (() => {
+        const rand = Math.random();
+        if (rand < 0.6) return 'public';
+        if (rand < 0.8) return 'link-only';
+        return 'private';
+      })(), // 60% public, 20% link-only, 20% private
       uploadedAt: docData.file?.uploadedAt || new Date()
     };
     
@@ -507,7 +578,8 @@ class MockDataStore {
       rating: initialRating,
       comments: [],
       author: author,
-      file: file
+      file: file,
+      reports: []
     };
     
     // Update the rating's document reference
@@ -711,11 +783,11 @@ class MockDataStore {
     return true;
   }
   
-  public toggleDocumentPublic(documentId: string): boolean {
+  public setDocumentVisibility(documentId: string, visibility: 'private' | 'public' | 'link-only'): boolean {
     const document = this.getDocumentById(documentId);
     if (!document) return false;
     
-    document.file.isPublic = !document.file.isPublic;
+    document.file.visibility = visibility;
     return true;
   }
   
@@ -725,6 +797,61 @@ class MockDataStore {
     if (!document) return 0;
     
     return document.rating.rating;
+  }
+
+  // Report management methods
+  public getReports(): MockReport[] {
+    return this.reports;
+  }
+
+  public getReportsForDocument(documentId: string): MockReport[] {
+    return this.reports.filter(report => report.document.id === documentId);
+  }
+
+  public addReport(reportData: Partial<MockReport>, authorId: string, documentId: string): MockReport | null {
+    const author = this.getUserById(authorId);
+    const document = this.getDocumentById(documentId);
+    
+    if (!author || !document) return null;
+    
+    const newReport: MockReport = {
+      id: faker.string.uuid(),
+      author: author,
+      document: document,
+      content: reportData.content || '',
+      timestamp: new Date(),
+      status: reportData.status || 'pending'
+    };
+    
+    this.reports.push(newReport);
+    document.reports.push(newReport);
+    
+    return newReport;
+  }
+
+  public removeReport(reportId: string): boolean {
+    const reportIndex = this.reports.findIndex(report => report.id === reportId);
+    if (reportIndex === -1) return false;
+    
+    const report = this.reports[reportIndex];
+    
+    // Remove from document's reports
+    const docReportIndex = report.document.reports.findIndex(r => r.id === reportId);
+    if (docReportIndex !== -1) {
+      report.document.reports.splice(docReportIndex, 1);
+    }
+    
+    // Remove from main reports array
+    this.reports.splice(reportIndex, 1);
+    return true;
+  }
+
+  public updateReportStatus(reportId: string, status: 'pending' | 'resolved'): boolean {
+    const report = this.reports.find(r => r.id === reportId);
+    if (!report) return false;
+    
+    report.status = status;
+    return true;
   }
 }
 
@@ -769,7 +896,7 @@ export const mockService = {
   removeRating: (ratingId: string) => mockDataStore.removeRating(ratingId),
   addBookmark: (userId: string, documentId: string) => mockDataStore.addBookmark(userId, documentId),
   removeBookmark: (bookmarkId: string) => mockDataStore.removeBookmark(bookmarkId),
-  toggleDocumentPublic: (documentId: string) => mockDataStore.toggleDocumentPublic(documentId),
+  setDocumentVisibility: (documentId: string, visibility: 'private' | 'public' | 'link-only') => mockDataStore.setDocumentVisibility(documentId, visibility),
   getDocumentAverageRating: (documentId: string) => mockDataStore.getDocumentAverageRating(documentId),
   
   // Search functions
@@ -836,5 +963,14 @@ export const mockService = {
     );
   },
   
-  getRecentSearches: () => recentSearches
+  getRecentSearches: () => recentSearches,
+  
+  // Report management
+  getReports: () => mockDataStore.getReports(),
+  getReportsForDocument: (documentId: string) => mockDataStore.getReportsForDocument(documentId),
+  addReport: (reportData: Partial<MockReport>, authorId: string, documentId: string) => 
+    mockDataStore.addReport(reportData, authorId, documentId),
+  removeReport: (reportId: string) => mockDataStore.removeReport(reportId),
+  updateReportStatus: (reportId: string, status: 'pending' | 'resolved') => 
+    mockDataStore.updateReportStatus(reportId, status)
 }; 

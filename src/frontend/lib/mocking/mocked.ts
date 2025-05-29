@@ -29,6 +29,7 @@ export interface MockDocument {
     comments: MockComment[];
     author: MockUser;
     file: MockFile;
+    reports: MockReport[];
 }
 
 export interface MockComment {
@@ -48,7 +49,7 @@ export interface MockFile {
     viewCount: number;
     downloadCount: number;
     tags: string[];
-    isPublic: boolean;
+    visibility: 'private' | 'public' | 'link-only';
     uploadedAt: Date;
 }
 
@@ -58,4 +59,13 @@ export interface MockRating {
     document: MockDocument;
     rating: number;
     timestamp: Date;
+}
+
+export interface MockReport {
+    id: string;
+    author: MockUser;
+    document: MockDocument;
+    content: string;
+    timestamp: Date;
+    status: 'pending' | 'resolved';
 }

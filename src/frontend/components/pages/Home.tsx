@@ -174,12 +174,12 @@ const Home = () => {
 
   // Move carousel to previous slide - memoized to prevent re-renders
   const previousSlide = useCallback(() => {
-    setCarouselIndex((prev) => (prev === 0 ? trendingDocs.length - 3 : prev - 1));
+    setCarouselIndex((prev) => (prev === 0 ? trendingDocs.length - 2 : prev - 1));
   }, [trendingDocs.length]);
 
   // Move carousel to next slide - memoized to prevent re-renders
   const nextSlide = useCallback(() => {
-    setCarouselIndex((prev) => (prev === trendingDocs.length - 3 ? 0 : prev + 1));
+    setCarouselIndex((prev) => (prev === trendingDocs.length - 2 ? 0 : prev + 1));
   }, [trendingDocs.length]);
 
   // Open document modal
@@ -190,7 +190,7 @@ const Home = () => {
   
   // Transform style for carousel - memoized to prevent recalculations
   const carouselTransform = useMemo(() => {
-    return { transform: `translateX(-${carouselIndex * (100 / 3)}%)` };
+    return { transform: `translateX(-${carouselIndex * (100 / 2)}%)` };
   }, [carouselIndex]);
   
   // Handle new document upload 
@@ -244,7 +244,7 @@ const Home = () => {
                   style={carouselTransform}
                 >
                   {trendingDocs.map((doc) => (
-                    <div key={doc.id} className="min-w-[33.333%] px-2">
+                    <div key={doc.id} className="min-w-[50%] px-2">
                       <Card 
                         className="h-full hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
                         onClick={() => openDocModal(doc)}
@@ -257,14 +257,17 @@ const Home = () => {
                             
                             <div className="flex-grow min-w-0 flex flex-col h-32">
                               <div className="flex justify-between items-start">
-                                <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
+                                <h3 className="font-semibold text-md line-clamp-1">{doc.title}</h3>
                               </div>
                               
                               <div className="flex items-center gap-2 mt-2">
-                                <Avatar className="h-5 w-5 border border-primary/20">
+                                <Avatar className="h-6 w-6 border border-primary/20">
                                   <img src={doc.author.avatar} alt={doc.author.username} />
                                 </Avatar>
-                                <span className="text-xs text-muted-foreground font-medium">{doc.author.username}</span>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                                  <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
+                                </div>
                               </div>
                               
                               <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
@@ -320,7 +323,7 @@ const Home = () => {
             
             {/* Pagination dots */}
             <div className="flex justify-center items-center gap-2 mt-6">
-              {trendingDocs.slice(0, trendingDocs.length - 2).map((doc, index) => (
+              {trendingDocs.slice(0, trendingDocs.length - 1).map((doc, index) => (
                 <button
                   key={`dot-${doc.id}`}
                   type="button"
@@ -375,15 +378,20 @@ const Home = () => {
                   {renderThumbnail(doc.file.thumbnail, doc.title)}
                 </div>
                 <CardContent className="p-3">
-                  <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
+                  <h3 className="font-semibold text-md line-clamp-1">{doc.title}</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Avatar className="h-6 w-6 border border-primary/20">
+                      <img src={doc.author.avatar} alt={doc.author.username} />
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                      <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
+                    </div>
+                  </div>
                   <div className="flex flex-col gap-1.5 mt-2">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <CalendarIcon size={12} className="text-primary" />
                       <span>Uploaded: {formatRelativeDate(doc.file.uploadedAt)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <EditIcon size={12} className="text-primary" />
-                      <span>Last edited: {getLastEditedTime(doc)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -460,7 +468,7 @@ const Home = () => {
                     
                     <div className="flex-grow min-w-0 flex flex-col h-32">
                       <div className="flex justify-between items-start">
-                        <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
+                        <h3 className="font-semibold text-md line-clamp-1">{doc.title}</h3>
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -481,10 +489,13 @@ const Home = () => {
                       </div>
                       
                       <div className="flex items-center gap-2 mt-2">
-                        <Avatar className="h-5 w-5 border border-primary/20">
+                        <Avatar className="h-6 w-6 border border-primary/20">
                           <img src={doc.author.avatar} alt={doc.author.username} />
                         </Avatar>
-                        <span className="text-xs text-muted-foreground font-medium">{doc.author.username}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                          <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
+                        </div>
                       </div>
                       
                       <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
@@ -586,7 +597,10 @@ const Home = () => {
                           <Avatar className="h-5 w-5 border border-primary/20">
                             <img src={doc.author.avatar} alt={doc.author.username} />
                           </Avatar>
-                          <span className="text-xs text-muted-foreground font-medium">{doc.author.username}</span>
+                          <div className="flex flex-col">
+                            <span className="text-xs text-muted-foreground font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                            <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
+                          </div>
                         </div>
                         
                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">

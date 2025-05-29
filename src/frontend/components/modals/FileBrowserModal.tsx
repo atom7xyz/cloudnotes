@@ -183,7 +183,7 @@ const adaptDocumentForDisplay = (doc: MockDocument) => {
     viewCount: doc.file.viewCount,
     downloadCount: doc.file.downloadCount,
     tags: doc.file.tags,
-    isPublic: doc.file.isPublic
+    visibility: doc.file.visibility
   };
 };
 
@@ -373,6 +373,26 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
               {fileIcon}
             </div>
             
+            {/* Enhanced Author Section */}
+            <div className="flex items-center gap-2 bg-muted/20 rounded-lg">
+              <Avatar 
+                className="h-6 w-6 cursor-pointer border border-primary/20"
+                onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
+              >
+                <img src={displayDoc.uploaderAvatar} alt={displayDoc.uploaderUsername} />
+              </Avatar>
+              <div className="flex flex-col">
+                <button
+                  className="text-sm font-medium cursor-pointer hover:text-primary bg-transparent border-0 p-0 text-left transition-colors"
+                  onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
+                  type="button"
+                >
+                  {document.author.firstName} {document.author.lastName}
+                </button>
+                <span className="text-xs text-muted-foreground">@{displayDoc.uploaderUsername}</span>
+              </div>
+            </div>
+
             {/* Enhanced Stats Section */}
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1.5 text-muted-foreground">
@@ -417,26 +437,6 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
                 <TooltipContent>Comments</TooltipContent>
               </Tooltip>
             </div>
-            
-            {/* Enhanced Author Section */}
-            <div className="flex items-center gap-2 bg-muted/20 rounded-lg">
-              <Avatar 
-                className="h-6 w-6 cursor-pointer border border-primary/20"
-                onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
-              >
-                <img src={displayDoc.uploaderAvatar} alt={displayDoc.uploaderUsername} />
-              </Avatar>
-              <div className="flex flex-col">
-                <button
-                  className="text-sm font-medium cursor-pointer hover:text-primary bg-transparent border-0 p-0 text-left transition-colors"
-                  onClick={() => navigateToUserProfile(displayDoc.uploaderUsername)}
-                  type="button"
-                >
-                  {document.author.firstName} {document.author.lastName}
-                </button>
-                <span className="text-xs text-muted-foreground">@{displayDoc.uploaderUsername}</span>
-              </div>
-            </div>
           </div>
           
           {/* Enhanced Bottom Section */}
@@ -462,7 +462,7 @@ const UserItem = memo(({
 }) => {
   // Calculate number of public documents
   const publicDocumentsCount = useMemo(() => 
-    user.documents.filter(doc => doc.file.isPublic).length,
+    user.documents.filter(doc => doc.file.visibility === 'public').length,
     [user.documents]
   );
 
