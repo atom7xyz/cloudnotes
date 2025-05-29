@@ -64,7 +64,7 @@ const Document = () => {
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
         );
         setComments(sortedComments);
-        // In a real app, check if document is bookmarked by current user
+        // In a real app, check if document is saved by current user
         setIsBookmarked(false);
       }
     }
@@ -92,11 +92,11 @@ const Document = () => {
     );
   }, []);
 
-  // Toggle bookmark with animation
+  // Toggle save with animation
   const toggleBookmark = useCallback(() => {
     setIsBookmarked(prev => !prev);
-    toast.success(isBookmarked ? "Removed from bookmarks" : "Added to bookmarks", {
-      description: isBookmarked ? "Document removed from your bookmarks" : "Document saved to your bookmarks",
+    toast.success(isBookmarked ? "Removed from saved" : "Added to saved", {
+      description: isBookmarked ? "Document removed from your saved documents" : "Document saved to your saved documents",
       icon: <BookmarkIcon size={16} />,
     });
   }, [isBookmarked]);
@@ -240,7 +240,7 @@ const Document = () => {
                         <BookmarkIcon size={20} className={isBookmarked ? "fill-primary" : ""} />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{isBookmarked ? "Remove bookmark" : "Add to bookmarks"}</TooltipContent>
+                    <TooltipContent>{isBookmarked ? "Removed from saved" : "Add to saved"}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 
@@ -392,7 +392,7 @@ const Document = () => {
                 <div className="flex items-center gap-2 text-sm">
                   <BookmarkIcon size={16} className="text-primary" />
                   <span className="font-medium">{document.file.downloadCount}</span>
-                  <span className="text-muted-foreground">bookmarks</span>
+                  <span className="text-muted-foreground">saved</span>
                 </div>
                 
                 <Separator orientation="vertical" className="h-4" />

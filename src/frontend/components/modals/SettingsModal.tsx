@@ -21,7 +21,7 @@ import {
   LockIcon,
   FileIcon,
   LogOutIcon,
-  CheckIcon,
+  BookmarkIcon,
   InfoIcon,
   DownloadIcon,
   AlertTriangleIcon,
@@ -1021,7 +1021,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                       >
                         <span>{lang.label}</span>
                         {selectedLanguage === lang.id && (
-                          <CheckIcon size={18} className="text-primary" />
+                          <BookmarkIcon size={18} className="text-primary" />
                         )}
                       </button>
                     ))}

@@ -204,7 +204,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
   // Adapt the document to the display format
   const displayDoc = useMemo(() => adaptDocumentForDisplay(document), [document]);
   
-  // Check if the document is bookmarked (in a real app, this would use actual user data)
+  // Check if the document is saved (in a real app, this would use actual user data)
   const isBookmarked = useMemo(() => 
     bookmarkResults.some(bookmark => bookmark.id === document.id), 
     [document.id, bookmarkResults]
@@ -680,7 +680,7 @@ SearchInput.displayName = 'SearchInput';
 
 const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'discover' | 'users' | 'bookmarks' | 'user'>('discover');
+  const [activeTab, setActiveTab] = useState<'discover' | 'users' | 'saved' | 'user'>('discover');
   const [isLoading, setIsLoading] = useState(false);
   const [searchCompleted, setSearchCompleted] = useState(false);
   const [documentResults, setDocumentResults] = useState<MockDocument[]>([]);
@@ -1175,7 +1175,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       // Remove from bookmarks
       setBookmarkResults(prev => prev.filter(doc => doc.id !== docId));
     } else {
-      // Add to bookmarks
+      // Add to saved
       const docToAdd = documentResults.find(doc => doc.id === docId);
       if (docToAdd) {
         setBookmarkResults(prev => [...prev, docToAdd]);
@@ -1212,7 +1212,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             fileTypeTags={fileTypeTags}
           />
 
-          <Tabs defaultValue="discover" value={activeTab} onValueChange={(value) => setActiveTab(value as 'discover' | 'users' | 'bookmarks' | 'user')}>
+          <Tabs defaultValue="discover" value={activeTab} onValueChange={(value) => setActiveTab(value as 'discover' | 'users' | 'saved' | 'user')}>
             <div className="flex justify-between items-center mb-4">
               <TabsList className="bg-background p-1 border border-muted-foreground/20 shadow select-none flex gap-1">
                 <TabsTrigger value="discover" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
@@ -1239,7 +1239,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 
                 <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
                 
-                <TabsTrigger value="bookmarks" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                <TabsTrigger value="saved" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
                   <BookmarkIcon size={16} className="select-none" />
                   <span>Bookmarks</span>
                   {bookmarkResults.length > 0 && (
@@ -1441,7 +1441,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               )}
             </TabsContent>
             
-            <TabsContent value="bookmarks" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
+            <TabsContent value="saved" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
               {isLoading && !searchCompleted ? (
                 <>
                   <DocumentSkeleton />
@@ -1455,8 +1455,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                   <h3 className="text-lg font-medium">No bookmarks found</h3>
                   <p className="text-muted-foreground max-w-sm">
                     {searchQuery ? 
-                      `We couldn't find any bookmarked documents matching "${searchQuery}"` : 
-                      "No bookmarked documents match the selected filters"}
+                      `We couldn't find any saved documents matching "${searchQuery}"` : 
+                      "No saved documents match the selected filters"}
                     {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
                     {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
                     {selectedTags.length > 0 ? ' or remove some tags' : ''}.
@@ -1467,14 +1467,14 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                   <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
                   <h3 className="text-lg font-medium">No bookmarks yet</h3>
                   <p className="text-muted-foreground max-w-sm">
-                    You haven't bookmarked any documents yet. Bookmarked documents will appear here.
+                    You haven't saved any documents yet. Saved documents will appear here.
                   </p>
                 </div>
               ) : (
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Found {bookmarkResults.length} bookmark{bookmarkResults.length !== 1 ? 's' : ''}
+                      Found {bookmarkResults.length} saved document{bookmarkResults.length !== 1 ? 's' : ''}
                     </div>
                   )}
                   {bookmarkResults.map((doc) => (

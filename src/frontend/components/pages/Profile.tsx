@@ -390,11 +390,11 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Bookmarked Documents */}
+        {/* Saved Documents */}
         <div>
           <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <BookmarkIcon size={24} className="text-primary" />
-            Bookmarked
+            Saved
           </h2>
           {favoriteDocuments.length > 0 ? (
             <div className="space-y-4">
@@ -472,7 +472,7 @@ const Profile = () => {
             <Card className="bg-gradient-to-r from-muted/20 to-muted/40 shadow-md border-primary/10">
               <CardContent className="p-8 text-center">
                 <BookmarkIcon size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground font-medium">You haven't added any bookmarks yet.</p>
+                <p className="text-muted-foreground font-medium">You haven't added any saved documents yet.</p>
               </CardContent>
             </Card>
           )}
@@ -491,7 +491,7 @@ const Profile = () => {
                   </>
                 ) : (
                   <>
-                    View All Bookmarks
+                    View All Saved
                     <ChevronUpIcon size={16} />
                   </>
                 )}

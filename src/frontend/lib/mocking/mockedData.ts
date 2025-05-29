@@ -346,7 +346,7 @@ class MockDataStore {
   }
   
   private generateBookmarks(): void {
-    // Each user will have between 1 and 4 bookmarked documents
+    // Each user will have between 1 and 4 saved documents
     for (const user of this.users) {
       const bookmarkCount = faker.number.int({ min: 1, max: 4 });
       
@@ -706,7 +706,7 @@ class MockDataStore {
       bookmark.user.savedDocuments.splice(userBookmarkIndex, 1);
     }
     
-    // Remove bookmark
+    // Removed from saved
     this.bookmarks.splice(index, 1);
     return true;
   }

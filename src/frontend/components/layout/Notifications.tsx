@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState, useCallback } from 'react';
-import { BellIcon, SettingsIcon, CheckIcon, MailIcon, FileTextIcon, MessageSquareIcon } from 'lucide-react';
+import { BellIcon, SettingsIcon, BookmarkIcon, MailIcon, FileTextIcon, MessageSquareIcon } from 'lucide-react';
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { 
@@ -117,7 +117,7 @@ const Notifications: React.FC<NotificationsProps> = ({
               className="h-7 text-xs flex items-center gap-1 hover-primary-effect"
               onClick={handleMarkAllAsRead}
             >
-              <CheckIcon size={12} />
+              <BookmarkIcon size={12} />
               Mark all as read
             </Button>
           )}

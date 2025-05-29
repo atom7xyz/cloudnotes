@@ -1,10 +1,9 @@
 import { useState, useCallback } from 'react';
 import {
-  BookmarkIcon,
   Share2Icon,
   StarIcon,
   MessageSquareIcon,
-  ClockIcon,
+  BookmarkIcon,
   EyeIcon,
   ExternalLinkIcon,
   Mail as MailIcon,
@@ -57,13 +56,13 @@ const DocumentView = ({
 }: DocumentViewProps) => {
   if (!document) return null;
 
-  // Handle bookmark toggle with toast notification
+  // Handle save toggle with toast notification
   const handleBookmarkToggle = useCallback(() => {
     const wasBookmarked = isBookmarked(document.id);
     toggleBookmark(document.id);
     
-    toast.success(wasBookmarked ? "Removed from bookmarks" : "Added to bookmarks", {
-      description: wasBookmarked ? "Document removed from your bookmarks" : "Document saved to your bookmarks",
+    toast.success(wasBookmarked ? "Removed from saved" : "Added to saved", {
+      description: wasBookmarked ? "Document removed from your saved documents" : "Document saved to your saved documents",
       icon: <BookmarkIcon size={16} />,
     });
   }, [document.id, isBookmarked, toggleBookmark]);
@@ -128,7 +127,7 @@ const DocumentView = ({
                       <BookmarkIcon size={20} className={isBookmarked(document.id) ? "fill-primary" : ""} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>{isBookmarked(document.id) ? "Remove bookmark" : "Add to bookmarks"}</TooltipContent>
+                  <TooltipContent>{isBookmarked(document.id) ? "Remove from saved" : "Add to saved"}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               
@@ -205,7 +204,7 @@ const DocumentView = ({
               <div className="flex items-center gap-2 text-sm">
                 <BookmarkIcon size={16} className="text-primary" />
                 <span className="font-medium">{document.file.downloadCount}</span>
-                <span className="text-muted-foreground">bookmarks</span>
+                <span className="text-muted-foreground">saved</span>
               </div>
 
               <Separator orientation="vertical" className="h-4" />
