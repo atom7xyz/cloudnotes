@@ -236,10 +236,10 @@ const ScreenLockModal: FC = () => {
             <Button 
               variant="outline"
               onClick={handleCloseRecoveryModal}
-              className="rounded-full cursor-pointer"
+              className="rounded-full hover-primary-effect cursor-pointer"
               disabled={loading}
             >
-              <span className="select-none">Cancel</span>
+              Cancel
             </Button>
             <Button 
               onClick={handleSendRecoveryEmail}

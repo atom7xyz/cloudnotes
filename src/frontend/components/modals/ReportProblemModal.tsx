@@ -47,25 +47,19 @@ const ReportProblemModal = ({
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title="Report a Problem"
+      title={
+        <div className="flex items-center gap-2 text-lg font-medium select-none">
+          <AlertTriangleIcon size={18} />
+          <span>Report a Problem</span>
+        </div>
+      }
       maxWidth="max-w-2xl"
     >
       <div className="p-8 select-none">
         <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-4">
-            <AlertTriangleIcon size={24} className="text-orange-600" />
-            <div>
-              <h2 className="text-xl font-semibold">Report a Problem</h2>
-              <p className="text-sm text-muted-foreground">
-                Document: "{document.title}"
-              </p>
-            </div>
-          </div>
-
           {/* Description */}
-          <div className="bg-muted/20 p-4 rounded-lg border border-primary/10">
-            <p className="text-sm text-muted-foreground">
+          <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200/50 rounded-lg">
+            <p className="text-sm text-orange-800">
               Found an issue with this document? Let the author know so they can fix it. 
               Your report will be sent directly to <strong>{document.author.firstName} {document.author.lastName}</strong>.
             </p>
@@ -73,35 +67,36 @@ const ReportProblemModal = ({
 
           {/* Form */}
           <div className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="report-message" className="text-sm font-medium">
+            <div className="space-y-3">
+              <label htmlFor="report-message" className="text-sm font-medium flex items-center gap-2">
+                <AlertTriangleIcon size={14} className="text-orange-500" />
                 Describe the problem:
               </label>
               <Textarea
                 id="report-message"
-                placeholder="Please describe the issue you found (e.g., broken links, incorrect information, formatting problems, accessibility issues, etc.)"
+                placeholder="Please describe the issue you found (e.g., broken links, formatting problems...)"
                 value={reportMessage}
                 onChange={(e) => setReportMessage(e.target.value)}
-                className="min-h-[120px] resize-none border-primary/20 focus:border-primary/40"
+                className="min-h-[140px] resize-none border-primary/20 focus:border-primary/40 bg-muted/20"
               />
-              <p className="text-xs text-muted-foreground">
-                Be specific about the issue to help the author understand and fix the problem.
+              <p className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-orange-300/50">
+                Be specific about the issue to help the author understand and fix the problem quickly.
               </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3 pt-6 border-t border-muted/20">
               <Button 
                 variant="outline" 
                 onClick={handleClose}
-                className="hover-primary-effect"
+                className="hover-primary-effect rounded-full cursor-pointer"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleReportProblem}
                 disabled={!reportMessage.trim()}
-                className="gap-2 hover-primary-effect"
+                className="gap-2 rounded-full cursor-pointer shadow-md"
               >
                 <SendIcon size={14} />
                 Send Report

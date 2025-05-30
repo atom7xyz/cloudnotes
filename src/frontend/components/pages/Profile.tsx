@@ -10,39 +10,34 @@ import {
   LinkIcon,
   LockIcon,
   UnlockIcon,
-  TrendingUpIcon,
+  BarChart3Icon,
   ClockIcon,
   MessageSquareIcon,
   ArrowLeftIcon,
   HistoryIcon,
   ChevronUpIcon,
   Share2Icon,
-  ChevronDownIcon,
   EyeIcon,
-  EyeOffIcon,
   Link2Icon,
-  Mail as MailIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  CheckIcon,
+  PlusIcon,
+  Activity
 } from 'lucide-react';
-import { 
-  FaFacebook, 
-  FaTwitter, 
-  FaTelegram, 
-  FaWhatsapp 
-} from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Avatar } from '../ui/avatar';
 import { Card, CardContent } from '../ui/card';
-import { Separator } from '../ui/separator';
-import { cn, formatRelativeDate } from '../../lib/utils';
+import { formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '../ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import DocumentView from '../modals/DocumentView';
+import { Switch } from '../ui/switch';
+import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 
 const Profile = () => {
   const appNavigate = useAppNavigate();
@@ -52,6 +47,10 @@ const Profile = () => {
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [showAllDocs, setShowAllDocs] = useState(false);
   const [showAllBookmarkedDocs, setShowAllBookmarkedDocs] = useState(false);
+  const [showAllRecentDocs, setShowAllRecentDocs] = useState(false);
+  const [showRevenueNumbers, setShowRevenueNumbers] = useState(true);
+  const [adsEnabled, setAdsEnabled] = useState(true);
+  const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
 
   // Mock user data - in a real app this would come from an API
   const currentUser = useMemo(() => ({
@@ -60,7 +59,7 @@ const Profile = () => {
     lastName: 'Simpson',
     username: 'bartsimpson',
     avatar: 'https://github.com/shadcn.png',
-    bio: 'Opera enthusiast and classical music aficionado. Passionate about sharing knowledge through well-crafted documents and educational content.',
+    bio: 'Passionate opera enthusiast and classical music aficionado with over a decade of experience in musical composition and performance. I specialize in 18th-century baroque compositions and have performed with various symphony orchestras across Europe. When I\'m not immersed in music, I enjoy sharing my knowledge through educational documents and helping others discover the beauty of classical arts. My collection includes rare manuscripts, performance notes, and detailed analyses of masterpieces from Mozart, Bach, and Vivaldi.',
     joinDate: new Date('2023-01-15')
   }), []);
 
@@ -169,13 +168,62 @@ const Profile = () => {
       'link-only': <Link2Icon size={16} />
     };
     
-    toast.success(
-      `Document set to ${visibilityLabels[visibility]}`,
-      {
-        description: visibilityDescriptions[visibility],
-        icon: visibilityIcons[visibility],
-      }
-    );
+    // Auto-copy link when switching to link-only
+    if (visibility === 'link-only') {
+      const documentUrl = `${window.location.origin}/document/${docId}`;
+      navigator.clipboard.writeText(documentUrl).then(() => {
+        toast.success(
+          `Document set to ${visibilityLabels[visibility]}`,
+          {
+            description: 'Link copied to clipboard',
+            icon: visibilityIcons[visibility],
+          }
+        );
+      }).catch(() => {
+        toast.success(
+          `Document set to ${visibilityLabels[visibility]}`,
+          {
+            description: visibilityDescriptions[visibility],
+            icon: visibilityIcons[visibility],
+          }
+        );
+      });
+    } else {
+      toast.success(
+        `Document set to ${visibilityLabels[visibility]}`,
+        {
+          description: visibilityDescriptions[visibility],
+          icon: visibilityIcons[visibility],
+        }
+      );
+    }
+  }, []);
+
+  // Copy document link
+  const copyDocumentLink = useCallback(async (docId: string) => {
+    try {
+      const documentUrl = `${window.location.origin}/document/${docId}`;
+      await navigator.clipboard.writeText(documentUrl);
+      
+      // Set the copied state
+      setCopiedLinkId(docId);
+      
+      // Reset after 2 seconds
+      setTimeout(() => {
+        setCopiedLinkId(null);
+      }, 2000);
+      
+      toast.success("Document link copied", {
+        description: "Link has been copied to clipboard",
+        icon: <LinkIcon size={16} />,
+      });
+    } catch (err) {
+      console.error('Failed to copy document link:', err);
+      toast.error("Failed to copy link", {
+        description: "Could not copy document link to clipboard",
+        icon: <LinkIcon size={16} />,
+      });
+    }
   }, []);
 
   // Get visibility display info
@@ -244,8 +292,8 @@ const Profile = () => {
       </div>
 
       {/* Enhanced Profile Header */}
-      <Card className="overflow-hidden border-primary/20 mb-8 shadow-lg">
-        <CardContent className="p-8">
+      <Card className="overflow-hidden border-primary/20 mb-8 shadow-lg relative">
+        <CardContent className="p-8 relative z-20">
           <div className="flex gap-10">
             {/* Left side - Profile image and basic info */}
             <div className="flex flex-col items-center">
@@ -271,53 +319,21 @@ const Profile = () => {
                   </Tooltip>
                 </TooltipProvider>
                 
-                <DropdownMenu>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-12 w-12 hover-primary-effect shadow-sm"
-                          >
-                            <Share2Icon size={20} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>Share profile</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <DropdownMenuContent>
-                    <DropdownMenuLabel>Share via</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer flex items-center" onClick={handleShareProfile}>
-                      <LinkIcon className="mr-2 h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                      <span>Copy Link</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FaFacebook className="mr-2 h-4 w-4 flex-shrink-0 text-[#1877F2]" />
-                      <span>Facebook</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FaTwitter className="mr-2 h-4 w-4 flex-shrink-0 text-[#1DA1F2]" />
-                      <span>X / Twitter</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FaTelegram className="mr-2 h-4 w-4 flex-shrink-0 text-[#0088CC]" />
-                      <span>Telegram</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FaWhatsapp className="mr-2 h-4 w-4 flex-shrink-0 text-[#25D366]" />
-                      <span>WhatsApp</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <MailIcon className="mr-2 h-4 w-4 flex-shrink-0 text-gray-600" />
-                      <span>Email</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <ShareLinksDropdown
+                          triggerText=""
+                          triggerIcon={<Share2Icon size={20} />}
+                          triggerClassName="h-12 w-12 hover-primary-effect shadow-sm p-0"
+                          onCopyLink={handleShareProfile}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>Share profile</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
             
@@ -375,116 +391,171 @@ const Profile = () => {
                 <p className="text-muted-foreground">Start by uploading your first document!</p>
               </div>
             ) : (
-              userDocuments
-                .slice(0, showAllDocs ? undefined : 3)
-                .map((doc) => (
-                  <Card 
-                    key={doc.id}
-                    className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
-                    onClick={() => openDocModal(doc)}
-                  >
-                    <CardContent className="p-4 pb-5">
-                      <div className="flex items-start gap-4">
-                        <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative shadow-sm border border-primary/10">
-                          {renderThumbnail(doc.file.thumbnail, doc.title)}
-                        </div>
-                        
-                        <div className="flex-grow min-w-0 flex flex-col h-32">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-semibold line-clamp-1">{doc.title}</h3>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 w-7 ml-2 flex-shrink-0 cursor-pointer hover:bg-primary/10 shadow-sm"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  {(() => {
-                                    const { icon: Icon, color } = getVisibilityInfo(doc.file.visibility);
-                                    return <Icon size={14} className={color} />;
-                                  })()}
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem
-                                  onClick={(e) => setDocumentVisibility(doc.id, 'public', e)}
-                                  className="gap-2 cursor-pointer hover-primary-effect"
-                                >
-                                  <UnlockIcon size={14} className="text-primary" />
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">Public</span>
-                                    <span className="text-xs text-muted-foreground">Visible to everyone</span>
-                                  </div>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => setDocumentVisibility(doc.id, 'link-only', e)}
-                                  className="gap-2 cursor-pointer hover-primary-effect"
-                                >
-                                  <Link2Icon size={14} className="text-blue-500" />
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">Link Only</span>
-                                    <span className="text-xs text-muted-foreground">Only accessible via direct link</span>
-                                  </div>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => setDocumentVisibility(doc.id, 'private', e)}
-                                  className="gap-2 cursor-pointer hover-primary-effect"
-                                >
-                                  <LockIcon size={14} className="text-muted-foreground" />
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">Private</span>
-                                    <span className="text-xs text-muted-foreground">Only visible to you</span>
-                                  </div>
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                          
-                          <div className="flex items-center gap-2 mt-2">
-                            <Avatar className="h-6 w-6 border border-primary/20">
-                              <img src={doc.author.avatar} alt={doc.author.username} />
-                            </Avatar>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
-                              <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1.5">
-                              <CalendarIcon size={12} className="text-primary" />
-                              <span>Uploaded: {formatRelativeDate(doc.file.uploadedAt)}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-wrap gap-1 mt-auto">
-                            {doc.file.tags.slice(0, 3).map((tag) => (
-                              <Badge 
-                                key={tag} 
-                                variant="outline"
-                                className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                            {doc.file.tags.length > 3 && (
-                              <Badge 
-                                variant="outline"
-                                className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
-                              >
-                                +{doc.file.tags.length - 3}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
+              <>
+                {/* Upload Document Button */}
+                <Card 
+                  className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10 border-dashed"
+                  onClick={() => {
+                    toast.info("Upload feature coming soon", {
+                      description: "Document upload functionality will be available in a future update",
+                      icon: <FileTextIcon size={16} />,
+                    });
+                  }}
+                >
+                  <CardContent className="p-4 pb-5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-primary/10 relative shadow-sm border border-primary/20 border-dashed flex items-center justify-center">
+                        <PlusIcon size={32} className="text-primary" />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
+                      
+                      <div className="flex-grow min-w-0 flex flex-col h-32 justify-center">
+                        <h3 className="font-semibold text-lg mb-2">Upload Document</h3>
+                        <p className="text-muted-foreground text-sm">
+                          Share your knowledge by uploading a new document to your collection.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* User Documents */}
+                {userDocuments
+                  .slice(0, showAllDocs ? undefined : 2)
+                  .map((doc) => (
+                    <Card 
+                      key={doc.id}
+                      className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
+                      onClick={() => openDocModal(doc)}
+                    >
+                      <CardContent className="p-4 pb-5">
+                        <div className="flex items-start gap-4">
+                          <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative shadow-sm border border-primary/10">
+                            {renderThumbnail(doc.file.thumbnail, doc.title)}
+                          </div>
+                          
+                          <div className="flex-grow min-w-0 flex flex-col h-32">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-semibold line-clamp-1">{doc.title}</h3>
+                              <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                              {doc.file.visibility === 'link-only' && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 w-7 cursor-pointer hover:bg-green-50 dark:hover:bg-green-950/20 text-green-500"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            copyDocumentLink(doc.id);
+                                          }}
+                                        >
+                                          {copiedLinkId === doc.id ? (
+                                            <CheckIcon size={14} />
+                                          ) : (
+                                            <LinkIcon size={14} />
+                                          )}
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>Copy link</TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-7 w-7 cursor-pointer hover:bg-primary/10 shadow-sm"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      {(() => {
+                                        const { icon: Icon, color } = getVisibilityInfo(doc.file.visibility);
+                                        return <Icon size={14} className={color} />;
+                                      })()}
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuItem
+                                      onClick={(e) => setDocumentVisibility(doc.id, 'public', e)}
+                                      className="gap-2 cursor-pointer hover-primary-effect"
+                                    >
+                                      <UnlockIcon size={14} className="text-primary" />
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">Public</span>
+                                        <span className="text-xs text-muted-foreground">Visible to everyone</span>
+                                      </div>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={(e) => setDocumentVisibility(doc.id, 'link-only', e)}
+                                      className="gap-2 cursor-pointer hover-primary-effect"
+                                    >
+                                      <Link2Icon size={14} className="text-blue-500" />
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">Link Only</span>
+                                        <span className="text-xs text-muted-foreground">Only accessible via direct link</span>
+                                      </div>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={(e) => setDocumentVisibility(doc.id, 'private', e)}
+                                      className="gap-2 cursor-pointer hover-primary-effect"
+                                    >
+                                      <LockIcon size={14} className="text-muted-foreground" />
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">Private</span>
+                                        <span className="text-xs text-muted-foreground">Only visible to you</span>
+                                      </div>
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 mt-2">
+                              <Avatar className="h-6 w-6 border border-primary/20">
+                                <img src={doc.author.avatar} alt={doc.author.username} />
+                              </Avatar>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                                <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1.5">
+                                <CalendarIcon size={12} className="text-primary" />
+                                <span>Published: {formatRelativeDate(doc.file.uploadedAt)}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-1 mt-auto">
+                              {doc.file.tags.slice(0, 3).map((tag) => (
+                                <Badge 
+                                  key={tag} 
+                                  variant="outline"
+                                  className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {doc.file.tags.length > 3 && (
+                                <Badge 
+                                  variant="outline"
+                                  className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
+                                >
+                                  +{doc.file.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </>
             )}
             
-            {userDocuments.length > 3 && (
+            {userDocuments.length > 2 && (
               <div className="flex justify-center mt-6">
                 <Button 
                   variant="outline" 
@@ -622,111 +693,343 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Activity Summary */}
-      <div className="mb-10">
-        <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
-          <TrendingUpIcon size={20} className="text-primary" />
-          Activity Summary
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card className="border-primary/10 shadow-sm">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-3">
-                <FileTextIcon size={20} className="text-primary" />
+      {/* Your Revenue Section */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold flex items-center gap-3">
+            <BarChart3Icon size={24} className="text-primary" />
+            Your Revenue
+          </h2>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setShowRevenueNumbers(!showRevenueNumbers)}
+            className="gap-2 hover-primary-effect"
+          >
+            {showRevenueNumbers ? <EyeIcon size={16} /> : <LockIcon size={16} />}
+            {showRevenueNumbers ? 'Hide Numbers' : 'Show Numbers'}
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Affiliate Program */}
+          <Card className="border-primary/10 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex items-center justify-center w-12 h-12 bg-green-500/10 rounded-full flex-shrink-0">
+                  <LinkIcon size={20} className="text-green-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold mb-2">Affiliate Program</h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    Earn money from automated ads on your document pages. When users click and purchase, you get a cut.
+                  </p>
+                </div>
               </div>
-              <div className="text-2xl font-bold text-primary">{userDocuments.length}</div>
-              <div className="text-sm text-muted-foreground">Documents</div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
+                  <span className="text-sm font-medium">Enable Ads on Documents</span>
+                  <Switch 
+                    checked={adsEnabled}
+                    onCheckedChange={setAdsEnabled}
+                    className="cursor-pointer"
+                  />
+                </div>
+                
+                {adsEnabled && (
+                  <>
+                    <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
+                      <span className="text-sm font-medium">Total Earnings</span>
+                      <span className="text-lg font-bold text-green-500">
+                        {showRevenueNumbers ? '$247.50' : '******'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
+                      <span className="text-sm font-medium">This Month</span>
+                      <span className="text-sm font-bold text-green-500">
+                        {showRevenueNumbers ? '$32.80' : '*****'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
+                      <span className="text-sm font-medium">Ad Clicks</span>
+                      <span className="text-sm font-bold text-primary">
+                        {showRevenueNumbers ? '1,247' : '****'}
+                      </span>
+                    </div>
+                  </>
+                )}
+                
+                {!adsEnabled && (
+                  <div className="text-center py-6">
+                    <div className="text-muted-foreground text-sm">
+                      Enable ads to start earning revenue from your documents
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
-          
-          <Card className="border-primary/10 shadow-sm">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-blue-500/10 rounded-full mx-auto mb-3">
-                <EyeIcon size={20} className="text-blue-500" />
+
+          {/* Donations */}
+          <Card className="border-primary/10 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex items-center justify-center w-12 h-12 bg-blue-500/10 rounded-full flex-shrink-0">
+                  <StarIcon size={20} className="text-blue-500" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold mb-2">Personal Donations</h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    Receive donations from users who appreciate your shared documents.
+                  </p>
+                </div>
               </div>
-              <div className="text-2xl font-bold text-blue-500">
-                {userDocuments.reduce((total, doc) => total + doc.file.viewCount, 0).toLocaleString()}
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
+                  <span className="text-sm font-medium">Total Received</span>
+                  <span className="text-lg font-bold text-blue-500">
+                    {showRevenueNumbers ? '$89.20' : '*****'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
+                  <span className="text-sm font-medium">This Month</span>
+                  <span className="text-sm font-bold text-blue-500">
+                    {showRevenueNumbers ? '$15.40' : '*****'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
+                  <span className="text-sm font-medium">Supporters</span>
+                  <span className="text-sm font-bold text-primary">
+                    {showRevenueNumbers ? '7 people' : '* people'}
+                  </span>
+                </div>
+                
+                <ShareLinksDropdown
+                  triggerText="Share Donation Link"
+                  triggerIcon={<LinkIcon size={16} />}
+                  triggerClassName="w-full gap-2 mt-4 hover-primary-effect"
+                  onCopyLink={() => {
+                    const donationUrl = `${window.location.origin}/donate/${currentUser.username}`;
+                    navigator.clipboard.writeText(donationUrl).then(() => {
+                      toast.success("Donation link copied", {
+                        description: "Donation URL has been copied to clipboard",
+                        icon: <LinkIcon size={16} />,
+                      });
+                    }).catch(() => {
+                      toast.error("Failed to copy link", {
+                        description: "Could not copy donation URL to clipboard",
+                        icon: <LinkIcon size={16} />,
+                      });
+                    });
+                  }}
+                />
               </div>
-              <div className="text-sm text-muted-foreground">Total Views</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10 shadow-sm">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-green-500/10 rounded-full mx-auto mb-3">
-                <DownloadIcon size={20} className="text-green-500" />
-              </div>
-              <div className="text-2xl font-bold text-green-500">
-                {userDocuments.reduce((total, doc) => total + doc.file.downloadCount, 0).toLocaleString()}
-              </div>
-              <div className="text-sm text-muted-foreground">Downloads</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10 shadow-sm">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-yellow-500/10 rounded-full mx-auto mb-3">
-                <StarIcon size={20} className="text-yellow-500" />
-              </div>
-              <div className="text-2xl font-bold text-yellow-500">
-                {userDocuments.length > 0 
-                  ? (userDocuments.reduce((total, doc) => total + doc.rating.rating, 0) / userDocuments.length).toFixed(1)
-                  : '0.0'
-                }
-              </div>
-              <div className="text-sm text-muted-foreground">Avg Rating</div>
             </CardContent>
           </Card>
         </div>
-        
-        <Card className="border-primary/10 shadow-sm">
+
+        {/* Quick Stats */}
+        <Card className="mt-6 border-primary/10 shadow-md">
           <CardContent className="p-6">
             <h4 className="font-semibold mb-4 flex items-center gap-2">
-              <ClockIcon size={16} className="text-primary" />
-              Recent Activity
+              <DownloadIcon size={16} className="text-primary" />
+              Revenue Summary
             </h4>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ClockIcon size={16} className="text-primary" />
-                  <span className="text-sm">Last active</span>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary mb-1">
+                  {showRevenueNumbers ? '$336.70' : '*******'}
                 </div>
-                <span className="text-sm text-muted-foreground">2 hours ago</span>
+                <div className="text-sm text-muted-foreground">Total Revenue</div>
               </div>
               
-              <Separator />
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MessageSquareIcon size={16} className="text-primary" />
-                  <span className="text-sm">Comments this month</span>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-500 mb-1">
+                  {showRevenueNumbers ? '$48.20' : '*****'}
                 </div>
-                <span className="text-sm text-muted-foreground">24</span>
+                <div className="text-sm text-muted-foreground">This Month</div>
               </div>
               
-              <Separator />
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileTextIcon size={16} className="text-primary" />
-                  <span className="text-sm">Documents uploaded this month</span>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-500 mb-1">
+                  {showRevenueNumbers ? '25' : '**'}
                 </div>
-                <span className="text-sm text-muted-foreground">3</span>
-              </div>
-              
-              <Separator />
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <BookmarkIcon size={16} className="text-primary" />
-                  <span className="text-sm">Documents saved</span>
-                </div>
-                <span className="text-sm text-muted-foreground">{favoriteDocuments.length}</span>
+                <div className="text-sm text-muted-foreground">Total Supporters</div>
               </div>
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Activity and Recent Documents */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        {/* Activity */}
+        <div>
+          <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
+            <Activity size={24} className="text-primary" />
+            Activity
+          </h2>
+          
+          <div className="grid grid-cols-1 gap-4">
+            <Card className="border-primary/10 shadow-sm">
+              <CardContent className="p-4 text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mx-auto mb-3">
+                  <ClockIcon size={20} className="text-primary" />
+                </div>
+                <div className="text-2xl font-bold text-primary">
+                  {userDocuments.length > 0 ? Math.floor(userDocuments.length * 2.5) : 0}h
+                </div>
+                <div className="text-sm text-muted-foreground">Hours Reading</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-primary/10 shadow-sm">
+              <CardContent className="p-4 text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-blue-500/10 rounded-full mx-auto mb-3">
+                  <BookmarkIcon size={20} className="text-blue-500" />
+                </div>
+                <div className="text-2xl font-bold text-blue-500">
+                  {userDocuments.length + favoriteDocuments.length * 2}
+                </div>
+                <div className="text-sm text-muted-foreground">Reads with Timer</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-primary/10 shadow-sm">
+              <CardContent className="p-4 text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-yellow-500/10 rounded-full mx-auto mb-3">
+                  <MessageSquareIcon size={20} className="text-yellow-500" />
+                </div>
+                <div className="text-2xl font-bold text-yellow-500">
+                  {Math.floor(userDocuments.length * 3.2)}
+                </div>
+                <div className="text-sm text-muted-foreground">Comments Written</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-primary/10 shadow-sm">
+              <CardContent className="p-4 text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-purple-500/10 rounded-full mx-auto mb-3">
+                  <StarIcon size={20} className="text-purple-500" />
+                </div>
+                <div className="text-2xl font-bold text-purple-500">
+                  {Math.floor(userDocuments.length * 1.8)}
+                </div>
+                <div className="text-sm text-muted-foreground">Ratings Given</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Recent Documents */}
+        <div>
+          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+            <ClockIcon size={24} className="text-primary" />
+            Recent Documents
+          </h2>
+          {userDocuments.length > 0 ? (
+            <div className="space-y-4">
+              {[...userDocuments, ...favoriteDocuments]
+                .slice(0, showAllRecentDocs ? undefined : 3)
+                .map((doc, index) => {
+                  return (
+                    <Card 
+                      key={`${doc.id}-${index}`}
+                      className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
+                      onClick={() => openDocModal(doc)}
+                    >
+                      <CardContent className="p-4 pb-5">
+                        <div className="flex items-start gap-4">
+                          <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative shadow-sm border border-primary/10">
+                            {renderThumbnail(doc.file.thumbnail, doc.title)}
+                          </div>
+                          
+                          <div className="flex-grow min-w-0 flex flex-col h-32">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-semibold line-clamp-1">{doc.title}</h3>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 mt-2">
+                              <Avatar className="h-6 w-6 border border-primary/20">
+                                <img src={doc.author.avatar} alt={doc.author.username} />
+                              </Avatar>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                                <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1.5">
+                                <HistoryIcon size={12} className="text-primary" />
+                                <span>Last read: {Math.floor(Math.random() * 7) + 1}d ago</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-1 mt-auto">
+                              {doc.file.tags.slice(0, 3).map((tag) => (
+                                <Badge 
+                                  key={tag} 
+                                  variant="outline"
+                                  className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {doc.file.tags.length > 3 && (
+                                <Badge 
+                                  variant="outline"
+                                  className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
+                                >
+                                  +{doc.file.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </div>
+          ) : (
+            <Card className="bg-gradient-to-r from-muted/20 to-muted/40 shadow-md border-primary/10">
+              <CardContent className="p-8 text-center">
+                <ClockIcon size={48} className="mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground font-medium">You haven't read any documents recently.</p>
+              </CardContent>
+            </Card>
+          )}
+          {(userDocuments.length + favoriteDocuments.length) > 2 && (
+            <div className="flex justify-center mt-6">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2 hover-primary-effect shadow-sm"
+                onClick={() => setShowAllRecentDocs(!showAllRecentDocs)}
+              >
+                {showAllRecentDocs ? (
+                  <>
+                    Show Less
+                    <ChevronUpIcon size={16} />
+                  </>
+                ) : (
+                  <>
+                    View All Recent
+                    <ChevronRightIcon size={16} />
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Document Modal */}

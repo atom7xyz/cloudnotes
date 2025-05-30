@@ -35,7 +35,8 @@ import {
   PencilIcon,
   MailIcon,
   Trash2Icon,
-  CircleHelp
+  CircleHelp,
+  Check
 } from 'lucide-react';
 import { Avatar } from '../ui/avatar';
 import { Modal } from '../ui/modal';
@@ -639,34 +640,6 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
 
           <div className="overflow-y-auto flex-1 p-4">
             <TabsContent value="account" className="space-y-6 mt-0 data-[state=active]:block">
-              <Card className="overflow-hidden border-primary/10">
-                <CardContent className="p-6 flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <Avatar className="h-20 w-20 border-2 border-primary/10">
-                      <img src="https://github.com/shadcn.png" alt="Bart Simpson" />
-                    </Avatar>
-                    <div className="space-y-1">
-                      <h2 className="text-2xl font-semibold">Bart Simpson</h2>
-                      <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 px-2 py-1">
-                        @bartsimpson
-                      </Badge>
-                      <p className="text-muted-foreground mt-1">
-                        Opera enthusiast and classical music aficionado
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    className="gap-1.5 hover-primary-effect" 
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {}}
-                  >
-                      <ExternalLinkIcon size={14} />
-                      Edit Profile
-                  </Button>
-                </CardContent>
-              </Card>
-
               <SettingsSection 
                 title="Personal Information" 
                 description="Manage your personal information"
@@ -1021,7 +994,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                       >
                         <span>{lang.label}</span>
                         {selectedLanguage === lang.id && (
-                          <BookmarkIcon size={18} className="text-primary" />
+                          <Check size={18} className="text-primary" />
                         )}
                       </button>
                     ))}

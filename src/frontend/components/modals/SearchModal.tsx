@@ -1072,12 +1072,12 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
 
   const navigateToDocument = useCallback((documentId: string) => {
     // Find the document and open the document modal
-    const doc = [...documentResults, ...bookmarkResults].find(doc => doc.id === documentId);
+    const doc = [...documentResults, ...bookmarkResults, ...userDocuments].find(doc => doc.id === documentId);
     if (doc) {
       setSelectedDoc(doc);
       setIsDocModalOpen(true);
     }
-  }, [documentResults, bookmarkResults]);
+  }, [documentResults, bookmarkResults, userDocuments]);
 
   const navigateToComments = useCallback((documentId: string) => {
     // In a real app, we would use a router here

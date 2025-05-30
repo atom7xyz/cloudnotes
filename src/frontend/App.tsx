@@ -30,7 +30,7 @@ const ScreenLockModal = lazy(() => import('./components/modals/ScreenLockModal')
 const Home = lazy(() => import('./components/pages/Home'));
 const AppLockProvider = lazy(() => import('./lib/contexts/AppLockContext').then(module => ({ default: module.AppLockProvider })));
 const ThemeProvider = lazy(() => import('./lib/contexts/ThemeContext').then(module => ({ default: module.ThemeProvider })));
-
+const UserProfile = lazy(() => import('./components/pages/UserProfile'));
 // Utility function loaded later
 const LazyLoadUtils = lazy(() => 
   import('./lib/utils').then(module => {
@@ -206,6 +206,13 @@ function App() {
                       <Route path="/profile" element={
                         <MainLayout>
                           <Profile />
+                        </MainLayout>
+                      } />
+
+                      {/* UserProfile route */}
+                      <Route path="/profile/:username" element={
+                        <MainLayout>
+                          <UserProfile />
                         </MainLayout>
                       } />
                       

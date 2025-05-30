@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FileTextIcon, ClockIcon, BookmarkIcon, TrendingUpIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon, PlusIcon, HistoryIcon, ChevronUpIcon, CalendarIcon, EditIcon, ExternalLinkIcon } from 'lucide-react';
+import { FileTextIcon, ClockIcon, BookmarkIcon, TrendingUpIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon, PlusIcon, HistoryIcon, ChevronUpIcon, CalendarIcon, ExternalLinkIcon, ThumbsUpIcon } from 'lucide-react';
 import { 
   Card, 
   CardContent} from '../ui/card';
@@ -10,16 +10,20 @@ import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument } from '../../lib/mocking/mocked';
 import { cn } from '../../lib/utils';
 import DocumentView from '../modals/DocumentView';
+import { useAppNavigate } from '@/lib/navigation';
 
 const Home = () => {
+  const appNavigate = useAppNavigate();
   const [recentDocs, setRecentDocs] = useState<MockDocument[]>([]);
   const [favoriteDocs, setFavoriteDocs] = useState<MockDocument[]>([]);
   const [trendingDocs, setTrendingDocs] = useState<MockDocument[]>([]);
+  const [recommendationDocs, setRecommendationDocs] = useState<MockDocument[]>([]);
   const [userDocs, setUserDocs] = useState<MockDocument[]>([]);
   const [showAllUserDocs, setShowAllUserDocs] = useState(false);
   const [showAllRecentDocs, setShowAllRecentDocs] = useState(false);
   const [showAllBookmarkedDocs, setShowAllBookmarkedDocs] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [recommendationCarouselIndex, setRecommendationCarouselIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
@@ -83,6 +87,7 @@ const Home = () => {
   // Simulate data fetching
   useEffect(() => {
     const allDocuments = mockService.getDocuments();
+    const currentUsername = "bartsimpson"; // This would be dynamic in a real app
     
     // Sort for recent (by "last opened" rather than upload date)
     const recentDocuments = [...allDocuments].sort((a, b) => 
@@ -104,12 +109,13 @@ const Home = () => {
       return scoreB - scoreA;
     });
     
+    // Simple recommendations (just use a different slice of trending documents)
+    const recommendationDocuments = [...trendingDocuments]
+      .filter(doc => doc.author.username !== currentUsername) // Exclude user's own documents
+      .slice(3, 13);
+    
     // Initialize favorites (in a real app, this would come from user data)
     const favorites: MockDocument[] = [];
-    
-    // Get current user's documents - this would be a call to a user service in a real app
-    // For demo purposes use bartsimpson if documents exist, otherwise use a fallback to CurrentUser
-    const currentUsername = "bartsimpson"; // This would be dynamic in a real app
     
     // Get user documents and sort by last edited time (newest first)
     const userDocuments = allDocuments
@@ -124,6 +130,7 @@ const Home = () => {
     
     setRecentDocs(recentDocuments);
     setTrendingDocs(trendingDocuments.slice(0, 10)); // Take top 10 trending
+    setRecommendationDocs(recommendationDocuments); // Take different slice for recommendations
     setFavoriteDocs(favorites);
     setUserDocs(userDocuments);
   }, [getHoursSinceLastOpened]);
@@ -182,6 +189,15 @@ const Home = () => {
     setCarouselIndex((prev) => (prev === trendingDocs.length - 2 ? 0 : prev + 1));
   }, [trendingDocs.length]);
 
+  // Recommendation carousel navigation
+  const previousRecommendationSlide = useCallback(() => {
+    setRecommendationCarouselIndex((prev) => (prev === 0 ? recommendationDocs.length - 2 : prev - 1));
+  }, [recommendationDocs.length]);
+
+  const nextRecommendationSlide = useCallback(() => {
+    setRecommendationCarouselIndex((prev) => (prev === recommendationDocs.length - 2 ? 0 : prev + 1));
+  }, [recommendationDocs.length]);
+
   // Open document modal
   const openDocModal = useCallback((doc: MockDocument) => {
     setSelectedDoc(doc);
@@ -192,12 +208,23 @@ const Home = () => {
   const carouselTransform = useMemo(() => {
     return { transform: `translateX(-${carouselIndex * (100 / 2)}%)` };
   }, [carouselIndex]);
+
+  // Transform style for recommendation carousel
+  const recommendationCarouselTransform = useMemo(() => {
+    return { transform: `translateX(-${recommendationCarouselIndex * (100 / 2)}%)` };
+  }, [recommendationCarouselIndex]);
   
   // Handle new document upload 
   const handleNewDocumentClick = useCallback(() => {
     // Will be implemented in the future
     console.log("New document upload clicked");
   }, []);
+
+  // Handle view profile click
+  const handleViewProfileClick = useCallback(() => {
+    // Navigate to profile page
+    appNavigate('/profile');
+  }, [appNavigate]);
 
   // Separate toggle functions for each section
   const toggleShowAllUserDocs = useCallback(() => {
@@ -273,12 +300,12 @@ const Home = () => {
                               <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                 <div className="flex items-center gap-1">
                                   <ClockIcon size={12} className="text-primary" />
-                                  <span>{formatRelativeDate(doc.file.uploadedAt)}</span>
+                                  <span>Published: {formatRelativeDate(doc.file.uploadedAt)}</span>
                                 </div>
                                 
                                 <div className="flex items-center gap-1">
                                   <StarIcon size={12} className="text-yellow-500" />
-                                  <span className="font-medium">{doc.rating.rating.toFixed(1)}</span>
+                                  <span className="font-medium">{doc.rating.rating.toFixed(1)} rating</span>
                                 </div>
                               </div>
                               
@@ -342,98 +369,130 @@ const Home = () => {
         </section>
       )}
       
-      {/* Your Documents Section */}
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
-          <FileTextIcon size={24} className="text-primary" />
-          Your Documents
-        </h2>
-        
-        <div className="grid grid-cols-3 lg:grid-cols-5 gap-4">
-          {/* Upload New Document Card */}
-          <Card 
-            className="group cursor-pointer h-[220px] hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 shadow-md hover:shadow-lg border-primary/10"
-            onClick={handleNewDocumentClick}
-          >
-            <CardContent className="p-0 h-full flex flex-col items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-muted/50 to-muted/80 group-hover:from-primary/10 group-hover:to-primary/20 flex items-center justify-center transition-all duration-200 shadow-sm">
-                <PlusIcon size={36} className="text-muted-foreground group-hover:text-primary transition-colors" />
-              </div>
-              <p className="mt-4 text-sm font-semibold text-muted-foreground group-hover:text-primary transition-colors">
-                Upload Document
-              </p>
-            </CardContent>
-          </Card>
+      {/* Recommendations Section */}
+      {recommendationDocs.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+            <ThumbsUpIcon size={24} className="text-primary" />
+            Recommendations
+          </h2>
           
-          {/* User Documents */}
-          {userDocs
-            .slice(0, showAllUserDocs ? undefined : 4)
-            .map((doc) => (
-              <Card 
-                key={doc.id} 
-                className="overflow-hidden cursor-pointer h-[220px] hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 shadow-md hover:shadow-lg border-primary/10"
-                onClick={() => openDocModal(doc)}
-              >
-                <div className="h-[140px] overflow-hidden bg-muted/30 relative border-b border-primary/10">
-                  {renderThumbnail(doc.file.thumbnail, doc.title)}
-                </div>
-                <CardContent className="p-3">
-                  <h3 className="font-semibold text-md line-clamp-1">{doc.title}</h3>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Avatar className="h-6 w-6 border border-primary/20">
-                      <img src={doc.author.avatar} alt={doc.author.username} />
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
-                      <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1.5 mt-2">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <CalendarIcon size={12} className="text-primary" />
-                      <span>Uploaded: {formatRelativeDate(doc.file.uploadedAt)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          
-          {/* Show empty state cards if there are no documents */}
-          {userDocs.length === 0 && (
-            <Card className="h-[220px] overflow-hidden border-dashed border-muted-foreground/30 shadow-sm">
-              <CardContent className="h-full flex items-center justify-center p-3 text-center">
-                <p className="text-muted-foreground text-sm">
-                  You haven't uploaded any documents yet
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* View More Documents Button */}
-        {userDocs.length > 4 && (
-          <div className="flex justify-center mt-6">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={toggleShowAllUserDocs}
-              className="gap-2 hover-primary-effect shadow-sm"
+          <div className="relative">
+            {/* Left navigation button - positioned outside the overflow area */}
+            <button 
+              onClick={previousRecommendationSlide} 
+              className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-lg transition-colors cursor-pointer"
+              aria-label="Previous slide"
+              type="button"
             >
-              {showAllUserDocs ? (
-                <>
-                  Show Less
-                  <ChevronUpIcon size={16} />
-                </>
-              ) : (
-                <>
-                  View All Documents
-                  <ChevronRightIcon size={16} />
-                </>
-              )}
-            </Button>
+              <ChevronLeftIcon size={24} />
+            </button>
+            
+            {/* Inner container with overflow-hidden */}
+            <div className="overflow-hidden">
+              {/* Carousel container */}
+              <div 
+                ref={carouselRef} 
+                className="flex transition-transform duration-300 ease-in-out"
+                style={recommendationCarouselTransform}
+              >
+                {recommendationDocs.map((doc) => (
+                  <div key={doc.id} className="min-w-[50%] px-2">
+                    <Card 
+                      className="h-full hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
+                      onClick={() => openDocModal(doc)}
+                    >
+                      <CardContent className="p-4 pb-5">
+                        <div className="flex items-start gap-3">
+                          <div className="w-24 h-32 rounded-lg overflow-hidden flex-shrink-0 mr-2 bg-muted/30 relative shadow-sm border border-primary/10">
+                            {renderThumbnail(doc.file.thumbnail, doc.title)}
+                          </div>
+                          
+                          <div className="flex-grow min-w-0 flex flex-col h-32">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-semibold text-md line-clamp-1">{doc.title}</h3>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 mt-2">
+                              <Avatar className="h-6 w-6 border border-primary/20">
+                                <img src={doc.author.avatar} alt={doc.author.username} />
+                              </Avatar>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                                <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <ClockIcon size={12} className="text-primary" />
+                                <span>Published: {formatRelativeDate(doc.file.uploadedAt)}</span>
+                              </div>
+                              
+                              <div className="flex items-center gap-1">
+                                <StarIcon size={12} className="text-yellow-500" />
+                                <span className="font-medium">{doc.rating.rating.toFixed(1)} rating</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-1 mt-auto">
+                              {doc.file.tags.slice(0, 3).map((tag) => (
+                                <Badge 
+                                  key={tag} 
+                                  variant="outline"
+                                  className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {doc.file.tags.length > 3 && (
+                                <Badge 
+                                  variant="outline"
+                                  className="text-xs px-2 py-0.5 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30"
+                                >
+                                  +{doc.file.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Right navigation button - positioned outside the overflow area */}
+            <button 
+              onClick={nextRecommendationSlide} 
+              className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-lg transition-colors cursor-pointer"
+              aria-label="Next slide"
+              type="button"
+            >
+              <ChevronRightIcon size={24} />
+            </button>
           </div>
-        )}
-      </section>
+          
+          {/* Pagination dots */}
+          <div className="flex justify-center items-center gap-2 mt-6">
+            {recommendationDocs.slice(0, recommendationDocs.length - 1).map((doc, index) => (
+              <button
+                key={`recommendation-dot-${doc.id}`}
+                type="button"
+                aria-label={`Go to slide ${index + 1}`}
+                className={cn(
+                  "h-2 rounded-full transition-all bg-muted-foreground/30 hover:bg-muted-foreground/50 cursor-pointer shadow-sm",
+                  index === recommendationCarouselIndex 
+                    ? "w-8 bg-primary shadow-md" 
+                    : "w-2"
+                )}
+                onClick={() => setRecommendationCarouselIndex(index)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
       
       {/* Document Modal - Replace with DocumentView component */}
       <DocumentView 
@@ -530,7 +589,7 @@ const Home = () => {
               </Card>
             ))}
           </div>
-          {recentDocs.length > 3 && (
+          {recentDocs.length > 2 && (
             <div className="flex justify-center mt-6">
               <Button 
                 variant="outline" 
@@ -643,7 +702,7 @@ const Home = () => {
               </CardContent>
             </Card>
           )}
-          {favoriteDocs.length > 3 && (
+          {favoriteDocs.length > 2 && (
             <div className="flex justify-center mt-6">
               <Button 
                 variant="outline" 
@@ -687,9 +746,10 @@ const Home = () => {
               </div>
             </div>
             <Button 
-              className="gap-2 hover-primary-effect shadow-md" 
+              className="gap-2 hover-primary-effect shadow-md cursor-pointer" 
               variant="outline"
               size="lg"
+              onClick={handleViewProfileClick}
             >
               <ExternalLinkIcon size={16} />
               View Profile

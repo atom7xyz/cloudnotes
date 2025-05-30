@@ -1,11 +1,12 @@
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { 
   HomeIcon, 
   BookmarkIcon, 
   SettingsIcon,
   UserIcon,
-  FileTextIcon
+  FileTextIcon,
+  ChevronRightIcon
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import SettingsModal from '../modals/SettingsModal';
 import SessionExpiredModal from '../modals/SessionExpiredModal';
 import { Separator } from '../ui/separator';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '../ui/dropdown-menu';
+import { mockService } from '../../lib/mocking/mockedData';
+import type { MockDocument } from '../../lib/mocking/mocked';
+import { useAppNavigate } from '@/lib/navigation';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -22,54 +27,139 @@ interface NavItemProps {
   active?: boolean;
   onClick?: () => void;
   title?: string;
+  hasDropdown?: boolean;
+  dropdownContent?: React.ReactNode;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, title }) => {
+const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, title, hasDropdown, dropdownContent }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const buttonContent = (
     <Button
       variant="ghost"
-      onClick={onClick}
+      onClick={hasDropdown ? () => setIsOpen(!isOpen) : onClick}
       size="icon"
       className={cn(
         "w-full flex flex-col items-center justify-center py-2 px-1 h-auto",
         "hover-primary-effect rounded-none transition-all duration-200",
         active ? "bg-sidebar-accent/70 text-sidebar-foreground font-semibold" : "text-sidebar-foreground"
       )}
-      title={title || label}
     >
       <div className="mb-1">{icon}</div>
       <span className="text-[11px] font-medium select-none">{label}</span>
     </Button>
   );
 
+  // If it has a dropdown, wrap in dropdown menu with click trigger
+  if (hasDropdown && dropdownContent) {
+    return (
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild className="w-full">
+          <div>
+            {buttonContent}
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent 
+          side="right" 
+          align="start" 
+          className="ml-2 w-64"
+        >
+          {dropdownContent}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
   // If there's an onClick handler, render just the button
   if (onClick) {
     return buttonContent;
   }
 
-  // Otherwise use AppLink for navigation
+  // Otherwise use AppLink for navigation (remove title prop to avoid tooltips)
   return (
-    <AppLink href={to} className="w-full block hover:no-underline" preventNavigation title={title}>
+    <AppLink href={to} className="w-full block hover:no-underline" preventNavigation>
       {buttonContent}
     </AppLink>
   );
 };
 
-// User status options
-type UserStatus = 'online' | 'away' | 'busy' | 'offline';
-
 const LeftSidebar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSessionExpiredOpen, setIsSessionExpiredOpen] = useState(false);
-  const [userStatus, _setUserStatus] = useState<UserStatus>('online');
+  const appNavigate = useAppNavigate();
   
-  // Status color mapping
-  const statusColors = {
-    online: 'bg-green-500',
-    away: 'bg-yellow-500',
-    busy: 'bg-red-500',
-    offline: 'bg-gray-400'
+  // Get documents for dropdowns
+  const allDocuments = mockService.getDocuments();
+  const recentDocuments = allDocuments.slice(0, 5); // Mock recent files
+  const savedDocuments = allDocuments.slice(0, 3); // Mock saved files
+  
+  const handleDocumentClick = (docId: string) => {
+    appNavigate(`/document/${docId}`);
   };
+
+  // Reader dropdown content
+  const readerDropdownContent = (
+    <>
+      <DropdownMenuLabel>Recent Files</DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      {recentDocuments.length > 0 ? (
+        recentDocuments.map((doc) => (
+          <DropdownMenuItem 
+            key={doc.id} 
+            onClick={() => handleDocumentClick(doc.id)}
+            className="cursor-pointer hover-primary-effect"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <FileTextIcon size={14} className="text-primary flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{doc.title}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  by {doc.author.firstName} {doc.author.lastName}
+                </div>
+              </div>
+              <ChevronRightIcon size={12} className="text-muted-foreground flex-shrink-0" />
+            </div>
+          </DropdownMenuItem>
+        ))
+      ) : (
+        <DropdownMenuItem disabled>
+          <span className="text-muted-foreground">No recent files</span>
+        </DropdownMenuItem>
+      )}
+    </>
+  );
+
+  // Saved dropdown content
+  const savedDropdownContent = (
+    <>
+      <DropdownMenuLabel>Saved Documents</DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      {savedDocuments.length > 0 ? (
+        savedDocuments.map((doc) => (
+          <DropdownMenuItem 
+            key={doc.id} 
+            onClick={() => handleDocumentClick(doc.id)}
+            className="cursor-pointer hover-primary-effect"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <BookmarkIcon size={14} className="text-blue-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{doc.title}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  by {doc.author.firstName} {doc.author.lastName}
+                </div>
+              </div>
+              <ChevronRightIcon size={12} className="text-muted-foreground flex-shrink-0" />
+            </div>
+          </DropdownMenuItem>
+        ))
+      ) : (
+        <DropdownMenuItem disabled>
+          <span className="text-muted-foreground">No saved documents</span>
+        </DropdownMenuItem>
+      )}
+    </>
+  );
   
   return (
     <>
@@ -78,12 +168,37 @@ const LeftSidebar: React.FC = () => {
         <div className="flex-grow flex flex-col items-center justify-center">
           <NavItem icon={<HomeIcon size={32} />} label="HOME" to="/home" active />
           <Separator className="w-full my-2" />
-          <NavItem icon={<FileTextIcon size={32} />} label="READER" to="/reader" />
+          <NavItem 
+            icon={<FileTextIcon size={32} />} 
+            label="READ" 
+            to="/reader" 
+            hasDropdown={true}
+            dropdownContent={readerDropdownContent}
+          />
           <Separator className="w-full my-2" />
-          <NavItem icon={<BookmarkIcon size={32} />} label="SAVED" to="/saved" />
+          <NavItem 
+            icon={<BookmarkIcon size={32} />} 
+            label="SAVED" 
+            to="/saved" 
+            hasDropdown={true}
+            dropdownContent={savedDropdownContent}
+          />
+          <Separator className="w-full my-2" />
+          <NavItem 
+            icon={
+              <Avatar className="h-6 w-6 border-2 border-sidebar">
+                <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
+                <AvatarFallback>
+                  <UserIcon size={14} />
+                </AvatarFallback>
+              </Avatar>
+            } 
+            label="PROFILE" 
+            to="/profile" 
+          />
         </div>
         
-        {/* Bottom Items - Settings and Profile */}
+        {/* Bottom Items - Settings */}
         <div className="flex flex-col items-center">
           <NavItem 
             icon={<SettingsIcon size={32} />} 
@@ -91,20 +206,6 @@ const LeftSidebar: React.FC = () => {
             to="/settings" 
             onClick={() => setIsSettingsOpen(true)} 
           />
-          <AppLink href="/profile" className="w-full block hover:no-underline" preventNavigation>
-            <div className="w-full flex flex-col items-center justify-center py-3 px-1 hover-primary-effect rounded-none transition-all duration-200 text-sidebar-foreground cursor-default">
-              <div className="relative mb-1">
-                <Avatar className="h-8 w-8 border-2 border-sidebar">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
-                  <AvatarFallback>
-                    <UserIcon size={18} />
-                  </AvatarFallback>
-                </Avatar>
-                <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-sidebar ${statusColors[userStatus]}`} />
-              </div>
-              <span className="text-[11px] font-medium select-none">PROFILE</span>
-            </div>
-          </AppLink>
         </div>
       </aside>
       

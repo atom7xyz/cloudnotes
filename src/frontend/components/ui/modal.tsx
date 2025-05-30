@@ -44,6 +44,8 @@ export interface ModalProps {
   scrollBody?: boolean;
   /** A unique ID for this modal (used for stacking) */
   id?: string;
+  /** Whether to enable the pop-up animation (default: true) */
+  enableAnimation?: boolean;
 }
 
 export function Modal({
@@ -65,28 +67,37 @@ export function Modal({
   showCloseButton = true,
   scrollBody = true,
   id = `modal-${Math.random().toString(36).substr(2, 9)}`,
+  enableAnimation = true,
 }: ModalProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Register and unregister modal in the stack
+  // Register and unregister modal in the stack with enhanced animation
   useEffect(() => {
     if (isOpen) {
-      setIsVisible(true);
+      setIsMounted(true);
       modalStack = [...modalStack, id];
+      // Use requestAnimationFrame for smoother animation
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsVisible(true);
+        });
+      });
     } else {
       // Start closing animation
       setIsVisible(false);
-      // Wait for animation to complete before removing from stack
+      // Wait for animation to complete before removing from stack and unmounting
       const timeout = setTimeout(() => {
         modalStack = modalStack.filter(modalId => modalId !== id);
-      }, 200); // Match animation duration
+        setIsMounted(false);
+      }, enableAnimation ? 300 : 0); // Extended duration for smoother animation
       return () => clearTimeout(timeout);
     }
 
     return () => {
       modalStack = modalStack.filter(modalId => modalId !== id);
     };
-  }, [isOpen, id]);
+  }, [isOpen, id, enableAnimation]);
   
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -118,7 +129,7 @@ export function Modal({
     }
   }, [isOpen, onClose, closeOnEscape, id]);
 
-  if (!isOpen && !isVisible) return null;
+  if (!isMounted) return null;
 
   // Determine content max height based on fullScreen and the presence of header and footer
   let contentMaxHeight = "max-h-full";
@@ -136,7 +147,7 @@ export function Modal({
     <div 
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto",
-        "transition-opacity duration-200",
+        enableAnimation && "transition-all duration-200 ease-out",
         isVisible ? "opacity-100" : "opacity-0",
         backdropClassName
       )}
@@ -144,8 +155,10 @@ export function Modal({
       <div 
         className={cn(
           "bg-background rounded-lg shadow-xl flex flex-col w-full",
-          "transform transition-all duration-200",
-          isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0",
+          enableAnimation && "transform transition-all duration-200 ease-out",
+          isVisible 
+            ? "scale-100 opacity-100 translate-y-0" 
+            : "scale-90 opacity-0 translate-y-4",
           maxWidth,
           fullScreen ? "h-screen max-h-screen" : "max-h-[90vh]",
           className

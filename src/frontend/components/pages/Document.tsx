@@ -38,6 +38,7 @@ import { Separator } from '../ui/separator';
 import { cn, formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '../ui/dropdown-menu';
+import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockComment, MockReport } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
@@ -119,8 +120,8 @@ const Document = () => {
     });
   }, [isBookmarked]);
 
-  // Copy document link to clipboard
-  const handleCopyLink = useCallback(async () => {
+  // Copy document link to clipboard (custom function for document-specific URL)
+  const handleCopyDocumentLink = useCallback(async () => {
     try {
       const documentUrl = `${window.location.origin}/document/${document?.id}`;
       await navigator.clipboard.writeText(documentUrl);
@@ -288,49 +289,21 @@ const Document = () => {
                   </Tooltip>
                 </TooltipProvider>
                 
-                <DropdownMenu>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="icon" className="h-12 w-12 hover-primary-effect">
-                            <Share2Icon size={20} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>Share document</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <DropdownMenuContent>
-                    <DropdownMenuLabel>Share via</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer flex items-center" onClick={handleCopyLink}>
-                      <LinkIcon className="mr-2 h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                      <span>Copy Link</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FaFacebook className="mr-2 h-4 w-4 flex-shrink-0 text-[#1877F2]" />
-                      <span>Facebook</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FaTwitter className="mr-2 h-4 w-4 flex-shrink-0 text-[#1DA1F2]" />
-                      <span>X / Twitter</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FaTelegram className="mr-2 h-4 w-4 flex-shrink-0 text-[#0088CC]" />
-                      <span>Telegram</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FaWhatsapp className="mr-2 h-4 w-4 flex-shrink-0 text-[#25D366]" />
-                      <span>WhatsApp</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <MailIcon className="mr-2 h-4 w-4 flex-shrink-0 text-gray-600" />
-                      <span>Email</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <ShareLinksDropdown
+                          triggerText=""
+                          triggerIcon={<Share2Icon size={20} />}
+                          triggerClassName="h-12 w-12 hover-primary-effect"
+                          onCopyLink={handleCopyDocumentLink}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>Share document</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
 
                 <TooltipProvider>
                   <Tooltip>
@@ -480,7 +453,23 @@ const Document = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">@{document.author.username}</p>
                 </div>
-                <Button variant="outline" size="sm" className="gap-2 hover-primary-effect">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2 hover-primary-effect cursor-pointer"
+                  onClick={() => {
+                    // Check if it's the current user's document
+                    const currentUsername = "bartsimpson"; // This would be dynamic in a real app
+                    
+                    if (document.author.username === currentUsername) {
+                      // Navigate to own profile page
+                      appNavigate('/profile');
+                    } else {
+                      // Navigate to other user's profile
+                      appNavigate(`/profile/${document.author.username}`);
+                    }
+                  }}
+                >
                   <UserIcon size={14} />
                   View Profile
                 </Button>

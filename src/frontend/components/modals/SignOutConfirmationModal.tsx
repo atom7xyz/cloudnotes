@@ -34,7 +34,7 @@ export default function SignOutConfirmationModal({
           <Button 
             variant="outline" 
             onClick={onClose}
-            className="rounded-full cursor-pointer"
+            className="rounded-full hover-primary-effect cursor-pointer"
           >
             Cancel
           </Button>

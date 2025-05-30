@@ -68,7 +68,7 @@ export default function ExportDataModal({
             <Button 
               variant="outline" 
               onClick={onClose}
-              className="rounded-full cursor-pointer"
+              className="rounded-full hover-primary-effect cursor-pointer"
               disabled={loading}
             >
               Cancel

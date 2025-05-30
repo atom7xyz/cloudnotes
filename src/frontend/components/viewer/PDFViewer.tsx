@@ -1968,7 +1968,6 @@ const PDFViewer = memo(({
       <div 
         className={`pdf-container ${containerClasses} overflow-y-auto h-full ${isDragging ? 'select-none touch-none dragging' : ''}`}
         ref={viewportRef}
-        tabIndex={0} /* Make it focusable for keyboard navigation */
         role="application" /* Add a role to make it a valid interactive element */
         onMouseDown={
           activeTool === 'move' 
