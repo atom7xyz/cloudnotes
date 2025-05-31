@@ -6,7 +6,6 @@ import {
   StarIcon,
   MessageSquareIcon,
   ExternalLinkIcon,
-  Mail as MailIcon,
   LinkIcon,
   SendIcon,
   ArrowLeftIcon,
@@ -23,12 +22,6 @@ import {
   TrashIcon,
   RefreshCwIcon
 } from 'lucide-react';
-import { 
-  FaFacebook, 
-  FaTwitter, 
-  FaTelegram, 
-  FaWhatsapp 
-} from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Avatar } from '../ui/avatar';
@@ -38,7 +31,6 @@ import { Textarea } from '../ui/textarea';
 import { Separator } from '../ui/separator';
 import { cn, formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '../ui/dropdown-menu';
 import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockComment, MockReport } from '../../lib/mocking/mocked';
