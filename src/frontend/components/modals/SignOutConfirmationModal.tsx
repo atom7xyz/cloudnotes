@@ -1,4 +1,3 @@
-import { Button } from "../ui/button";
 import { Modal } from "../ui/modal";
 import { LogOutIcon } from "lucide-react";
 import { Card } from "../ui/card";
@@ -29,24 +28,14 @@ export default function SignOutConfirmationModal({
         </div>
       }
       maxWidth="max-w-md"
-      footer={
-        <div className="flex justify-end items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            className="rounded-full hover-primary-effect cursor-pointer"
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={onConfirm}
-            className="rounded-full flex items-center gap-2 !px-8 cursor-pointer"
-            variant="destructive"
-          >
-            Sign Out
-          </Button>
-        </div>
-      }
+      cancelButton={{
+        text: "Cancel"
+      }}
+      actionButton={{
+        text: "Sign Out",
+        onClick: onConfirm,
+        variant: "destructive"
+      }}
     >
       <div className="p-6 select-none">
         <Card className="p-6 space-y-6 border-none shadow-none">

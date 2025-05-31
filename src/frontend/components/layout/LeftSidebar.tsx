@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { 
   HomeIcon, 
   BookmarkIcon, 
@@ -13,11 +13,9 @@ import { cn } from "@/lib/utils";
 import { AppLink } from "../ui/app-link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import SettingsModal from '../modals/SettingsModal';
-import SessionExpiredModal from '../modals/SessionExpiredModal';
 import { Separator } from '../ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '../ui/dropdown-menu';
 import { mockService } from '../../lib/mocking/mockedData';
-import type { MockDocument } from '../../lib/mocking/mocked';
 import { useAppNavigate } from '@/lib/navigation';
 
 interface NavItemProps {
@@ -213,11 +211,6 @@ const LeftSidebar: React.FC = () => {
       <SettingsModal 
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
-      />
-      
-      <SessionExpiredModal
-        isOpen={isSessionExpiredOpen}
-        onClose={() => setIsSessionExpiredOpen(false)}
       />
     </>
   );

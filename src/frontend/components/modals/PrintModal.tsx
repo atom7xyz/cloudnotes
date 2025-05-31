@@ -37,24 +37,14 @@ export default function PrintModal({
       title="Print Preview"
       maxWidth="max-w-4xl"
       maxHeight="max-h-[calc(90vh-10rem)]"
-      footer={
-        <div className="flex justify-end items-center gap-2 select-none">
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            className="rounded-full hover-primary-effect cursor-pointer"
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={printDocument}
-            className="rounded-full flex items-center gap-2 !px-8 cursor-pointer"
-          >
-            <PrinterIcon className="size-4" />
-            Print
-          </Button>
-        </div>
-      }
+      cancelButton={{
+        text: "Cancel"
+      }}
+      actionButton={{
+        text: "Print",
+        onClick: printDocument,
+        icon: <PrinterIcon size={16} />
+      }}
     >
       <div className="p-8 print:p-0">
         <div className="print:max-w-none mx-auto print:mx-0">

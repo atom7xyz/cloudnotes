@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import {
   AlertTriangleIcon,
-  SendIcon
+  SendIcon,
+  CheckCircleIcon
 } from 'lucide-react';
 import { Modal } from '../ui/modal';
-import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import type { MockDocument } from '../../lib/mocking/mocked';
-import { toast } from 'sonner';
+import { mockService } from '../../lib/mocking/mockedData';
 
 interface ReportProblemModalProps {
   isOpen: boolean;
@@ -21,23 +21,44 @@ const ReportProblemModal = ({
   document
 }: ReportProblemModalProps) => {
   const [reportMessage, setReportMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Handle report problem submission
+  // Handle report problem submission with loading animation
   const handleReportProblem = useCallback(() => {
-    if (!reportMessage.trim()) return;
+    if (!reportMessage.trim() || !document) return;
 
-    toast.success("Report sent", {
-      description: "Your report has been sent to the document author",
-      icon: <AlertTriangleIcon size={16} />,
-    });
+    setIsLoading(true);
     
-    setReportMessage('');
-    onClose();
-  }, [reportMessage, onClose]);
+    // Simulate API call with loading delay
+    setTimeout(() => {
+      // Add the report to the mock service
+      const reportData = {
+        content: reportMessage.trim(),
+        timestamp: new Date(),
+        status: 'pending' as const
+      };
+      
+      mockService.addReport(reportData, 'current-user', document.id);
+      
+      setIsLoading(false);
+      setShowSuccess(true);
+    }, 2000); // 2 second loading simulation
+  }, [reportMessage, document]);
 
   // Handle modal close and reset form
   const handleClose = useCallback(() => {
     setReportMessage('');
+    setIsLoading(false);
+    setShowSuccess(false);
+    onClose();
+  }, [onClose]);
+
+  // Handle success modal close
+  const handleSuccessClose = useCallback(() => {
+    setReportMessage('');
+    setIsLoading(false);
+    setShowSuccess(false);
     onClose();
   }, [onClose]);
 
@@ -49,11 +70,53 @@ const ReportProblemModal = ({
       onClose={handleClose}
       title={
         <div className="flex items-center gap-2 text-lg font-medium select-none">
-          <AlertTriangleIcon size={18} />
+          <AlertTriangleIcon size={18} className="text-orange-500" />
           <span>Report a Problem</span>
         </div>
       }
       maxWidth="max-w-2xl"
+      cancelButton={{
+        text: "Cancel",
+        disabled: isLoading
+      }}
+      actionButton={{
+        text: "Send Report",
+        onClick: handleReportProblem,
+        disabled: !reportMessage.trim() || isLoading,
+        loadingText: "Sending report...",
+        icon: <SendIcon size={14} />
+      }}
+      isLoading={isLoading}
+      showSuccess={showSuccess}
+      onSuccessClose={handleSuccessClose}
+      successConfig={{
+        title: (
+          <div className="flex items-center gap-2 text-lg font-medium select-none">
+            <CheckCircleIcon size={18} className="text-green-600" />
+            <span>Report Sent Successfully</span>
+          </div>
+        ),
+        content: (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium text-center">Report Submitted</h3>
+              <p className="text-base text-center text-muted-foreground">
+                Your report has been successfully sent to the document author.
+              </p>
+              <p className="text-center font-medium">{document.author.firstName} {document.author.lastName}</p>
+            </div>
+            
+            <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200/50 rounded-lg">
+              <p className="text-sm text-orange-800 text-center">
+                <strong>What happens next?</strong> The author will be notified about your report and can take appropriate action to address the issue you've identified.
+              </p>
+            </div>
+          </div>
+        ),
+        closeButtonText: "Done",
+        iconBgColor: "bg-green-100",
+        iconColor: "text-green-600"
+      }}
     >
       <div className="p-8 select-none">
         <div className="space-y-6">
@@ -69,38 +132,19 @@ const ReportProblemModal = ({
           <div className="space-y-4">
             <div className="space-y-3">
               <label htmlFor="report-message" className="text-sm font-medium flex items-center gap-2">
-                <AlertTriangleIcon size={14} className="text-orange-500" />
                 Describe the problem:
               </label>
               <Textarea
                 id="report-message"
-                placeholder="Please describe the issue you found (e.g., broken links, formatting problems...)"
+                placeholder="Please describe the issue you found (e.g., broken links, formatting problems, inappropriate content...)"
                 value={reportMessage}
                 onChange={(e) => setReportMessage(e.target.value)}
+                disabled={isLoading}
                 className="min-h-[140px] resize-none border-primary/20 focus:border-primary/40 bg-muted/20"
               />
               <p className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-orange-300/50">
-                Be specific about the issue to help the author understand and fix the problem quickly.
+                <strong>Tip:</strong> Be specific about the issue to help the author understand and fix the problem quickly.
               </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-3 pt-6 border-t border-muted/20">
-              <Button 
-                variant="outline" 
-                onClick={handleClose}
-                className="hover-primary-effect rounded-full cursor-pointer"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleReportProblem}
-                disabled={!reportMessage.trim()}
-                className="gap-2 rounded-full cursor-pointer shadow-md"
-              >
-                <SendIcon size={14} />
-                Send Report
-              </Button>
             </div>
           </div>
         </div>

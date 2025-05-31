@@ -229,22 +229,23 @@ const UserProfile = () => {
                     <TooltipContent>Share profile</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              </div>
-              
-              {/* Donation Button */}
-              <div className="w-full">
-                <Button 
-                  className="w-full gap-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-md cursor-pointer"
-                  onClick={() => {
-                    toast.success("Donation feature coming soon", {
-                      description: "Support your favorite creators with donations",
-                      icon: <HeartIcon size={16} />,
-                    });
-                  }}
-                >
-                  <HeartIcon size={18} />
-                  Support Creator
-                </Button>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        className="h-12 gap-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-md cursor-pointer"
+                        onClick={() => {
+                          window.open('https://paypal.com', '_blank', 'noopener,noreferrer');
+                        }}
+                      >
+                        <HeartIcon size={18} />
+                        Donate
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Support this creator</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
             

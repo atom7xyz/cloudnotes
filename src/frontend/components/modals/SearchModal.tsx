@@ -191,7 +191,7 @@ const adaptDocumentForDisplay = (doc: MockDocument) => {
 };
 
 // Document item component - optimized with proper memoization
-const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToDocument, navigateToUserProfile, navigateToReviews, navigateToComments, bookmarkResults }: { 
+const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToDocument, navigateToUserProfile, navigateToReviews, navigateToComments, bookmarkResults, toggleBookmark }: { 
   document: MockDocument;
   selectedTags: string[];
   handleTagClick: (tag: string) => void;
@@ -200,6 +200,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
   navigateToReviews: (id: string) => void;
   navigateToComments: (id: string) => void;
   bookmarkResults: MockDocument[];
+  toggleBookmark: (docId: string) => void;
 }) => {
   // Adapt the document to the display format
   const displayDoc = useMemo(() => adaptDocumentForDisplay(document), [document]);
@@ -232,7 +233,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
     };
     
     const getBadgeStyles = () => {
-      const baseStyles = "cursor-pointer transition-colors ";
+      const baseStyles = "h-7 cursor-pointer transition-colors ";
       
       if (isSelected) {
         // Selected state styling
@@ -356,24 +357,38 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
           type="button"
         >
           {renderThumbnail(displayDoc.thumbnailUrl, displayDoc.name)}
-          {isBookmarked && (
-            <div className="absolute top-2 right-2 bg-primary/90 rounded-full p-1 shadow-sm">
-              <BookmarkIcon size={14} className="text-primary-foreground" />
-            </div>
-          )}
         </button>
         
         <div className="flex-grow min-w-0 flex flex-col justify-between h-36">
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <button
-                className="font-semibold text-base truncate cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0 transition-colors"
+                className="font-semibold text-base truncate cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0 transition-colors flex-1"
                 onClick={() => navigateToDocument(document.id)}
                 type="button"
               >
                 {displayDoc.name}
               </button>
-              {fileIcon}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7 cursor-pointer hover:bg-primary/10 shadow-sm"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering document click
+                    toggleBookmark(document.id);
+                  }}
+                >
+                  <BookmarkIcon 
+                    size={16} 
+                    className={isBookmarked 
+                      ? "fill-primary text-primary" 
+                      : "hover:text-primary hover:fill-primary/30"
+                    } 
+                  />
+                </Button>
+                {fileIcon}
+              </div>
             </div>
             
             {/* Enhanced Author Section */}
@@ -1175,13 +1190,15 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       // Remove from bookmarks
       setBookmarkResults(prev => prev.filter(doc => doc.id !== docId));
     } else {
-      // Add to saved
-      const docToAdd = documentResults.find(doc => doc.id === docId);
+      // Add to saved - look for document in all available collections
+      const docToAdd = documentResults.find(doc => doc.id === docId) || 
+                       userDocuments.find(doc => doc.id === docId) ||
+                       bookmarkResults.find(doc => doc.id === docId);
       if (docToAdd) {
         setBookmarkResults(prev => [...prev, docToAdd]);
       }
     }
-  }, [documentResults, bookmarkResults]);
+  }, [documentResults, bookmarkResults, userDocuments]);
 
   return (
     <>
@@ -1391,6 +1408,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                       navigateToReviews={navigateToReviews} 
                       navigateToComments={navigateToComments} 
                       bookmarkResults={bookmarkResults} 
+                      toggleBookmark={toggleBookmark}
                     />
                   ))}
                 </>
@@ -1488,6 +1506,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                       navigateToReviews={navigateToReviews} 
                       navigateToComments={navigateToComments} 
                       bookmarkResults={bookmarkResults} 
+                      toggleBookmark={toggleBookmark}
                     />
                   ))}
                 </>
@@ -1542,6 +1561,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                       navigateToReviews={navigateToReviews} 
                       navigateToComments={navigateToComments} 
                       bookmarkResults={bookmarkResults} 
+                      toggleBookmark={toggleBookmark}
                     />
                   ))}
                 </>

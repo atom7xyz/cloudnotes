@@ -18,13 +18,15 @@ import {
   HelpCircle,
   Compass,
   FolderHeart,
-  CalendarIcon
+  CalendarIcon,
+  HistoryIcon
 } from 'lucide-react';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockUser, MockBookmark } from '../../lib/mocking/mocked';
 import { debounce, throttle } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import DocumentView from './DocumentView';
+import { Button } from '../ui/button';
 
 // Import placeholder images
 import placeholder1 from '../../assets/placeholders/placeholder (1).png';
@@ -187,8 +189,30 @@ const adaptDocumentForDisplay = (doc: MockDocument) => {
   };
 };
 
+// Calculate last opened time (in a real app this would come from user session data)
+const getLastOpenedTime = (doc: MockDocument): string => {
+  // For demo purposes, generate a random time within the last 7 days
+  // Use document ID as a seed to ensure consistent results
+  const seed = doc.id.charCodeAt(0) + doc.id.charCodeAt(doc.id.length - 1);
+  const randomHours = Math.floor((seed % 150) + 1); // 1-150 hours, using doc ID as seed
+  
+  const now = new Date();
+  const lastOpened = new Date(now.getTime() - randomHours * 60 * 60 * 1000);
+  
+  // Format the relative time
+  const diffInHours = Math.floor((now.getTime() - lastOpened.getTime()) / (1000 * 60 * 60));
+  
+  if (diffInHours < 1) return 'Just now';
+  if (diffInHours === 1) return '1 hour ago';
+  if (diffInHours < 24) return `${diffInHours} hours ago`;
+  
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) return 'Yesterday';
+  return `${diffInDays} days ago`;
+};
+
 // Document item component - optimized with proper memoization
-const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToDocument, navigateToUserProfile, navigateToReviews, navigateToComments, bookmarkResults }: { 
+const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToDocument, navigateToUserProfile, navigateToReviews, navigateToComments, bookmarkResults, toggleBookmark }: { 
   document: MockDocument;
   selectedTags: string[];
   handleTagClick: (tag: string) => void;
@@ -197,6 +221,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
   navigateToReviews: (id: string) => void;
   navigateToComments: (id: string) => void;
   bookmarkResults: MockDocument[];
+  toggleBookmark: (docId: string) => void;
 }) => {
   // Adapt the document to the display format
   const displayDoc = useMemo(() => adaptDocumentForDisplay(document), [document]);
@@ -229,7 +254,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
     };
     
     const getBadgeStyles = () => {
-      const baseStyles = "cursor-pointer transition-colors ";
+      const baseStyles = "h-7 cursor-pointer transition-colors ";
       
       if (isSelected) {
         // Selected state styling
@@ -353,24 +378,38 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
           type="button"
         >
           {renderThumbnail(displayDoc.thumbnailUrl, displayDoc.name)}
-          {isBookmarked && (
-            <div className="absolute top-2 right-2 bg-primary/90 rounded-full p-1 shadow-sm">
-              <BookmarkIcon size={14} className="text-primary-foreground" />
-            </div>
-          )}
         </button>
         
         <div className="flex-grow min-w-0 flex flex-col justify-between h-36">
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <button
-                className="font-semibold text-base truncate cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0 transition-colors"
+                className="font-semibold text-base truncate cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0 transition-colors flex-1"
                 onClick={() => navigateToDocument(document.id)}
                 type="button"
               >
                 {displayDoc.name}
               </button>
-              {fileIcon}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7 cursor-pointer hover:bg-primary/10 shadow-sm"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering document click
+                    toggleBookmark(document.id);
+                  }}
+                >
+                  <BookmarkIcon 
+                    size={16} 
+                    className={isBookmarked 
+                      ? "fill-primary text-primary" 
+                      : "hover:text-primary hover:fill-primary/30"
+                    } 
+                  />
+                </Button>
+                {fileIcon}
+              </div>
             </div>
             
             {/* Enhanced Author Section */}
@@ -396,9 +435,9 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
             {/* Enhanced Stats Section */}
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1.5 text-muted-foreground">
-                <CalendarIcon size={16} />
-                <span className="font-medium">Published:</span>
-                <span className="text-muted-foreground">{formattedDate}</span>
+                <HistoryIcon size={16} />
+                <span className="font-medium">Last opened:</span>
+                <span className="text-muted-foreground">{getLastOpenedTime(document)}</span>
               </div>
               
               <div className="h-4 w-px bg-muted-foreground/20" />
@@ -677,7 +716,7 @@ SearchInput.displayName = 'SearchInput';
 
 const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'recent' | 'discover' | 'saved' | 'user'>('recent');
+  const [activeTab, setActiveTab] = useState<'recent' | 'saved' | 'user' | 'discover'>('recent');
   const [isLoading, setIsLoading] = useState(false);
   const [searchCompleted, setSearchCompleted] = useState(false);
   const [documentResults, setDocumentResults] = useState<MockDocument[]>([]);
@@ -1089,12 +1128,12 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
 
   const navigateToDocument = useCallback((documentId: string) => {
     // Find the document and open the document modal
-    const doc = [...documentResults, ...bookmarkResults].find(doc => doc.id === documentId);
+    const doc = [...documentResults, ...bookmarkResults, ...userDocuments, ...filteredRecentDocuments].find(doc => doc.id === documentId);
     if (doc) {
       setSelectedDoc(doc);
       setIsDocModalOpen(true);
     }
-  }, [documentResults, bookmarkResults]);
+  }, [documentResults, bookmarkResults, userDocuments, filteredRecentDocuments]);
 
   const navigateToComments = useCallback((documentId: string) => {
     // In a real app, we would use a router here
@@ -1192,13 +1231,15 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       // Remove from bookmarks
       setBookmarkResults(prev => prev.filter(doc => doc.id !== docId));
     } else {
-      // Add to saved
-      const docToAdd = documentResults.find(doc => doc.id === docId);
+      // Add to saved - look for document in all available collections
+      const docToAdd = documentResults.find(doc => doc.id === docId) || 
+                       userDocuments.find(doc => doc.id === docId) ||
+                       filteredRecentDocuments.find(doc => doc.id === docId);
       if (docToAdd) {
         setBookmarkResults(prev => [...prev, docToAdd]);
       }
     }
-  }, [documentResults, bookmarkResults]);
+  }, [documentResults, bookmarkResults, userDocuments, filteredRecentDocuments, recentDocuments]);
 
   return (
     <>
@@ -1229,7 +1270,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             fileTypeTags={fileTypeTags}
           />
 
-          <Tabs defaultValue="recent" value={activeTab} onValueChange={(value) => setActiveTab(value as 'recent' | 'discover' | 'saved' | 'user')}>
+          <Tabs defaultValue="recent" value={activeTab} onValueChange={(value) => setActiveTab(value as 'recent' | 'saved' | 'user' | 'discover')}>
             <div className="flex justify-between items-center mb-4">
               <TabsList className="bg-background p-1 border border-muted-foreground/20 shadow select-none flex gap-1">
                 <TabsTrigger value="recent" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
@@ -1238,18 +1279,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                   {recentDocuments.length > 0 && (
                     <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
                       {recentDocuments.length}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                
-                <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
-                
-                <TabsTrigger value="discover" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
-                  <Compass size={16} className="select-none" />
-                  <span>Discover</span>
-                  {documentResults.length > 0 && (
-                    <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
-                      {documentResults.length}
                     </Badge>
                   )}
                 </TabsTrigger>
@@ -1274,6 +1303,18 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                   {userDocuments.length > 0 && (
                     <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
                       {userDocuments.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                
+                <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+                
+                <TabsTrigger value="discover" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
+                  <Compass size={16} className="select-none" />
+                  <span>Discover</span>
+                  {documentResults.length > 0 && (
+                    <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
+                      {documentResults.length}
                     </Badge>
                   )}
                 </TabsTrigger>
@@ -1337,6 +1378,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                       navigateToReviews={navigateToReviews} 
                       navigateToComments={navigateToComments} 
                       bookmarkResults={bookmarkResults} 
+                      toggleBookmark={toggleBookmark}
                     />
                   ))}
                 </>
@@ -1394,6 +1436,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                       navigateToReviews={navigateToReviews} 
                       navigateToComments={navigateToComments} 
                       bookmarkResults={bookmarkResults} 
+                      toggleBookmark={toggleBookmark}
                     />
                   ))}
                 </>
@@ -1447,6 +1490,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                       navigateToReviews={navigateToReviews} 
                       navigateToComments={navigateToComments} 
                       bookmarkResults={bookmarkResults} 
+                      toggleBookmark={toggleBookmark}
                     />
                   ))}
                 </>
@@ -1501,6 +1545,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                       navigateToReviews={navigateToReviews} 
                       navigateToComments={navigateToComments} 
                       bookmarkResults={bookmarkResults} 
+                      toggleBookmark={toggleBookmark}
                     />
                   ))}
                 </>

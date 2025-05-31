@@ -54,23 +54,23 @@ const ShareLinksDropdown: React.FC<ShareLinksDropdownProps> = ({
 
   // Default actions to open social media platforms
   const handleDefaultFacebook = () => {
-    window.open('https://facebook.com', '_blank', 'noopener,noreferrer');
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');
   };
 
   const handleDefaultTwitter = () => {
-    window.open('https://twitter.com', '_blank', 'noopener,noreferrer');
+    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');
   };
 
   const handleDefaultTelegram = () => {
-    window.open('https://telegram.org', '_blank', 'noopener,noreferrer');
+    window.open('https://t.me/share/url?url=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');
   };
 
   const handleDefaultWhatsapp = () => {
-    window.open('https://whatsapp.com', '_blank', 'noopener,noreferrer');
+    window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer');
   };
 
   const handleDefaultEmail = () => {
-    window.open('mailto:', '_blank');
+    window.open('mailto:?subject=' + encodeURIComponent(document.title) + '&body=' + encodeURIComponent(window.location.href), '_blank');
   };
 
   return (

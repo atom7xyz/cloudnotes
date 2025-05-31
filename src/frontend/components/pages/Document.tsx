@@ -20,7 +20,8 @@ import {
   TimerIcon,
   AlertTriangleIcon,
   CheckIcon,
-  TrashIcon
+  TrashIcon,
+  RefreshCwIcon
 } from 'lucide-react';
 import { 
   FaFacebook, 
@@ -58,6 +59,7 @@ const Document = () => {
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reports, setReports] = useState<MockReport[]>([]);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   // Mock current user - in a real app this would come from auth context
   const currentUser = {
@@ -82,7 +84,11 @@ const Document = () => {
         setComments(sortedComments);
         // Load reports for this document
         const documentReports = mockService.getReportsForDocument(id);
-        setReports(documentReports);
+        // Sort reports by timestamp in descending order (newest first)
+        const sortedReports = documentReports.sort((a, b) => 
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        );
+        setReports(sortedReports);
         // In a real app, check if document is saved by current user
         setIsBookmarked(false);
       }
@@ -146,37 +152,50 @@ const Document = () => {
   }, []);
 
   // Handle comment submission
-  const handleSubmitComment = useCallback(() => {
+  const handleSubmitComment = useCallback(async () => {
     if (!newComment.trim() || !document) return;
 
-    const newCommentData = {
-      id: `comment-${Date.now()}`,
-      author: {
-        id: 'current-user',
-        firstName: 'Bart',
-        lastName: 'Simpson',
-        username: 'bartsimpson',
-        avatar: 'https://github.com/shadcn.png',
-        comments: [],
-        ratings: [],
-        documents: [],
-        savedDocuments: [],
-        bio: '',
-        joinDate: new Date()
-      },
-      document: document,
-      content: newComment.trim(),
-      timestamp: new Date()
-    };
-
-    // Add new comment at the beginning (latest first)
-    setComments(prev => [newCommentData, ...prev]);
-    setNewComment('');
+    setIsSubmittingComment(true);
     
-    toast.success("Comment posted", {
-      description: "Your comment has been added to the discussion",
-      icon: <MessageSquareIcon size={16} />,
-    });
+    try {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      const newCommentData = {
+        id: `comment-${Date.now()}`,
+        author: {
+          id: 'current-user',
+          firstName: 'Bart',
+          lastName: 'Simpson',
+          username: 'bartsimpson',
+          avatar: 'https://github.com/shadcn.png',
+          comments: [],
+          ratings: [],
+          documents: [],
+          savedDocuments: [],
+          bio: '',
+          joinDate: new Date()
+        },
+        document: document,
+        content: newComment.trim(),
+        timestamp: new Date()
+      };
+
+      // Add new comment at the beginning (latest first)
+      setComments(prev => [newCommentData, ...prev]);
+      setNewComment('');
+      
+      toast.success("Comment posted", {
+        description: "Your comment has been added to the discussion",
+        icon: <MessageSquareIcon size={16} />,
+      });
+    } catch (error) {
+      toast.error("Failed to post comment", {
+        description: "Please try again",
+      });
+    } finally {
+      setIsSubmittingComment(false);
+    }
   }, [newComment, document]);
 
   // Go back to previous page
@@ -190,12 +209,47 @@ const Document = () => {
   }, []);
 
   // Handle download
-  const handleDownload = useCallback(() => {
-    toast.success("Document downloaded", {
-      description: "Your document has been downloaded",
-      icon: <DownloadIcon size={16} />,
-    });
-  }, []);
+  const handleDownload = useCallback(async () => {
+    try {
+      // For browsers that support the File System Access API
+      if ('showDirectoryPicker' in window) {
+        try {
+          // Try to open the Downloads directory directly
+          const directoryHandle = await (window as any).showDirectoryPicker({
+            id: 'downloads',
+            startIn: 'downloads'
+          });
+          
+          toast.success("Downloads folder opened", {
+            description: "Downloads folder has been opened for you",
+            icon: <DownloadIcon size={16} />,
+          });
+        } catch (error) {
+          // User cancelled or error occurred, fall back to regular download
+          toast.info("Download initiated", {
+            description: "Document download has been started",
+            icon: <DownloadIcon size={16} />,
+          });
+        }
+      } else {
+        // Fallback for browsers without File System Access API
+        // Create a dummy download link
+        const link = window.document.createElement('a');
+        link.href = '#'; // In a real app, this would be the actual file URL
+        link.download = document?.title || 'document';
+        link.click();
+        
+        toast.success("Document downloaded", {
+          description: "Your document has been downloaded",
+          icon: <DownloadIcon size={16} />,
+        });
+      }
+    } catch (error) {
+      toast.error("Download failed", {
+        description: "Unable to download the document",
+      });
+    }
+  }, [document]);
 
   // Handle report deletion
   const handleDeleteReport = useCallback((reportId: string) => {
@@ -628,13 +682,23 @@ const Document = () => {
                 />
                 <div className="flex justify-end items-center mt-3">
                   <Button 
-                    size="sm" 
                     onClick={handleSubmitComment}
-                    disabled={!newComment.trim()}
-                    className="gap-2 hover-primary-effect"
+                    disabled={!newComment.trim() || isSubmittingComment}
+                    className="gap-2 rounded-full cursor-pointer shadow-md"
                   >
-                    <SendIcon size={14} />
-                    Post Comment
+                    {isSubmittingComment ? (
+                      <>
+                        <span className="animate-spin">
+                          <RefreshCwIcon size={14} />
+                        </span>
+                        Posting...
+                      </>
+                    ) : (
+                      <>
+                        <SendIcon size={14} />
+                        Post Comment
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>

@@ -88,14 +88,24 @@ const DocumentView = ({
       // Navigate to other user's profile
       appNavigate(`/profile/${document.author.username}`);
     }
-  }, [appNavigate, document]);
+    
+    // Close all modals after navigation
+    if (onCloseAllModals) {
+      onCloseAllModals();
+    }
+  }, [appNavigate, document, onCloseAllModals]);
 
   // Handle author click
   const handleAuthorClick = useCallback(() => {
     if (!document) return;
     // Navigate to author's profile
     appNavigate(`/profile/${document.author.username}`);
-  }, [appNavigate, document]);
+    
+    // Close all modals after navigation
+    if (onCloseAllModals) {
+      onCloseAllModals();
+    }
+  }, [appNavigate, document, onCloseAllModals]);
 
   // Function to copy document link to clipboard (only custom handler we keep)
   const handleCopyDocumentLink = useCallback(async () => {

@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, type FC } from 'react';
-import { LockIcon, MailIcon, RefreshCwIcon, CheckCircleIcon } from 'lucide-react';
+import { LockIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,9 +8,8 @@ import { Button } from '../ui/button';
 import FormOTP from '../form-fields/FormOTP';
 import { Avatar } from '../ui/avatar';
 import { useAppLock } from '@/lib/contexts/AppLockContext';
-import { Modal } from '../ui/modal';
-import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import PinRecoveryModal from './PinRecoveryModal';
 
 // PIN validation schema - completely hiding validation messages
 const pinSchema = z.object({
@@ -24,8 +23,6 @@ const ScreenLockModal: FC = () => {
   const [attempts, setAttempts] = useState(0);
   const pinInputRef = useRef<HTMLInputElement>(null);
   const [showForgotPinModal, setShowForgotPinModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [recoveryEmailSent, setRecoveryEmailSent] = useState(false);
   
   const form = useForm<PinFormValues>({
     resolver: zodResolver(pinSchema),
@@ -47,53 +44,8 @@ const ScreenLockModal: FC = () => {
     return () => subscription.unsubscribe();
   }, [form]);
 
-  // Reset the recovery modal state when closed
-  const handleCloseRecoveryModal = () => {
-    setShowForgotPinModal(false);
-    // Reset the recovery state after a delay to avoid visual glitches
-    setTimeout(() => {
-      setRecoveryEmailSent(false);
-    }, 300);
-  };
-
-  // Function to obscure email for privacy
-  const getObscuredEmail = (email: string) => {
-    const [username, domain] = email.split('@');
-    if (!username || !domain) return email; // In case email format is invalid
-    
-    // Obscure the username part, showing first 2 and last 2 characters
-    let obscuredUsername = '';
-    if (username.length <= 4) {
-      // For very short usernames, just show first character and last character
-      obscuredUsername = `${username.charAt(0)}**${username.charAt(username.length - 1)}`;
-    } else {
-      // For longer usernames, show first 2 and last 2 characters
-      obscuredUsername = `${username.substring(0, 2)}${new Array(username.length - 4).fill('*').join('')}${username.substring(username.length - 2)}`;
-    }
-    
-    // Keep the domain part visible
-    return `${obscuredUsername}@${domain}`;
-  };
-
   // Get user's email (in a real app, this would come from user data)
   const userEmail = 'bart@simpson.tv';
-  const obscuredEmail = getObscuredEmail(userEmail);
-
-  // Handle sending recovery email
-  const handleSendRecoveryEmail = () => {
-    setLoading(true);
-    
-    // Simulate loading for 2 seconds
-    setTimeout(() => {
-      setLoading(false);
-      setRecoveryEmailSent(true);
-      
-      // Show a toast notification
-      toast.success('Recovery email sent', {
-        description: 'Please check your inbox for PIN reset instructions',
-      });
-    }, 2000);
-  };
 
   // Focus the input when the modal is shown
   useEffect(() => {
@@ -220,118 +172,12 @@ const ScreenLockModal: FC = () => {
         </div>
       </div>
 
-      {/* Forgot PIN Request Modal */}
-      <Modal
-        isOpen={showForgotPinModal && !recoveryEmailSent}
-        onClose={handleCloseRecoveryModal}
-        title={
-          <div className="flex items-center gap-2 select-none">
-            <MailIcon size={20} />
-            <span>PIN Recovery</span>
-          </div>
-        }
-        maxWidth="max-w-md"
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button 
-              variant="outline"
-              onClick={handleCloseRecoveryModal}
-              className="rounded-full hover-primary-effect cursor-pointer"
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSendRecoveryEmail}
-              className="rounded-full cursor-pointer"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="animate-spin mr-1">
-                    <RefreshCwIcon size={14} />
-                  </span>
-                  <span className="select-none">Processing...</span>
-                </>
-              ) : (
-                <span className="select-none">Send Recovery Email</span>
-              )}
-            </Button>
-          </div>
-        }
-      >
-        <div className="p-6 select-none">
-          <div className="p-6 space-y-6 bg-muted/50 rounded-lg">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                <MailIcon size={28} className="text-primary" />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium text-center">PIN Recovery Request</h3>
-              <p className="text-base text-center">
-                We'll send a PIN recovery link to your registered email:
-              </p>
-              <p className="text-center font-medium">{obscuredEmail}</p>
-            </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-700 text-center">
-                Click the "Send Recovery Email" button below to receive instructions for resetting your PIN.
-              </p>
-            </div>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Email Sent Success Modal */}
-      <Modal
-        isOpen={showForgotPinModal && recoveryEmailSent}
-        onClose={handleCloseRecoveryModal}
-        title={
-          <div className="flex items-center gap-2 select-none">
-            <CheckCircleIcon size={20} className="text-green-600" />
-            <span>Email Sent Successfully</span>
-          </div>
-        }
-        maxWidth="max-w-md"
-        footer={
-          <div className="flex justify-end">
-            <Button 
-              onClick={handleCloseRecoveryModal}
-              className="rounded-full cursor-pointer"
-            >
-              <span className="select-none">Close</span>
-            </Button>
-          </div>
-        }
-      >
-        <div className="p-6 select-none">
-          <div className="p-6 space-y-6 bg-muted/50 rounded-lg">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircleIcon size={28} className="text-green-600" />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium text-center">Email Sent Successfully</h3>
-              <p className="text-base text-center">
-                A PIN recovery link has been sent to:
-              </p>
-              <p className="text-center font-medium">{obscuredEmail}</p>
-            </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-700 text-center">
-                Please check your inbox and follow the instructions to reset your PIN.
-                If you don't receive the email within a few minutes, please check your spam folder.
-              </p>
-            </div>
-          </div>
-        </div>
-      </Modal>
+      {/* PIN Recovery Modal */}
+      <PinRecoveryModal
+        isOpen={showForgotPinModal}
+        onClose={() => setShowForgotPinModal(false)}
+        userEmail={userEmail}
+      />
     </>
   );
 };
