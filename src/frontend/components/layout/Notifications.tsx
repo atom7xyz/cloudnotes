@@ -32,67 +32,9 @@ interface NotificationsProps {
   onNotificationClick?: (notification: NotificationItem) => void;
 }
 
-// Sample notifications for bartsimpson user
-const sampleNotifications: NotificationItem[] = [
-  {
-    id: 'notif-1',
-    title: 'New comment on your document',
-    message: 'John Doe commented on "Wagner\'s Ring Cycle: A Complete Analysis"',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    isRead: false,
-    type: 'comment',
-    actionUrl: '/document/wagner-ring-cycle'
-  },
-  {
-    id: 'notif-2',
-    title: 'Bookmark milestone reached!',
-    message: 'Your document "Verdi\'s Italian Operas and Political Influence" has reached 50 bookmarks',
-    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-    isRead: false,
-    type: 'bookmark_milestone',
-    actionUrl: '/document/verdi-italian-operas'
-  },
-  {
-    id: 'notif-3',
-    title: 'New comment on your document',
-    message: 'Sarah Wilson commented on "Mozart\'s Operas: The Evolution of a Genius"',
-    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-    isRead: true,
-    type: 'comment',
-    actionUrl: '/document/mozart-operas'
-  },
-  {
-    id: 'notif-4',
-    title: 'Bookmark milestone reached!',
-    message: 'Your document "Puccini and Italian Verismo: Realism in Opera" has reached 25 bookmarks',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    isRead: true,
-    type: 'bookmark_milestone',
-    actionUrl: '/document/puccini-verismo'
-  },
-  {
-    id: 'notif-5',
-    title: 'New comment on your document',
-    message: 'Michael Chen commented on "The History of Opera Houses in Europe"',
-    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    isRead: true,
-    type: 'comment',
-    actionUrl: '/document/opera-houses-europe'
-  },
-  {
-    id: 'notif-6',
-    title: 'Bookmark milestone reached!',
-    message: 'Your document "Wagner\'s Ring Cycle: A Complete Analysis" has reached 100 bookmarks',
-    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-    isRead: true,
-    type: 'bookmark_milestone',
-    actionUrl: '/document/wagner-ring-cycle'
-  }
-];
-
 const Notifications: React.FC<NotificationsProps> = ({
-  unreadCount = 2, // Default to 2 unread notifications for demo
-  notifications = sampleNotifications, // Use sample notifications by default
+  unreadCount = 0, // Default to 2 unread notifications for demo
+  notifications = [],
   onOpenSettings,
   onMarkAllAsRead,
   onNotificationClick

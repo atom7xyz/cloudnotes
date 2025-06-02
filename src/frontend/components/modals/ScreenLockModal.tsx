@@ -23,7 +23,7 @@ const ScreenLockModal: FC = () => {
   const [attempts, setAttempts] = useState(0);
   const pinInputRef = useRef<HTMLInputElement>(null);
   const [showForgotPinModal, setShowForgotPinModal] = useState(false);
-  
+
   const form = useForm<PinFormValues>({
     resolver: zodResolver(pinSchema),
     mode: 'onSubmit',

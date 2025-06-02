@@ -1,6 +1,5 @@
 import { Modal } from "../ui/modal";
-import { DownloadIcon, MailIcon, CheckCircleIcon } from "lucide-react";
-import { Card } from "../ui/card";
+import { DownloadIcon, CheckCircleIcon } from "lucide-react";
 import { useState, useCallback } from "react";
 import { playSound } from "@/lib/utils/sound";
 
@@ -10,7 +9,6 @@ interface ExportDataModalProps {
   email: string;
   onExportComplete: () => void;
   notificationsEnabled: boolean;
-  soundEnabled?: boolean;
 }
 
 export default function ExportDataModal({ 
@@ -18,8 +16,7 @@ export default function ExportDataModal({
   onClose, 
   email,
   onExportComplete,
-  notificationsEnabled,
-  soundEnabled = false
+  notificationsEnabled
 }: ExportDataModalProps) {
   const [loading, setLoading] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
@@ -32,12 +29,12 @@ export default function ExportDataModal({
       setLoading(false);
       setExportSuccess(true);
       
-      // Play sound if both notifications and sound are enabled
-      if (notificationsEnabled && soundEnabled) {
+      // Play sound if notifications are enabled
+      if (notificationsEnabled) {
         playSound();
       }
     }, 2000);
-  }, [notificationsEnabled, soundEnabled]);
+  }, [notificationsEnabled]);
 
   const handleClose = useCallback(() => {
     setLoading(false);

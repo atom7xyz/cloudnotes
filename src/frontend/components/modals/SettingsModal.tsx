@@ -50,7 +50,7 @@ import ExportDataModal from './ExportDataModal';
 import { useAppLock } from '@/lib/contexts/AppLockContext';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { Card, CardContent } from '../ui/card';
-import { playSound } from '@/lib/utils/sound';
+import { playSound, setSoundEnabled } from '@/lib/utils/sound';
 
 // Toggle switch component with label
 interface ToggleProps {
@@ -271,7 +271,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const [activeTabState, setActiveTabState] = useState<string>(activeTab);
   const { theme, setTheme } = useTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setLocalSoundEnabled] = useState(true);
   const [rememberLogin, setRememberLogin] = useState(true);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [systemLanguage, setSystemLanguage] = useState(true);
@@ -297,29 +297,11 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   
   // Import app navigation
   const appNavigate = useAppNavigate();
-  
-  // Function to show notification example
-  const showNotificationExample = () => {
-    if (notificationsEnabled) {
-      toast("New Document Added", {
-        description: "Bart Simpson shared a document with you: 'Project Proposal.pdf'",
-        action: {
-          label: "View",
-          onClick: () => {
-            // Action when notification is clicked
-          },
-        },
-        icon: <FileTextIcon size={16} />,
-      });
-      
-      playSound(soundEnabled);
-    }
-  };
 
   // Function to demonstrate sound effect
   const demonstrateSound = () => {
     if (soundEnabled) {
-      playSound(soundEnabled);
+      playSound();
       toast.success("Sound effect played", {
         description: "This is how notifications will sound when enabled",
       });
@@ -387,7 +369,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
           description: "Signed out from all other devices",
         });
         
-        playSound(soundEnabled);
+        playSound();
       } else {
         // Sign out a single device
         setActiveDevices(prevDevices => prevDevices.filter(device => device.id !== deviceToSignOut.id));
@@ -403,7 +385,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
             description: `Signed out from ${deviceToSignOut.name}`,
           });
           
-          playSound(soundEnabled);
+          playSound();
         }
       }
       
@@ -427,7 +409,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         description: "Your application is now protected with a PIN",
       });
       
-      playSound(soundEnabled);
+      playSound();
     }
   };
 
@@ -462,7 +444,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
       });
     } else {
       // Disable sound effects too if notifications are disabled
-      setSoundEnabled(false);
+      setLocalSoundEnabled(false);
+      setSoundEnabled(false); // Also update global state
       toast.info("Notifications disabled", {
         description: "You will no longer receive notifications from the application",
       });
@@ -471,13 +454,14 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
 
   // Handle sound effects toggle
   const handleSoundToggle = (enabled: boolean) => {
-    setSoundEnabled(enabled);
+    setSoundEnabled(enabled); // Update global sound manager
+    setLocalSoundEnabled(enabled); // Update local state for UI
     if (enabled && notificationsEnabled) {
       toast.success("Sound effects enabled", {
         description: "You will now hear sounds for notifications and actions",
       });
       // Play the sound to demonstrate
-      playSound(soundEnabled);
+      playSound();
     }
   };
 
@@ -522,6 +506,11 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
       setActiveTabState(activeTab);
     }
   }, [activeTab]);
+
+  // Sync global sound manager with local state
+  useEffect(() => {
+    setSoundEnabled(soundEnabled);
+  }, [soundEnabled]);
 
   return (
     <>
@@ -830,32 +819,6 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     onCheckedChange={handleNotificationsToggle}
                     icon={<BellIcon size={18} />}
                   />
-                  {/* Notification Example Preview */}
-                  {notificationsEnabled && (
-                    <div className="py-2 px-4 pl-12">
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center">
-                          <div className="bg-primary/10 p-2 rounded-full">
-                            <CircleHelp size={16} className="text-primary" />
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium">Test the notifications</span>
-                            <p className="text-xs text-muted-foreground">See how notifications appear</p>
-                          </div>
-                        </div>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={showNotificationExample}
-                          disabled={!notificationsEnabled}
-                          className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
-                        >
-                          <EyeIcon size={14} />
-                          <span>Preview</span>
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
                 
                 {/* Second container: Sound Effects */}
@@ -1074,7 +1037,6 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         email="bart@simpson.tv"
         onExportComplete={handleExportComplete}
         notificationsEnabled={notificationsEnabled}
-        soundEnabled={soundEnabled}
       />
 
       {/* Sonner Toast Container */}

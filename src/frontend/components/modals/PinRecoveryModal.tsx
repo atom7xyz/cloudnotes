@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { MailIcon, CheckCircleIcon } from 'lucide-react';
 import { Modal } from '../ui/modal';
-import { Card } from '../ui/card';
 import { toast } from 'sonner';
+import { playSound } from '@/lib/utils/sound';
 
 interface PinRecoveryModalProps {
   isOpen: boolean;
@@ -13,7 +13,7 @@ interface PinRecoveryModalProps {
 const PinRecoveryModal = ({
   isOpen,
   onClose,
-  userEmail
+  userEmail,
 }: PinRecoveryModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -52,6 +52,8 @@ const PinRecoveryModal = ({
       toast.success('Recovery email sent', {
         description: 'Please check your inbox for PIN reset instructions',
       });
+
+      playSound();
     }, 2000);
   }, []);
 
@@ -101,20 +103,30 @@ const PinRecoveryModal = ({
           </div>
         ),
         content: (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium text-center">Email Sent Successfully</h3>
-              <p className="text-base text-center">
-                A PIN recovery link has been sent to:
+          <div className="space-y-6">
+            {/* Success message */}
+            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 rounded-lg">
+              <p className="text-sm text-green-800">
+                A PIN recovery link has been successfully sent to <strong>{obscuredEmail}</strong>. 
+                Check your inbox and follow the instructions to reset your PIN.
               </p>
-              <p className="text-center font-medium">{obscuredEmail}</p>
             </div>
-            
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg">
-              <p className="text-sm text-blue-800 text-center">
-                <strong>What happens next?</strong> Please check your inbox and follow the instructions to reset your PIN.
-                If you don't receive the email within a few minutes, please check your spam folder.
-              </p>
+
+            {/* Next steps */}
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <span>Details:</span>
+                </div>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>• Follow the instructions in the email to reset your PIN</p>
+                  <p>• Link is valid for the next 24 hours</p>
+                </div>
+              </div>
+              
+              <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-blue-300/50">
+                If you don't receive the email within a few minutes, please check your spam folder or try sending another recovery email.
+              </div>
             </div>
           </div>
         ),
@@ -137,18 +149,16 @@ const PinRecoveryModal = ({
           <div className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm font-medium">
-                <MailIcon size={16} className="text-primary" />
-                <span>Recovery Details</span>
+                <span>Details:</span>
               </div>
-              <div className="space-y-2 text-sm">
-                <p><span className="font-medium">Email address:</span> {obscuredEmail}</p>
-                <p><span className="font-medium">Recovery method:</span> Secure email link</p>
-                <p><span className="font-medium">Link expires:</span> 24 hours after sending</p>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>• Email address: {obscuredEmail}</p>
               </div>
             </div>
             
             <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-blue-300/50">
-              The recovery email will contain a secure link to reset your PIN. Make sure to check your spam folder if you don't see it in your inbox.
+              We'll send a secure link to your registered email address to reset your PIN. 
+              Make sure to check your spam folder if you don't see it in your inbox.
             </div>
           </div>
         </div>
