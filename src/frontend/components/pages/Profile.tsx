@@ -37,6 +37,8 @@ import type { MockDocument } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import DocumentView from '../modals/DocumentView';
+import EditProfileModal from '../modals/EditProfileModal';
+import UploadDocumentModal from '../modals/UploadDocumentModal';
 import { Switch } from '../ui/switch';
 import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 
@@ -52,6 +54,17 @@ const Profile = () => {
   const [showRevenueNumbers, setShowRevenueNumbers] = useState(true);
   const [adsEnabled, setAdsEnabled] = useState(true);
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [currentUserState, setCurrentUserState] = useState<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+    avatar: string;
+    bio: string;
+    joinDate: Date;
+  } | null>(null);
 
   // Mock user data - in a real app this would come from an API
   const currentUser = useMemo(() => ({
@@ -99,6 +112,9 @@ const Profile = () => {
     // Mock favorites (in a real app, this would come from user data)
     const favorites = allDocuments.slice(0, 3);
     setFavoriteDocuments(favorites);
+    
+    // Initialize current user state
+    setCurrentUserState(currentUser);
   }, [currentUser]);
 
   // Toggle favorite (in a real app, this would call an API)
@@ -252,10 +268,7 @@ const Profile = () => {
 
   // Handle edit profile
   const handleEditProfile = useCallback(() => {
-    toast.info("Edit profile feature coming soon", {
-      description: "Profile editing functionality will be available in a future update",
-      icon: <EditIcon size={16} />,
-    });
+    setIsEditProfileModalOpen(true);
   }, []);
 
   // Handle share profile
@@ -276,6 +289,40 @@ const Profile = () => {
       });
     }
   }, [currentUser.username]);
+
+  // Handle profile update
+  const handleProfileUpdate = useCallback((updatedUser: Partial<{
+    firstName: string;
+    lastName: string;
+    username: string;
+    avatar: string;
+    bio: string;
+  }>) => {
+    if (currentUserState) {
+      setCurrentUserState(prev => prev ? { ...prev, ...updatedUser } : null);
+    }
+  }, [currentUserState]);
+
+  // Handle document upload
+  const handleDocumentUpload = useCallback((documentData: {
+    title: string;
+    description: string;
+    tags: string[];
+    file: File;
+    thumbnailColor: string;
+  }) => {
+    // In a real app, this would upload the file to a server and create a document
+    // For demo purposes, we'll just show a success message
+    toast.success("Document uploaded successfully", {
+      description: `"${documentData.title}" has been uploaded to your collection`,
+      icon: <FileTextIcon size={16} />,
+    });
+    
+    // In a real implementation, you would:
+    // 1. Upload the file to a server
+    // 2. Create a document record in the database
+    // 3. Refresh the user's documents list
+  }, []);
 
   return (
     <div className="p-6 max-w-[1200px] mx-auto select-none">
@@ -310,7 +357,7 @@ const Profile = () => {
                       <Button 
                         variant="outline" 
                         size="icon" 
-                        className="h-12 w-12 hover-primary-effect shadow-sm"
+                        className="h-12 w-12 hover-primary-effect shadow-sm text-blue-600 hover:text-blue-600"
                         onClick={handleEditProfile}
                       >
                         <EditIcon size={20} />
@@ -397,10 +444,7 @@ const Profile = () => {
                 <Card 
                   className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10 border-dashed"
                   onClick={() => {
-                    toast.info("Upload feature coming soon", {
-                      description: "Document upload functionality will be available in a future update",
-                      icon: <FileTextIcon size={16} />,
-                    });
+                    setIsUploadModalOpen(true);
                   }}
                 >
                   <CardContent className="p-4 pb-5">
@@ -1041,6 +1085,21 @@ const Profile = () => {
         toggleBookmark={toggleFavorite}
         formatDate={formatRelativeDate}
         renderThumbnail={renderThumbnail}
+      />
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal 
+        isOpen={isEditProfileModalOpen}
+        onClose={() => setIsEditProfileModalOpen(false)}
+        user={currentUserState}
+        onSave={handleProfileUpdate}
+      />
+
+      {/* Upload Document Modal */}
+      <UploadDocumentModal 
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUpload={handleDocumentUpload}
       />
     </div>
   );

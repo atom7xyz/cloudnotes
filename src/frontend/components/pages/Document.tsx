@@ -22,12 +22,12 @@ import {
   TrashIcon,
   RefreshCwIcon,
   SettingsIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  EditIcon
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Avatar } from '../ui/avatar';
-import { AppLink } from '../ui/app-link';
 import { Card, CardContent } from '../ui/card';
 import { Textarea } from '../ui/textarea';
 import { Separator } from '../ui/separator';
@@ -48,10 +48,10 @@ import { toast } from 'sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import { useTheme } from '../../lib/contexts/ThemeContext';
 import ReportProblemModal from '../modals/ReportProblemModal';
+import EditDocumentModal from '../modals/EditDocumentModal';
 
 const Document = () => {
   const { id } = useParams<{ id: string }>();
-  const { theme } = useTheme();
   const appNavigate = useAppNavigate();
   const [document, setDocument] = useState<MockDocument | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -63,6 +63,7 @@ const Document = () => {
   const [reports, setReports] = useState<MockReport[]>([]);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [selectedTimerDuration, setSelectedTimerDuration] = useState<number | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Mock current user - in a real app this would come from auth context
   const currentUser = {
@@ -118,7 +119,7 @@ const Document = () => {
   }, []);
 
   // Render thumbnail with enhanced styling
-  const renderThumbnail = useCallback((thumbnailData: string, title: string) => {
+  const renderThumbnail = useCallback((thumbnailData: string) => {
     const [color, text] = thumbnailData.split(':');
     
     return (
@@ -232,10 +233,6 @@ const Document = () => {
       if ('showDirectoryPicker' in window) {
         try {
           // Try to open the Downloads directory directly
-          const directoryHandle = await (window as any).showDirectoryPicker({
-            id: 'downloads',
-            startIn: 'downloads'
-          });
           
           toast.success("Downloads folder opened", {
             description: "Downloads folder has been opened for you",
@@ -306,6 +303,13 @@ const Document = () => {
     }
   }, [selectedTimerDuration, document?.id, appNavigate]);
 
+  // Handle document update after editing
+  const handleDocumentUpdate = useCallback((updatedDocument: Partial<MockDocument>) => {
+    if (document) {
+      setDocument(prev => prev ? { ...prev, ...updatedDocument } : null);
+    }
+  }, [document]);
+
   if (!document) {
     return (
       <div className="p-6 max-w-[1200px] mx-auto">
@@ -348,7 +352,7 @@ const Document = () => {
             {/* Left side - Enhanced Document thumbnail and action buttons */}
             <div className="flex flex-col items-center">
               <div className="w-64 h-80 rounded-lg overflow-hidden bg-muted/30 mb-6 shadow-md border border-primary/10">
-                {renderThumbnail(document.file.thumbnail, document.title)}
+                {renderThumbnail(document.file.thumbnail)}
               </div>
               
               {/* Enhanced Action Buttons */}
@@ -419,6 +423,24 @@ const Document = () => {
                     <TooltipContent>Download document</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+
+                {isAuthor && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 hover-primary-effect text-blue-600 hover:text-blue-600"
+                          onClick={() => setIsEditModalOpen(true)}
+                        >
+                          <EditIcon size={20} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Edit document</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
 
                 {!isAuthor && (
                   <TooltipProvider>
@@ -807,6 +829,14 @@ const Document = () => {
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
         document={document}
+      />
+
+      {/* Edit Document Modal */}
+      <EditDocumentModal 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        document={document}
+        onSave={handleDocumentUpdate}
       />
     </div>
   );
