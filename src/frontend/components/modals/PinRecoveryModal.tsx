@@ -123,30 +123,35 @@ const PinRecoveryModal = ({
         iconColor: "text-green-600"
       }}
     >
-      <div className="p-6 select-none">
-        <Card className="p-6 space-y-6 border-none shadow-none bg-muted/50">
-          <div className="space-y-6">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                <MailIcon size={28} className="text-primary" />
+      <div className="p-8 select-none">
+        <div className="space-y-6">
+          {/* Description */}
+          <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg">
+            <p className="text-sm text-blue-800">
+              Forgot your PIN? We'll send a secure recovery link to your registered email address 
+              so you can reset it safely.
+            </p>
+          </div>
+
+          {/* Information */}
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <MailIcon size={16} className="text-primary" />
+                <span>Recovery Details</span>
+              </div>
+              <div className="space-y-2 text-sm">
+                <p><span className="font-medium">Email address:</span> {obscuredEmail}</p>
+                <p><span className="font-medium">Recovery method:</span> Secure email link</p>
+                <p><span className="font-medium">Link expires:</span> 24 hours after sending</p>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium text-center">PIN Recovery Request</h3>
-              <p className="text-base text-center">
-                We'll send a PIN recovery link to your registered email:
-              </p>
-              <p className="text-center font-medium">{obscuredEmail}</p>
-            </div>
-            
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg">
-              <p className="text-sm text-blue-800 text-center">
-                Click the "Send Recovery Email" button below to receive instructions for resetting your PIN.
-              </p>
+            <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-blue-300/50">
+              The recovery email will contain a secure link to reset your PIN. Make sure to check your spam folder if you don't see it in your inbox.
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </Modal>
   );

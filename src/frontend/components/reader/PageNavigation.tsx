@@ -134,7 +134,7 @@ const PageNavigation = memo(({ pageNumber, numPages, onPageChange, isVisible, is
                 size="icon" 
                 onClick={handlePrevPage}
                 disabled={pageNumber <= 1}
-                className="h-8 w-8 rounded-full hover:bg-primary/5 hover:border-primary/20 transition-colors"
+                className="h-8 w-8 rounded-full hover-primary-effect transition-colors"
                 aria-label="Previous page"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -170,7 +170,7 @@ const PageNavigation = memo(({ pageNumber, numPages, onPageChange, isVisible, is
                 size="icon" 
                 onClick={handleNextPage}
                 disabled={pageNumber >= (numPages || 1)}
-                className="h-8 w-8 rounded-full hover:bg-primary/5 hover:border-primary/20 transition-colors"
+                className="h-8 w-8 rounded-full hover-primary-effect transition-colors"
                 aria-label="Next page"
               >
                 <ChevronRight className="h-4 w-4" />

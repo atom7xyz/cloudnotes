@@ -565,7 +565,8 @@ const SearchInput = memo(({
   handleSuggestionClick,
   inputRef,
   searchContainerRef,
-  fileTypeTags
+  fileTypeTags,
+  onClearAll
 }: {
   inputValue: string;
   selectedTags: string[];
@@ -577,6 +578,7 @@ const SearchInput = memo(({
   inputRef: React.RefObject<HTMLInputElement | null>;
   searchContainerRef: React.RefObject<HTMLDivElement | null>;
   fileTypeTags: string[];
+  onClearAll: () => void;
 }) => {
   const shouldWrapInput = selectedTags.length > 2;
   
@@ -602,14 +604,17 @@ const SearchInput = memo(({
     });
   }, [selectedTags, fileTypeTags]);
   
+  // Check if there's any content to clear
+  const hasContent = inputValue.trim() || selectedTags.length > 0;
+  
   return (
     <div className="mb-6">
       <div className="relative mb-2">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none" size={18} />
         <div 
           ref={searchContainerRef}
-          className="pl-10 pr-4 py-2 rounded-full border border-muted-foreground/40 bg-background flex flex-wrap items-center gap-2"
+          className="pl-10 pr-12 py-2 rounded-full border border-muted-foreground/40 bg-background flex flex-wrap items-center gap-2 relative"
         >
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none z-10" size={18} />
           {selectedTags.length > 0 && (
             <div className={`flex flex-wrap gap-2 ${shouldWrapInput ? 'w-full mb-1.5' : ''}`}>
               {sortedTags.map(tag => {
@@ -671,6 +676,19 @@ const SearchInput = memo(({
             />
           </div>
           
+          {/* Clear All Button */}
+          {hasContent && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full text-muted-foreground hover:text-foreground hover-primary-effect z-10"
+              onClick={onClearAll}
+              title="Clear all"
+            >
+              <X size={14} />
+            </Button>
+          )}
+          
           {tagSuggestions.length > 0 && (
             <div className="w-full mt-1 flex flex-wrap gap-1">
               <span className="text-xs text-muted-foreground mr-1 select-none">Suggestions:</span>
@@ -702,102 +720,85 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [userResults, setUserResults] = useState<MockUser[]>([]);
   const [bookmarkResults, setBookmarkResults] = useState<MockDocument[]>([]);
   const [userDocuments, setUserDocuments] = useState<MockDocument[]>([]);
+  const [originalBookmarkResults, setOriginalBookmarkResults] = useState<MockDocument[]>([]);
+  const [originalUserDocuments, setOriginalUserDocuments] = useState<MockDocument[]>([]);
   const [recentSearches] = useState<string[]>(mockService.getRecentSearches());
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [currentTag, setCurrentTag] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
-  // Add a ref to track the latest search request
   const latestSearchRequestRef = useRef<number>(0);
-  // Store the last text query (without tags) for user search persistence
   const lastTextQueryRef = useRef<string>('');
   const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
 
-  // Load initial data when the modal opens
   useEffect(() => {
     if (isOpen) {
-      // Create async function to handle data loading
       const loadInitialData = async () => {
         try {
-          // In a real app, these would be actual API calls
           const [docs, users, currentUser] = await Promise.all([
             mockService.getDocuments(),
             mockService.getUsers(),
-            // Get the current user (bartsimpson for demo purposes)
             Promise.resolve(mockService.getUsers().find(user => user.username === "bartsimpson"))
           ]);
           
-          // Set user documents if there's a current user
           if (currentUser) {
-            // Load user documents
             const userDocs = await mockService.getDocumentsForUser(currentUser.id);
             setUserDocuments(userDocs);
+            setOriginalUserDocuments(userDocs);
             
-            // Load bookmarks for the current user
             const bookmarks = await mockService.getBookmarksForUser(currentUser.id);
             const bookmarkedDocs = bookmarks.map((bookmark: MockBookmark) => bookmark.document);
             setBookmarkResults(bookmarkedDocs);
+            setOriginalBookmarkResults(bookmarkedDocs);
           }
         } catch (error) {
           console.error("Error loading initial data:", error);
         }
       };
       
-      // Execute the async function
       loadInitialData();
     }
   }, [isOpen]);
 
-  // Function to perform a search and apply tag filters - optimized with useCallback
   const performSearch = useCallback(async (query: string, tags: string[]) => {
-    // Generate a unique ID for this search request
     const currentRequestId = Date.now();
     latestSearchRequestRef.current = currentRequestId;
     
-    // Set loading state at the beginning of the search
     setIsLoading(true);
     setSearchCompleted(false);
 
     try {
-      // If there's no query and no tags, don't show results
       if (!query.trim() && tags.length === 0) {
         setDocumentResults([]);
         setUserResults([]);
-        setBookmarkResults([]);
-        setUserDocuments([]);
+        setBookmarkResults(originalBookmarkResults);
+        setUserDocuments(originalUserDocuments);
         setIsLoading(false);
         setSearchCompleted(true);
         return;
       }
       
-      // Add a small delay before actually searching to prevent flicker
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Check if this is still the latest request
       if (latestSearchRequestRef.current !== currentRequestId) {
-        // A newer request has been made, abandon this one
         return;
       }
       
-      // Get the current user for user documents and bookmarks
       const users = mockService.getUsers();
       const currentUser = users.find(user => user.username === "bartsimpson");
       
-      // Batch document fetching operations in parallel
       const [documents, allUserDocs, allBookmarks] = await Promise.all([
         mockService.searchDocuments(query),
         currentUser ? mockService.getDocumentsForUser(currentUser.id) : Promise.resolve([]),
         currentUser ? mockService.getBookmarksForUser(currentUser.id) : Promise.resolve([])
       ]);
       
-      // Check again if this search is still relevant
       if (latestSearchRequestRef.current !== currentRequestId) {
         return;
       }
       
-      // Convert bookmarks to MockDocument type
       const allBookmarkedDocs = allBookmarks.map(bookmark => bookmark.document);
       
       // For users search - only perform if text query has changed or no current results
@@ -806,7 +807,21 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       
       if (query.trim()) {
         if (query.trim() !== lastTextQueryRef.current || currentUserResults.length === 0) {
-          updatedUsers = await mockService.searchUsers(query);
+          // Perform comprehensive user search across multiple fields
+          const searchTerm = query.trim().toLowerCase();
+          const allUsers = await mockService.getUsers();
+          updatedUsers = allUsers.filter(user => {
+            const firstName = user.firstName.toLowerCase();
+            const lastName = user.lastName.toLowerCase();
+            const username = user.username.toLowerCase();
+            const bio = user.bio.toLowerCase();
+            
+            return firstName.includes(searchTerm) ||
+                   lastName.includes(searchTerm) ||
+                   username.includes(searchTerm) ||
+                   bio.includes(searchTerm) ||
+                   `${firstName} ${lastName}`.includes(searchTerm);
+          });
           lastTextQueryRef.current = query.trim();
         } else {
           // Keep existing results if query hasn't changed
@@ -818,31 +833,25 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         updatedUsers = [];
       }
       
-      // Check again if this is still the latest request
       if (latestSearchRequestRef.current !== currentRequestId) {
         return;
       }
       
-      // Apply tag filtering if there are selected tags
       let filteredDocuments = documents;
       
       if (tags.length > 0) {
-        // Split tags into normal tags and file type tags
         const fileTypeFilters = tags.filter(tag => fileTypeTags.includes(tag));
         const regularTags = tags.filter(tag => !fileTypeTags.includes(tag));
         
-        // Apply filtering function to both documents
         const applyFilters = (docs: MockDocument[]) => {
           let filtered = docs;
           
-          // Apply regular tag filtering
           if (regularTags.length > 0) {
             filtered = filtered.filter(doc => 
               doc.file.tags.some(tag => regularTags.includes(tag))
             );
           }
           
-          // Apply file type filtering
           if (fileTypeFilters.length > 0) {
             filtered = filtered.filter(doc => 
               fileTypeFilters.includes(doc.file.type.toLowerCase())
@@ -855,7 +864,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         filteredDocuments = applyFilters(documents);
       }
       
-      // Filter each collection based on the search results
       const filteredUserDocs = allUserDocs.filter(doc => 
         filteredDocuments.some(searchDoc => searchDoc.id === doc.id)
       );
@@ -864,16 +872,12 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         filteredDocuments.some(searchDoc => searchDoc.id === doc.id)
       );
 
-      // One final check before updating state
       if (latestSearchRequestRef.current !== currentRequestId) {
         return;
       }
 
-      // Use requestAnimationFrame for better performance
-      // This batches multiple state updates into a single render cycle
       requestAnimationFrame(() => {
         if (latestSearchRequestRef.current === currentRequestId) {
-          // Use a microtask to batch these state updates
           Promise.resolve().then(() => {
             setDocumentResults(filteredDocuments);
             setUserDocuments(filteredUserDocs);
@@ -886,44 +890,36 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         }
       });
     } catch (error) {
-      // Silently handle error
       if (latestSearchRequestRef.current === currentRequestId) {
         setIsLoading(false);
         setSearchCompleted(true);
       }
     }
-  }, []);
+  }, [originalBookmarkResults, originalUserDocuments]);
 
-  // Complete the current tag and add it to selected tags
   const completeTag = useCallback(() => {
     if (!currentTag) return;
     
     const normalizedTag = currentTag.trim().toLowerCase();
     if (!normalizedTag) return;
     
-    // Add tag to selected tags if not already there
     if (!selectedTags.includes(normalizedTag)) {
       const newTags = [...selectedTags, normalizedTag];
       setSelectedTags(newTags);
       
-      // Remove the tag from input
       const newInputValue = inputValue.replace(/@\w*$/, '');
       setInputValue(newInputValue);
       
-      // Update search
       const cleanQuery = newInputValue.trim();
       setSearchQuery(cleanQuery);
       
-      // Always perform search after adding a tag
       setIsLoading(true);
       performSearch(cleanQuery, newTags);
     }
     
-    // Reset current tag
     setCurrentTag(null);
   }, [currentTag, selectedTags, inputValue, performSearch]);
 
-  // Optimized debounced search function with a longer delay for better performance
   const debouncedSearch = useMemo(() => 
     debounce((query: string, tags: string[]) => {
       performSearch(query, tags);
@@ -931,64 +927,49 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     [performSearch]
   );
 
-  // Throttled function for UI updates to prevent render lag 
   const throttledUIUpdate = useMemo(() => 
     throttle((value: string) => {
       setInputValue(value);
-      // Extract tag being typed without triggering search
       const tagBeingTyped = extractCurrentTag(value);
       setCurrentTag(tagBeingTyped);
     }, 50),
     []
   );
 
-  // Handle search input change - optimize to reduce UI lag
   const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
-    // Update UI with throttling to prevent render lag
     throttledUIUpdate(value);
     
-    // Process the search query with debouncing
-    // This is done separately from UI updates to maintain responsiveness
     const cleanQuery = value.replace(/@\w*$/, '').trim();
     setSearchQuery(cleanQuery);
     
-    // Update last text query ref when text input changes
     lastTextQueryRef.current = cleanQuery;
     
-    // Trigger search with existing tags after debounce
     debouncedSearch(cleanQuery, selectedTags);
   }, [throttledUIUpdate, debouncedSearch, selectedTags]);
 
-  // Handle key press in search input
   const handleKeyPress = useCallback((e: KeyboardEvent<HTMLInputElement>) => {
-    // Complete tag on Enter
     if (e.key === 'Enter' && currentTag) {
       e.preventDefault();
       completeTag();
     }
-    // Complete current tag and start a new one when @ is typed
     else if (e.key === '@') {
       if (currentTag) {
         e.preventDefault();
         completeTag();
-        // Add the @ character after completing the tag
         setTimeout(() => {
           setInputValue((prev) => `${prev}@`);
         }, 0);
       }
     }
-    // Handle space - finalize tag without adding space to the input
     else if (e.key === ' ' && currentTag) {
       e.preventDefault();
       completeTag();
     }
   }, [currentTag, completeTag]);
 
-  // Apply a recent search
   const handleRecentSearchClick = useCallback((searchTerm: string) => {
-    // Extract any tags from the search term (format: "@tag text")
     const tagRegex = /@(\w+)/g;
     const extractedTags: string[] = [];
     let match: RegExpExecArray | null = tagRegex.exec(searchTerm);
@@ -997,7 +978,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       match = tagRegex.exec(searchTerm);
     }
     
-    // Set the search query without the tag part
     const cleanQuery = searchTerm.replace(/@\w+\s*/g, '').trim();
     
     setInputValue(cleanQuery);
@@ -1007,86 +987,65 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     performSearch(cleanQuery, extractedTags);
   }, [performSearch]);
 
-  // Handle tag selection from document
   const handleTagClick = useCallback((tag: string) => {
-    // Create a new array for the updated tags
     let updatedTags: string[];
     
     if (selectedTags.includes(tag)) {
-      // Remove tag if already selected
       updatedTags = selectedTags.filter(t => t !== tag);
     } else {
-      // Add tag to selected tags
       updatedTags = [...selectedTags, tag];
     }
     
-    // Update the state
     setSelectedTags(updatedTags);
     
-    // Update the input field to reflect selected tags
     const newInputValue = inputValue.replace(/@\w*$/, '');
     setInputValue(newInputValue);
     
-    // Trigger search with updated tags and the current searchQuery
     setIsLoading(true);
     performSearch(searchQuery, updatedTags);
     
-    // Focus the input after tag selection
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [selectedTags, inputValue, searchQuery, performSearch]);
 
-  // Remove tag from search
   const handleRemoveTagFromInput = useCallback((tag: string) => {
-    // Remove from selected tags
     const updatedTags = selectedTags.filter(t => t !== tag);
     setSelectedTags(updatedTags);
     
-    // Trigger search with updated tags and current searchQuery
     setIsLoading(true);
     performSearch(searchQuery, updatedTags);
     
-    // Focus the input after tag removal
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [selectedTags, searchQuery, performSearch]);
 
-  // Handle suggestion click - moved outside and memoized
   const handleSuggestionClick = useCallback((suggestedTag: string) => {
-    // Use the full suggested tag, not the partial one
     const updatedTags = [...selectedTags, suggestedTag];
     setSelectedTags(updatedTags);
     
-    // Remove the partial tag from input
     const newInputValue = inputValue.replace(/@\w*$/, '');
     setInputValue(newInputValue);
     
-    // Update search query
     const cleanQuery = newInputValue.trim();
     setSearchQuery(cleanQuery);
     
-    // Reset current tag
     setCurrentTag(null);
     
-    // Perform search with the new tag
     setIsLoading(true);
     performSearch(cleanQuery, updatedTags);
     
-    // Focus the input after adding the tag
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [inputValue, selectedTags, performSearch]);
 
-  // Mock navigation functions (since we're not actually navigating)
   const navigateToUserProfile = useCallback((username: string) => {
     // In a real app, we would use a router here
   }, []);
 
   const navigateToDocument = useCallback((documentId: string) => {
-    // Find the document and open the document modal
     const doc = [...documentResults, ...bookmarkResults, ...userDocuments].find(doc => doc.id === documentId);
     if (doc) {
       setSelectedDoc(doc);
@@ -1106,7 +1065,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     // In a real app, we would use a router here
   }, []);
 
-  // Store last query and tags to detect changes
   const lastQueryRef = useRef(searchQuery);
   const lastTagsRef = useRef(selectedTags);
   const isInitialMountRef = useRef(true);
@@ -1115,7 +1073,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const selectedTagsRef = useRef(selectedTags);
   const performSearchRef = useRef(performSearch);
 
-  // Update refs when state changes to avoid dependency issues
   useEffect(() => {
     searchQueryRef.current = searchQuery;
     selectedTagsRef.current = selectedTags;
@@ -1123,22 +1080,16 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     userResultsRef.current = userResults;
   }, [searchQuery, selectedTags, performSearch, userResults]);
 
-  // Fixed useEffect to prevent infinite loops
   useEffect(() => {
-    // Only run this effect when the modal opens or closes
     if (isOpen) {
-      // Check if this is the initial mount or if query/tags have changed
       const queryChanged = lastQueryRef.current !== searchQueryRef.current;
       const tagsChanged = JSON.stringify(lastTagsRef.current) !== JSON.stringify(selectedTagsRef.current);
       
-      // Update refs to current values
       lastQueryRef.current = searchQueryRef.current;
       lastTagsRef.current = selectedTagsRef.current;
       
-      // Only perform search on initial mount or if something has changed
       if (isInitialMountRef.current || queryChanged || tagsChanged) {
         if (selectedTagsRef.current.length > 0 || searchQueryRef.current) {
-          // Wrap in setTimeout to ensure it happens after state updates
           setTimeout(() => {
             performSearchRef.current(searchQueryRef.current, selectedTagsRef.current);
           }, 0);
@@ -1146,8 +1097,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
           setSearchCompleted(true);
         }
       }
-    } else if (!isInitialMountRef.current) { // Skip the reset during initial mount
-      // Reset state when modal closes
+    } else if (!isInitialMountRef.current) {
       setInputValue('');
       setSearchQuery('');
       setDocumentResults([]);
@@ -1157,48 +1107,79 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       setSearchCompleted(false);
       setSelectedTags([]);
       setCurrentTag(null);
-      // Also reset the last text query reference
       lastTextQueryRef.current = '';
       userResultsRef.current = [];
       
-      // Cancel any pending search requests
       const requestId = Date.now();
       latestSearchRequestRef.current = requestId;
     }
     
-    // Mark that we're past the initial mount
     isInitialMountRef.current = false;
     
-    // Return cleanup function
     return () => {
-      // Cancel any pending searches on unmount
       const requestId = Date.now();
       latestSearchRequestRef.current = requestId;
     };
-  }, [isOpen]); // Only depend on isOpen
+  }, [isOpen]);
 
-  // Create unique id generators for keys
   const getUniqueKey = useCallback((prefix: string, value: string, fallback?: number) => {
-    // Create a more stable key that doesn't rely on array index
     const hash = value.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return `${prefix}-${value}-${hash}${fallback ? `-${fallback}` : ''}`;
   }, []);
 
-  // Toggle bookmark status (in a real app, this would call an API)
   const toggleBookmark = useCallback((docId: string) => {
     if (bookmarkResults.some(doc => doc.id === docId)) {
-      // Remove from bookmarks
       setBookmarkResults(prev => prev.filter(doc => doc.id !== docId));
     } else {
-      // Add to saved - look for document in all available collections
       const docToAdd = documentResults.find(doc => doc.id === docId) || 
-                       userDocuments.find(doc => doc.id === docId) ||
-                       bookmarkResults.find(doc => doc.id === docId);
+                       userDocuments.find(doc => doc.id === docId);
       if (docToAdd) {
         setBookmarkResults(prev => [...prev, docToAdd]);
       }
     }
   }, [documentResults, bookmarkResults, userDocuments]);
+
+  const handleClearAll = useCallback(() => {
+    setInputValue('');
+    setSelectedTags([]);
+    setCurrentTag(null);
+    setSearchQuery('');
+    setDocumentResults([]);
+    setUserResults([]);
+    setIsLoading(false);
+    setSearchCompleted(false);
+    
+    lastTextQueryRef.current = '';
+    userResultsRef.current = [];
+    
+    const requestId = Date.now();
+    latestSearchRequestRef.current = requestId;
+    
+    const loadInitialData = async () => {
+      try {
+        const users = mockService.getUsers();
+        const currentUser = users.find(user => user.username === "bartsimpson");
+        
+        if (currentUser) {
+          const [userDocsData, bookmarksData] = await Promise.all([
+            mockService.getDocumentsForUser(currentUser.id),
+            mockService.getBookmarksForUser(currentUser.id)
+          ]);
+          setUserDocuments(userDocsData);
+          const bookmarkedDocs = bookmarksData.map((bookmark: MockBookmark) => bookmark.document);
+          setBookmarkResults(bookmarkedDocs);
+        }
+      } catch (error) {
+        console.error('Error reloading initial data:', error);
+      }
+    };
+    
+    loadInitialData();
+    
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   return (
     <>
@@ -1211,7 +1192,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             <span>Search CloudNotes</span>
           </div>
         }
-        maxWidth="max-w-3xl"
+        maxWidth="max-w-4xl"
         className="h-[calc(90vh-8rem)]"
         scrollBody={false}
       >
@@ -1227,6 +1208,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             inputRef={inputRef}
             searchContainerRef={searchContainerRef}
             fileTypeTags={fileTypeTags}
+            onClearAll={handleClearAll}
           />
 
           <Tabs defaultValue="discover" value={activeTab} onValueChange={(value) => setActiveTab(value as 'discover' | 'users' | 'saved' | 'user')}>
@@ -1258,7 +1240,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 
                 <TabsTrigger value="saved" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
                   <BookmarkIcon size={16} className="select-none" />
-                  <span>Bookmarks</span>
+                  <span>Saved</span>
                   {bookmarkResults.length > 0 && (
                     <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
                       {bookmarkResults.length}
@@ -1279,16 +1261,14 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 </TabsTrigger>
               </TabsList>
               
-              {/* Tag information message moved to right side of tabs */}
               {selectedTags.length > 0 && activeTab === 'users' && (
                 <div className="text-xs text-muted-foreground flex items-center gap-1 select-none ml-2">
-                  <HelpCircle size={24} className="select-none" />
+                  <HelpCircle size={14} className="select-none" />
                   <span>Tags are not applicable to users search</span>
                 </div>
               )}
             </div>
 
-            {/* Show Recent Searches only in Discover tab */}
             {!searchQuery && !selectedTags.length && activeTab === 'discover' && (
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5 select-none">
@@ -1297,7 +1277,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {recentSearches.map((term) => {
-                    // Check if term contains tags
                     const hasTags = term.includes('@');
                     return (
                       <Button
@@ -1314,7 +1293,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                                 const tagName = part.slice(1).toLowerCase();
                                 let tagStyles = "text-xs px-1.5 py-0 mr-1 border select-none ";
                                 
-                                // Apply file type specific styling
                                 if (fileTypeTags.includes(tagName)) {
                                   switch (tagName) {
                                     case 'pdf':
@@ -1336,7 +1314,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                                       tagStyles += "bg-primary/80 text-primary-foreground border-primary";
                                   }
                                 } else {
-                                  // Regular tag styling
                                   tagStyles += "bg-primary/80 text-primary-foreground border-primary";
                                 }
                                 
@@ -1359,8 +1336,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               </div>
             )}
 
-            {/* Tabs content sections */}
-            {/* Discover Tab */}
             <TabsContent value="discover" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
               {isLoading && !searchCompleted ? (
                 <>
@@ -1415,7 +1390,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               )}
             </TabsContent>
 
-            {/* Users Tab */}
             <TabsContent value="users" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
               {isLoading && !searchCompleted ? (
                 <>
@@ -1470,7 +1444,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               ) : bookmarkResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">No bookmarks found</h3>
+                  <h3 className="text-lg font-medium">No saved documents found</h3>
                   <p className="text-muted-foreground max-w-sm">
                     {searchQuery ? 
                       `We couldn't find any saved documents matching "${searchQuery}"` : 
@@ -1483,7 +1457,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               ) : bookmarkResults.length === 0 && !searchQuery && !selectedTags.length ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">No bookmarks yet</h3>
+                  <h3 className="text-lg font-medium">No saved documents yet</h3>
                   <p className="text-muted-foreground max-w-sm">
                     You haven't saved any documents yet. Saved documents will appear here.
                   </p>
@@ -1513,7 +1487,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               )}
             </TabsContent>
             
-            {/* Your Documents Tab */}
             <TabsContent value="user" className="min-h-[300px] max-h-[calc(90vh-24rem)] overflow-y-auto pr-1">
               {isLoading && !searchCompleted ? (
                 <>
@@ -1571,7 +1544,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         </div>
       </Modal>
 
-      {/* Document Modal - moved outside of the SearchModal container */}
       {selectedDoc && (
         <DocumentView 
           isOpen={isDocModalOpen} 
@@ -1583,7 +1555,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
           renderThumbnail={renderThumbnail}
           onCloseAllModals={() => {
             setIsDocModalOpen(false);
-            onClose(); // Close the SearchModal
+            onClose();
           }}
         />
       )}

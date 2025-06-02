@@ -2,6 +2,7 @@ import { Modal } from "../ui/modal";
 import { DownloadIcon, MailIcon, CheckCircleIcon } from "lucide-react";
 import { Card } from "../ui/card";
 import { useState, useCallback } from "react";
+import { playSound } from "@/lib/utils/sound";
 
 interface ExportDataModalProps {
   isOpen: boolean;
@@ -9,7 +10,6 @@ interface ExportDataModalProps {
   email: string;
   onExportComplete: () => void;
   notificationsEnabled: boolean;
-  playSound?: () => void;
   soundEnabled?: boolean;
 }
 
@@ -19,7 +19,6 @@ export default function ExportDataModal({
   email,
   onExportComplete,
   notificationsEnabled,
-  playSound,
   soundEnabled = false
 }: ExportDataModalProps) {
   const [loading, setLoading] = useState(false);
@@ -34,11 +33,11 @@ export default function ExportDataModal({
       setExportSuccess(true);
       
       // Play sound if both notifications and sound are enabled
-      if (notificationsEnabled && soundEnabled && playSound) {
+      if (notificationsEnabled && soundEnabled) {
         playSound();
       }
     }, 2000);
-  }, [notificationsEnabled, soundEnabled, playSound]);
+  }, [notificationsEnabled, soundEnabled]);
 
   const handleClose = useCallback(() => {
     setLoading(false);
@@ -59,7 +58,7 @@ export default function ExportDataModal({
       onClose={handleClose}
       title={
         <div className="flex items-center gap-2">
-          <DownloadIcon size={20} />
+          <DownloadIcon size={20} className="text-blue-500" />
           <span>Export Your Data</span>
         </div>
       }
@@ -85,20 +84,32 @@ export default function ExportDataModal({
           </div>
         ),
         content: (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium text-center">Export Request Submitted</h3>
-              <p className="text-base text-center">
-                Your export request has been successfully submitted. A download link will be sent to:
+          <div className="space-y-6">
+            {/* Success message */}
+            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 rounded-lg">
+              <p className="text-sm text-green-800">
+                Your export request has been successfully submitted and is now being processed. 
+                A secure download link will be sent to <strong>{email}</strong>.
               </p>
-              <p className="text-center font-medium">{email}</p>
             </div>
-            
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg">
-              <p className="text-sm text-blue-800 text-center">
-                <strong>What happens next?</strong> Please check your inbox in the next 24-72 hours. If you don't receive 
-                the email, please check your spam folder or contact support.
-              </p>
+
+            {/* Next steps */}
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <span>Details:</span>
+                </div>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>• All your notes and documents will be included</p>
+                  <p>• Export format: ZIP file with organized folders</p>
+                  <p>• Processing time: 24-72 hours</p>
+                  <p>• Download link expires after 7 days</p>
+                </div>
+              </div>
+              
+              <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-green-300/50">
+                If you don't receive the email within 72 hours, please contact support for assistance.
+              </div>
             </div>
           </div>
         ),
@@ -107,31 +118,35 @@ export default function ExportDataModal({
         iconColor: "text-green-600"
       }}
     >
-      <div className="p-6 select-none">
-        <Card className="p-6 space-y-6 border-none shadow-none bg-muted/50">
-          <div className="space-y-6">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                <MailIcon size={28} className="text-primary" />
+      <div className="p-8 select-none">
+        <div className="space-y-6">
+          {/* Description */}
+          <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg">
+            <p className="text-sm text-blue-800">
+              Your data will be prepared and sent as a downloadable file to <strong>{email}</strong>. 
+              This includes all your notes, documents, and settings.
+            </p>
+          </div>
+
+          {/* Information */}
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <span>Details:</span>
+              </div>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>• All your notes and documents will be included</p>
+                <p>• Export format: ZIP file with organized folders</p>
+                <p>• Processing time: 24-72 hours</p>
+                <p>• Download link expires after 7 days</p>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium text-center">Data Export Request</h3>
-              <p className="text-base text-center">
-                Your data will be prepared and sent to:
-              </p>
-              <p className="text-center font-medium">{email}</p>
-            </div>
-            
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg">
-              <p className="text-sm text-blue-800 text-center">
-                Data exports can take 24-72 hours to process.
-                You'll receive a download link via email when your data is ready.
-              </p>
+            <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-blue-300/50">
+              You'll receive an email notification when your export is ready for download.
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </Modal>
   );

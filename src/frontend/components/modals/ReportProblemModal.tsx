@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   AlertTriangleIcon,
   SendIcon,
@@ -23,6 +23,19 @@ const ReportProblemModal = ({
   const [reportMessage, setReportMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-focus the textarea when modal opens
+  useEffect(() => {
+    if (isOpen && !isLoading && !showSuccess) {
+      // Use a small delay to ensure the modal is fully rendered
+      const timer = setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isLoading, showSuccess]);
 
   // Handle report problem submission with loading animation
   const handleReportProblem = useCallback(() => {
@@ -97,19 +110,28 @@ const ReportProblemModal = ({
           </div>
         ),
         content: (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium text-center">Report Submitted</h3>
-              <p className="text-base text-center text-muted-foreground">
-                Your report has been successfully sent to the document author.
+          <div className="space-y-6">
+            {/* Success message */}
+            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 rounded-lg">
+              <p className="text-sm text-green-800">
+                Your report has been successfully sent to the document author 
+                <strong> {document.author.firstName} {document.author.lastName}</strong>. 
+                They will be notified about the issue you've identified.
               </p>
-              <p className="text-center font-medium">{document.author.firstName} {document.author.lastName}</p>
             </div>
-            
-            <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200/50 rounded-lg">
-              <p className="text-sm text-orange-800 text-center">
-                <strong>What happens next?</strong> The author will be notified about your report and can take appropriate action to address the issue you've identified.
-              </p>
+
+            {/* Next steps */}
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <span>Details:</span>
+                </div>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>• The author will receive a notification about your report</p>
+                  <p>• They can review the issue and take appropriate action</p>
+                  <p>• The document may be updated to fix the problem</p>
+                </div>
+              </div>
             </div>
           </div>
         ),
@@ -135,15 +157,16 @@ const ReportProblemModal = ({
                 Describe the problem:
               </label>
               <Textarea
+                ref={textareaRef}
                 id="report-message"
-                placeholder="Please describe the issue you found (e.g., broken links, formatting problems, inappropriate content...)"
+                placeholder="Please describe the issue you found (e.g., broken links, formatting issues...)"
                 value={reportMessage}
                 onChange={(e) => setReportMessage(e.target.value)}
                 disabled={isLoading}
                 className="min-h-[140px] resize-none border-primary/20 focus:border-primary/40 bg-muted/20"
               />
               <p className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-orange-300/50">
-                <strong>Tip:</strong> Be specific about the issue to help the author understand and fix the problem quickly.
+                Be specific about the issue to help the author understand and fix the problem quickly.
               </p>
             </div>
           </div>

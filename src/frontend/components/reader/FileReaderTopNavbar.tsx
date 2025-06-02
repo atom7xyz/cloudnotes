@@ -523,6 +523,19 @@ const FileReaderTopNavbar = memo(({
   // Reference to the search input
   const searchInputRef = useRef<HTMLInputElement>(null);
   
+  // Add refs to track current values and prevent stale closures
+  const currentSearchQueryRef = useRef<string>('');
+  const currentSearchMetadataRef = useRef(searchMetadata);
+  
+  // Update refs when values change
+  useEffect(() => {
+    currentSearchQueryRef.current = searchQuery;
+  }, [searchQuery]);
+  
+  useEffect(() => {
+    currentSearchMetadataRef.current = searchMetadata;
+  }, [searchMetadata]);
+  
   // Set up event listeners for window state
   useEffect(() => {
     const api = getElectronAPI();
@@ -552,7 +565,13 @@ const FileReaderTopNavbar = memo(({
         }, 100);
       } else if (e.key === 'Escape' && isSearchActive) {
         e.preventDefault();
-        handleCloseSearch();
+        // Close search and clear results
+        setIsSearchActive(false);
+        setSearchQuery('');
+        
+        if (onFindText && typeof onFindText === 'function') {
+          onFindText('', 'forward');
+        }
       }
     };
 
@@ -560,7 +579,7 @@ const FileReaderTopNavbar = memo(({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isSearchActive]);
+  }, [isSearchActive, onFindText]);
   
   // Set up keyboard shortcut for tab switcher
   useEffect(() => {
@@ -639,6 +658,27 @@ const FileReaderTopNavbar = memo(({
     // The actual search will now be triggered by the useEffect with debouncedSearchQuery
   }, []);
   
+  const handleCloseSearch = useCallback(() => {
+    setIsSearchActive(false);
+    setSearchQuery('');
+    
+    // Immediately clear search results and ensure focus is removed
+    if (onFindText && typeof onFindText === 'function') {
+      // Call with empty string to clear highlights
+      onFindText('', 'forward');
+      
+      // Also try calling again after a small delay to ensure it works
+      setTimeout(() => {
+        onFindText('', 'forward');
+      }, 50);
+    }
+    
+    // Blur the search input to ensure it loses focus
+    if (searchInputRef.current) {
+      searchInputRef.current.blur();
+    }
+  }, [onFindText]);
+  
   const handleSearchKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault(); // Prevent form submission
@@ -646,47 +686,95 @@ const FileReaderTopNavbar = memo(({
       const timestamp = Date.now();
       console.log(`[${timestamp}] Search enter key pressed`);
       
-      if (!onFindText) return;
+      if (!onFindText || !searchQuery.trim()) return;
       
-      if (searchMetadata?.totalMatches > 0) {
-        // If we already have search results, navigate to the next match
-        console.log(`[${timestamp}] Navigating to next match of existing search`);
-        onFindText(searchQuery.trim(), 'forward');
+      if (e.shiftKey) {
+        // Shift+Enter goes to previous result
+        console.log(`[${timestamp}] Shift+Enter - navigating to previous match`);
+        onFindText(searchQuery.trim(), 'backward');
       } else {
-        // Otherwise perform the initial search
-        console.log(`[${timestamp}] Performing initial search for: ${searchQuery}`);
-        onFindText(searchQuery.trim());
+        // Regular Enter goes to next result (or starts search if no results)
+        if (searchMetadata?.totalMatches > 0) {
+          console.log(`[${timestamp}] Enter - navigating to next match of existing search`);
+          onFindText(searchQuery.trim(), 'forward');
+        } else {
+          console.log(`[${timestamp}] Enter - performing initial search for: ${searchQuery}`);
+          onFindText(searchQuery.trim(), 'forward');
+        }
       }
+    } else if (e.key === 'Escape') {
+      // Allow Escape to close search
+      e.preventDefault();
+      handleCloseSearch();
     }
-  }, [onFindText, searchQuery, searchMetadata?.totalMatches]);
-  
-  const handleCloseSearch = useCallback(() => {
-    setIsSearchActive(false);
-    setSearchQuery('');
-    
-    // Clear search results by calling onFindText with empty string
-    // Make sure to explicitly call this to clear all highlights
-    if (onFindText && typeof onFindText === 'function') {
-      onFindText('', 'forward');
-    }
-  }, [onFindText]);
+  }, [onFindText, searchQuery, searchMetadata?.totalMatches, handleCloseSearch]);
   
   // Search navigation handlers
   const handlePrevResult = useCallback(() => {
-    if (!onFindText) return;
+    const currentQuery = currentSearchQueryRef.current;
+    const currentMetadata = currentSearchMetadataRef.current;
+    
+    if (!onFindText || !currentQuery.trim()) {
+      console.log('Cannot navigate prev: missing onFindText or searchQuery');
+      return;
+    }
+    
+    if (currentMetadata.totalMatches === 0) {
+      console.log('Cannot navigate prev: no matches found');
+      return;
+    }
     
     const timestamp = Date.now();
-    console.log(`[${timestamp}] Navigate to previous search result`);
-    onFindText(searchQuery.trim(), 'backward');
-  }, [onFindText, searchQuery]);
+    console.log(`[${timestamp}] Navigate to previous search result - Current: ${currentMetadata.currentMatch}/${currentMetadata.totalMatches}`);
+    
+    // Ensure we have focus on the search input first
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+    
+    // Call the search function with backward direction
+    onFindText(currentQuery.trim(), 'backward');
+    
+    // Force a re-render by updating some state if needed
+    setTimeout(() => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    }, 100);
+  }, [onFindText]);
   
   const handleNextResult = useCallback(() => {
-    if (!onFindText) return;
+    const currentQuery = currentSearchQueryRef.current;
+    const currentMetadata = currentSearchMetadataRef.current;
+    
+    if (!onFindText || !currentQuery.trim()) {
+      console.log('Cannot navigate next: missing onFindText or searchQuery');
+      return;
+    }
+    
+    if (currentMetadata.totalMatches === 0) {
+      console.log('Cannot navigate next: no matches found');
+      return;
+    }
     
     const timestamp = Date.now();
-    console.log(`[${timestamp}] Navigate to next search result`);
-    onFindText(searchQuery.trim(), 'forward');
-  }, [onFindText, searchQuery]);
+    console.log(`[${timestamp}] Navigate to next search result - Current: ${currentMetadata.currentMatch}/${currentMetadata.totalMatches}`);
+    
+    // Ensure we have focus on the search input first
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+    
+    // Call the search function with forward direction
+    onFindText(currentQuery.trim(), 'forward');
+    
+    // Force a re-render by updating some state if needed
+    setTimeout(() => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    }, 100);
+  }, [onFindText]);
   
   // Handle scroll mode change
   const handleScrollModeChange = useCallback((mode: ScrollMode) => {
@@ -762,18 +850,38 @@ const FileReaderTopNavbar = memo(({
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-6 w-6 rounded-full"
-                          onClick={handlePrevResult}
+                          className="h-6 w-6 rounded-full hover-primary-effect"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Previous button clicked - calling handlePrevResult');
+                            handlePrevResult();
+                          }}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
                           disabled={searchMetadata.totalMatches === 0 || searchMetadata.currentMatch === 1}
+                          title="Previous result (Shift+Enter)"
                         >
                           <ChevronLeft className="h-3 w-3" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-6 w-6 rounded-full"
-                          onClick={handleNextResult}
+                          className="h-6 w-6 rounded-full hover-primary-effect"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Next button clicked - calling handleNextResult');
+                            handleNextResult();
+                          }}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
                           disabled={searchMetadata.totalMatches === 0 || searchMetadata.currentMatch === searchMetadata.totalMatches}
+                          title="Next result (Enter)"
                         >
                           <ChevronRight className="h-3 w-3" />
                         </Button>
@@ -784,7 +892,17 @@ const FileReaderTopNavbar = memo(({
                     variant="ghost" 
                     size="icon" 
                     className="h-6 w-6 rounded-full hover-primary-effect"
-                    onClick={handleCloseSearch}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Close search button clicked');
+                      handleCloseSearch();
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    title="Close search (Escape)"
                   >
                     <X className="h-3 w-3" />
                   </Button>

@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
@@ -42,7 +42,6 @@ import { Avatar } from '../ui/avatar';
 import { Modal } from '../ui/modal';
 import { AppLink } from '../ui/app-link';
 import { toast } from 'sonner';
-import correctAnswerSound from '../../assets/sounds/mixkit-correct-answer-tone-2870.wav';
 import { Toaster } from '../ui/sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import PINLockModal from './PINLockModal';
@@ -51,6 +50,7 @@ import ExportDataModal from './ExportDataModal';
 import { useAppLock } from '@/lib/contexts/AppLockContext';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { Card, CardContent } from '../ui/card';
+import { playSound } from '@/lib/utils/sound';
 
 // Toggle switch component with label
 interface ToggleProps {
@@ -298,30 +298,6 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   // Import app navigation
   const appNavigate = useAppNavigate();
   
-  // Audio reference for sound effects
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Initialize audio element
-  useEffect(() => {
-    audioRef.current = new Audio(correctAnswerSound);
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
-  // Function to play notification sound
-  const playSound = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {
-        // Silently handle error playing sound
-      });
-    }
-  };
-
   // Function to show notification example
   const showNotificationExample = () => {
     if (notificationsEnabled) {
@@ -336,16 +312,14 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         icon: <FileTextIcon size={16} />,
       });
       
-      if (soundEnabled) {
-        playSound();
-      }
+      playSound(soundEnabled);
     }
   };
 
   // Function to demonstrate sound effect
   const demonstrateSound = () => {
     if (soundEnabled) {
-      playSound();
+      playSound(soundEnabled);
       toast.success("Sound effect played", {
         description: "This is how notifications will sound when enabled",
       });
@@ -413,9 +387,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
           description: "Signed out from all other devices",
         });
         
-        if (soundEnabled) {
-          playSound();
-        }
+        playSound(soundEnabled);
       } else {
         // Sign out a single device
         setActiveDevices(prevDevices => prevDevices.filter(device => device.id !== deviceToSignOut.id));
@@ -431,9 +403,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
             description: `Signed out from ${deviceToSignOut.name}`,
           });
           
-          if (soundEnabled) {
-            playSound();
-          }
+          playSound(soundEnabled);
         }
       }
       
@@ -457,9 +427,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         description: "Your application is now protected with a PIN",
       });
       
-      if (soundEnabled) {
-        playSound();
-      }
+      playSound(soundEnabled);
     }
   };
 
@@ -509,7 +477,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         description: "You will now hear sounds for notifications and actions",
       });
       // Play the sound to demonstrate
-      playSound();
+      playSound(soundEnabled);
     }
   };
 
@@ -1106,7 +1074,6 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         email="bart@simpson.tv"
         onExportComplete={handleExportComplete}
         notificationsEnabled={notificationsEnabled}
-        playSound={playSound}
         soundEnabled={soundEnabled}
       />
 

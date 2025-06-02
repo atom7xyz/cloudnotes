@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState, useCallback } from 'react';
-import { BellIcon, SettingsIcon, MailIcon, FileTextIcon, MessageSquareIcon, Check } from 'lucide-react';
+import { BellIcon, SettingsIcon, MessageSquareIcon, BookmarkIcon, Check } from 'lucide-react';
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { 
@@ -20,7 +20,7 @@ export interface NotificationItem {
   message: string;
   timestamp: Date;
   isRead: boolean;
-  type: 'document' | 'comment' | 'share' | 'system';
+  type: 'comment' | 'bookmark_milestone';
   actionUrl?: string;
 }
 
@@ -32,9 +32,67 @@ interface NotificationsProps {
   onNotificationClick?: (notification: NotificationItem) => void;
 }
 
+// Sample notifications for bartsimpson user
+const sampleNotifications: NotificationItem[] = [
+  {
+    id: 'notif-1',
+    title: 'New comment on your document',
+    message: 'John Doe commented on "Wagner\'s Ring Cycle: A Complete Analysis"',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    isRead: false,
+    type: 'comment',
+    actionUrl: '/document/wagner-ring-cycle'
+  },
+  {
+    id: 'notif-2',
+    title: 'Bookmark milestone reached!',
+    message: 'Your document "Verdi\'s Italian Operas and Political Influence" has reached 50 bookmarks',
+    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+    isRead: false,
+    type: 'bookmark_milestone',
+    actionUrl: '/document/verdi-italian-operas'
+  },
+  {
+    id: 'notif-3',
+    title: 'New comment on your document',
+    message: 'Sarah Wilson commented on "Mozart\'s Operas: The Evolution of a Genius"',
+    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    isRead: true,
+    type: 'comment',
+    actionUrl: '/document/mozart-operas'
+  },
+  {
+    id: 'notif-4',
+    title: 'Bookmark milestone reached!',
+    message: 'Your document "Puccini and Italian Verismo: Realism in Opera" has reached 25 bookmarks',
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    isRead: true,
+    type: 'bookmark_milestone',
+    actionUrl: '/document/puccini-verismo'
+  },
+  {
+    id: 'notif-5',
+    title: 'New comment on your document',
+    message: 'Michael Chen commented on "The History of Opera Houses in Europe"',
+    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    isRead: true,
+    type: 'comment',
+    actionUrl: '/document/opera-houses-europe'
+  },
+  {
+    id: 'notif-6',
+    title: 'Bookmark milestone reached!',
+    message: 'Your document "Wagner\'s Ring Cycle: A Complete Analysis" has reached 100 bookmarks',
+    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+    isRead: true,
+    type: 'bookmark_milestone',
+    actionUrl: '/document/wagner-ring-cycle'
+  }
+];
+
 const Notifications: React.FC<NotificationsProps> = ({
-  unreadCount = 0,
-  notifications = [],
+  unreadCount = 2, // Default to 2 unread notifications for demo
+  notifications = sampleNotifications, // Use sample notifications by default
   onOpenSettings,
   onMarkAllAsRead,
   onNotificationClick
@@ -57,12 +115,10 @@ const Notifications: React.FC<NotificationsProps> = ({
   // Get icon based on notification type
   const getNotificationIcon = (type: NotificationItem['type']): React.ReactNode => {
     switch (type) {
-      case 'document':
-        return <FileTextIcon size={14} className="text-blue-500" />;
       case 'comment':
         return <MessageSquareIcon size={14} className="text-green-500" />;
-      case 'share':
-        return <MailIcon size={14} className="text-purple-500" />;
+      case 'bookmark_milestone':
+        return <BookmarkIcon size={14} className="text-blue-500" />;
       default:
         return <BellIcon size={14} className="text-gray-500" />;
     }

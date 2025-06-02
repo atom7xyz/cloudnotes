@@ -20,7 +20,9 @@ import {
   AlertTriangleIcon,
   CheckIcon,
   TrashIcon,
-  RefreshCwIcon
+  RefreshCwIcon,
+  SettingsIcon,
+  ChevronDownIcon
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -31,6 +33,14 @@ import { Textarea } from '../ui/textarea';
 import { Separator } from '../ui/separator';
 import { cn, formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '../ui/dropdown-menu';
 import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockComment, MockReport } from '../../lib/mocking/mocked';
@@ -41,7 +51,7 @@ import ReportProblemModal from '../modals/ReportProblemModal';
 
 const Document = () => {
   const { id } = useParams<{ id: string }>();
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const appNavigate = useAppNavigate();
   const [document, setDocument] = useState<MockDocument | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -52,6 +62,7 @@ const Document = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reports, setReports] = useState<MockReport[]>([]);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [selectedTimerDuration, setSelectedTimerDuration] = useState<number | null>(null);
 
   // Mock current user - in a real app this would come from auth context
   const currentUser = {
@@ -61,6 +72,20 @@ const Document = () => {
 
   // Check if current user is the author
   const isAuthor = document?.author.username === currentUser.username;
+
+  // Timer duration options (in minutes)
+  const timerOptions = [
+    { label: '5 minutes', value: 5 },
+    { label: '10 minutes', value: 10 },
+    { label: '15 minutes', value: 15 },
+    { label: '30 minutes', value: 30 },
+    { label: '45 minutes', value: 45 },
+    { label: '60 minutes', value: 60 },
+    { label: 'No timer', value: null }
+  ];
+
+  // Get selected timer option
+  const selectedTimerOption = timerOptions.find(option => option.value === selectedTimerDuration) || timerOptions[timerOptions.length - 1];
 
   // Load document data
   useEffect(() => {
@@ -255,19 +280,31 @@ const Document = () => {
     }
   }, []);
 
-  // Handle report status change
-  const handleMarkReportDone = useCallback((reportId: string) => {
-    const success = mockService.updateReportStatus(reportId, 'resolved');
-    if (success) {
-      setReports(prev => prev.map(report => 
-        report.id === reportId ? { ...report, status: 'resolved' } : report
-      ));
-      toast.success("Report marked as resolved", {
-        description: "The report has been marked as done",
-        icon: <CheckIcon size={16} />,
+  // Handle timer duration selection
+  const handleTimerSelection = useCallback((duration: number | null) => {
+    setSelectedTimerDuration(duration);
+    
+    if (duration) {
+      toast.success("Timer duration set", {
+        description: `Reading timer set to ${duration} minutes`,
+        icon: <TimerIcon size={16} />,
+      });
+    } else {
+      toast.success("Timer disabled", {
+        description: "Document will open without a timer",
+        icon: <TimerIcon size={16} />,
       });
     }
   }, []);
+
+  // Handle document opening with timer
+  const handleOpenDocument = useCallback(() => {
+    if (selectedTimerDuration) {
+      appNavigate(`/reader/${document?.id}?timer=${selectedTimerDuration}`);
+    } else {
+      appNavigate(`/reader/${document?.id}`);
+    }
+  }, [selectedTimerDuration, document?.id, appNavigate]);
 
   if (!document) {
     return (
@@ -563,31 +600,54 @@ const Document = () => {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <Button 
-                    variant="outline" 
-                    className={cn(
-                      "gap-2 rounded-full cursor-pointer shadow-md",
-                      theme === "dark" ? "hover:bg-cyan-50 hover:border-cyan-300 hover:text-cyan-400 border-cyan-200 text-cyan-400" : "hover:bg-cyan-50 hover:border-cyan-300 hover:text-cyan-800 border-cyan-200 text-cyan-800"
-                    )} 
-                    size="lg"
-                    onClick={() => {
-                      toast.success("Timer mode activated", {
-                        description: "Document will open with reading timer",
-                        icon: <TimerIcon size={16} />,
-                      });
-                      // In a real app, this would navigate to reader with timer mode
-                      appNavigate(`/reader/${document.id}?timer=true`);
-                    }}
-                  >
-                    <TimerIcon size={18} />
-                    Open with Timer
-                  </Button>
+                  {/* Timer Settings Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="gap-2 rounded-full cursor-pointer shadow-md hover:border-primary/30 transition-colors" 
+                        size="lg"
+                      >
+                        <SettingsIcon size={18} />
+                        {selectedTimerOption.label}
+                        <ChevronDownIcon size={16} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 select-none">
+                      <DropdownMenuLabel className="flex items-center gap-2">
+                        <TimerIcon size={16} />
+                        Reading Timer Settings
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {timerOptions.map((option) => (
+                        <DropdownMenuItem
+                          key={option.value || 'no-timer'}
+                          className="flex flex-col items-start p-3 cursor-pointer hover-primary-effect"
+                          onClick={() => handleTimerSelection(option.value)}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className={cn(
+                              "font-medium",
+                              selectedTimerDuration === option.value ? "text-primary" : ""
+                            )}>
+                              {option.label}
+                            </span>
+                            {selectedTimerDuration === option.value && (
+                              <CheckIcon size={16} className="text-primary" />
+                            )}
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   
-                  <Button className="gap-2 rounded-full cursor-pointer shadow-md" size="lg" asChild>
-                    <AppLink href={`/reader/${document.id}`} preventNavigation className="hover:no-underline">
-                      <ExternalLinkIcon size={18} />
-                      Open Document
-                    </AppLink>
+                  <Button 
+                    className="gap-2 rounded-full cursor-pointer shadow-md" 
+                    size="lg" 
+                    onClick={handleOpenDocument}
+                  >
+                    <ExternalLinkIcon size={18} />
+                    {selectedTimerDuration ? `Open with ${selectedTimerDuration}min Timer` : 'Open Document'}
                   </Button>
                 </div>
               </div>

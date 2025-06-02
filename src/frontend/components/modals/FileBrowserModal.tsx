@@ -586,7 +586,8 @@ const SearchInput = memo(({
   handleSuggestionClick,
   inputRef,
   searchContainerRef,
-  fileTypeTags
+  fileTypeTags,
+  onClearAll
 }: {
   inputValue: string;
   selectedTags: string[];
@@ -598,6 +599,7 @@ const SearchInput = memo(({
   inputRef: React.RefObject<HTMLInputElement | null>;
   searchContainerRef: React.RefObject<HTMLDivElement | null>;
   fileTypeTags: string[];
+  onClearAll: () => void;
 }) => {
   const shouldWrapInput = selectedTags.length > 2;
   
@@ -623,14 +625,17 @@ const SearchInput = memo(({
     });
   }, [selectedTags, fileTypeTags]);
   
+  // Check if there's any content to clear
+  const hasContent = inputValue.trim() || selectedTags.length > 0;
+  
   return (
     <div className="mb-6">
       <div className="relative mb-2">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none" size={18} />
         <div 
           ref={searchContainerRef}
-          className="pl-10 pr-4 py-2 rounded-full border border-muted-foreground/40 bg-background flex flex-wrap items-center gap-2"
+          className="pl-10 pr-12 py-2 rounded-full border border-muted-foreground/40 bg-background flex flex-wrap items-center gap-2 relative"
         >
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none z-10" size={18} />
           {selectedTags.length > 0 && (
             <div className={`flex flex-wrap gap-2 ${shouldWrapInput ? 'w-full mb-1.5' : ''}`}>
               {sortedTags.map(tag => {
@@ -692,6 +697,19 @@ const SearchInput = memo(({
             />
           </div>
           
+          {/* Clear All Button */}
+          {hasContent && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full text-muted-foreground hover:text-foreground hover-primary-effect z-10"
+              onClick={onClearAll}
+              title="Clear all"
+            >
+              <X size={14} />
+            </Button>
+          )}
+          
           {tagSuggestions.length > 0 && (
             <div className="w-full mt-1 flex flex-wrap gap-1">
               <span className="text-xs text-muted-foreground mr-1 select-none">Suggestions:</span>
@@ -725,6 +743,10 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [userDocuments, setUserDocuments] = useState<MockDocument[]>([]);
   const [recentDocuments, setRecentDocuments] = useState<MockDocument[]>([]);
   const [filteredRecentDocuments, setFilteredRecentDocuments] = useState<MockDocument[]>([]);
+  // Add state to preserve original data
+  const [originalBookmarkResults, setOriginalBookmarkResults] = useState<MockDocument[]>([]);
+  const [originalUserDocuments, setOriginalUserDocuments] = useState<MockDocument[]>([]);
+  const [originalRecentDocuments, setOriginalRecentDocuments] = useState<MockDocument[]>([]);
   const [recentSearches] = useState<string[]>(mockService.getRecentSearches());
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -757,7 +779,9 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
           const sortedDocs = allDocs.sort((a, b) => 
             new Date(b.file.uploadedAt).getTime() - new Date(a.file.uploadedAt).getTime()
           );
-          setRecentDocuments(sortedDocs.slice(0, 10));
+          const recentDocs = sortedDocs.slice(0, 10);
+          setRecentDocuments(recentDocs);
+          setOriginalRecentDocuments(recentDocs); // Store original data
           
           // Set user documents if there's a current user
           if (currentUser) {
@@ -767,8 +791,10 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 mockService.getBookmarksForUser(currentUser.id)
               ]);
               setUserDocuments(userDocsData);
+              setOriginalUserDocuments(userDocsData); // Store original data
               const bookmarkedDocs = bookmarksData.map((bookmark: MockBookmark) => bookmark.document);
               setBookmarkResults(bookmarkedDocs);
+              setOriginalBookmarkResults(bookmarkedDocs); // Store original data
             } catch (error) {
               console.error('Error loading user data:', error);
             }
@@ -799,12 +825,14 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     setSearchCompleted(false);
 
     try {
-      // If there's no query and no tags, don't show results
+      // If there's no query and no tags, restore original data and don't perform search
       if (!query.trim() && tags.length === 0) {
         setDocumentResults([]);
         setUserResults([]);
-        setBookmarkResults([]);
-        setUserDocuments([]);
+        // Restore original data instead of clearing
+        setBookmarkResults(originalBookmarkResults);
+        setUserDocuments(originalUserDocuments);
+        setFilteredRecentDocuments(originalRecentDocuments);
         setIsLoading(false);
         setSearchCompleted(true);
         return;
@@ -863,7 +891,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       
       // Apply tag filtering if there are selected tags
       let filteredDocuments = documents;
-      let filteredRecentDocs = recentDocuments;
+      let filteredRecentDocs = originalRecentDocuments; // Use original recent documents
       
       if (tags.length > 0) {
         // Split tags into normal tags and file type tags
@@ -892,7 +920,13 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         };
         
         filteredDocuments = applyFilters(documents);
-        filteredRecentDocs = applyFilters(recentDocuments);
+        filteredRecentDocs = applyFilters(originalRecentDocuments);
+      } else if (query.trim()) {
+        // Filter recent documents by search query when there's a query but no tags
+        filteredRecentDocs = originalRecentDocuments.filter(doc => 
+          doc.title.toLowerCase().includes(query.toLowerCase()) ||
+          doc.file.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+        );
       }
       
       // Filter each collection based on the search results
@@ -933,7 +967,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         setSearchCompleted(true);
       }
     }
-  }, [recentDocuments]);
+  }, [originalBookmarkResults, originalUserDocuments, originalRecentDocuments]);
 
   // Complete the current tag and add it to selected tags
   const completeTag = useCallback(() => {
@@ -1225,6 +1259,36 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     return `${prefix}-${value}-${hash}${fallback ? `-${fallback}` : ''}`;
   }, []);
 
+  // Clear all search input and tags
+  const handleClearAll = useCallback(() => {
+    setInputValue('');
+    setSelectedTags([]);
+    setCurrentTag(null);
+    setSearchQuery('');
+    setDocumentResults([]);
+    setUserResults([]);
+    setIsLoading(false);
+    setSearchCompleted(false);
+    
+    // Reset the search refs
+    lastTextQueryRef.current = '';
+    userResultsRef.current = [];
+    
+    // Cancel any pending search requests
+    const requestId = Date.now();
+    latestSearchRequestRef.current = requestId;
+    
+    // Restore original data instead of reloading
+    setBookmarkResults(originalBookmarkResults);
+    setUserDocuments(originalUserDocuments);
+    setFilteredRecentDocuments(originalRecentDocuments);
+    
+    // Focus the input after clearing
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [originalBookmarkResults, originalUserDocuments, originalRecentDocuments]);
+
   // Toggle save status (in a real app, this would call an API)
   const toggleBookmark = useCallback((docId: string) => {
     if (bookmarkResults.some(doc => doc.id === docId)) {
@@ -1252,7 +1316,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             <span>File Browser</span>
           </div>
         }
-        maxWidth="max-w-3xl"
+        maxWidth="max-w-4xl"
         className="h-[calc(90vh-8rem)]"
         scrollBody={false}
       >
@@ -1268,6 +1332,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             inputRef={inputRef}
             searchContainerRef={searchContainerRef}
             fileTypeTags={fileTypeTags}
+            onClearAll={handleClearAll}
           />
 
           <Tabs defaultValue="recent" value={activeTab} onValueChange={(value) => setActiveTab(value as 'recent' | 'saved' | 'user' | 'discover')}>
@@ -1276,9 +1341,9 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 <TabsTrigger value="recent" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
                   <Clock size={16} className="select-none" />
                   <span>Recent</span>
-                  {recentDocuments.length > 0 && (
+                  {(searchQuery || selectedTags.length > 0 ? filteredRecentDocuments.length : recentDocuments.length) > 0 && (
                     <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
-                      {recentDocuments.length}
+                      {searchQuery || selectedTags.length > 0 ? filteredRecentDocuments.length : recentDocuments.length}
                     </Badge>
                   )}
                 </TabsTrigger>
@@ -1319,14 +1384,6 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                   )}
                 </TabsTrigger>
               </TabsList>
-              
-              {/* Tag information message moved to right side of tabs */}
-              {selectedTags.length > 0 && activeTab === 'recent' && (
-                <div className="text-xs text-muted-foreground flex items-center gap-1 select-none ml-2">
-                  <HelpCircle size={24} className="select-none" />
-                  <span>Tags are not applicable to recent searches</span>
-                </div>
-              )}
             </div>
 
             {/* Tabs content sections */}

@@ -270,19 +270,6 @@ export function Modal({
           <div className={cn("overflow-y-auto grow max-h-[calc(90vh-8rem)]")}>
             <div className="p-8 select-none">
               <div className="space-y-6">
-                <div className="flex justify-center">
-                  <div className={cn(
-                    "w-16 h-16 rounded-full flex items-center justify-center",
-                    successConfig.iconBgColor || "bg-green-100"
-                  )}>
-                    {successConfig.icon || (
-                      <CheckCircleIcon 
-                        size={28} 
-                        className={successConfig.iconColor || "text-green-600"} 
-                      />
-                    )}
-                  </div>
-                </div>
                 {successConfig.content}
               </div>
             </div>

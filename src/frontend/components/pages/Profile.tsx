@@ -22,7 +22,8 @@ import {
   ChevronRightIcon,
   CheckIcon,
   PlusIcon,
-  Activity
+  Activity,
+  TimerIcon
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -837,8 +838,7 @@ const Profile = () => {
         {/* Quick Stats */}
         <Card className="mt-6 border-primary/10 shadow-md">
           <CardContent className="p-6">
-            <h4 className="font-semibold mb-4 flex items-center gap-2">
-              <DownloadIcon size={16} className="text-primary" />
+            <h4 className="font-semibold mb-8 flex items-center gap-2 text-lg">
               Revenue Summary
             </h4>
             
@@ -893,7 +893,7 @@ const Profile = () => {
             <Card className="border-primary/10 shadow-sm">
               <CardContent className="p-4 text-center">
                 <div className="flex items-center justify-center w-12 h-12 bg-blue-500/10 rounded-full mx-auto mb-3">
-                  <BookmarkIcon size={20} className="text-blue-500" />
+                  <TimerIcon size={20} className="text-blue-500" />
                 </div>
                 <div className="text-2xl font-bold text-blue-500">
                   {userDocuments.length + favoriteDocuments.length * 2}

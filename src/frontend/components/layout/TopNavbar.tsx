@@ -69,28 +69,20 @@ const TopNavbar: React.FC = () => {
   // Mock notifications data (in a real app, this would come from a database or API)
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
-      id: '1',
-      title: 'Document shared',
-      message: 'Jane Simpson shared "Project Budget.pdf" with you',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-      isRead: false,
-      type: 'share'
-    },
-    {
       id: '2',
       title: 'New comment',
-      message: 'Alex commented on "Meeting Notes.pdf": "Great summary, thanks!"',
+      message: '@hyman.hills commented on "Mozart\'s Operas: The Evolution of a Genius"',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       isRead: false,
       type: 'comment'
     },
     {
       id: '3',
-      title: 'Document updated',
-      message: 'Marketing Plan.docx has been updated with new revisions',
+      title: 'Document milestone',
+      message: 'Your document has reached 1000 saves',
       timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
       isRead: true,
-      type: 'document'
+      type: 'bookmark_milestone'
     }
   ]);
 
