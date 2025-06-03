@@ -1,7 +1,7 @@
 import { Modal } from "../ui/modal";
 import { LogOutIcon, CheckCircleIcon } from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
-
+import { playSound } from "@/lib/utils/sound";
 interface SignOutConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,6 +29,7 @@ export default function SignOutConfirmationModal({
       setSignOutSuccess(true);
       
       // Don't call onConfirm here - let the user close the success modal manually
+      playSound();
     }, 2000);
   }, []);
 
@@ -113,8 +114,7 @@ export default function SignOutConfirmationModal({
           {/* Warning */}
           <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 rounded-lg">
             <p className="text-sm text-amber-800">
-              You are about to sign out from <strong>{deviceName}</strong>. This will end your current session
-              and you'll need to log in again to access your account.
+              You are about to sign out from <strong>{deviceName}</strong>.
             </p>
           </div>
 
@@ -125,9 +125,9 @@ export default function SignOutConfirmationModal({
                 <span>Details:</span>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p><span className="font-medium">• Device:</span> {deviceName}</p>
-                <p><span className="font-medium">• Session type:</span> {isCurrent ? "Current device" : "Remote device"}</p>
-                <p><span className="font-medium">• Impact:</span> {isCurrent ? "You'll be logged out immediately" : "Remote session will be terminated"}</p>
+                <p>• Device: {deviceName}</p>
+                <p>• Session type: {isCurrent ? "Current device" : "Remote device"}</p>
+                <p>• Impact: {isCurrent ? "You'll be logged out immediately" : "Remote session will be terminated"}</p>
               </div>
             </div>
           </div>

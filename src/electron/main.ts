@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 import path from 'path';
 import { getPreloadPath, isDev } from "./run_utilities.js";
+import { authService, type LoginRequest, type RegisterRequest } from './auth-service.js';
 
 let mainWindow: BrowserWindow | null = null;
 // Flag to track reload state
@@ -158,6 +159,70 @@ app.on('ready', () => {
         toggleDevTools();
     });
     
+    // Authentication IPC handlers
+    ipcMain.handle('auth:login', async (_, data: LoginRequest) => {
+        try {
+            return await authService.login(data);
+        } catch (error) {
+            console.error('Login error:', error);
+            return {
+                success: false,
+                message: 'An unexpected error occurred during login'
+            };
+        }
+    });
+
+    ipcMain.handle('auth:register', async (_, data: RegisterRequest) => {
+        try {
+            return await authService.register(data);
+        } catch (error) {
+            console.error('Registration error:', error);
+            return {
+                success: false,
+                message: 'An unexpected error occurred during registration'
+            };
+        }
+    });
+
+    ipcMain.handle('auth:logout', async (_, token: string) => {
+        try {
+            return await authService.logout(token);
+        } catch (error) {
+            console.error('Logout error:', error);
+            return {
+                success: false,
+                message: 'An unexpected error occurred during logout'
+            };
+        }
+    });
+
+    ipcMain.handle('auth:verify-token', async (_, token: string) => {
+        try {
+            return await authService.verifyToken(token);
+        } catch (error) {
+            console.error('Token verification error:', error);
+            return {
+                success: false,
+                message: 'An unexpected error occurred during token verification'
+            };
+        }
+    });
+
+    ipcMain.handle('auth:get-users', async () => {
+        try {
+            return {
+                success: true,
+                users: authService.getAllUsers()
+            };
+        } catch (error) {
+            console.error('Get users error:', error);
+            return {
+                success: false,
+                message: 'An unexpected error occurred while fetching users'
+            };
+        }
+    });
+    
     // Register CTRL+I shortcut to toggle DevTools
     try {
         const registered = globalShortcut.register('CommandOrControl+I', () => {
@@ -168,18 +233,6 @@ app.on('ready', () => {
         }
     } catch (error) {
         console.error('Error registering CTRL+I shortcut:', error);
-    }
-
-    // Also register F12 as an alternative
-    try {
-        const registered = globalShortcut.register('F12', () => {
-            toggleDevTools();
-        });
-        if (!registered) {
-            console.warn('F12 shortcut registration failed');
-        }
-    } catch (error) {
-        console.error('Error registering F12 shortcut:', error);
     }
     
     // Register F5 to reload the page

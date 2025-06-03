@@ -6,7 +6,6 @@ import {
   BookmarkIcon,
   StarIcon,
   EditIcon,
-  DownloadIcon,
   LinkIcon,
   LockIcon,
   UnlockIcon,
@@ -77,6 +76,9 @@ const Profile = () => {
     joinDate: new Date('2023-01-15')
   }), []);
 
+  // Get the display user data (use currentUserState if available, fallback to currentUser)
+  const displayUser = currentUserState || currentUser;
+
   // Calculate last opened time (in a real app this would come from user session data)
   const getLastOpenedTime = useCallback((doc: MockDocument): string => {
     // For demo purposes, generate a random time within the last 7 days
@@ -113,9 +115,11 @@ const Profile = () => {
     const favorites = allDocuments.slice(0, 3);
     setFavoriteDocuments(favorites);
     
-    // Initialize current user state
-    setCurrentUserState(currentUser);
-  }, [currentUser]);
+    // Initialize current user state if not already set
+    if (!currentUserState) {
+      setCurrentUserState(currentUser);
+    }
+  }, [currentUser, currentUserState]);
 
   // Toggle favorite (in a real app, this would call an API)
   const toggleFavorite = useCallback((docId: string) => {
@@ -274,7 +278,7 @@ const Profile = () => {
   // Handle share profile
   const handleShareProfile = useCallback(async () => {
     try {
-      const profileUrl = `${window.location.origin}/profile/${currentUser.username}`;
+      const profileUrl = `${window.location.origin}/profile/${displayUser.username}`;
       await navigator.clipboard.writeText(profileUrl);
 
       toast.success("Profile link copied", {
@@ -288,7 +292,7 @@ const Profile = () => {
         icon: <LinkIcon size={16} />,
       });
     }
-  }, [currentUser.username]);
+  }, [displayUser.username]);
 
   // Handle profile update
   const handleProfileUpdate = useCallback((updatedUser: Partial<{
@@ -346,7 +350,7 @@ const Profile = () => {
             {/* Left side - Profile image and basic info */}
             <div className="flex flex-col items-center">
               <Avatar className="h-32 w-32 border-4 border-primary/20 shadow-md mb-6">
-                <img src={currentUser.avatar} alt={currentUser.username} />
+                <img src={displayUser.avatar} alt={displayUser.username} />
               </Avatar>
               
               {/* Action Buttons */}
@@ -390,10 +394,10 @@ const Profile = () => {
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h1 className="text-4xl font-bold leading-tight mb-2">
-                    {currentUser.firstName} {currentUser.lastName}
+                    {displayUser.firstName} {displayUser.lastName}
                   </h1>
                   <Badge variant="outline" className="bg-gradient-to-r from-primary/10 to-primary/20 text-primary border-primary/30 px-3 py-1.5 font-medium mb-4">
-                    @{currentUser.username}
+                    @{displayUser.username}
                   </Badge>
                 </div>
               </div>
@@ -405,7 +409,7 @@ const Profile = () => {
                   About
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base bg-muted/20 p-4 rounded-lg border-l-4 border-primary/30">
-                  {currentUser.bio}
+                  {displayUser.bio}
                 </p>
               </div>
               
@@ -414,7 +418,7 @@ const Profile = () => {
                 <div className="flex items-center gap-2">
                   <CalendarIcon size={16} className="text-primary" />
                   <span className="font-medium">Joined:</span>
-                  <span className="text-muted-foreground">{formatRelativeDate(currentUser.joinDate)}</span>
+                  <span className="text-muted-foreground">{formatRelativeDate(displayUser.joinDate)}</span>
                 </div>
               </div>
             </div>
@@ -860,7 +864,7 @@ const Profile = () => {
                   triggerIcon={<LinkIcon size={16} />}
                   triggerClassName="w-full gap-2 mt-4 hover-primary-effect"
                   onCopyLink={() => {
-                    const donationUrl = `${window.location.origin}/donate/${currentUser.username}`;
+                    const donationUrl = `${window.location.origin}/donate/${displayUser.username}`;
                     navigator.clipboard.writeText(donationUrl).then(() => {
                       toast.success("Donation link copied", {
                         description: "Donation URL has been copied to clipboard",

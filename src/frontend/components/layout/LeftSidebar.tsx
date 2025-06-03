@@ -168,7 +168,7 @@ const LeftSidebar: React.FC = () => {
           <Separator className="w-full my-2" />
           <NavItem 
             icon={<FileTextIcon size={32} />} 
-            label="READ" 
+            label="RECENT" 
             to="/reader" 
             hasDropdown={true}
             dropdownContent={readerDropdownContent}

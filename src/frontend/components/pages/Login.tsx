@@ -7,13 +7,13 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { PasswordInput } from "@/components/form-fields/PasswordInput";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { login, isLoading, isAuthenticated, error, clearError } = useAuth();
 
   // Initialize form with react-hook-form and zod validation
   const form = useForm<LoginFormValues>({
@@ -24,22 +24,29 @@ export default function Login() {
     },
     mode: "onSubmit"
   });
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clear any previous errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
   
   // Handle form submission
   const onSubmit = async (values: LoginFormValues) => {
-    setIsLoading(true);
+    const result = await login(values);
     
-    try {
-      // Simulate API request
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // On success, navigate to dashboard
-      navigate('/');
-    } catch (error) {
-      // Handle login error
-      setError('Invalid credentials. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (result.success) {
+      // Navigation will happen automatically via useEffect above
+      console.log('Login successful');
+    } else {
+      // Error is handled by the useAuth hook
+      console.error('Login failed:', result.message);
     }
   };
   
@@ -70,7 +77,15 @@ export default function Login() {
           bypassPaths={['/forgot-password']}
           isFormEmpty={isFormEmpty}
           submitLabel="Login"
+          loading={isLoading}
+          loadingText="Signing in..."
         >
+          {error && (
+            <div className="text-destructive text-sm text-center p-3 bg-destructive/10 rounded-md">
+              {error.message}
+            </div>
+          )}
+          
           <FormInput
             form={form}
             name="email"

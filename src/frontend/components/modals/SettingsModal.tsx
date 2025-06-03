@@ -368,8 +368,6 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         toast.success("Signed out successfully", {
           description: "Signed out from all other devices",
         });
-        
-        playSound();
       } else {
         // Sign out a single device
         setActiveDevices(prevDevices => prevDevices.filter(device => device.id !== deviceToSignOut.id));
@@ -384,8 +382,6 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
           toast.success("Signed out successfully", {
             description: `Signed out from ${deviceToSignOut.name}`,
           });
-          
-          playSound();
         }
       }
       

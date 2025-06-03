@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { FormContainer } from "@/components/form-fields/FormContainer";
 import type { ReactNode } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
@@ -11,6 +11,8 @@ interface AuthFormContainerProps<TFieldValues extends FieldValues> {
   submitLabel: string;
   children: ReactNode;
   disabled?: boolean;
+  loading?: boolean;
+  loadingText?: string;
 }
 
 /**
@@ -23,7 +25,9 @@ export function AuthFormContainer<TFieldValues extends FieldValues>({
   bypassPaths = [],
   submitLabel,
   children,
-  disabled = false
+  disabled = false,
+  loading = false,
+  loadingText
 }: AuthFormContainerProps<TFieldValues>) {
   return (
     <FormContainer
@@ -35,13 +39,15 @@ export function AuthFormContainer<TFieldValues extends FieldValues>({
     >
       {children}
 
-      <Button
+      <LoadingButton
         type="submit"
         className="w-full rounded-full mt-4 cursor-pointer select-none"
         disabled={disabled}
+        loading={loading}
+        loadingText={loadingText}
       >
         {submitLabel}
-      </Button>
+      </LoadingButton>
     </FormContainer>
   );
 }

@@ -305,7 +305,6 @@ const EditProfileModal = ({
                 disabled={isSaving}
                 className="gap-2 rounded-full hover-primary-effect cursor-pointer"
               >
-                <XIcon size={16} />
                 Cancel
               </Button>
               <Button 

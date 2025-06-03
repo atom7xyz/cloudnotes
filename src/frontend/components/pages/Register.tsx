@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,11 +10,11 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { PasswordInput } from "@/components/form-fields/PasswordInput";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function Register() {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { register, isLoading, isAuthenticated, error, clearError } = useAuth();
 
   // Initialize form with react-hook-form and zod validation
   const form = useForm<RegisterFormValues>({
@@ -29,22 +29,29 @@ export default function Register() {
     },
     mode: "onSubmit"
   });
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clear any previous errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
   
   // Handle form submission
   const onSubmit = async (values: RegisterFormValues) => {
-    setIsLoading(true);
+    const result = await register(values);
     
-    try {
-      // Simulate API request
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // On success, navigate to login or verification page
-      navigate('/login');
-    } catch (error) {
-      // Handle registration error
-      setError('Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (result.success) {
+      // Navigation will happen automatically via useEffect above
+      console.log('Registration successful');
+    } else {
+      // Error is handled by the useAuth hook
+      console.error('Registration failed:', result.message);
     }
   };
   
@@ -84,7 +91,15 @@ export default function Register() {
             isFormEmpty={isFormEmpty}
             submitLabel="Register"
             disabled={!form.watch("acceptTerms")}
+            loading={isLoading}
+            loadingText="Creating account..."
           >
+            {error && (
+              <div className="text-destructive text-sm text-center p-3 bg-destructive/10 rounded-md">
+                {error.message}
+              </div>
+            )}
+            
             <div className="grid grid-cols-2 gap-4">
               <FormInput
                 form={form}

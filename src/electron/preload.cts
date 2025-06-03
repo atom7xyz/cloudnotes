@@ -20,6 +20,26 @@ contextBridge.exposeInMainWorld('electron', {
   // DevTools controls
   toggleDevTools: async () => await ipcRenderer.invoke('toggle-dev-tools'),
   
+  // Authentication API
+  auth: {
+    login: async (data: { email: string; password: string }) => 
+      await ipcRenderer.invoke('auth:login', data),
+    register: async (data: { 
+      firstName: string; 
+      lastName: string; 
+      email: string; 
+      password: string; 
+      confirmPassword: string; 
+      acceptTerms: boolean; 
+    }) => await ipcRenderer.invoke('auth:register', data),
+    logout: async (token: string) => 
+      await ipcRenderer.invoke('auth:logout', token),
+    verifyToken: async (token: string) => 
+      await ipcRenderer.invoke('auth:verify-token', token),
+    getUsers: async () => 
+      await ipcRenderer.invoke('auth:get-users')
+  },
+  
   // Window state listeners
   onMaximizeChange: (callback: (isMaximized: boolean) => void) => {
     ipcRenderer.on('maximize-change', (_event: any, isMaximized: boolean) => callback(isMaximized));
