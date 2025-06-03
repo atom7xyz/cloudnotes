@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   HomeIcon, 
   BookmarkIcon, 
@@ -17,6 +17,7 @@ import { Separator } from '../ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '../ui/dropdown-menu';
 import { mockService } from '../../lib/mocking/mockedData';
 import { useAppNavigate } from '@/lib/navigation';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -85,6 +86,12 @@ const LeftSidebar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSessionExpiredOpen, setIsSessionExpiredOpen] = useState(false);
   const appNavigate = useAppNavigate();
+  const { isAuthenticated, user, isLoading } = useAuth();
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('LeftSidebar auth state:', { isAuthenticated, user: user?.email, isLoading });
+  }, [isAuthenticated, user, isLoading]);
   
   // Get documents for dropdowns
   const allDocuments = mockService.getDocuments();
@@ -162,41 +169,45 @@ const LeftSidebar: React.FC = () => {
   return (
     <>
       <aside className="flex flex-col bg-sidebar text-sidebar-foreground w-[70px] h-full select-none">
-        {/* Top Navigation Items - Centered */}
+        {/* Top Navigation Items - Only show if authenticated */}
         <div className="flex-grow flex flex-col items-center justify-center">
-          <NavItem icon={<HomeIcon size={32} />} label="HOME" to="/home" active />
-          <Separator className="w-full my-2" />
-          <NavItem 
-            icon={<FileTextIcon size={32} />} 
-            label="RECENT" 
-            to="/reader" 
-            hasDropdown={true}
-            dropdownContent={readerDropdownContent}
-          />
-          <Separator className="w-full my-2" />
-          <NavItem 
-            icon={<BookmarkIcon size={32} />} 
-            label="SAVED" 
-            to="/saved" 
-            hasDropdown={true}
-            dropdownContent={savedDropdownContent}
-          />
-          <Separator className="w-full my-2" />
-          <NavItem 
-            icon={
-              <Avatar className="h-6 w-6 border-2 border-sidebar">
-                <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
-                <AvatarFallback>
-                  <UserIcon size={14} />
-                </AvatarFallback>
-              </Avatar>
-            } 
-            label="PROFILE" 
-            to="/profile" 
-          />
+          {isAuthenticated && !isLoading ? (
+            <>
+              <NavItem icon={<HomeIcon size={32} />} label="HOME" to="/home" active />
+              <Separator className="w-full my-2" />
+              <NavItem 
+                icon={<FileTextIcon size={32} />} 
+                label="RECENT" 
+                to="/reader" 
+                hasDropdown={true}
+                dropdownContent={readerDropdownContent}
+              />
+              <Separator className="w-full my-2" />
+              <NavItem 
+                icon={<BookmarkIcon size={32} />} 
+                label="SAVED" 
+                to="/saved" 
+                hasDropdown={true}
+                dropdownContent={savedDropdownContent}
+              />
+              <Separator className="w-full my-2" />
+              <NavItem 
+                icon={
+                  <Avatar className="h-6 w-6 border-2 border-sidebar">
+                    <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
+                    <AvatarFallback>
+                      <UserIcon size={14} />
+                    </AvatarFallback>
+                  </Avatar>
+                } 
+                label="PROFILE" 
+                to="/profile" 
+              />
+            </>
+          ) : null}
         </div>
         
-        {/* Bottom Items - Settings */}
+        {/* Bottom Items - Settings (always available) */}
         <div className="flex flex-col items-center">
           <NavItem 
             icon={<SettingsIcon size={32} />} 

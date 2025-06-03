@@ -51,6 +51,7 @@ import { useAppLock } from '@/lib/contexts/AppLockContext';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { Card, CardContent } from '../ui/card';
 import { playSound, setSoundEnabled } from '@/lib/utils/sound';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 // Toggle switch component with label
 interface ToggleProps {
@@ -267,6 +268,9 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose, activeTab = "account" }: SettingsModalProps) {
+  // Auth hook
+  const { isAuthenticated, user, logout } = useAuth();
+  
   // Settings state
   const [activeTabState, setActiveTabState] = useState<string>(activeTab);
   const { theme, setTheme } = useTheme();
@@ -297,6 +301,21 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   
   // Import app navigation
   const appNavigate = useAppNavigate();
+
+  // Adjust default tab based on authentication status
+  useEffect(() => {
+    if (!isAuthenticated) {
+      // If not authenticated, default to "about" tab which doesn't require auth
+      if (activeTabState === "account" || activeTabState === "security" || activeTabState === "notifications") {
+        setActiveTabState("about");
+      }
+    } else {
+      // If authenticated and activeTab prop is provided, use it
+      if (activeTab) {
+        setActiveTabState(activeTab);
+      }
+    }
+  }, [isAuthenticated, activeTab, activeTabState]);
 
   // Function to demonstrate sound effect
   const demonstrateSound = () => {
@@ -360,7 +379,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   };
 
   // Confirm sign out of the device
-  const confirmDeviceSignOut = () => {
+  const confirmDeviceSignOut = async () => {
     if (deviceToSignOut) {
       if (deviceToSignOut.id === -1) {
         // Sign out all other devices
@@ -370,15 +389,33 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         });
       } else {
         // Sign out a single device
-        setActiveDevices(prevDevices => prevDevices.filter(device => device.id !== deviceToSignOut.id));
-        
         if (deviceToSignOut.isCurrent) {
-          onClose();
-          // Redirect to login page
-          setTimeout(() => {
-            appNavigate('/login');
-          }, 300);
+          // This is the current device - perform actual logout
+          try {
+            const result = await logout();
+            if (result.success) {
+              onClose();
+              toast.success("Signed out successfully", {
+                description: "You have been logged out",
+              });
+              // Navigate to login page after a short delay
+              setTimeout(() => {
+                appNavigate('/login');
+              }, 300);
+            } else {
+              toast.error("Logout failed", {
+                description: result.message || "An error occurred during logout",
+              });
+            }
+          } catch (error) {
+            console.error('Logout error:', error);
+            toast.error("Logout failed", {
+              description: "An unexpected error occurred",
+            });
+          }
         } else {
+          // Sign out another device (simulate)
+          setActiveDevices(prevDevices => prevDevices.filter(device => device.id !== deviceToSignOut.id));
           toast.success("Signed out successfully", {
             description: `Signed out from ${deviceToSignOut.name}`,
           });
@@ -496,17 +533,13 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
     });
   };
 
-  // When activeTab prop changes, update the active tab state
-  useEffect(() => {
-    if (activeTab) {
-      setActiveTabState(activeTab);
-    }
-  }, [activeTab]);
-
   // Sync global sound manager with local state
   useEffect(() => {
     setSoundEnabled(soundEnabled);
   }, [soundEnabled]);
+
+  // Get user email for display
+  const userEmail = user?.email || "Not logged in";
 
   return (
     <>
@@ -531,15 +564,19 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         >
           <div className="border-b sticky top-0 bg-background z-10">
             <TabsList className="w-full justify-start p-1 h-auto bg-transparent">
-              <TabsTrigger 
-                value="account" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
-              >
-                <UserIcon size={16} />
-                <span>Account</span>
-              </TabsTrigger>
-              
-              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              {isAuthenticated && (
+                <>
+                  <TabsTrigger 
+                    value="account" 
+                    className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
+                  >
+                    <UserIcon size={16} />
+                    <span>Account</span>
+                  </TabsTrigger>
+                  
+                  <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+                </>
+              )}
               
               <TabsTrigger 
                 value="appearance" 
@@ -551,25 +588,29 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
               
               <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
               
-              <TabsTrigger 
-                value="security" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
-              >
-                <ShieldIcon size={16} />
-                <span>Security</span>
-              </TabsTrigger>
-              
-              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
-              
-              <TabsTrigger 
-                value="notifications" 
-                className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
-              >
-                <BellIcon size={16} />
-                <span>Notifications</span>
-              </TabsTrigger>
-              
-              <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+              {isAuthenticated && (
+                <>
+                  <TabsTrigger 
+                    value="security" 
+                    className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
+                  >
+                    <ShieldIcon size={16} />
+                    <span>Security</span>
+                  </TabsTrigger>
+                  
+                  <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+                  
+                  <TabsTrigger 
+                    value="notifications" 
+                    className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
+                  >
+                    <BellIcon size={16} />
+                    <span>Notifications</span>
+                  </TabsTrigger>
+                  
+                  <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
+                </>
+              )}
               
               <TabsTrigger 
                 value="language" 
@@ -592,96 +633,98 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
           </div>
 
           <div className="overflow-y-auto flex-1 p-4">
-            <TabsContent value="account" className="space-y-6 mt-0 data-[state=active]:block">
-              <SettingsSection 
-                title="Personal Information" 
-                description="Manage your personal information"
-              >
-                <ActionItem
-                  icon={<AtSignIcon size={18} />}
-                  label="Email Address"
-                  description="bart@simpson.tv"
-                  actionLabel="Change"
-                  onClick={() => {}}
-                />
-                <Separator />
-                <ActionItem
-                  icon={<LockIcon size={18} />}
-                  label="Password"
-                  description="Last changed 30 days ago"
-                  actionLabel="Change"
-                  onClick={() => {}}
-                />
-              </SettingsSection>
-
-              <SettingsSection 
-                title="Account Management" 
-                description="Manage your data and account"
-              >
-                <div className="relative">
+            {isAuthenticated && (
+              <TabsContent value="account" className="space-y-6 mt-0 data-[state=active]:block">
+                <SettingsSection 
+                  title="Personal Information" 
+                  description="Manage your personal information"
+                >
                   <ActionItem
-                    icon={<DownloadIcon size={18} />}
-                    label="Export Data"
-                    description="Download all your files and personal data"
-                    actionLabel="Export"
-                    onClick={handleExportData}
-                    disabled={exportInProgress}
+                    icon={<AtSignIcon size={18} />}
+                    label="Email Address"
+                    description={userEmail}
+                    actionLabel="Change"
+                    onClick={() => {}}
                   />
-                  {exportInProgress && (
-                    <div className="px-4 py-2 -mt-2 mb-1 rounded-b-md flex items-center justify-end">
-                      <p className="text-sm text-muted-foreground justify-end">The data will be sent to your email in 24-72 hours</p>
-                    </div>
-                  )}
-                </div>
-                <Separator />
-                <div className="py-3 px-4">
-                  <div className="flex items-start gap-3 mb-3">
-                    <LogOutIcon size={18} className="text-muted-foreground mt-1" />
-                    <div>
-                      <div className="font-medium">Active Devices</div>
-                      <p className="text-sm text-muted-foreground">Manage devices logged into your account</p>
-                    </div>
-                  </div>
-                  <div className="ml-7 space-y-1.5">
-                    {activeDevices.map((device) => (
-                      <DeviceItem 
-                        key={device.id}
-                        icon={device.icon}
-                        name={device.name}
-                        lastActive={device.lastActive}
-                        isCurrent={device.isCurrent}
-                        onLogout={() => handleDeviceLogout(device.id)}
-                      />
-                    ))}
-                    {activeDevices.length === 1 && (
-                      <div className="text-sm text-muted-foreground mt-2">No other devices active</div>
+                  <Separator />
+                  <ActionItem
+                    icon={<LockIcon size={18} />}
+                    label="Password"
+                    description="Last changed 30 days ago"
+                    actionLabel="Change"
+                    onClick={() => {}}
+                  />
+                </SettingsSection>
+
+                <SettingsSection 
+                  title="Account Management" 
+                  description="Manage your data and account"
+                >
+                  <div className="relative">
+                    <ActionItem
+                      icon={<DownloadIcon size={18} />}
+                      label="Export Data"
+                      description="Download all your files and personal data"
+                      actionLabel="Export"
+                      onClick={handleExportData}
+                      disabled={exportInProgress}
+                    />
+                    {exportInProgress && (
+                      <div className="px-4 py-2 -mt-2 mb-1 rounded-b-md flex items-center justify-end">
+                        <p className="text-sm text-muted-foreground justify-end">The data will be sent to your email in 24-72 hours</p>
+                      </div>
                     )}
                   </div>
-                  <div className="mt-3 ml-7">
-                    {activeDevices.filter(d => !d.isCurrent).length > 0 && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full justify-center cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-                        onClick={handleSignOutAllDevices}
-                      >
-                        <LogOutIcon size={14} className="mr-2" />
-                        Sign out from all other devices
-                      </Button>
-                    )}
+                  <Separator />
+                  <div className="py-3 px-4">
+                    <div className="flex items-start gap-3 mb-3">
+                      <LogOutIcon size={18} className="text-muted-foreground mt-1" />
+                      <div>
+                        <div className="font-medium">Active Devices</div>
+                        <p className="text-sm text-muted-foreground">Manage devices logged into your account</p>
+                      </div>
+                    </div>
+                    <div className="ml-7 space-y-1.5">
+                      {activeDevices.map((device) => (
+                        <DeviceItem 
+                          key={device.id}
+                          icon={device.icon}
+                          name={device.name}
+                          lastActive={device.lastActive}
+                          isCurrent={device.isCurrent}
+                          onLogout={() => handleDeviceLogout(device.id)}
+                        />
+                      ))}
+                      {activeDevices.length === 1 && (
+                        <div className="text-sm text-muted-foreground mt-2">No other devices active</div>
+                      )}
+                    </div>
+                    <div className="mt-3 ml-7">
+                      {activeDevices.filter(d => !d.isCurrent).length > 0 && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full justify-center cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+                          onClick={handleSignOutAllDevices}
+                        >
+                          <LogOutIcon size={14} className="mr-2" />
+                          Sign out from all other devices
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <Separator />
-                <ActionItem
-                  icon={<Trash2Icon size={18} className="text-destructive" />}
-                  label="Delete Account"
-                  description="Permanently delete your account and all associated data"
-                  actionLabel="Delete"
-                  variant="destructive"
-                  onClick={() => {}}
-                />
-              </SettingsSection>
-            </TabsContent>
+                  <Separator />
+                  <ActionItem
+                    icon={<Trash2Icon size={18} className="text-destructive" />}
+                    label="Delete Account"
+                    description="Permanently delete your account and all associated data"
+                    actionLabel="Delete"
+                    variant="destructive"
+                    onClick={() => {}}
+                  />
+                </SettingsSection>
+              </TabsContent>
+            )}
 
             <TabsContent value="appearance" className="space-y-6 mt-0 data-[state=active]:block">
               <SettingsSection 
@@ -719,173 +762,177 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
               </SettingsSection>
             </TabsContent>
 
-            <TabsContent value="security" className="space-y-6 mt-0 data-[state=active]:block">
-              <SettingsSection 
-                title="Authentication" 
-                description="Manage your login security"
-              >
-                <ToggleItem
-                  label="Remember Login"
-                  description="Stay logged in between sessions"
-                  checked={rememberLogin}
-                  onCheckedChange={setRememberLogin}
-                  icon={<KeyIcon size={18} />}
-                />
-                <Separator />
-                <div className="flex items-center justify-between py-3 px-4 rounded-md select-none">
-                  <div className="flex items-start gap-3 flex-1">
-                    <div className="pt-0.5 text-muted-foreground">
-                      <LockIcon size={18} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium">PIN Lock</div>
-                      <p className="text-sm text-muted-foreground">
-                        {isPinSet 
-                          ? "Secure access to the application with a PIN" 
-                          : "Add an extra layer of security by setting up a PIN"}
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleSetupPin}
-                    className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
+            {isAuthenticated && (
+              <>
+                <TabsContent value="security" className="space-y-6 mt-0 data-[state=active]:block">
+                  <SettingsSection 
+                    title="Authentication" 
+                    description="Manage your login security"
                   >
-                    {isPinSet ? 
-                      (<>
-                        <PencilIcon size={14} />
-                        Change
-                      </>) : 
-                      (<>
-                        <KeyIcon size={14} />
-                        Set Up
-                      </>)
-                    }
-                  </Button>
-                </div>
-                {isPinSet && (
-                  <>
+                    <ToggleItem
+                      label="Remember Login"
+                      description="Stay logged in between sessions"
+                      checked={rememberLogin}
+                      onCheckedChange={setRememberLogin}
+                      icon={<KeyIcon size={18} />}
+                    />
                     <Separator />
-                    <div className="flex items-center justify-between py-3 px-4 rounded-md transition-colors select-none">
+                    <div className="flex items-center justify-between py-3 px-4 rounded-md select-none">
                       <div className="flex items-start gap-3 flex-1">
                         <div className="pt-0.5 text-muted-foreground">
-                          <ShieldIcon size={18} />
+                          <LockIcon size={18} />
                         </div>
                         <div className="flex-1">
-                          <div className="font-medium">Lock Screen</div>
+                          <div className="font-medium">PIN Lock</div>
                           <p className="text-sm text-muted-foreground">
-                            Manually lock the application
+                            {isPinSet 
+                              ? "Secure access to the application with a PIN" 
+                              : "Add an extra layer of security by setting up a PIN"}
                           </p>
                         </div>
                       </div>
                       <Button 
-                        variant="default" 
+                        variant="outline" 
                         size="sm" 
-                        onClick={() => {
-                          // First close the modal
-                          onClose();
-                          // Then lock the app after a short delay
-                          setTimeout(() => {
-                            lockApp();
-                          }, 300);
-                        }}
-                        className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                        onClick={handleSetupPin}
+                        className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
                       >
-                        <LockIcon size={14} />
-                        <span className="select-none">Lock Now</span>
+                        {isPinSet ? 
+                          (<>
+                            <PencilIcon size={14} />
+                            Change
+                          </>) : 
+                          (<>
+                            <KeyIcon size={14} />
+                            Set Up
+                          </>)
+                        }
                       </Button>
                     </div>
-                  </>
-                )}
-              </SettingsSection>
-            </TabsContent>
-
-            <TabsContent value="notifications" className="space-y-6 mt-0 data-[state=active]:block">
-              <SettingsSection 
-                title="Notification Settings" 
-                description="Control how you receive notifications"
-              >
-                {/* First container: Enable Notifications */}
-                <div className="rounded-md">
-                  <ToggleItem
-                    label="In-App Notifications"
-                    description="Receive notifications from the application"
-                    checked={notificationsEnabled}
-                    onCheckedChange={handleNotificationsToggle}
-                    icon={<BellIcon size={18} />}
-                  />
-                </div>
-                
-                {/* Second container: Sound Effects */}
-                <div className="rounded-md border-t">
-                  <ToggleItem
-                    label="Sound Effects"
-                    description="Play sounds for notifications and actions"
-                    checked={soundEnabled}
-                    onCheckedChange={handleSoundToggle}
-                    disabled={!notificationsEnabled}
-                    icon={<Volume2Icon size={18} />}
-                  >
-                  </ToggleItem>
-                  {/* Sound Effect Preview */}
-                  {soundEnabled && (
-                    <div className="pb-2 px-4 pl-12">
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center">
-                          <div className="bg-primary/10 p-2 rounded-full">
-                            <CircleHelp size={16} className="text-primary" />
+                    {isPinSet && (
+                      <>
+                        <Separator />
+                        <div className="flex items-center justify-between py-3 px-4 rounded-md transition-colors select-none">
+                          <div className="flex items-start gap-3 flex-1">
+                            <div className="pt-0.5 text-muted-foreground">
+                              <ShieldIcon size={18} />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium">Lock Screen</div>
+                              <p className="text-sm text-muted-foreground">
+                                Manually lock the application
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-sm font-medium">Test the sound of notifications</span>
-                            <p className="text-xs text-muted-foreground">Hear notification sounds</p>
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            onClick={() => {
+                              // First close the modal
+                              onClose();
+                              // Then lock the app after a short delay
+                              setTimeout(() => {
+                                lockApp();
+                              }, 300);
+                            }}
+                            className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
+                          >
+                            <LockIcon size={14} />
+                            <span className="select-none">Lock Now</span>
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </SettingsSection>
+                </TabsContent>
+
+                <TabsContent value="notifications" className="space-y-6 mt-0 data-[state=active]:block">
+                  <SettingsSection 
+                    title="Notification Settings" 
+                    description="Control how you receive notifications"
+                  >
+                    {/* First container: Enable Notifications */}
+                    <div className="rounded-md">
+                      <ToggleItem
+                        label="In-App Notifications"
+                        description="Receive notifications from the application"
+                        checked={notificationsEnabled}
+                        onCheckedChange={handleNotificationsToggle}
+                        icon={<BellIcon size={18} />}
+                      />
+                    </div>
+                    
+                    {/* Second container: Sound Effects */}
+                    <div className="rounded-md border-t">
+                      <ToggleItem
+                        label="Sound Effects"
+                        description="Play sounds for notifications and actions"
+                        checked={soundEnabled}
+                        onCheckedChange={handleSoundToggle}
+                        disabled={!notificationsEnabled}
+                        icon={<Volume2Icon size={18} />}
+                      >
+                      </ToggleItem>
+                      {/* Sound Effect Preview */}
+                      {soundEnabled && (
+                        <div className="pb-2 px-4 pl-12">
+                          <div className="flex justify-between items-center">
+                            <div className="flex gap-2 items-center">
+                              <div className="bg-primary/10 p-2 rounded-full">
+                                <CircleHelp size={16} className="text-primary" />
+                              </div>
+                              <div>
+                                <span className="text-sm font-medium">Test the sound of notifications</span>
+                                <p className="text-xs text-muted-foreground">Hear notification sounds</p>
+                              </div>
+                            </div>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={demonstrateSound}
+                              disabled={!soundEnabled}
+                              className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
+                            >
+                              <Volume2Icon size={14} />
+                              <span>Play</span>
+                            </Button>
                           </div>
                         </div>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={demonstrateSound}
-                          disabled={!soundEnabled}
-                          className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
-                        >
-                          <Volume2Icon size={14} />
-                          <span>Play</span>
-                        </Button>
-                      </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </SettingsSection>
+                  </SettingsSection>
 
-              <SettingsSection 
-                title="Email Notifications" 
-                description="Control which emails you receive"
-              >
-                <ToggleItem
-                  label="Document Updates"
-                  description="Receive notifications about changes to your documents"
-                  checked={documentUpdates}
-                  onCheckedChange={setDocumentUpdates}
-                  icon={<FileTextIcon size={18} />}
-                />
-                <Separator />
-                <ToggleItem
-                  label="Comments and Mentions"
-                  description="Receive notifications when someone mentions you or comments on your documents"
-                  checked={commentsAndMentions}
-                  onCheckedChange={setCommentsAndMentions}
-                  icon={<MessageSquareIcon size={18} />}
-                />
-                <Separator />
-                <ToggleItem
-                  label="Marketing Emails"
-                  description="Receive promotional emails and feature updates"
-                  checked={marketingEmails}
-                  onCheckedChange={setMarketingEmails}
-                  icon={<MailIcon size={18} />}
-                />
-              </SettingsSection>
-            </TabsContent>
+                  <SettingsSection 
+                    title="Email Notifications" 
+                    description="Control which emails you receive"
+                  >
+                    <ToggleItem
+                      label="Document Updates"
+                      description="Receive notifications about changes to your documents"
+                      checked={documentUpdates}
+                      onCheckedChange={setDocumentUpdates}
+                      icon={<FileTextIcon size={18} />}
+                    />
+                    <Separator />
+                    <ToggleItem
+                      label="Comments and Mentions"
+                      description="Receive notifications when someone mentions you or comments on your documents"
+                      checked={commentsAndMentions}
+                      onCheckedChange={setCommentsAndMentions}
+                      icon={<MessageSquareIcon size={18} />}
+                    />
+                    <Separator />
+                    <ToggleItem
+                      label="Marketing Emails"
+                      description="Receive promotional emails and feature updates"
+                      checked={marketingEmails}
+                      onCheckedChange={setMarketingEmails}
+                      icon={<MailIcon size={18} />}
+                    />
+                  </SettingsSection>
+                </TabsContent>
+              </>
+            )}
 
             <TabsContent value="language" className="space-y-6 mt-0 data-[state=active]:block">
               <SettingsSection 
@@ -1030,7 +1077,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
       <ExportDataModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
-        email="bart@simpson.tv"
+        email={userEmail}
         onExportComplete={handleExportComplete}
         notificationsEnabled={notificationsEnabled}
       />

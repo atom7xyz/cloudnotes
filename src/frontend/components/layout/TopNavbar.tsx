@@ -18,6 +18,7 @@ import SettingsModal from '../modals/SettingsModal';
 import Notifications, { type NotificationItem } from './Notifications';
 import { cn } from '@/lib/utils';
 import { goBack, goForward, reloadPage, getElectronAPI } from '@/lib/navigation';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 // No need to redeclare the Window interface as it's already defined in types.d.ts
 
@@ -58,6 +59,14 @@ const NavButton: React.FC<NavButtonProps> = ({
 );
 
 const TopNavbar: React.FC = () => {
+  // Auth hook
+  const { isAuthenticated, user, isLoading } = useAuth();
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('TopNavbar auth state:', { isAuthenticated, user: user?.email, isLoading });
+  }, [isAuthenticated, user, isLoading]);
+  
   // State for navigation and window controls
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
@@ -128,8 +137,10 @@ const TopNavbar: React.FC = () => {
     };
   }, []);
 
-  // Set up keyboard shortcut for search
+  // Set up keyboard shortcut for search (only if authenticated)
   useEffect(() => {
+    if (!isAuthenticated || isLoading) return;
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
         e.preventDefault();
@@ -141,7 +152,7 @@ const TopNavbar: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isAuthenticated, isLoading]);
 
   // Navigation handlers with optimized state updates
   const handleGoBack = () => {
@@ -243,7 +254,7 @@ const TopNavbar: React.FC = () => {
           <h1 className="font-bigshot-one italic text-primary text-3xl tracking-tight">CN</h1>
         </div>
 
-        {/* Middle section - Navigation and Search */}
+        {/* Middle section - Navigation and Search (only show search and notifications if authenticated) */}
         <div className="flex items-center space-x-2 flex-1 justify-center">
           <div className="flex items-center space-x-1 mr-2" style={noDragRegion}>
             <NavButton 
@@ -267,40 +278,45 @@ const TopNavbar: React.FC = () => {
             />
           </div>
           
-          <div className="relative w-1/4 max-w-md" style={noDragRegion}>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-0 flex items-center justify-center pointer-events-none">
-              <Badge variant="secondary" className="text-[10px] bg-muted border-0 shadow-none">CTRL + F</Badge>
+          {/* Search bar - only show if authenticated */}
+          {isAuthenticated && !isLoading && (
+            <div className="relative w-1/4 max-w-md" style={noDragRegion}>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 z-0 flex items-center justify-center pointer-events-none">
+                <Badge variant="secondary" className="text-[10px] bg-muted border-0 shadow-none">CTRL + F</Badge>
+              </div>
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/70 transition-all duration-200 group-hover:scale-[1.02]">
+                <SearchIcon size={16} className="transition-all duration-200 group-hover:text-sidebar-ring" />
+              </div>
+              <div className="group">
+                <Input
+                  type="text"
+                  placeholder="Search"
+                  className={cn(
+                    "h-8 w-full rounded-full py-1.5 pl-10 pr-16 text-sm transition-all duration-200 cursor-pointer z-10 relative",
+                    "border border-muted-foreground/40",
+                    "focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring",
+                    "placeholder-sidebar-foreground/60",
+                    "hover:border-sidebar-ring hover-primary-effect"
+                  )}
+                  onClick={openSearchModal}
+                  readOnly
+                />
+              </div>
             </div>
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/70 transition-all duration-200 group-hover:scale-[1.02]">
-              <SearchIcon size={16} className="transition-all duration-200 group-hover:text-sidebar-ring" />
-            </div>
-            <div className="group">
-              <Input
-                type="text"
-                placeholder="Search"
-                className={cn(
-                  "h-8 w-full rounded-full py-1.5 pl-10 pr-16 text-sm transition-all duration-200 cursor-pointer z-10 relative",
-                  "border border-muted-foreground/40",
-                  "focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring",
-                  "placeholder-sidebar-foreground/60",
-                  "hover:border-sidebar-ring hover-primary-effect"
-                )}
-                onClick={openSearchModal}
-                readOnly
+          )}
+          
+          {/* Notifications - only show if authenticated */}
+          {isAuthenticated && !isLoading && (
+            <div className="ml-2" style={noDragRegion}>
+              <Notifications 
+                unreadCount={getUnreadNotificationsCount()}
+                notifications={notifications}
+                onOpenSettings={handleOpenNotificationSettings}
+                onMarkAllAsRead={handleMarkAllAsRead}
+                onNotificationClick={handleNotificationClick}
               />
             </div>
-          </div>
-          
-          {/* Notifications */}
-          <div className="ml-2" style={noDragRegion}>
-            <Notifications 
-              unreadCount={getUnreadNotificationsCount()}
-              notifications={notifications}
-              onOpenSettings={handleOpenNotificationSettings}
-              onMarkAllAsRead={handleMarkAllAsRead}
-              onNotificationClick={handleNotificationClick}
-            />
-          </div>
+          )}
         </div>
 
         {/* Right section - Window controls */}
@@ -337,11 +353,13 @@ const TopNavbar: React.FC = () => {
         </div>
       </header>
 
-      {/* Search Modal */}
-      <SearchModal 
-        isOpen={isSearchModalOpen} 
-        onClose={closeSearchModal} 
-      />
+      {/* Search Modal - only render if authenticated */}
+      {isAuthenticated && !isLoading && (
+        <SearchModal 
+          isOpen={isSearchModalOpen} 
+          onClose={closeSearchModal} 
+        />
+      )}
       
       {/* Settings Modal */}
       <SettingsModal 
