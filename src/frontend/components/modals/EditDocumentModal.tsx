@@ -312,7 +312,7 @@ const EditDocumentModal = ({
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={handleTagKeyPress}
-                  placeholder="Add tags (separate with spaces)..."
+                  placeholder="Add tags..."
                   className="text-sm"
                 />
                 <Button 
