@@ -35,6 +35,10 @@ interface PDFViewerProps {
   drawingLineWidth?: number;
   onTextSearch?: (searchFn: (text: string, direction?: 'forward' | 'backward') => void) => void;
   onSearchMetadataChange?: (metadata: { totalMatches: number; currentMatch: number }) => void;
+  pdfSettings?: {
+    backgroundColor: string;
+    textColor: string;
+  };
 }
 
 // Error boundary component to catch PDF rendering errors
@@ -100,7 +104,8 @@ const PDFViewer = memo(({
   selectedDrawingColor = '#FF0000',
   drawingLineWidth = 2,
   onTextSearch,
-  onSearchMetadataChange
+  onSearchMetadataChange,
+  pdfSettings
 }: PDFViewerProps) => {
   // =========================================================================
   // IMPORTANT SCROLLING BEHAVIOR NOTES:
@@ -1964,6 +1969,42 @@ const PDFViewer = memo(({
         .pdf-container[data-tool="eraser"] {
           cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21'%3E%3C/path%3E%3Cpath d='M22 21H7'%3E%3C/path%3E%3Cpath d='m5 11 9 9'%3E%3C/path%3E%3C/svg%3E") 0 24, auto !important;
         }
+        
+        /* PDF Settings Styles */
+        ${pdfSettings ? `
+        .pdf-page canvas {
+          background-color: ${pdfSettings.backgroundColor} !important;
+        }
+        
+        /* Keep text layer transparent for selection, don't make it visible */
+        .react-pdf__Page__textContent {
+          opacity: 0.25;
+          pointer-events: none;
+        }
+        
+        .react-pdf__Page__textContent span {
+          color: transparent;
+          pointer-events: auto;
+        }
+        
+        /* Apply filters to change the actual PDF canvas colors */
+        .pdf-page .react-pdf__Page__canvas {
+          ${pdfSettings.backgroundColor === '#000000' ? `
+            /* Black background: Invert colors for white text on black background */
+            filter: invert(1) brightness(1.1);
+            background-color: #000000 !important;
+          ` : pdfSettings.textColor !== '#000000' ? `
+            filter: ${
+              pdfSettings.textColor === '#ffffff' ? 'invert(1)' :
+              pdfSettings.textColor === '#d1d5db' ? 'invert(0.8) brightness(1.2)' :
+              pdfSettings.textColor === '#1e40af' ? 'sepia(1) saturate(5) hue-rotate(210deg) brightness(0.8)' :
+              pdfSettings.textColor === '#166534' ? 'sepia(1) saturate(5) hue-rotate(90deg) brightness(0.7)' :
+              pdfSettings.textColor === '#dc2626' ? 'sepia(1) saturate(5) hue-rotate(340deg) brightness(0.8)' :
+              'none'
+            };
+          ` : ''}
+        }
+        ` : ''}
       `}</style>
       <div 
         className={`pdf-container ${containerClasses} overflow-y-auto h-full ${isDragging ? 'select-none touch-none dragging' : ''}`}
@@ -2037,6 +2078,9 @@ const PDFViewer = memo(({
                         scrollMode === ScrollMode.HORIZONTAL ? 'inline-flex mb-4' : ''
                       }`}
                       ref={pageNumber === 1 ? firstPageRef : null}
+                      style={{
+                        backgroundColor: pdfSettings?.backgroundColor || 'white'
+                      }}
                     >
                       <Page
                         pageNumber={pageNumber}
@@ -2049,7 +2093,7 @@ const PDFViewer = memo(({
                             <Skeleton className="h-full w-full rounded-md opacity-30" />
                           </div>
                         }
-                        canvasBackground="white"
+                        canvasBackground={pdfSettings?.backgroundColor || "white"}
                         onRenderSuccess={pageNumber === 1 ? handlePageRenderSuccess : undefined}
                       />
                       

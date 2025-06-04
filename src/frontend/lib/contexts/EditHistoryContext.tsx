@@ -1,16 +1,18 @@
 import type React from 'react';
 import { createContext, useContext, type ReactNode, useState } from 'react'
 import useEditHistory from '../hooks/useEditHistory';
-import type { Drawing, Highlight, Note } from '@/lib/types';
+import type { Drawing, Highlight, Note, Bookmark } from '@/lib/types';
 
 // Define the context shape
 type EditHistoryContextType = {
   drawings: Drawing[];
   highlights: Highlight[];
   notes: Note[];
+  bookmarks: Bookmark[];
   updateDrawings: (drawings: Drawing[]) => void;
   updateHighlights: (highlights: Highlight[]) => void;
   updateNotes: (notes: Note[]) => void;
+  updateBookmarks: (bookmarks: Bookmark[]) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -35,9 +37,11 @@ export const EditHistoryProvider: React.FC<{ children: ReactNode }> = ({ childre
       drawings: historyManager.drawings,
       highlights: historyManager.highlights,
       notes: historyManager.notes,
+      bookmarks: historyManager.bookmarks,
       updateDrawings: historyManager.updateDrawings,
       updateHighlights: historyManager.updateHighlights,
       updateNotes: historyManager.updateNotes,
+      updateBookmarks: historyManager.updateBookmarks,
       undo: historyManager.undo,
       redo: historyManager.redo,
       canUndo: historyManager.canUndo,

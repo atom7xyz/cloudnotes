@@ -50,7 +50,7 @@ import ExportDataModal from './ExportDataModal';
 import { useAppLock } from '@/lib/contexts/AppLockContext';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { Card, CardContent } from '../ui/card';
-import { playSound, setSoundEnabled } from '@/lib/utils/sound';
+import { playSound, setSoundEnabled as setGlobalSoundEnabled } from '@/lib/utils/sound';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 // Toggle switch component with label
@@ -275,7 +275,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const [activeTabState, setActiveTabState] = useState<string>(activeTab);
   const { theme, setTheme } = useTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [soundEnabled, setLocalSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const [rememberLogin, setRememberLogin] = useState(true);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [systemLanguage, setSystemLanguage] = useState(true);
@@ -315,7 +315,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         setActiveTabState(activeTab);
       }
     }
-  }, [isAuthenticated, activeTab, activeTabState]);
+  }, [isAuthenticated, activeTab]);
 
   // Function to demonstrate sound effect
   const demonstrateSound = () => {
@@ -401,6 +401,10 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
               // Navigate to login page after a short delay
               setTimeout(() => {
                 appNavigate('/login');
+                // Force a page refresh to ensure all components are reinitialized
+                setTimeout(() => {
+                  window.location.reload();
+                }, 50);
               }, 300);
             } else {
               toast.error("Logout failed", {
@@ -477,8 +481,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
       });
     } else {
       // Disable sound effects too if notifications are disabled
-      setLocalSoundEnabled(false);
-      setSoundEnabled(false); // Also update global state
+      setSoundEnabled(false);
       toast.info("Notifications disabled", {
         description: "You will no longer receive notifications from the application",
       });
@@ -487,8 +490,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
 
   // Handle sound effects toggle
   const handleSoundToggle = (enabled: boolean) => {
-    setSoundEnabled(enabled); // Update global sound manager
-    setLocalSoundEnabled(enabled); // Update local state for UI
+    setGlobalSoundEnabled(enabled); // Update global sound manager
+    setSoundEnabled(enabled); // Update local state for UI
     if (enabled && notificationsEnabled) {
       toast.success("Sound effects enabled", {
         description: "You will now hear sounds for notifications and actions",
@@ -535,7 +538,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
 
   // Sync global sound manager with local state
   useEffect(() => {
-    setSoundEnabled(soundEnabled);
+    setGlobalSoundEnabled(soundEnabled);
   }, [soundEnabled]);
 
   // Get user email for display

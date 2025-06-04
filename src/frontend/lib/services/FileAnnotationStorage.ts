@@ -1,10 +1,11 @@
-import type { Drawing, Highlight, Note } from '@/lib/types';
+import type { Drawing, Highlight, Note, Bookmark } from '@/lib/types';
 
 // Define interfaces for our storage
 export interface FileAnnotations {
   drawings: Drawing[];
   highlights: Highlight[];
   notes: Note[];
+  bookmarks: Bookmark[];
   lastModified: number;
 }
 
@@ -12,6 +13,7 @@ interface HistoryItem {
   drawings: Drawing[];
   highlights: Highlight[];
   notes: Note[];
+  bookmarks: Bookmark[];
   timestamp: number;
 }
 
@@ -54,7 +56,15 @@ export class FileAnnotationStorage {
       const data = localStorage.getItem(key);
       
       if (data) {
-        return JSON.parse(data) as FileAnnotations;
+        const parsed = JSON.parse(data) as FileAnnotations;
+        // Ensure bookmarks property exists for backward compatibility
+        return {
+          drawings: parsed.drawings || [],
+          highlights: parsed.highlights || [],
+          notes: parsed.notes || [],
+          bookmarks: parsed.bookmarks || [],
+          lastModified: parsed.lastModified
+        };
       }
     } catch (error) {
       console.error('Error retrieving annotations:', error);
@@ -65,6 +75,7 @@ export class FileAnnotationStorage {
       drawings: [],
       highlights: [],
       notes: [],
+      bookmarks: [],
       lastModified: Date.now()
     };
   }
@@ -97,7 +108,18 @@ export class FileAnnotationStorage {
       const data = localStorage.getItem(key);
       
       if (data) {
-        return JSON.parse(data) as FileAnnotationHistory;
+        const parsed = JSON.parse(data) as FileAnnotationHistory;
+        // Ensure bookmarks property exists in history items for backward compatibility
+        return {
+          history: parsed.history.map(item => ({
+            drawings: item.drawings || [],
+            highlights: item.highlights || [],
+            notes: item.notes || [],
+            bookmarks: item.bookmarks || [],
+            timestamp: item.timestamp
+          })),
+          currentIndex: parsed.currentIndex
+        };
       }
     } catch (error) {
       console.error('Error retrieving history:', error);
@@ -109,6 +131,7 @@ export class FileAnnotationStorage {
         drawings: [],
         highlights: [],
         notes: [],
+        bookmarks: [],
         timestamp: Date.now()
       }],
       currentIndex: 0

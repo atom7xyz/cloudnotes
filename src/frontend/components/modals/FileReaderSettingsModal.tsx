@@ -1,0 +1,228 @@
+import { useState, useCallback, useEffect } from 'react';
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
+import { cn } from "@/lib/utils";
+import { 
+  SettingsIcon, 
+  PaletteIcon,
+  RotateCcwIcon,
+  CheckIcon,
+  SaveIcon
+} from 'lucide-react';
+import { Modal } from '../ui/modal';
+import { Toaster } from '../ui/sonner';
+
+// Define color presets with good contrast combinations
+const COLOR_PRESETS = [
+  { name: 'White', backgroundColor: '#ffffff', textColor: '#000000', class: 'bg-white' },
+  { name: 'Light Gray', backgroundColor: '#f8f9fa', textColor: '#000000', class: 'bg-gray-50' },
+  { name: 'Warm White', backgroundColor: '#fefcf3', textColor: '#000000', class: 'bg-yellow-50' },
+  { name: 'Sepia', backgroundColor: '#f4f1e8', textColor: '#000000', class: 'bg-yellow-100' },
+  { name: 'Light Blue', backgroundColor: '#f0f9ff', textColor: '#000000', class: 'bg-blue-50' },
+];
+
+// Default settings
+const DEFAULT_SETTINGS = {
+  backgroundColor: '#ffffff',
+  textColor: '#000000',
+};
+
+interface FileReaderSettingsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  currentSettings?: {
+    backgroundColor: string;
+    textColor: string;
+  };
+  onSettingsChange?: (settings: { backgroundColor: string; textColor: string }) => void;
+}
+
+export default function FileReaderSettingsModal({ 
+  isOpen, 
+  onClose, 
+  currentSettings = DEFAULT_SETTINGS,
+  onSettingsChange
+}: FileReaderSettingsModalProps) {
+  // Settings state
+  const [backgroundColor, setBackgroundColor] = useState(currentSettings.backgroundColor);
+  const [textColor, setTextColor] = useState(currentSettings.textColor);
+  const [hoveredColor, setHoveredColor] = useState<string | null>(null);
+
+  // Reset local state when modal opens or current settings change
+  useEffect(() => {
+    if (isOpen) {
+      setBackgroundColor(currentSettings.backgroundColor);
+      setTextColor(currentSettings.textColor);
+    }
+  }, [isOpen, currentSettings]);
+
+  // Find current preset or use custom
+  const getCurrentPreset = () => {
+    return COLOR_PRESETS.find(preset => 
+      preset.backgroundColor === backgroundColor && preset.textColor === textColor
+    );
+  };
+
+  // Handle color preset selection - removed immediate onSettingsChange call
+  const handleColorPresetChange = useCallback((preset: typeof COLOR_PRESETS[0]) => {
+    setBackgroundColor(preset.backgroundColor);
+    setTextColor(preset.textColor);
+    // Remove immediate application - only apply on save
+  }, []);
+
+  // Reset to defaults
+  const handleResetToDefaults = useCallback(() => {
+    setBackgroundColor(DEFAULT_SETTINGS.backgroundColor);
+    setTextColor(DEFAULT_SETTINGS.textColor);
+    // Remove immediate application - only apply on save
+  }, []);
+
+  // Apply settings and close modal
+  const handleSave = useCallback(() => {
+    if (onSettingsChange) {
+      onSettingsChange({ backgroundColor, textColor });
+    }
+    onClose();
+  }, [backgroundColor, textColor, onSettingsChange, onClose]);
+
+  // Handle cancel - reset to current settings
+  const handleCancel = useCallback(() => {
+    setBackgroundColor(currentSettings.backgroundColor);
+    setTextColor(currentSettings.textColor);
+    onClose();
+  }, [currentSettings, onClose]);
+
+  // Render preview
+  const renderPreview = useCallback(() => {
+    const previewBg = hoveredColor || backgroundColor;
+    const previewText = hoveredColor ? 
+      COLOR_PRESETS.find(p => p.backgroundColor === hoveredColor)?.textColor || textColor : 
+      textColor;
+    
+    return (
+      <div 
+        className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-lg border transition-all duration-200"
+        style={{ 
+          backgroundColor: previewBg,
+          color: previewText 
+        }}
+      >
+        <div className="absolute inset-0" />
+        <div className="text-center p-4 relative z-10">
+          <h4 className="font-semibold text-lg mb-2">Document Preview</h4>
+          <p className="text-xs opacity-75">
+            Hover the color to preview the document with the selected colors.
+            Click the color to apply it.
+            Click Save to apply the changes.
+            Have fun!
+          </p>
+        </div>
+      </div>
+    );
+  }, [backgroundColor, textColor, hoveredColor]);
+
+  return (
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={
+          <div className="flex items-center gap-2 text-lg font-medium">
+            <SettingsIcon size={20} />
+            <span>Settings</span>
+          </div>
+        }
+        maxWidth="max-w-4xl"
+      >
+        <div className="p-8 select-none">
+          <div className="flex gap-8">
+            {/* Left side - Preview */}
+            <div className="flex flex-col items-center">
+              <div className="w-64 h-80 rounded-lg overflow-hidden bg-muted/30 mb-4 shadow-md border border-primary/10">
+                {renderPreview()}
+              </div>
+            </div>
+            
+            {/* Right side - Color selection */}
+            <div className="flex-1 space-y-6">
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <PaletteIcon size={16} className="text-primary" />
+                  <span className="font-medium text-lg">Colors</span>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-3">
+                  {COLOR_PRESETS.map((preset) => (
+                    <Button
+                      key={preset.name}
+                      variant="outline"
+                      className={cn(
+                        "h-20 w-full p-2 border-2 relative flex flex-col items-center justify-center hover-primary-effect",
+                        (preset.backgroundColor === backgroundColor && preset.textColor === textColor) 
+                          ? "border-primary ring-2 ring-primary/20" 
+                          : "border-border hover:border-primary/50"
+                      )}
+                      onClick={() => handleColorPresetChange(preset)}
+                      onMouseEnter={() => setHoveredColor(preset.backgroundColor)}
+                      onMouseLeave={() => setHoveredColor(null)}
+                      title={preset.name}
+                    >
+                      <div 
+                        className="w-full h-12 rounded-lg flex items-center justify-center mb-1 border border-gray-200"
+                        style={{ 
+                          backgroundColor: preset.backgroundColor,
+                          color: preset.textColor 
+                        }}
+                      >
+                        {(preset.backgroundColor === backgroundColor && preset.textColor === textColor) && (
+                          <CheckIcon 
+                            size={16} 
+                            className="font-bold"
+                          />
+                        )}
+                      </div>
+                      <span className="text-xs font-medium">{preset.name}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer with action buttons */}
+          <Separator className="my-8" />
+          
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="outline" 
+              onClick={handleResetToDefaults}
+              className="flex items-center gap-2 cursor-pointer rounded-full hover-primary-effect"
+            >
+              <RotateCcwIcon size={16} />
+              Reset to Defaults
+            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleCancel}
+                className="cursor-pointer rounded-full hover-primary-effect"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSave}
+                className="cursor-pointer rounded-full"
+              >
+                <SaveIcon size={16} />
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Sonner Toast Container */}
+      <Toaster theme="light" position="bottom-right" />
+    </>
+  );
+} 

@@ -51,6 +51,10 @@ interface DocumentViewerProps {
   selectedMarkerColor?: string;
   selectedDrawingColor?: string;
   drawingLineWidth?: number;
+  pdfSettings?: {
+    backgroundColor: string;
+    textColor: string;
+  };
 }
 
 // Main DocumentViewer component
@@ -68,7 +72,8 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
   onSearchMetadataChange,
   selectedMarkerColor = 'rgba(255, 255, 0, 0.3)',
   selectedDrawingColor = '#FF0000', // Default red
-  drawingLineWidth = 2 // Default line width
+  drawingLineWidth = 2, // Default line width
+  pdfSettings
 }) => {
   const [fileType, setFileType] = useState<FileType>(FileType.UNKNOWN);
   const [isLoading, setIsLoading] = useState(true);
@@ -223,6 +228,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
             selectedMarkerColor={selectedMarkerColor}
             selectedDrawingColor={selectedDrawingColor}
             drawingLineWidth={drawingLineWidth}
+            pdfSettings={pdfSettings}
           />
         );
       //case FileType.UNKNOWN:

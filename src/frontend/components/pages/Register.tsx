@@ -30,13 +30,6 @@ export default function Register() {
     mode: "onSubmit"
   });
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/home');
-    }
-  }, [isAuthenticated, navigate]);
-
   // Clear any previous errors when component mounts
   useEffect(() => {
     clearError();
@@ -47,7 +40,15 @@ export default function Register() {
     const result = await register(values);
     
     if (result.success) {
-      // Navigation will happen automatically via useEffect above
+      // Add a small delay to ensure all components update their auth state
+      // before navigation occurs
+      setTimeout(() => {
+        navigate('/home');
+        // Force a page refresh to ensure all components are reinitialized
+        setTimeout(() => {
+          window.location.reload();
+        }, 50);
+      }, 100);
       console.log('Registration successful');
     } else {
       // Error is handled by the useAuth hook

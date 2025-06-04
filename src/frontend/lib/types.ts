@@ -51,6 +51,24 @@ export interface Note {
 }
 
 /**
+ * Bookmark annotation for a PDF page
+ */
+export interface Bookmark {
+  id: string;
+  pageNumber: number;
+  title: string;
+  lineNumber?: number;
+  position?: {
+    x: number;
+    y: number;
+  };
+  createdAt: number;
+  updatedAt: number;
+  selectedText?: string;
+  previewText?: string;
+}
+
+/**
  * Scroll modes for PDF viewing
  */
 export enum ScrollMode {

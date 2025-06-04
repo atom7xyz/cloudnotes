@@ -1,5 +1,4 @@
-import type React from 'react';
-import { memo, useState, useRef, useEffect } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Hand, 
@@ -9,7 +8,9 @@ import {
   Eraser,
   X,
   Undo,
-  Redo
+  Redo,
+  Settings,
+  PinIcon
 } from 'lucide-react';
 import {
   Tooltip,
@@ -54,6 +55,7 @@ interface Tool {
   onClick?: () => void;
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null;
   showPopover?: boolean;
+  addSeparatorAfter?: boolean;
 }
 
 // Interface for the LeftToolbar props
@@ -61,7 +63,10 @@ interface LeftToolbarProps {
   activeTool: string;
   onToolChange: (tool: string | null) => void;
   onAddNote: () => void;
+  onToggleBookmarks: () => void;
+  onOpenSettings: () => void;
   isNotesOpen: boolean;
+  isBookmarksOpen: boolean;
   selectedMarkerColor: string;
   onMarkerColorChange: (color: string) => void;
   selectedDrawingColor: string;
@@ -74,7 +79,10 @@ const LeftToolbar = memo(({
   activeTool, 
   onToolChange, 
   onAddNote, 
+  onToggleBookmarks,
+  onOpenSettings,
   isNotesOpen,
+  isBookmarksOpen,
   selectedMarkerColor,
   onMarkerColorChange,
   selectedDrawingColor,
@@ -107,17 +115,43 @@ const LeftToolbar = memo(({
       tooltip: 'Draw directly on the document\n\nKeybind: D',
       showPopover: true
     },
-    { id: 'eraser', icon: <Eraser className="h-4 w-4" />, title: 'Erase drawings', tooltip: 'Drag over drawings to erase them\n\nKeybind: E' },
+    { 
+      id: 'eraser', 
+      icon: <Eraser className="h-4 w-4" />, 
+      title: 'Erase drawings', 
+      tooltip: 'Drag over drawings to erase them\n\nKeybind: E',
+      addSeparatorAfter: true
+    },
   ];
   
   // Add note tool with conditional rendering based on isNotesOpen state
   const noteTool: Tool = {
     id: 'note',
     icon: isNotesOpen ? <X className="h-4 w-4 text-destructive" /> : <StickyNote className="h-4 w-4" />,
-    title: isNotesOpen ? 'Close Notes' : 'Add Note',
-    tooltip: isNotesOpen ? 'Close the notes panel and hide all notes\n\nAny unsaved changes to notes will be lost\n\nKeybind: N' : 'Add notes to the document\n\nKeybind: N',
+    title: isNotesOpen ? 'Close Notes' : 'Notes',
+    tooltip: isNotesOpen ? 'Close the notes panel\n\nKeybind: N' : 'View and manage notes\n\nKeybind: N',
     onClick: onAddNote,
     variant: isNotesOpen ? "destructive" : undefined
+  };
+  
+  // Add bookmark tool with conditional rendering based on isBookmarksOpen state
+  const bookmarkTool: Tool = {
+    id: 'bookmark',
+    icon: isBookmarksOpen ? <X className="h-4 w-4 text-destructive" /> : <PinIcon className="h-4 w-4" />,
+    title: isBookmarksOpen ? 'Close Bookmarks' : 'Bookmarks',
+    tooltip: isBookmarksOpen ? 'Close the bookmarks panel\n\nKeybind: B' : 'View and manage bookmarks\n\nKeybind: B',
+    onClick: onToggleBookmarks,
+    variant: isBookmarksOpen ? "destructive" : undefined,
+    addSeparatorAfter: true
+  };
+  
+  // Add settings tool
+  const settingsTool: Tool = {
+    id: 'settings',
+    icon: <Settings className="h-4 w-4" />,
+    title: 'Settings',
+    tooltip: 'Manage document settings\n\nKeybind: S',
+    onClick: onOpenSettings
   };
   
   // History tools
@@ -141,7 +175,7 @@ const LeftToolbar = memo(({
   ];
   
   // Combine the tools
-  const tools: Tool[] = [...baseTools, noteTool];
+  const tools: Tool[] = [...baseTools, noteTool, bookmarkTool, settingsTool];
 
   // Function to handle tool click with toggle behavior
   const handleToolClick = (toolId: string) => {
@@ -242,177 +276,183 @@ const LeftToolbar = memo(({
         </div>
 
         {/* Main tools */}
-        {tools.map(tool => (
-          <div key={tool.id} className="relative">
-            {tool.showPopover && (activeTool === tool.id) ? (
-              <Popover 
-                open={openPopover === tool.id} 
-                onOpenChange={(open) => {
-                  if (!open && openPopover === tool.id) {
-                    setOpenPopover(null);
-                    setIsAnyPopoverOpen(false);
-                  } else if (open) {
-                    setIsAnyPopoverOpen(true);
-                  }
-                }}
-              >
-                <PopoverTrigger asChild>
-                  <div 
-                    className="relative"
-                    ref={(ref: HTMLDivElement | null) => { popoverTriggerRefs.current[tool.id] = ref; }}
+        {tools.map((tool, index) => (
+          <React.Fragment key={tool.id}>
+            <div className="relative">
+              {tool.showPopover && (activeTool === tool.id) ? (
+                <Popover 
+                  open={openPopover === tool.id} 
+                  onOpenChange={(open) => {
+                    if (!open && openPopover === tool.id) {
+                      setOpenPopover(null);
+                      setIsAnyPopoverOpen(false);
+                    } else if (open) {
+                      setIsAnyPopoverOpen(true);
+                    }
+                  }}
+                >
+                  <PopoverTrigger asChild>
+                    <div 
+                      className="relative"
+                      ref={(ref: HTMLDivElement | null) => { popoverTriggerRefs.current[tool.id] = ref; }}
+                      onMouseEnter={() => handlePopoverHover(tool.id, true)}
+                      onMouseLeave={() => handlePopoverHover(tool.id, false)}
+                    >
+                      {/* Only hide tooltip when tool is active or popover is open */}
+                      <Tooltip open={activeTool === tool.id || openPopover === tool.id ? false : undefined}>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={tool.variant || (activeTool === tool.id ? "secondary" : "ghost")}
+                            size="icon"
+                            className={cn(
+                              "h-8 w-8 rounded-full transition-all duration-200",
+                              activeTool === tool.id && !tool.variant
+                                ? "bg-primary/20 text-primary ring-2 ring-primary/30" 
+                                : tool.variant === "destructive" 
+                                  ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                  : "hover-primary-effect"
+                            )}
+                            onClick={() => handleToolClick(tool.id)}
+                            aria-label={tool.title}
+                            aria-pressed={activeTool === tool.id}
+                          >
+                            {tool.icon}
+                            {getColorIndicator(tool.id)}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" align="center" className="max-w-[200px]">
+                          <div>
+                            <p className="font-medium">{tool.title}</p>
+                            <p className="text-xs text-muted-foreground whitespace-pre-line">{tool.tooltip}</p>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    side="right" 
+                    align="start" 
+                    className="w-auto p-2"
                     onMouseEnter={() => handlePopoverHover(tool.id, true)}
                     onMouseLeave={() => handlePopoverHover(tool.id, false)}
                   >
-                    {/* Only hide tooltip when tool is active or popover is open */}
-                    <Tooltip open={activeTool === tool.id || openPopover === tool.id ? false : undefined}>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant={tool.variant || (activeTool === tool.id ? "secondary" : "ghost")}
-                          size="icon"
-                          className={cn(
-                            "h-8 w-8 rounded-full transition-all duration-200",
-                            activeTool === tool.id && !tool.variant
-                              ? "bg-primary/20 text-primary ring-2 ring-primary/30" 
-                              : tool.variant === "destructive" 
-                                ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                                : "hover-primary-effect"
-                          )}
-                          onClick={() => handleToolClick(tool.id)}
-                          aria-label={tool.title}
-                          aria-pressed={activeTool === tool.id}
-                        >
-                          {tool.icon}
-                          {getColorIndicator(tool.id)}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" align="center" className="max-w-[200px]">
-                        <div>
-                          <p className="font-medium">{tool.title}</p>
-                          <p className="text-xs text-muted-foreground whitespace-pre-line">{tool.tooltip}</p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent 
-                  side="right" 
-                  align="start" 
-                  className="w-auto p-2"
-                  onMouseEnter={() => handlePopoverHover(tool.id, true)}
-                  onMouseLeave={() => handlePopoverHover(tool.id, false)}
-                >
-                  {tool.id === 'marker' && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium">Marker Color</p>
-                      <div className="flex flex-wrap gap-1">
-                        {MARKER_COLORS.map(color => (
-                          <Button
-                            key={color.value}
-                            className={cn(
-                              "w-6 h-6 p-0 rounded-full relative",
-                              selectedMarkerColor === color.value && "ring-2 ring-primary ring-offset-1"
-                            )}
-                            style={{ backgroundColor: color.value }}
-                            onClick={() => onMarkerColorChange(color.value)}
-                            variant={selectedMarkerColor === color.value ? "default" : "ghost"}
-                            title={color.label}
-                          >
-                            {selectedMarkerColor === color.value && (
-                              <div className="absolute inset-0 rounded-full border-2 border-primary/50" />
-                            )}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {tool.id === 'pencil' && (
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-xs font-medium mb-1">Drawing Color</p>
+                    {tool.id === 'marker' && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium">Marker Color</p>
                         <div className="flex flex-wrap gap-1">
-                          {DRAWING_COLORS.map(color => (
+                          {MARKER_COLORS.map(color => (
                             <Button
                               key={color.value}
                               className={cn(
                                 "w-6 h-6 p-0 rounded-full relative",
-                                selectedDrawingColor === color.value && "ring-2 ring-primary ring-offset-1"
+                                selectedMarkerColor === color.value && "ring-2 ring-primary ring-offset-1"
                               )}
                               style={{ backgroundColor: color.value }}
-                              onClick={() => onDrawingColorChange(color.value)}
-                              variant={selectedDrawingColor === color.value ? "default" : "ghost"}
+                              onClick={() => onMarkerColorChange(color.value)}
+                              variant={selectedMarkerColor === color.value ? "default" : "ghost"}
                               title={color.label}
                             >
-                              {selectedDrawingColor === color.value && (
+                              {selectedMarkerColor === color.value && (
                                 <div className="absolute inset-0 rounded-full border-2 border-primary/50" />
                               )}
                             </Button>
                           ))}
                         </div>
                       </div>
-                      <div>
-                        <p className="text-xs font-medium mb-1">Line Width</p>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            className="h-7 px-2"
-                            onClick={() => onDrawingLineWidthChange(1)}
-                            variant={drawingLineWidth === 1 ? "default" : "outline"}
-                          >
-                            Thin
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="h-7 px-2"
-                            onClick={() => onDrawingLineWidthChange(3)}
-                            variant={drawingLineWidth === 3 ? "default" : "outline"}
-                          >
-                            Medium
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="h-7 px-2"
-                            onClick={() => onDrawingLineWidthChange(5)}
-                            variant={drawingLineWidth === 5 ? "default" : "outline"}
-                          >
-                            Thick
-                          </Button>
+                    )}
+                    {tool.id === 'pencil' && (
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs font-medium mb-1">Drawing Color</p>
+                          <div className="flex flex-wrap gap-1">
+                            {DRAWING_COLORS.map(color => (
+                              <Button
+                                key={color.value}
+                                className={cn(
+                                  "w-6 h-6 p-0 rounded-full relative",
+                                  selectedDrawingColor === color.value && "ring-2 ring-primary ring-offset-1"
+                                )}
+                                style={{ backgroundColor: color.value }}
+                                onClick={() => onDrawingColorChange(color.value)}
+                                variant={selectedDrawingColor === color.value ? "default" : "ghost"}
+                                title={color.label}
+                              >
+                                {selectedDrawingColor === color.value && (
+                                  <div className="absolute inset-0 rounded-full border-2 border-primary/50" />
+                                )}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium mb-1">Line Width</p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              className="h-7 px-2"
+                              onClick={() => onDrawingLineWidthChange(1)}
+                              variant={drawingLineWidth === 1 ? "default" : "outline"}
+                            >
+                              Thin
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="h-7 px-2"
+                              onClick={() => onDrawingLineWidthChange(3)}
+                              variant={drawingLineWidth === 3 ? "default" : "outline"}
+                            >
+                              Medium
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="h-7 px-2"
+                              onClick={() => onDrawingLineWidthChange(5)}
+                              variant={drawingLineWidth === 5 ? "default" : "outline"}
+                            >
+                              Thick
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </PopoverContent>
-              </Popover>
-            ) : (
-              <Tooltip open={activeTool === tool.id ? false : undefined}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={tool.variant || (activeTool === tool.id ? "secondary" : "ghost")}
-                    size="icon"
-                    className={cn(
-                      "h-8 w-8 rounded-full transition-all duration-200",
-                      activeTool === tool.id && !tool.variant
-                        ? "bg-primary/20 text-primary ring-2 ring-primary/30" 
-                        : tool.variant === "destructive" 
-                          ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                          : "hover-primary-effect"
                     )}
-                    onClick={tool.onClick || (() => handleToolClick(tool.id))}
-                    aria-label={tool.title}
-                    aria-pressed={activeTool === tool.id}
-                  >
-                    {tool.icon}
-                    {getColorIndicator(tool.id)}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right" align="center" className="max-w-[200px]">
-                  <div>
-                    <p className="font-medium">{tool.title}</p>
-                    <p className="text-xs text-muted-foreground whitespace-pre-line">{tool.tooltip}</p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <Tooltip open={activeTool === tool.id ? false : undefined}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={tool.variant || (activeTool === tool.id ? "secondary" : "ghost")}
+                      size="icon"
+                      className={cn(
+                        "h-8 w-8 rounded-full transition-all duration-200",
+                        activeTool === tool.id && !tool.variant
+                          ? "bg-primary/20 text-primary ring-2 ring-primary/30" 
+                          : tool.variant === "destructive" 
+                            ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                            : "hover-primary-effect"
+                      )}
+                      onClick={tool.onClick || (() => handleToolClick(tool.id))}
+                      aria-label={tool.title}
+                      aria-pressed={activeTool === tool.id}
+                    >
+                      {tool.icon}
+                      {getColorIndicator(tool.id)}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" align="center" className="max-w-[200px]">
+                    <div>
+                      <p className="font-medium">{tool.title}</p>
+                      <p className="text-xs text-muted-foreground whitespace-pre-line">{tool.tooltip}</p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+            {/* Add separator after this tool if specified */}
+            {tool.addSeparatorAfter && (
+              <div className="w-full pt-2 border-b border-border mb-4" />
             )}
-          </div>
+          </React.Fragment>
         ))}
       </TooltipProvider>
     </div>

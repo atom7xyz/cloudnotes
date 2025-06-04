@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { FileAnnotationStorage } from '@/lib/services/FileAnnotationStorage';
-import { Drawing, Highlight, Note } from '@/lib/types';
+import { Drawing, Highlight, Note, Bookmark } from '@/lib/types';
 
 /**
  * Generic type for edit history items
@@ -24,6 +24,7 @@ export function useEditHistory(filePath: string) {
       drawings: annotations.drawings,
       highlights: annotations.highlights,
       notes: annotations.notes,
+      bookmarks: annotations.bookmarks || [],
       history: historyData.history,
       currentIndex: historyData.currentIndex
     };
@@ -33,12 +34,14 @@ export function useEditHistory(filePath: string) {
   const [drawings, setDrawings] = useState<Drawing[]>(() => getInitialData().drawings);
   const [highlights, setHighlights] = useState<Highlight[]>(() => getInitialData().highlights);
   const [notes, setNotes] = useState<Note[]>(() => getInitialData().notes);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => getInitialData().bookmarks);
   
   // History state
   const [history, setHistory] = useState<Array<{
     drawings: Drawing[];
     highlights: Highlight[];
     notes: Note[];
+    bookmarks: Bookmark[];
     timestamp: number;
   }>>(() => getInitialData().history);
   
@@ -58,6 +61,7 @@ export function useEditHistory(filePath: string) {
         drawings,
         highlights,
         notes,
+        bookmarks,
         lastModified: Date.now()
       });
       
@@ -72,14 +76,15 @@ export function useEditHistory(filePath: string) {
     return () => {
       clearTimeout(saveTimer);
     };
-  }, [filePath, drawings, highlights, notes, history, currentIndex]);
+  }, [filePath, drawings, highlights, notes, bookmarks, history, currentIndex]);
   
   // Add new state to history
-  const pushHistory = useCallback((newDrawings?: Drawing[], newHighlights?: Highlight[], newNotes?: Note[]) => {
+  const pushHistory = useCallback((newDrawings?: Drawing[], newHighlights?: Highlight[], newNotes?: Note[], newBookmarks?: Bookmark[]) => {
     const newHistoryItem = {
       drawings: newDrawings || drawings,
       highlights: newHighlights || highlights,
       notes: newNotes || notes,
+      bookmarks: newBookmarks || bookmarks,
       timestamp: Date.now()
     };
     
@@ -90,24 +95,30 @@ export function useEditHistory(filePath: string) {
     // Add the new state and update index
     setHistory([...newHistory, newHistoryItem]);
     setCurrentIndex(newHistory.length);
-  }, [drawings, highlights, notes, history, currentIndex]);
+  }, [drawings, highlights, notes, bookmarks, history, currentIndex]);
   
   // Update drawings and add to history
   const updateDrawings = useCallback((newDrawings: Drawing[]) => {
     setDrawings(newDrawings);
-    pushHistory(newDrawings, undefined, undefined);
+    pushHistory(newDrawings, undefined, undefined, undefined);
   }, [pushHistory]);
   
   // Update highlights and add to history
   const updateHighlights = useCallback((newHighlights: Highlight[]) => {
     setHighlights(newHighlights);
-    pushHistory(undefined, newHighlights, undefined);
+    pushHistory(undefined, newHighlights, undefined, undefined);
   }, [pushHistory]);
   
   // Update notes and add to history
   const updateNotes = useCallback((newNotes: Note[]) => {
     setNotes(newNotes);
-    pushHistory(undefined, undefined, newNotes);
+    pushHistory(undefined, undefined, newNotes, undefined);
+  }, [pushHistory]);
+  
+  // Update bookmarks and add to history
+  const updateBookmarks = useCallback((newBookmarks: Bookmark[]) => {
+    setBookmarks(newBookmarks);
+    pushHistory(undefined, undefined, undefined, newBookmarks);
   }, [pushHistory]);
   
   // Undo the last action
@@ -120,6 +131,7 @@ export function useEditHistory(filePath: string) {
     setDrawings(previousState.drawings);
     setHighlights(previousState.highlights);
     setNotes(previousState.notes);
+    setBookmarks(previousState.bookmarks);
     setCurrentIndex(newIndex);
   }, [canUndo, currentIndex, history]);
   
@@ -133,6 +145,7 @@ export function useEditHistory(filePath: string) {
     setDrawings(nextState.drawings);
     setHighlights(nextState.highlights);
     setNotes(nextState.notes);
+    setBookmarks(nextState.bookmarks);
     setCurrentIndex(newIndex);
   }, [canRedo, currentIndex, history]);
   
@@ -146,6 +159,7 @@ export function useEditHistory(filePath: string) {
     setDrawings(data.drawings);
     setHighlights(data.highlights);
     setNotes(data.notes);
+    setBookmarks(data.bookmarks);
     setHistory(data.history);
     setCurrentIndex(data.currentIndex);
   }, [filePath, getInitialData]);
@@ -154,9 +168,11 @@ export function useEditHistory(filePath: string) {
     drawings,
     highlights,
     notes,
+    bookmarks,
     updateDrawings,
     updateHighlights,
     updateNotes,
+    updateBookmarks,
     undo,
     redo,
     canUndo,

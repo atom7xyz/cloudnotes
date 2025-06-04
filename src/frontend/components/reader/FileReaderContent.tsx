@@ -7,11 +7,13 @@ import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
 import { getElectronAPI } from '@/lib/navigation';
 import FileReaderTopNavbar, { type ZoomValue } from '@/components/reader/FileReaderTopNavbar';
 import NoteBar from '@/components/reader/NoteBar';
+import BookmarkBar from '@/components/reader/BookmarkBar';
 import DocumentViewer, { DEFAULT_FILES, FileType } from '@/components/viewer/DocumentViewer';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
 import PageNavigation from '@/components/reader/PageNavigation';
 import LeftToolbar from '@/components/reader/LeftToolbar';
 import SearchBar from '@/components/reader/SearchBar';
+import FileReaderSettingsModal from '@/components/modals/FileReaderSettingsModal';
 
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -33,6 +35,8 @@ const FileReaderContent = memo(() => {
   const [mouseIdleTime, setMouseIdleTime] = useState(0);
   const [filePath, setFilePath] = useState<string>(DEFAULT_FILES[FileType.PDF]); // Default to PDF
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [scrollMode, setScrollMode] = useState<ScrollMode>(ScrollMode.PAGE); // Default to PAGE mode for single page view
   const [activeTool, setActiveTool] = useState<string | null>(null); // Default to null (no active tool)
   // Map to store last viewed page for each document
@@ -43,11 +47,18 @@ const FileReaderContent = memo(() => {
   const [selectedDrawingColor, setSelectedDrawingColor] = useState<string>(DEFAULT_DRAWING_COLOR);
   const [drawingLineWidth, setDrawingLineWidth] = useState<number>(DEFAULT_LINE_WIDTH);
   
+  // PDF viewer appearance settings
+  const [pdfSettings, setPdfSettings] = useState({
+    backgroundColor: '#ffffff',
+    textColor: '#000000'
+  });
+  
   // Group all refs together
   const documentRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const mouseActivityIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const newNoteRef = useRef<HTMLTextAreaElement>(null);
+  const newBookmarkRef = useRef<HTMLInputElement>(null);
   const previousActiveTabIdRef = useRef<string | null>(null);
   
   // Group all memoized values together
@@ -304,6 +315,39 @@ const FileReaderContent = memo(() => {
     }
   }, [isNotesOpen]);
 
+  const handleToggleBookmarks = useCallback(() => {
+    // Toggle the bookmarks panel
+    setIsBookmarksOpen(prev => !prev);
+    
+    // If bookmarks are being opened, set the tool to bookmark
+    if (!isBookmarksOpen) {
+      setActiveTool('bookmark');
+      
+      // Focus on the new bookmark input if it exists
+      setTimeout(() => {
+        if (newBookmarkRef.current) {
+          newBookmarkRef.current.focus();
+        }
+      }, 100);
+    } else {
+      // If bookmarks are being closed, set activeTool to null
+      setActiveTool(null);
+    }
+  }, [isBookmarksOpen]);
+
+  const handleOpenSettings = useCallback(() => {
+    setIsSettingsModalOpen(true);
+  }, []);
+
+  const handleCloseSettings = useCallback(() => {
+    setIsSettingsModalOpen(false);
+  }, []);
+
+  const handleSettingsChange = useCallback((newSettings: { backgroundColor: string; textColor: string }) => {
+    setPdfSettings(newSettings);
+    // The settings will be applied to the PDF viewer through props
+  }, []);
+
   // Support for keyboard shortcuts for undo/redo
   useEffect(() => {
     const handleKeyboardShortcuts = (e: KeyboardEvent) => {
@@ -359,6 +403,18 @@ const FileReaderContent = memo(() => {
           e.preventDefault();
           handleAddNote();
         }
+        
+        // B key for Bookmarks
+        if (e.key.toLowerCase() === 'b') {
+          e.preventDefault();
+          handleToggleBookmarks();
+        }
+        
+        // S key for Settings
+        if (e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          handleOpenSettings();
+        }
       }
     };
     
@@ -366,7 +422,7 @@ const FileReaderContent = memo(() => {
     return () => {
       window.removeEventListener('keydown', handleKeyboardShortcuts);
     };
-  }, [undo, redo, activeTool, handleToolChange, handleAddNote]);
+  }, [undo, redo, activeTool, handleToolChange, handleAddNote, handleToggleBookmarks, handleOpenSettings]);
 
   // Group all effects together
   // Add wheel event listener for CTRL+SCROLLWHEEL zooming
@@ -499,6 +555,31 @@ const FileReaderContent = memo(() => {
     }
   }, [searchFunction, searchMetadata.totalMatches, saveRecentSearch]);
 
+  // Handle navigation to a specific page (for bookmarks)
+  const handleNavigateToPage = useCallback((pageNumber: number) => {
+    handlePageChange(pageNumber, true);
+  }, [handlePageChange]);
+
+  // Handle highlighting text on a specific page (for bookmarks)
+  const handleHighlightText = useCallback((text: string, targetPageNumber: number) => {
+    // First navigate to the page if we're not already there
+    if (targetPageNumber !== pageNumber) {
+      handlePageChange(targetPageNumber, true);
+      
+      // Wait for page navigation to complete before highlighting
+      setTimeout(() => {
+        if (searchFunction) {
+          searchFunction(text, 'forward');
+        }
+      }, 1000);
+    } else {
+      // We're already on the correct page, highlight immediately
+      if (searchFunction) {
+        searchFunction(text, 'forward');
+      }
+    }
+  }, [pageNumber, handlePageChange, searchFunction]);
+
   return (
     <div className="flex flex-col h-screen">
       {/* Top navigation bar */}
@@ -508,7 +589,7 @@ const FileReaderContent = memo(() => {
         onGoBack={handleGoBack}
         onFindText={handleSearch}
         isNotesOpen={isNotesOpen}
-        onToggleNotes={handleToggleNotes}
+        onToggleNotes={handleAddNote}
         scrollMode={scrollMode}
         onScrollModeChange={handleScrollModeChange}
         isLoading={isLoading}
@@ -538,6 +619,7 @@ const FileReaderContent = memo(() => {
               selectedMarkerColor={selectedMarkerColor}
               selectedDrawingColor={selectedDrawingColor}
               drawingLineWidth={drawingLineWidth}
+              pdfSettings={pdfSettings}
             />
           </div>
           
@@ -546,7 +628,10 @@ const FileReaderContent = memo(() => {
             activeTool={activeTool || ''}
             onToolChange={handleToolChange}
             onAddNote={handleAddNote}
+            onToggleBookmarks={handleToggleBookmarks}
+            onOpenSettings={handleOpenSettings}
             isNotesOpen={isNotesOpen}
+            isBookmarksOpen={isBookmarksOpen}
             selectedMarkerColor={selectedMarkerColor}
             onMarkerColorChange={handleMarkerColorChange}
             selectedDrawingColor={selectedDrawingColor}
@@ -574,6 +659,16 @@ const FileReaderContent = memo(() => {
             newNoteRef={newNoteRef as React.RefObject<HTMLTextAreaElement>}
           />
         )}
+
+        {/* BookmarkBar - conditionally rendered based on isBookmarksOpen */}
+        {isBookmarksOpen && (
+          <BookmarkBar
+            currentPage={pageNumber}
+            newBookmarkRef={newBookmarkRef as React.RefObject<HTMLInputElement>}
+            onNavigateToPage={handleNavigateToPage}
+            onHighlightText={handleHighlightText}
+          />
+        )}
       </div>
       
       {/* SearchBar component */}
@@ -584,6 +679,14 @@ const FileReaderContent = memo(() => {
         recentSearches={recentSearches}
         saveRecentSearch={saveRecentSearch}
         searchMetadata={searchMetadata}
+      />
+
+      {/* PDF Reader Settings Modal */}
+      <FileReaderSettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={handleCloseSettings}
+        currentSettings={pdfSettings}
+        onSettingsChange={handleSettingsChange}
       />
     </div>
   );
