@@ -1,12 +1,21 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import ApplicationSplash from './components/modals/ApplicationSplash';
+import WelcomeModal from './components/modals/WelcomeModal';
 import { AnimatePresence } from 'framer-motion';
 
 // Key for session storage to check if app has been loaded before
 const APP_LOADED_KEY = 'cloudnotes-app-loaded';
 // Key for tracking actual app load time
 const APP_LOAD_START_TIME = 'cloudnotes-load-start-time';
+// Key for tracking if user has seen welcome modal - using localStorage but cleared on app close
+const WELCOME_SEEN_KEY = 'cloudnotes-welcome-seen';
+// Key for tracking if welcome modal has been shown in current session (to prevent showing on reloads)
+const WELCOME_SHOWN_THIS_SESSION_KEY = 'cloudnotes-welcome-shown-this-session';
+
+// Welcome modal configuration
+const ENABLE_WELCOME_MODAL = true; // Set this to false to disable welcome modal completely
+const MUST_SHOW_WELCOME = false; // Set this to true to force welcome modal on every app start (ignores localStorage)
 
 // Check if this is the very first load and record the time
 if (!sessionStorage.getItem(APP_LOAD_START_TIME)) {
@@ -44,6 +53,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [appReady, setAppReady] = useState(false);
   const [startLoadingApp, setStartLoadingApp] = useState(false);
+  
+  // Welcome modal state
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [hasShownWelcomeThisSession, setHasShownWelcomeThisSession] = useState(false);
 
   // First effect: show splash screen immediately
   useEffect(() => {
@@ -113,7 +126,53 @@ function App() {
     }
   }, [startLoadingApp]);
 
-  // Add keyboard listeners for development tools
+  // Third effect: handle welcome modal after app finishes loading
+  useEffect(() => {
+    // Only show welcome modal if loading is complete and feature is enabled
+    if (!isLoading && ENABLE_WELCOME_MODAL && !hasShownWelcomeThisSession) {
+      let shouldShowWelcome = false;
+      
+      if (MUST_SHOW_WELCOME) {
+        // Force show welcome modal every app start (ignore localStorage)
+        shouldShowWelcome = true;
+      } else {
+        // Check if user has seen it before (localStorage) and if it's been shown this session (sessionStorage)
+        const hasSeenWelcome = localStorage.getItem(WELCOME_SEEN_KEY);
+        const hasShownThisSession = sessionStorage.getItem(WELCOME_SHOWN_THIS_SESSION_KEY);
+        shouldShowWelcome = !hasSeenWelcome && !hasShownThisSession;
+      }
+      
+      // Show welcome modal if conditions are met
+      if (shouldShowWelcome) {
+        // Small delay to ensure the app is fully visible before showing welcome modal
+        const welcomeTimer = setTimeout(() => {
+          setShowWelcomeModal(true);
+          setHasShownWelcomeThisSession(true);
+          // Mark as shown in this session to prevent showing on reloads
+          sessionStorage.setItem(WELCOME_SHOWN_THIS_SESSION_KEY, 'true');
+        }, 500);
+        
+        return () => clearTimeout(welcomeTimer);
+      }
+    }
+  }, [isLoading, hasShownWelcomeThisSession]);
+
+  // Welcome modal handlers
+  const handleWelcomeComplete = () => {
+    // Only mark as seen in localStorage if not in forced mode
+    if (!MUST_SHOW_WELCOME) {
+      localStorage.setItem(WELCOME_SEEN_KEY, 'true');
+    }
+    setShowWelcomeModal(false);
+  };
+
+  const handleWelcomeClose = () => {
+    // Allow closing without marking as complete (user can see it again)
+    // But only if not in forced mode
+    setShowWelcomeModal(false);
+  };
+
+  // Add keyboard listeners for development tools and handle app close
   useEffect(() => {
     if (!startLoadingApp) return;
     
@@ -123,11 +182,19 @@ function App() {
         window._toggleDevTools();
       }
     };
+
+    // Clear welcome modal localStorage flag when app is about to close
+    const handleBeforeUnload = () => {
+      localStorage.removeItem(WELCOME_SEEN_KEY);
+      // sessionStorage will be cleared automatically when the session ends
+    };
     
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('beforeunload', handleBeforeUnload);
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [startLoadingApp]);
 
@@ -139,6 +206,13 @@ function App() {
       <AnimatePresence>
         {isLoading && <ApplicationSplash isOpen={true} message={appReady ? "Almost there..." : "Getting things ready..."} />}
       </AnimatePresence>
+
+      {/* Welcome Modal for new users */}
+      <WelcomeModal
+        isOpen={showWelcomeModal}
+        onClose={handleWelcomeClose}
+        onComplete={handleWelcomeComplete}
+      />
 
       {/* Only start loading the app content after splash screen is shown */}
       {startLoadingApp && (
@@ -254,6 +328,19 @@ export function triggerLoadingScreen() {
   sessionStorage.removeItem(APP_LOAD_START_TIME);
   
   // Reload the page to show the loading screen
+  window.location.reload();
+}
+
+// Function to reset welcome modal (useful for testing)
+export function resetWelcomeModal() {
+  localStorage.removeItem(WELCOME_SEEN_KEY);
+  sessionStorage.removeItem(WELCOME_SHOWN_THIS_SESSION_KEY);
+}
+
+// Function to manually show welcome modal (only works when MUST_SHOW_WELCOME is false)
+export function showWelcomeModal() {
+  localStorage.removeItem(WELCOME_SEEN_KEY);
+  sessionStorage.removeItem(WELCOME_SHOWN_THIS_SESSION_KEY);
   window.location.reload();
 }
 

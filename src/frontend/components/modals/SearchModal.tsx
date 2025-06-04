@@ -28,6 +28,7 @@ import type { MockDocument, MockUser, MockBookmark } from '../../lib/mocking/moc
 import { debounce, throttle } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import DocumentView from './DocumentView';
+import { useAppNavigate } from '@/lib/navigation';
 
 // Import placeholder images
 import placeholder1 from '../../assets/placeholders/placeholder (1).png';
@@ -494,28 +495,30 @@ const UserItem = memo(({
   return (
     <Card className="p-4 mb-3 transition-all duration-200 select-none shadow-sm border border-primary/10">
       <div className="flex items-start gap-3">
-        <button 
-          className="flex-shrink-0 w-14 h-14 relative rounded-full overflow-hidden cursor-pointer shadow-md border border-primary/20 hover:shadow-lg hover:border-primary/30 transition-all duration-200 mr-3"
+        <div 
+          className="flex-shrink-0 w-14 h-14 relative rounded-full overflow-hidden shadow-md border border-primary/20 transition-all duration-200 mr-3"
           onClick={() => navigateToUserProfile(user.username)}
           aria-label={`View ${user.username}'s profile`}
-          type="button"
         >
           <img src={user.avatar} alt={user.username} className="h-full w-full object-cover" />
-        </button>
+        </div>
         
         <div className="flex-grow min-w-0 flex flex-col justify-between min-h-[80px]">
           <div className="space-y-2">
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col">
-                <button 
-                  className="font-semibold text-base cursor-pointer hover:text-primary text-left bg-transparent border-0 p-0 transition-colors"
+                <div 
+                  className="font-semibold text-base text-left"
                   onClick={() => navigateToUserProfile(user.username)}
-                  type="button"
                 >
                   {user.firstName} {user.lastName}
-                </button>
+                </div>
                 <span className="text-xs text-muted-foreground">@{user.username}</span>
               </div>
+              <Button variant="outline" size="sm" className="gap-2 hover-primary-effect cursor-pointer" onClick={() => navigateToUserProfile(user.username)}>
+                <User size={14} />
+                View Profile
+              </Button>
             </div>
             
             <p className="text-sm text-muted-foreground line-clamp-1 leading-relaxed">{user.bio}</p>
@@ -732,6 +735,9 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const lastTextQueryRef = useRef<string>('');
   const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+  
+  // Add navigation hook
+  const appNavigate = useAppNavigate();
 
   useEffect(() => {
     if (isOpen) {
@@ -1042,8 +1048,20 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   }, [inputValue, selectedTags, performSearch]);
 
   const navigateToUserProfile = useCallback((username: string) => {
-    // In a real app, we would use a router here
-  }, []);
+    // Check if it's the current user
+    const currentUsername = "bartsimpson"; // This would be dynamic in a real app
+    
+    if (username === currentUsername) {
+      // Navigate to own profile page
+      appNavigate('/profile');
+    } else {
+      // Navigate to other user's profile
+      appNavigate(`/profile/${username}`);
+    }
+    
+    // Close the modal after navigation
+    onClose();
+  }, [appNavigate, onClose]);
 
   const navigateToDocument = useCallback((documentId: string) => {
     const doc = [...documentResults, ...bookmarkResults, ...userDocuments].find(doc => doc.id === documentId);

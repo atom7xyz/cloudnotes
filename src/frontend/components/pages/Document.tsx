@@ -230,35 +230,17 @@ const Document = () => {
   // Handle download
   const handleDownload = useCallback(async () => {
     try {
-      // For browsers that support the File System Access API
-      if ('showDirectoryPicker' in window) {
-        try {
-          // Try to open the Downloads directory directly
-          
-          toast.success("Downloads folder opened", {
-            description: "Downloads folder has been opened for you",
-            icon: <DownloadIcon size={16} />,
-          });
-        } catch (error) {
-          // User cancelled or error occurred, fall back to regular download
-          toast.info("Download initiated", {
-            description: "Document download has been started",
-            icon: <DownloadIcon size={16} />,
-          });
-        }
-      } else {
-        // Fallback for browsers without File System Access API
-        // Create a dummy download link
-        const link = window.document.createElement('a');
-        link.href = '#'; // In a real app, this would be the actual file URL
-        link.download = document?.title || 'document';
-        link.click();
-        
-        toast.success("Document downloaded", {
-          description: "Your document has been downloaded",
-          icon: <DownloadIcon size={16} />,
-        });
-      }
+      // Create a dummy download 
+      const link = window.document.createElement('a');
+      link.href = '#'; // In a real app, this would be the actual file URL
+      link.download = document?.title || 'document';
+      link.click();
+      
+      toast.success("Document downloaded", {
+        description: "Your document has been downloaded",
+        icon: <DownloadIcon size={16} />,
+      });
+      
     } catch (error) {
       toast.error("Download failed", {
         description: "Unable to download the document",

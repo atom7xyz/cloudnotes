@@ -35,6 +35,7 @@ interface PDFViewerProps {
   drawingLineWidth?: number;
   onTextSearch?: (searchFn: (text: string, direction?: 'forward' | 'backward') => void) => void;
   onSearchMetadataChange?: (metadata: { totalMatches: number; currentMatch: number }) => void;
+  onBookmarkHighlight?: (highlightFn: (text: string, pageNumber: number) => void) => void;
   pdfSettings?: {
     backgroundColor: string;
     textColor: string;
@@ -105,6 +106,7 @@ const PDFViewer = memo(({
   drawingLineWidth = 2,
   onTextSearch,
   onSearchMetadataChange,
+  onBookmarkHighlight,
   pdfSettings
 }: PDFViewerProps) => {
   // =========================================================================
@@ -157,6 +159,11 @@ const PDFViewer = memo(({
     currentMatch: number;
   }>({ totalMatches: 0, currentMatch: 0 });
   const [visiblePages, setVisiblePages] = useState<number[]>([]);
+  const [bookmarkHighlights, setBookmarkHighlights] = useState<Array<{
+    pageIndex: number;
+    rects: DOMRect[];
+    text: string;
+  }>>([]);
 
   // Get zoom level from context
   const { zoomLevel, setZoomLevel } = useZoom();
@@ -1845,6 +1852,146 @@ const PDFViewer = memo(({
     }
   }, [scrollMode, visiblePageNumber, currentPage, numPages]);
 
+  // Create a function to highlight text for bookmarks
+  const highlightBookmarkText = useCallback(async (text: string, pageNumber: number) => {
+    if (!text.trim() || !viewportRef.current) {
+      // Clear bookmark highlights if no text provided
+      setBookmarkHighlights([]);
+      return;
+    }
+    
+    console.log(`[Bookmark Highlight] Highlighting "${text}" on page ${pageNumber} (no navigation)`);
+    
+    try {
+      // Don't navigate - just try to find the text on the specified page if it's currently rendered
+      const pageElement = document.getElementById(`page-${pageNumber}`);
+      if (!pageElement) {
+        console.warn(`[Bookmark Highlight] Page ${pageNumber} is not currently rendered`);
+        setBookmarkHighlights([]);
+        return;
+      }
+      
+      const pageTextLayer = pageElement.querySelector('.react-pdf__Page__textContent');
+      if (!pageTextLayer) {
+        console.warn(`[Bookmark Highlight] Text layer not found for page ${pageNumber}`);
+        setBookmarkHighlights([]);
+        return;
+      }
+      
+      // Process the text layer to find matches
+      const pageResults = processTextLayer(pageTextLayer, pageNumber - 1, text);
+      if (pageResults && pageResults.rects.length > 0) {
+        setBookmarkHighlights([{
+          pageIndex: pageNumber - 1,
+          rects: pageResults.rects,
+          text: text
+        }]);
+        
+        console.log(`[Bookmark Highlight] Successfully highlighted "${text}" on page ${pageNumber}`);
+      } else {
+        console.warn(`[Bookmark Highlight] No matches found for "${text}" on page ${pageNumber}`);
+        setBookmarkHighlights([]);
+      }
+    } catch (error) {
+      console.error('Error highlighting bookmark text:', error);
+      setBookmarkHighlights([]);
+    }
+  }, [processTextLayer]);
+
+  // Register the bookmark highlight function with parent component
+  useEffect(() => {
+    if (onBookmarkHighlight) {
+      onBookmarkHighlight(highlightBookmarkText);
+    }
+  }, [onBookmarkHighlight, highlightBookmarkText]);
+
+  // Clear bookmark highlights when changing tools or pages (except when navigating to bookmarks)
+  useEffect(() => {
+    if (activeTool === 'marker' || activeTool === 'pencil' || activeTool === 'eraser') {
+      setBookmarkHighlights([]);
+    }
+  }, [activeTool]);
+
+  // Clear bookmark highlights when manually changing pages (not through bookmark navigation)
+  useEffect(() => {
+    // Only clear if the page change wasn't initiated by a bookmark navigation
+    if (!isManualScrollRef.current) {
+      setBookmarkHighlights([]);
+    }
+  }, [currentPage]);
+
+  // Auto-clear bookmark highlights after 10 seconds
+  useEffect(() => {
+    if (bookmarkHighlights.length > 0) {
+      const timeout = setTimeout(() => {
+        setBookmarkHighlights([]);
+      }, 10000); // 10 seconds
+
+      return () => clearTimeout(timeout);
+    }
+  }, [bookmarkHighlights]);
+
+  // Clear bookmark highlights when user starts any interaction (drawing, selection, etc.)
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      setBookmarkHighlights([]);
+    };
+
+    if (bookmarkHighlights.length > 0) {
+      document.addEventListener('mousedown', handleUserInteraction);
+      document.addEventListener('keydown', handleUserInteraction);
+
+      return () => {
+        document.removeEventListener('mousedown', handleUserInteraction);
+        document.removeEventListener('keydown', handleUserInteraction);
+      };
+    }
+  }, [bookmarkHighlights]);
+
+  // Render bookmark highlights
+  const renderBookmarkHighlights = useCallback(() => {
+    if (!bookmarkHighlights.length) return null;
+    
+    return (pageNumber: number) => {
+      // Find highlights for this page
+      const pageIndex = pageNumber - 1;
+      const pageResults = bookmarkHighlights.find(result => result?.pageIndex === pageIndex);
+      
+      if (!pageResults) return null;
+      
+      // Render rectangles for each match
+      return (
+        <div 
+          className="bookmark-highlights"
+          key={`bookmark-highlights-page-${pageNumber}`}
+          style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 12
+          }}
+        >
+          {pageResults.rects.map((rect, i) => (
+            <div
+              key={`bookmark-${pageNumber}-${i}-${rect.x}-${rect.y}`}
+              className="bookmark-highlight"
+              style={{
+                top: `${rect.y}px`,
+                left: `${rect.x}px`,
+                width: `${rect.width}px`,
+                height: `${rect.height}px`,
+              }}
+            />
+          ))}
+        </div>
+      );
+    };
+  }, [bookmarkHighlights]);
+
   return (
     <div 
       ref={viewportRef}
@@ -2005,6 +2152,30 @@ const PDFViewer = memo(({
           ` : ''}
         }
         ` : ''}
+        
+        .bookmark-highlight {
+          position: absolute;
+          background-color: rgba(0, 150, 255, 0.4);
+          border: 2px solid rgba(0, 100, 255, 0.6);
+          border-radius: 3px;
+          pointer-events: none;
+          animation: bookmark-pulse 2s ease-in-out;
+        }
+        
+        @keyframes bookmark-pulse {
+          0% {
+            background-color: rgba(0, 150, 255, 0.6);
+            border-color: rgba(0, 100, 255, 0.8);
+          }
+          50% {
+            background-color: rgba(0, 150, 255, 0.3);
+            border-color: rgba(0, 100, 255, 0.5);
+          }
+          100% {
+            background-color: rgba(0, 150, 255, 0.4);
+            border-color: rgba(0, 100, 255, 0.6);
+          }
+        }
       `}</style>
       <div 
         className={`pdf-container ${containerClasses} overflow-y-auto h-full ${isDragging ? 'select-none touch-none dragging' : ''}`}
@@ -2110,6 +2281,14 @@ const PDFViewer = memo(({
                         {(() => {
                           const searchHighlightRenderer = renderSearchHighlights();
                           return searchHighlightRenderer ? searchHighlightRenderer(pageNumber) : null;
+                        })()}
+                      </div>
+                      
+                      {/* Bookmark highlight layer */}
+                      <div className="bookmark-highlight-layer">
+                        {(() => {
+                          const bookmarkHighlightRenderer = renderBookmarkHighlights();
+                          return bookmarkHighlightRenderer ? bookmarkHighlightRenderer(pageNumber) : null;
                         })()}
                       </div>
                     </div>

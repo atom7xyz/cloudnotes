@@ -43,6 +43,7 @@ interface DocumentViewerProps {
   onLoadError?: (error: Error) => void;
   onTextSearch?: (searchFn: (text: string, direction?: 'forward' | 'backward') => void) => void;
   onSearchMetadataChange?: (metadata: { totalMatches: number; currentMatch: number }) => void;
+  onBookmarkHighlight?: (highlightFn: (text: string, pageNumber: number) => void) => void;
   scrollMode?: ScrollMode;
   onPageChange?: (pageNumber: number) => void;
   activeTool?: string | null;
@@ -70,6 +71,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
   onZoomChange,
   onTextSearch,
   onSearchMetadataChange,
+  onBookmarkHighlight,
   selectedMarkerColor = 'rgba(255, 255, 0, 0.3)',
   selectedDrawingColor = '#FF0000', // Default red
   drawingLineWidth = 2, // Default line width
@@ -92,8 +94,14 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
   // Add a ref to store the search function provided by PDFViewer
   const searchFunctionRef = useRef<((text: string, direction: 'forward' | 'backward') => void) | null>(null);
   
+  // Add a ref to store the bookmark highlight function provided by PDFViewer
+  const bookmarkHighlightFunctionRef = useRef<((text: string, pageNumber: number) => void) | null>(null);
+  
   // Track if we've already registered a search function upstream
   const hasRegisteredSearchRef = useRef<boolean>(false);
+  
+  // Track if we've already registered a bookmark highlight function upstream
+  const hasRegisteredBookmarkHighlightRef = useRef<boolean>(false);
 
   // Create an adapter for text search
   const handlePDFTextSearch = useCallback((searchFunction: (text: string, direction?: 'forward' | 'backward') => void) => {
@@ -113,10 +121,29 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
     }
   }, [onTextSearch]);
 
+  // Create an adapter for bookmark highlighting
+  const handlePDFBookmarkHighlight = useCallback((highlightFunction: (text: string, pageNumber: number) => void) => {
+    // Store the highlight function provided by PDFViewer
+    bookmarkHighlightFunctionRef.current = highlightFunction;
+    
+    // If parent component provided a callback to receive our highlight function
+    if (onBookmarkHighlight && !hasRegisteredBookmarkHighlightRef.current) {
+      // Pass up our function that will use the PDFViewer's highlight implementation
+      onBookmarkHighlight((text: string, pageNumber: number) => {
+        if (bookmarkHighlightFunctionRef.current) {
+          // Use the PDFViewer's highlight function when called
+          bookmarkHighlightFunctionRef.current(text, pageNumber);
+        }
+      });
+      hasRegisteredBookmarkHighlightRef.current = true;
+    }
+  }, [onBookmarkHighlight]);
+
   // Reset registration flag when component unmounts or onTextSearch changes
   useEffect(() => {
     return () => {
       hasRegisteredSearchRef.current = false;
+      hasRegisteredBookmarkHighlightRef.current = false;
     };
   }, []); // Empty dependency array as we only need this to run on unmount
 
@@ -225,6 +252,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
             onZoomChange={handleZoomChange}
             onTextSearch={handlePDFTextSearch}
             onSearchMetadataChange={handleSearchMetadataChange}
+            onBookmarkHighlight={handlePDFBookmarkHighlight}
             selectedMarkerColor={selectedMarkerColor}
             selectedDrawingColor={selectedDrawingColor}
             drawingLineWidth={drawingLineWidth}

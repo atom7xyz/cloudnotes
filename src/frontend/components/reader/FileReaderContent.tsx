@@ -80,6 +80,9 @@ const FileReaderContent = memo(() => {
   // State for search function registered by PDFViewer
   const [searchFunction, setSearchFunction] = useState<((text: string, direction?: 'forward' | 'backward') => void) | null>(null);
 
+  // State for bookmark highlight function registered by PDFViewer
+  const [bookmarkHighlightFunction, setBookmarkHighlightFunction] = useState<((text: string, pageNumber: number) => void) | null>(null);
+
   // Handler for finding text (called from search modal)
   const handleFindText = useCallback((text: string, direction: 'forward' | 'backward') => {
     if (searchFunction) {
@@ -543,6 +546,18 @@ const FileReaderContent = memo(() => {
     });
   }, []);
 
+  // This function will be passed to PDFViewer's onBookmarkHighlight prop
+  const handleRegisterBookmarkHighlightFunction = useCallback((highlightFn: (text: string, pageNumber: number) => void) => {
+    // Only update if the function has changed to prevent unnecessary rerenders
+    setBookmarkHighlightFunction((prevFn: ((text: string, pageNumber: number) => void) | null) => {
+      // If it's the first registration or the function reference has changed
+      if (!prevFn || prevFn !== highlightFn) {
+        return highlightFn;
+      }
+      return prevFn; // Keep the previous function reference
+    });
+  }, []);
+
   // This function will be passed to FileReaderTopNavbar's onFindText prop
   const handleSearch = useCallback((text: string, direction: 'forward' | 'backward' = 'forward') => {
     if (searchFunction) {
@@ -562,23 +577,29 @@ const FileReaderContent = memo(() => {
 
   // Handle highlighting text on a specific page (for bookmarks)
   const handleHighlightText = useCallback((text: string, targetPageNumber: number) => {
-    // First navigate to the page if we're not already there
-    if (targetPageNumber !== pageNumber) {
-      handlePageChange(targetPageNumber, true);
-      
-      // Wait for page navigation to complete before highlighting
-      setTimeout(() => {
+    // Use the dedicated bookmark highlighting function if available
+    if (bookmarkHighlightFunction) {
+      bookmarkHighlightFunction(text, targetPageNumber);
+    } else {
+      // Fallback to the previous search-based approach
+      // First navigate to the page if we're not already there
+      if (targetPageNumber !== pageNumber) {
+        handlePageChange(targetPageNumber, true);
+        
+        // Wait for page navigation to complete before highlighting
+        setTimeout(() => {
+          if (searchFunction) {
+            searchFunction(text, 'forward');
+          }
+        }, 1000);
+      } else {
+        // We're already on the correct page, highlight immediately
         if (searchFunction) {
           searchFunction(text, 'forward');
         }
-      }, 1000);
-    } else {
-      // We're already on the correct page, highlight immediately
-      if (searchFunction) {
-        searchFunction(text, 'forward');
       }
     }
-  }, [pageNumber, handlePageChange, searchFunction]);
+  }, [bookmarkHighlightFunction, pageNumber, handlePageChange, searchFunction]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -611,6 +632,7 @@ const FileReaderContent = memo(() => {
               onLoadError={handleDocumentLoadError}
               onTextSearch={handleRegisterSearchFunction}
               onSearchMetadataChange={handleSearchMetadataChange}
+              onBookmarkHighlight={handleRegisterBookmarkHighlightFunction}
               scrollMode={scrollMode}
               onPageChange={(page) => handlePageChange(page, false)}
               activeTool={activeTool}

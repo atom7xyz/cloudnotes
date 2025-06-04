@@ -15,7 +15,6 @@ import {
   FileIcon,
   X,
   BookmarkIcon,
-  HelpCircle,
   Compass,
   FolderHeart,
   CalendarIcon,
@@ -27,6 +26,7 @@ import { debounce, throttle } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import DocumentView from './DocumentView';
 import { Button } from '../ui/button';
+import { useAppNavigate } from '@/lib/navigation';
 
 // Import placeholder images
 import placeholder1 from '../../assets/placeholders/placeholder (1).png';
@@ -759,6 +759,9 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const lastTextQueryRef = useRef<string>('');
   const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+  
+  // Add navigation hook
+  const appNavigate = useAppNavigate();
 
   // Load initial data when the modal opens
   useEffect(() => {
@@ -1157,8 +1160,20 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
 
   // Mock navigation functions (since we're not actually navigating)
   const navigateToUserProfile = useCallback((username: string) => {
-    // In a real app, we would use a router here
-  }, []);
+    // Check if it's the current user
+    const currentUsername = "bartsimpson"; // This would be dynamic in a real app
+    
+    if (username === currentUsername) {
+      // Navigate to own profile page
+      appNavigate('/profile');
+    } else {
+      // Navigate to other user's profile
+      appNavigate(`/profile/${username}`);
+    }
+    
+    // Close the modal after navigation
+    onClose();
+  }, [appNavigate, onClose]);
 
   const navigateToDocument = useCallback((documentId: string) => {
     // Find the document and open the document modal

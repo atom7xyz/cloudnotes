@@ -151,38 +151,26 @@ export default function FileReaderSettingsModal({
                   <span className="font-medium text-lg">Colors</span>
                 </div>
                 
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-6">
                   {COLOR_PRESETS.map((preset) => (
-                    <Button
-                      key={preset.name}
-                      variant="outline"
-                      className={cn(
-                        "h-20 w-full p-2 border-2 relative flex flex-col items-center justify-center hover-primary-effect",
-                        (preset.backgroundColor === backgroundColor && preset.textColor === textColor) 
-                          ? "border-primary ring-2 ring-primary/20" 
-                          : "border-border hover:border-primary/50"
-                      )}
-                      onClick={() => handleColorPresetChange(preset)}
-                      onMouseEnter={() => setHoveredColor(preset.backgroundColor)}
-                      onMouseLeave={() => setHoveredColor(null)}
-                      title={preset.name}
-                    >
-                      <div 
-                        className="w-full h-12 rounded-lg flex items-center justify-center mb-1 border border-gray-200"
-                        style={{ 
-                          backgroundColor: preset.backgroundColor,
-                          color: preset.textColor 
-                        }}
-                      >
-                        {(preset.backgroundColor === backgroundColor && preset.textColor === textColor) && (
-                          <CheckIcon 
-                            size={16} 
-                            className="font-bold"
-                          />
+                    <div key={preset.name} className="flex flex-col items-center">
+                      <button
+                        type="button"
+                        className={cn(
+                          "w-16 h-16 rounded-full border-4 transition-all duration-200 hover:scale-105",
+                          (preset.backgroundColor === backgroundColor && preset.textColor === textColor) 
+                            ? "border-primary shadow-lg ring-2 ring-primary/20" 
+                            : "border-border hover:border-primary/50"
                         )}
-                      </div>
-                      <span className="text-xs font-medium">{preset.name}</span>
-                    </Button>
+                        style={{ backgroundColor: preset.backgroundColor }}
+                        onClick={() => handleColorPresetChange(preset)}
+                        onMouseEnter={() => setHoveredColor(preset.backgroundColor)}
+                        onMouseLeave={() => setHoveredColor(null)}
+                        title={preset.name}
+                      >
+                      </button>
+                      <span className="text-sm font-medium mt-2 text-center">{preset.name}</span>
+                    </div>
                   ))}
                 </div>
               </div>
