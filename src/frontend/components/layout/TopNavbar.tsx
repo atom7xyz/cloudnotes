@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useState, useCallback, type CSSProperties } from 'react'
 import { 
   ArrowLeftIcon, 
   ArrowRightIcon, 
@@ -153,6 +153,8 @@ const TopNavbar: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isAuthenticated, isLoading]);
+
+
 
   // Navigation handlers with optimized state updates
   const handleGoBack = () => {
@@ -317,6 +319,8 @@ const TopNavbar: React.FC = () => {
               />
             </div>
           )}
+
+
         </div>
 
         {/* Right section - Window controls */}

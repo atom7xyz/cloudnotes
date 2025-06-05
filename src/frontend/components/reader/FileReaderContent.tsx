@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState, useRef, useEffect, memo, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useZoom } from '@/lib/contexts/ZoomContext';
 import { useTabs } from '@/lib/contexts/TabsContext';
 import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
@@ -14,6 +14,9 @@ import PageNavigation from '@/components/reader/PageNavigation';
 import LeftToolbar from '@/components/reader/LeftToolbar';
 import SearchBar from '@/components/reader/SearchBar';
 import FileReaderSettingsModal from '@/components/modals/FileReaderSettingsModal';
+import TimerWelcomeModal from '@/components/modals/TimerWelcomeModal';
+import ReadingSpeedTestModal from '@/components/modals/ReadingSpeedTestModal';
+import FloatingTimer from '@/components/ui/FloatingTimer';
 
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -25,6 +28,7 @@ const DEFAULT_LINE_WIDTH = 3; // Medium line width
 
 const FileReaderContent = memo(() => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { zoomLevel, setZoomLevel, isDraggingZoom } = useZoom();
   const { activeTabId, getTabById, isLoading, setIsLoading } = useTabs();
   const { undo, redo, setCurrentFilePath } = useEditHistoryContext();
@@ -82,6 +86,12 @@ const FileReaderContent = memo(() => {
 
   // State for bookmark highlight function registered by PDFViewer
   const [bookmarkHighlightFunction, setBookmarkHighlightFunction] = useState<((text: string, pageNumber: number) => void) | null>(null);
+
+  // Timer states
+  const [timerDuration, setTimerDuration] = useState<number | null>(null);
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [isTimerWelcomeModalOpen, setIsTimerWelcomeModalOpen] = useState(false);
+  const [isSpeedTestModalOpen, setIsSpeedTestModalOpen] = useState(false);
 
   // Handler for finding text (called from search modal)
   const handleFindText = useCallback((text: string, direction: 'forward' | 'backward') => {
@@ -534,6 +544,57 @@ const FileReaderContent = memo(() => {
     setSearchMetadata(metadata);
   }, []);
 
+  // Timer event handlers
+  const handleTimerComplete = useCallback(() => {
+    setIsTimerActive(false);
+    // Could navigate away or show completion notification
+  }, []);
+
+  const handleTimerStop = useCallback(() => {
+    setIsTimerActive(false);
+  }, []);
+
+  // Handler for timer duration change from ReadingTimer component
+  const handleTimerDurationChange = useCallback((newDurationMinutes: number) => {
+    setTimerDuration(newDurationMinutes);
+  }, []);
+
+  // Handler for starting reading from timer welcome modal
+  const handleStartReading = useCallback(() => {
+    setIsTimerActive(true);
+    setIsTimerWelcomeModalOpen(false);
+    // Timer will auto-start when FloatingTimer component receives isActive=true
+  }, []);
+
+  // Handler for retaking speed test from timer welcome modal
+  const handleRetakeSpeedTest = useCallback(() => {
+    navigate(-1); // Go back to previous page
+    setTimeout(() => {
+      setIsSpeedTestModalOpen(true);
+    }, 100);
+  }, [navigate]);
+
+  // Detect timer from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const timerParam = urlParams.get('timer');
+    
+    if (timerParam) {
+      const duration = parseInt(timerParam, 10);
+      if (!isNaN(duration)) {
+        setTimerDuration(duration);
+        setIsTimerWelcomeModalOpen(true);
+        // Timer will be activated when user starts reading
+        return;
+      }
+    }
+    
+    // Reset timer if no timer param
+    setIsTimerActive(false);
+    setTimerDuration(null);
+    setIsTimerWelcomeModalOpen(false);
+  }, [location.search]);
+
   // This function will be passed to PDFViewer's onTextSearch prop
   const handleRegisterSearchFunction = useCallback((searchFn: (text: string, direction?: 'forward' | 'backward') => void) => {
     // Only update if the function has changed to prevent unnecessary rerenders
@@ -709,6 +770,31 @@ const FileReaderContent = memo(() => {
         onClose={handleCloseSettings}
         currentSettings={pdfSettings}
         onSettingsChange={handleSettingsChange}
+      />
+
+      {/* Timer Welcome Modal */}
+      <TimerWelcomeModal
+        isOpen={isTimerWelcomeModalOpen}
+        onClose={() => setIsTimerWelcomeModalOpen(false)}
+        timerMinutes={timerDuration || 0}
+        onStartReading={handleStartReading}
+        onRetakeSpeedTest={handleRetakeSpeedTest}
+      />
+
+      {/* Reading Speed Test Modal */}
+      <ReadingSpeedTestModal
+        isOpen={isSpeedTestModalOpen}
+        onClose={() => setIsSpeedTestModalOpen(false)}
+      />
+
+      {/* Floating Timer */}
+      <FloatingTimer
+        isActive={isTimerActive}
+        initialDuration={timerDuration || undefined}
+        onTimerComplete={handleTimerComplete}
+        onTimerStop={handleTimerStop}
+        onDurationChange={handleTimerDurationChange}
+        isVisible={pageControlsVisible}
       />
     </div>
   );

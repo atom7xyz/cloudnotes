@@ -23,7 +23,8 @@ import {
   RefreshCwIcon,
   SettingsIcon,
   ChevronDownIcon,
-  EditIcon
+  EditIcon,
+  TrendingUpIcon
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -48,12 +49,15 @@ import type { MockDocument, MockComment, MockReport } from '../../lib/mocking/mo
 import { toast } from 'sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import { useTheme } from '../../lib/contexts/ThemeContext';
+import { useReadingSpeed } from '../../lib/contexts/ReadingSpeedContext';
 import ReportProblemModal from '../modals/ReportProblemModal';
 import EditDocumentModal from '../modals/EditDocumentModal';
+import ReadingSpeedTestModal from '../modals/ReadingSpeedTestModal';
 
 const Document = () => {
   const { id } = useParams<{ id: string }>();
   const appNavigate = useAppNavigate();
+  const { estimateReadingTime, getOptimalTimerDuration, hasValidReadingSpeed, readingSpeed, markTimerInteractionAfterFirstTest } = useReadingSpeed();
   const [document, setDocument] = useState<MockDocument | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -65,6 +69,7 @@ const Document = () => {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [selectedTimerDuration, setSelectedTimerDuration] = useState<number | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isReadingSpeedTestModalOpen, setIsReadingSpeedTestModalOpen] = useState(false);
 
   // Mock current user - in a real app this would come from auth context
   const currentUser = {
@@ -75,8 +80,22 @@ const Document = () => {
   // Check if current user is the author
   const isAuthor = document?.author.username === currentUser.username;
 
+  // Calculate estimated reading time and optimal duration
+  const documentWordCount = document ? document.description.split(' ').length * 50 : 0; // Estimate ~50x description length for full document
+  const documentType = document?.file.tags.some(tag => 
+    ['science', 'technical', 'research', 'academic'].includes(tag.toLowerCase())
+  ) ? 'technical' : 
+  document?.file.tags.some(tag => 
+    ['literature', 'novel', 'poetry', 'story'].includes(tag.toLowerCase())
+  ) ? 'literary' : 'general';
+
+  const estimatedTime = hasValidReadingSpeed && documentWordCount ? 
+    estimateReadingTime(documentWordCount, documentType) : null;
+  const optimalDuration = hasValidReadingSpeed && documentWordCount ? 
+    getOptimalTimerDuration(documentWordCount, documentType) : null;
+
   // Timer duration options (in minutes)
-  const timerOptions = [
+  const baseTimerOptions = [
     { label: '5 minutes', value: 5 },
     { label: '10 minutes', value: 10 },
     { label: '15 minutes', value: 15 },
@@ -85,6 +104,9 @@ const Document = () => {
     { label: '60 minutes', value: 60 },
     { label: 'No timer', value: null }
   ];
+
+  // Use base timer options without recommendations
+  const timerOptions = baseTimerOptions;
 
   // Get selected timer option
   const selectedTimerOption = timerOptions.find(option => option.value === selectedTimerDuration) || timerOptions[timerOptions.length - 1];
@@ -264,6 +286,11 @@ const Document = () => {
   const handleTimerSelection = useCallback((duration: number | null) => {
     setSelectedTimerDuration(duration);
     
+    // Mark timer interaction after first test
+    if (readingSpeed.isFirstTestCompleted && !readingSpeed.hasInteractedWithTimerAfterFirstTest) {
+      markTimerInteractionAfterFirstTest();
+    }
+    
     if (duration) {
       toast.success("Timer duration set", {
         description: `Reading timer set to ${duration} minutes`,
@@ -275,6 +302,15 @@ const Document = () => {
         icon: <TimerIcon size={16} />,
       });
     }
+  }, [readingSpeed.isFirstTestCompleted, readingSpeed.hasInteractedWithTimerAfterFirstTest, markTimerInteractionAfterFirstTest]);
+
+  // Handle timer duration change from ReadingTimer component
+  const handleTimerDurationChange = useCallback((newDurationMinutes: number) => {
+    setSelectedTimerDuration(newDurationMinutes);
+    toast.success("Timer duration updated", {
+      description: `Reading timer updated to ${newDurationMinutes} minutes`,
+      icon: <TimerIcon size={16} />,
+    });
   }, []);
 
   // Handle document opening with timer
@@ -292,6 +328,11 @@ const Document = () => {
       setDocument(prev => prev ? { ...prev, ...updatedDocument } : null);
     }
   }, [document]);
+
+  // Handle reading speed test
+  const handleOpenReadingSpeedTest = useCallback(() => {
+    setIsReadingSpeedTestModalOpen(true);
+  }, []);
 
   if (!document) {
     return (
@@ -608,24 +649,35 @@ const Document = () => {
                   
                   <div className="flex items-center gap-3">
                     {/* Timer Settings Dropdown */}
-                    <DropdownMenu>
+                    <DropdownMenu onOpenChange={(open) => {
+                      if (open && readingSpeed.isFirstTestCompleted && !readingSpeed.hasInteractedWithTimerAfterFirstTest) {
+                        markTimerInteractionAfterFirstTest();
+                      }
+                    }}>
                       <DropdownMenuTrigger asChild>
                         <Button 
                           variant="outline" 
-                          className="gap-2 rounded-full cursor-pointer shadow-md hover:border-primary/30 transition-colors" 
+                          className={cn(
+                            "gap-2 rounded-full cursor-pointer shadow-md transition-all duration-300",
+                            readingSpeed.isFirstTestCompleted && !readingSpeed.hasInteractedWithTimerAfterFirstTest
+                              ? "border-red-500 hover:border-red-600 animate-pulse shadow-red-200" 
+                              : "hover:border-primary/30"
+                          )}
                           size="lg"
                         >
-                          <SettingsIcon size={18} />
+                          <TimerIcon size={18} />
                           {selectedTimerOption.label}
                           <ChevronDownIcon size={16} />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 select-none">
+                      <DropdownMenuContent align="end" className="w-80 select-none">
                         <DropdownMenuLabel className="flex items-center gap-2">
                           <TimerIcon size={16} />
                           Reading Timer Settings
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
+
+                        {/* Timer Duration Options */}
                         {timerOptions.map((option) => (
                           <DropdownMenuItem
                             key={option.value || 'no-timer'}
@@ -645,6 +697,51 @@ const Document = () => {
                             </div>
                           </DropdownMenuItem>
                         ))}
+
+                        <DropdownMenuSeparator />
+
+
+                        {/* User Statistics Section */}
+                        {hasValidReadingSpeed && (
+                          <>
+                            <div className="px-3 py-2">
+                              <div className="text-sm font-medium flex items-center gap-2">
+                                <TrendingUpIcon size={14} className="text-blue-600" />
+                                Current metrics
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                <div className="flex justify-between">
+                                  <span>Average reading speed:</span>
+                                  <span className="font-medium">{readingSpeed.averageWpm} WPM</span>
+                                </div>
+                              </div>
+                            </div>
+                            <DropdownMenuSeparator />
+                          </>
+                        )}
+
+                        {/* Reading Speed Test Option */}
+                        <DropdownMenuItem
+                          className="cursor-pointer p-3 hover-primary-effect"
+                          onClick={handleOpenReadingSpeedTest}
+                        >
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                              <RefreshCwIcon size={14} className="text-green-600" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium">
+                                {hasValidReadingSpeed ? 'Retake Reading Speed Test' : 'Take Reading Speed Test'}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {hasValidReadingSpeed 
+                                  ? 'Update your reading speed for better recommendations'
+                                  : 'By taking this test the system will be able to determine and automatically divide your work'
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                     
@@ -840,6 +937,12 @@ const Document = () => {
           onClose={() => setIsEditModalOpen(false)}
           document={document}
           onSave={handleDocumentUpdate}
+        />
+
+        {/* Reading Speed Test Modal */}
+        <ReadingSpeedTestModal 
+          isOpen={isReadingSpeedTestModalOpen}
+          onClose={() => setIsReadingSpeedTestModalOpen(false)}
         />
       </div>
 

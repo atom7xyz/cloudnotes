@@ -1,5 +1,5 @@
 import React, { useState, type CSSProperties, useEffect, useCallback, useMemo, memo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ArrowLeftIcon,
   Search,
@@ -41,6 +41,7 @@ import { cn } from '@/lib/utils';
 import { ScrollMode } from '@/components/viewer/PDFViewer';
 import { useDebounce } from '../../lib/hooks/useDebounce';
 import FileBrowserModal from '@/components/modals/FileBrowserModal';
+
 
 // Custom CSS properties for Electron window drag regions
 interface ElectronCSSProperties extends CSSProperties {
@@ -508,6 +509,7 @@ const FileReaderTopNavbar = memo(({
   searchMetadata = { totalMatches: 0, currentMatch: 0 }
 }: FileReaderTopNavbarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { openTabs, activeTabId, setActiveTab } = useTabs();
   
   // All state hooks at the top level
@@ -516,6 +518,8 @@ const FileReaderTopNavbar = memo(({
   const [searchFocused, setSearchFocused] = useState(false);
   const [isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  
+
   
   // Create a debounced version of the search query with 250ms delay
   const debouncedSearchQuery = useDebounce(searchQuery, 250);
@@ -608,6 +612,8 @@ const FileReaderTopNavbar = memo(({
       }
     }
   }, [debouncedSearchQuery, onFindText, isSearchActive]);
+
+
   
   // All event handlers with useCallback
   const handleGoBack = useCallback(() => {
@@ -782,6 +788,8 @@ const FileReaderTopNavbar = memo(({
       onScrollModeChange(mode);
     }
   }, [onScrollModeChange]);
+
+
   
   return (
     <>

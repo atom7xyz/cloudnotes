@@ -3,7 +3,7 @@ import { Modal } from "../ui/modal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import type React from "react";
 import { useState, useEffect } from "react";
-import { BookOpenIcon, SearchIcon, UploadIcon, GraduationCapIcon, BriefcaseIcon, ChevronRightIcon, CheckIcon, Check, CheckCheckIcon, CheckSquareIcon, CheckCircle2Icon, CarIcon, ArrowRightFromLine, ArrowRightToLineIcon } from "lucide-react";
+import { BookOpenIcon, SearchIcon, UploadIcon, GraduationCapIcon, BriefcaseIcon, ChevronRightIcon, ArrowRightToLineIcon } from "lucide-react";
 
 // Import demo images
 import giuseppeVerdi from "../../assets/giuseppe_verdi.jpg";
@@ -512,4 +512,4 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
   );
 };
 
-export default WelcomeModal; 
+export default WelcomeModal;

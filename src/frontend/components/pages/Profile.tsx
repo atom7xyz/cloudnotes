@@ -805,7 +805,7 @@ const Profile = () => {
                     <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
                       <span className="text-sm font-medium">Ad Clicks</span>
                       <span className="text-sm font-bold text-primary">
-                        {showRevenueNumbers ? '1,247' : '****'}
+                        {showRevenueNumbers ? '21' : '****'}
                       </span>
                     </div>
                   </>
@@ -832,7 +832,7 @@ const Profile = () => {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold mb-2">Personal Donations</h3>
                   <p className="text-muted-foreground text-sm mb-4">
-                    Receive donations from users who appreciate your shared documents.
+                    Receive donations from users.
                   </p>
                 </div>
               </div>

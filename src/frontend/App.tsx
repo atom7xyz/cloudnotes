@@ -39,6 +39,7 @@ const ScreenLockModal = lazy(() => import('./components/modals/ScreenLockModal')
 const Home = lazy(() => import('./components/pages/Home'));
 const AppLockProvider = lazy(() => import('./lib/contexts/AppLockContext').then(module => ({ default: module.AppLockProvider })));
 const ThemeProvider = lazy(() => import('./lib/contexts/ThemeContext').then(module => ({ default: module.ThemeProvider })));
+const ReadingSpeedProvider = lazy(() => import('./lib/contexts/ReadingSpeedContext').then(module => ({ default: module.ReadingSpeedProvider })));
 const UserProfile = lazy(() => import('./components/pages/UserProfile'));
 // Utility function loaded later
 const LazyLoadUtils = lazy(() => 
@@ -221,6 +222,7 @@ function App() {
           <div className={isLoading ? 'invisible' : 'visible'}>
             <Suspense fallback={null}>
               <ThemeProvider>
+                <ReadingSpeedProvider>
                 <AppLockProvider>
                   {/* Application Lock Screen Modal */}
                   <ScreenLockModal />
@@ -305,6 +307,7 @@ function App() {
                     </Routes>
                   </Router>
                 </AppLockProvider>
+                </ReadingSpeedProvider>
               </ThemeProvider>
             </Suspense>
           </div>
