@@ -8,9 +8,11 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { ArrowLeftIcon } from "lucide-react";
+import { useState } from "react";
 
 export default function VerifyOTP() {
   const appNavigate = useAppNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   
   // Initialize form with react-hook-form and zod validation
   const form = useForm<OtpFormValues>({
@@ -22,9 +24,21 @@ export default function VerifyOTP() {
   });
   
   // Handle form submission
-  const onSubmit = (_values: OtpFormValues) => {
-    // Navigate to reset password page
-    appNavigate("/reset-password");
+  const onSubmit = async (_values: OtpFormValues) => {
+    setIsLoading(true);
+    
+    try {
+      // Simulate API request to verify OTP
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Navigate to reset password page
+      appNavigate("/reset-password");
+    } catch (error) {
+      // Handle error if needed
+      console.error('Failed to verify OTP:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Check if form is empty
@@ -64,6 +78,8 @@ export default function VerifyOTP() {
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
           submitLabel="Verify Code"
+          loading={isLoading}
+          loadingText="Verifying code..."
         >
           <FormOTP
             form={form}

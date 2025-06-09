@@ -89,7 +89,7 @@ export function AppLink({
       <a
         href={href}
         className={cn(
-          "font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer",
+          "font-medium text-primary underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer",
           disabled && "opacity-50 pointer-events-none",
           className
         )}
@@ -111,7 +111,7 @@ export function AppLink({
       <Link
         to={href}
         className={cn(
-          "font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer",
+          "font-medium text-primary underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer",
           disabled && "opacity-50 pointer-events-none",
           className
         )}
@@ -135,7 +135,7 @@ export function AppLink({
   return (
     <span
       className={cn(
-        "font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer",
+        "font-medium text-primary underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer",
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}

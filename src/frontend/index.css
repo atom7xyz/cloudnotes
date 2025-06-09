@@ -106,6 +106,8 @@
   --scrollbar-thumb: oklch(0.8 0.02 256.788);
   --scrollbar-thumb-hover: oklch(0.704 0.04 256.788);
   --scrollbar-corner-radius: 4px;
+
+  --link-color: oklch(0.8368 0.1381 181.31);
 }
 
 .dark {
@@ -145,6 +147,8 @@
   --scrollbar-track: oklch(0.2 0.02 264.695 / 30%);
   --scrollbar-thumb: oklch(0.35 0.03 264.695);
   --scrollbar-thumb-hover: oklch(0.4 0.05 264.695);
+
+  --link-color: oklch(0.8368 0.1381 181.31);
 }
 
 @theme inline {

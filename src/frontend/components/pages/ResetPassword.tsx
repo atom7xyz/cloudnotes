@@ -6,9 +6,11 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { PasswordInput } from "@/components/form-fields/PasswordInput";
+import { useState } from "react";
 
 export default function ResetPassword() {
   const appNavigate = useAppNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   
   // Initialize form with react-hook-form and zod validation
   const form = useForm<ResetPasswordFormValues>({
@@ -21,9 +23,21 @@ export default function ResetPassword() {
   });
   
   // Handle form submission
-  const onSubmit = (_values: ResetPasswordFormValues) => {
-    // Navigate to success page
-    appNavigate("/reset-password-success");
+  const onSubmit = async (_values: ResetPasswordFormValues) => {
+    setIsLoading(true);
+    
+    try {
+      // Simulate API request to reset password
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Navigate to success page
+      appNavigate("/reset-password-success");
+    } catch (error) {
+      // Handle error if needed
+      console.error('Failed to reset password:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Check if form is empty
@@ -51,6 +65,8 @@ export default function ResetPassword() {
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
           submitLabel="Reset Password"
+          loading={isLoading}
+          loadingText="Resetting password..."
         >
           <PasswordInput
             form={form}

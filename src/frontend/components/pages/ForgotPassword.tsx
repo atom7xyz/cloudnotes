@@ -78,6 +78,8 @@ export default function ForgotPassword() {
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
           submitLabel="Send Reset Code"
+          loading={isLoading}
+          loadingText="Sending reset code..."
         >
           <FormInput
             form={form}

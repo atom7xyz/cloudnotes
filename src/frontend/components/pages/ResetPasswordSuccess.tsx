@@ -39,11 +39,11 @@ export default function ResetPasswordSuccess() {
           <div className="w-full pt-4">
             <Button 
               asChild
-              className="rounded-full bg-[#071833] hover:bg-[#071833]/90 text-white w-full py-2 font-medium cursor-pointer"
+              className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground w-full py-2.5 font-medium transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               <AppLink 
                 href="/login"
-                className="hover:no-underline select-none flex items-center justify-center"
+                className="no-underline select-none flex items-center justify-center h-full"
               >
                 Back to Login
               </AppLink>
