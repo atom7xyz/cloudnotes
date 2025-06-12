@@ -11,6 +11,7 @@ import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { PasswordInput } from "@/components/form-fields/PasswordInput";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useFormPersistence } from "@/lib/hooks/useFormPersistence";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -30,16 +31,51 @@ export default function Register() {
     mode: "onSubmit"
   });
 
+  // Initialize form persistence hook
+  const { saveFormData, clearFormData } = useFormPersistence({
+    form,
+    excludeFields: ['password', 'confirmPassword'], // Exclude passwords from persistence
+    storageKey: 'register-form-data'
+  });
+
   // Clear any previous errors when component mounts
   useEffect(() => {
     clearError();
   }, [clearError]);
+
+  // Custom handler for ToS link that saves form data
+  const handleTosLinkClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Save form data before navigating to ToS
+    saveFormData();
+    
+    // Set a flag to indicate we're coming from register
+    sessionStorage.setItem('register-form-data_from_tos', 'true');
+    
+    // Navigate to ToS
+    navigate('/tos');
+  };
+
+  // Custom handler for login link that clears form data
+  const handleLoginLinkClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Clear any saved form data when going to login
+    clearFormData();
+    
+    // Navigate to login
+    navigate('/login');
+  };
   
   // Handle form submission
   const onSubmit = async (values: RegisterFormValues) => {
     const result = await register(values);
     
     if (result.success) {
+      // Clear saved form data on successful registration
+      clearFormData();
+      
       // Add a small delay to ensure all components update their auth state
       // before navigation occurs
       setTimeout(() => {
@@ -78,9 +114,19 @@ export default function Register() {
           subtitle="Register an Account"
           footer={
             <p className="text-center text-sm text-muted-foreground w-full">
-              <AppLink href="/login">
+              <span 
+                onClick={handleLoginLinkClick}
+                className="font-medium text-primary underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer"
+                role="link"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleLoginLinkClick(e as any);
+                  }
+                }}
+              >
                 Already have an account? Login
-              </AppLink>
+              </span>
             </p>
           }
           className="rounded-3xl border-none shadow-2xl"
@@ -150,9 +196,19 @@ export default function Register() {
               label={
                 <>
                   I've read and accept the{" "}
-                  <AppLink href="/tos">
+                  <span 
+                    onClick={handleTosLinkClick}
+                    className="font-medium text-primary underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer"
+                    role="link"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        handleTosLinkClick(e as any);
+                      }
+                    }}
+                  >
                     Terms of Service
-                  </AppLink>
+                  </span>
                 </>
               }
             />

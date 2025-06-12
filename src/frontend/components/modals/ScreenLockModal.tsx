@@ -161,7 +161,7 @@ const ScreenLockModal: FC = () => {
                 type="button"
                 onClick={() => setShowForgotPinModal(true)}
                 className={cn(
-                  "font-medium text-sm text-primary hover:underline",
+                  "font-medium text-sm text-primary no-underline hover:no-underline",
                   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer"
                 )}
               >

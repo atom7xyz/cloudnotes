@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 import cloudsBackground from "../../assets/clouds3.jpg";
-import { PrinterIcon } from "lucide-react";
+import { PrinterIcon, ArrowLeftIcon } from "lucide-react";
 import PrintModal from "../modals/PrintModal";
 import { AppLink } from "@/components/ui/app-link";
 
@@ -18,6 +19,8 @@ export default function Tos() {
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const [activeSection, setActiveSection] = useState<string>("introduction");
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   
   const lastUpdated = "May 10, 2024";
   
@@ -265,6 +268,12 @@ export default function Tos() {
       ),
     },
   ];
+  
+  useEffect(() => {
+    if (location.pathname === '/tos') {
+      scrollToSection('introduction');
+    }
+  }, [location.pathname, scrollToSection]);
   
   return (
     <div className="relative min-h-screen bg-background text-foreground">

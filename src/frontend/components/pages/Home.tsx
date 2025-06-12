@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FileTextIcon, ClockIcon, BookmarkIcon, TrendingUpIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon, PlusIcon, HistoryIcon, ChevronUpIcon, CalendarIcon, ExternalLinkIcon, ThumbsUpIcon } from 'lucide-react';
+import { FileTextIcon, ClockIcon, BookmarkIcon, TrendingUpIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon, PlusIcon, HistoryIcon, ChevronUpIcon, CalendarIcon, ExternalLinkIcon, ThumbsUpIcon, ArrowUpIcon } from 'lucide-react';
 import { 
   Card, 
   CardContent} from '../ui/card';
@@ -27,6 +27,10 @@ const Home = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+  
+  // Refs for section headers
+  const recentDocsRef = useRef<HTMLHeadingElement>(null);
+  const savedDocsRef = useRef<HTMLHeadingElement>(null);
   
   // Calculate last opened time (in a real app this would come from user session data)
   const getLastOpenedTime = useCallback((doc: MockDocument): string => {
@@ -114,8 +118,8 @@ const Home = () => {
       .filter(doc => doc.author.username !== currentUsername) // Exclude user's own documents
       .slice(3, 13);
     
-    // Initialize favorites (in a real app, this would come from user data)
-    const favorites: MockDocument[] = [];
+    // Initialize favorites (mock some documents similar to Profile.tsx)
+    const favorites = allDocuments.slice(0, 3);
     
     // Get user documents and sort by last edited time (newest first)
     const userDocuments = allDocuments
@@ -237,6 +241,41 @@ const Home = () => {
 
   const toggleShowAllBookmarkedDocs = useCallback(() => {
     setShowAllBookmarkedDocs(prev => !prev);
+  }, []);
+
+  // Scroll to section top functions
+  const scrollToRecentDocs = useCallback(() => {
+    if (recentDocsRef.current) {
+      // Add temporary scroll margin
+      recentDocsRef.current.style.scrollMarginTop = '96px';
+      recentDocsRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      // Remove scroll margin after scroll
+      setTimeout(() => {
+        if (recentDocsRef.current) {
+          recentDocsRef.current.style.scrollMarginTop = '';
+        }
+      }, 1000);
+    }
+  }, []);
+
+  const scrollToSavedDocs = useCallback(() => {
+    if (savedDocsRef.current) {
+      // Add temporary scroll margin
+      savedDocsRef.current.style.scrollMarginTop = '96px';
+      savedDocsRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      // Remove scroll margin after scroll
+      setTimeout(() => {
+        if (savedDocsRef.current) {
+          savedDocsRef.current.style.scrollMarginTop = '';
+        }
+      }, 1000);
+    }
   }, []);
 
   return (
@@ -508,12 +547,12 @@ const Home = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
         {/* Recent Documents */}
         <section>
-          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+          <h2 ref={recentDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <ClockIcon size={24} className="text-primary" />
-            Recent Documents
+            Recent Documents ({recentDocs.length})
           </h2>
           <div className="space-y-4">
-            {recentDocs.slice(0, showAllRecentDocs ? 5 : 3).map((doc) => (
+            {recentDocs.slice(0, showAllRecentDocs ? recentDocs.length : 3).map((doc) => (
               <Card 
                 key={doc.id} 
                 className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
@@ -590,7 +629,7 @@ const Home = () => {
             ))}
           </div>
           {recentDocs.length > 2 && (
-            <div className="flex justify-center mt-6">
+            <div className="relative flex justify-center mt-6">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -609,19 +648,30 @@ const Home = () => {
                   </>
                 )}
               </Button>
+              {showAllRecentDocs && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="absolute right-0 hover-primary-effect shadow-sm"
+                  onClick={scrollToRecentDocs}
+                  aria-label="Scroll to top of Recent Documents"
+                >
+                  <ArrowUpIcon size={16} />
+                </Button>
+              )}
             </div>
           )}
         </section>
         
         {/* Favorite Documents */}
         <section>
-          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+          <h2 ref={savedDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <BookmarkIcon size={24} className="text-primary" />
-            Saved
+            Saved ({favoriteDocs.length})
           </h2>
           {favoriteDocs.length > 0 ? (
             <div className="space-y-4">
-              {favoriteDocs.slice(0, showAllBookmarkedDocs ? 5 : 3).map((doc) => (
+              {favoriteDocs.slice(0, showAllBookmarkedDocs ? favoriteDocs.length : 3).map((doc) => (
                 <Card 
                   key={doc.id} 
                   className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
@@ -702,8 +752,8 @@ const Home = () => {
               </CardContent>
             </Card>
           )}
-          {favoriteDocs.length > 2 && (
-            <div className="flex justify-center mt-6">
+          {favoriteDocs.length > 3 && (
+            <div className="relative flex justify-center mt-6">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -722,6 +772,17 @@ const Home = () => {
                   </>
                 )}
               </Button>
+              {showAllBookmarkedDocs && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="absolute right-0 hover-primary-effect shadow-sm"
+                  onClick={scrollToSavedDocs}
+                  aria-label="Scroll to top of Saved Documents"
+                >
+                  <ArrowUpIcon size={16} />
+                </Button>
+              )}
             </div>
           )}
         </section>
@@ -740,9 +801,6 @@ const Home = () => {
                 <Badge variant="outline" className="bg-gradient-to-r from-primary/10 to-primary/20 text-primary border-primary/30 px-3 py-1.5 font-medium">
                   @bartsimpson
                 </Badge>
-                <p className="text-muted-foreground mt-2 text-base">
-                  Opera enthusiast and classical music aficionado
-                </p>
               </div>
             </div>
             <Button 

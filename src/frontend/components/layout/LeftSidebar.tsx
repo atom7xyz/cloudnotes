@@ -76,7 +76,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, tit
 
   // Otherwise use AppLink for navigation (remove title prop to avoid tooltips)
   return (
-    <AppLink href={to} className="w-full block hover:no-underline" preventNavigation>
+    <AppLink href={to} className="w-full block no-underline hover:no-underline" preventNavigation>
       {buttonContent}
     </AppLink>
   );

@@ -153,22 +153,24 @@ export default function FileReaderSettingsModal({
                 
                 <div className="grid grid-cols-4 gap-6">
                   {COLOR_PRESETS.map((preset) => (
-                    <div key={preset.name} className="flex flex-col items-center">
-                      <button
-                        type="button"
-                        className={cn(
-                          "w-16 h-16 rounded-full border-4 transition-all duration-200 hover:scale-105",
-                          (preset.backgroundColor === backgroundColor && preset.textColor === textColor) 
-                            ? "border-primary shadow-lg ring-2 ring-primary/20" 
-                            : "border-border hover:border-primary/50"
-                        )}
+                    <div 
+                      key={preset.name} 
+                      className={cn(
+                        "flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 cursor-pointer",
+                        (preset.backgroundColor === backgroundColor && preset.textColor === textColor) 
+                          ? "border-primary shadow-lg ring-2 ring-primary/20" 
+                          : "border-border hover:border-primary"
+                      )}
+                      onClick={() => handleColorPresetChange(preset)}
+                      onMouseEnter={() => setHoveredColor(preset.backgroundColor)}
+                      onMouseLeave={() => setHoveredColor(null)}
+                      title={preset.name}
+                    >
+                      <div
+                        className="w-16 h-16 rounded-full border transition-all duration-200"
                         style={{ backgroundColor: preset.backgroundColor }}
-                        onClick={() => handleColorPresetChange(preset)}
-                        onMouseEnter={() => setHoveredColor(preset.backgroundColor)}
-                        onMouseLeave={() => setHoveredColor(null)}
-                        title={preset.name}
                       >
-                      </button>
+                      </div>
                       <span className="text-sm font-medium mt-2 text-center">{preset.name}</span>
                     </div>
                   ))}

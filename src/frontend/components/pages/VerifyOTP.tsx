@@ -57,7 +57,7 @@ export default function VerifyOTP() {
           <p className="text-center text-sm text-muted-foreground w-full">
             <AppLink 
               href="/forgot-password"
-              className="flex items-center justify-left gap-1 font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+              className="flex items-center justify-left gap-1 font-medium text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
             >
               <ArrowLeftIcon size={16} />
               Didn't receive a code? Request again

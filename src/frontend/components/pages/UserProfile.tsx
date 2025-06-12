@@ -189,18 +189,7 @@ const UserProfile = () => {
 
   return (
     <div className="p-6 max-w-[1200px] mx-auto select-none">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={handleGoBack}
-          className="gap-2 hover-primary-effect group"
-        >
-          <ArrowLeftIcon size={16} />
-          Back to Home
-        </Button>
-      </div>
+
 
       {/* Enhanced Profile Header */}
       <Card className="overflow-hidden border-primary/20 mb-8 shadow-lg relative">

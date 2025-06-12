@@ -1,24 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   Share2Icon,
   StarIcon,
   MessageSquareIcon,
   BookmarkIcon,
-  EyeIcon,
   ExternalLinkIcon,
-  Mail as MailIcon,
   LinkIcon,
   UserIcon,
   CalendarIcon,
   FileTextIcon,
   TagIcon
 } from 'lucide-react';
-import { 
-  FaFacebook, 
-  FaTwitter, 
-  FaTelegram, 
-  FaWhatsapp 
-} from 'react-icons/fa';
 import { Modal } from '../ui/modal';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -27,7 +19,6 @@ import { AppLink } from '../ui/app-link';
 import { Separator } from '../ui/separator';
 import { cn, formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '../ui/dropdown-menu';
 import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 import type { MockDocument } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
@@ -283,7 +274,7 @@ const DocumentView = ({
               </div>
               
               <Button className="gap-2 rounded-full cursor-pointer shadow-md" size="lg" asChild>
-                <AppLink href={`/document/${document.id}`} preventNavigation className="hover:no-underline" onClick={handleOpenDocumentPage}>
+                <AppLink href={`/document/${document.id}`} preventNavigation className="no-underline hover:no-underline" onClick={handleOpenDocumentPage}>
                   <ExternalLinkIcon size={18} />
                   Open Document Page
                 </AppLink>

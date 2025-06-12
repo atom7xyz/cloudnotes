@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   UserIcon,
   CalendarIcon,
@@ -22,7 +22,8 @@ import {
   CheckIcon,
   PlusIcon,
   Activity,
-  TimerIcon
+  TimerIcon,
+  ArrowUpIcon
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -64,6 +65,11 @@ const Profile = () => {
     bio: string;
     joinDate: Date;
   } | null>(null);
+
+  // Refs for section headers
+  const yourDocsRef = useRef<HTMLHeadingElement>(null);
+  const savedDocsRef = useRef<HTMLHeadingElement>(null);
+  const recentDocsRef = useRef<HTMLHeadingElement>(null);
 
   // Mock user data - in a real app this would come from an API
   const currentUser = useMemo(() => ({
@@ -328,20 +334,61 @@ const Profile = () => {
     // 3. Refresh the user's documents list
   }, []);
 
+  // Scroll to section top functions
+  const scrollToYourDocs = useCallback(() => {
+    if (yourDocsRef.current) {
+      // Add temporary scroll margin
+      yourDocsRef.current.style.scrollMarginTop = '96px';
+      yourDocsRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      // Remove scroll margin after scroll
+      setTimeout(() => {
+        if (yourDocsRef.current) {
+          yourDocsRef.current.style.scrollMarginTop = '';
+        }
+      }, 1000);
+    }
+  }, []);
+
+  const scrollToSavedDocs = useCallback(() => {
+    if (savedDocsRef.current) {
+      // Add temporary scroll margin
+      savedDocsRef.current.style.scrollMarginTop = '96px';
+      savedDocsRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      // Remove scroll margin after scroll
+      setTimeout(() => {
+        if (savedDocsRef.current) {
+          savedDocsRef.current.style.scrollMarginTop = '';
+        }
+      }, 1000);
+    }
+  }, []);
+
+  const scrollToRecentDocs = useCallback(() => {
+    if (recentDocsRef.current) {
+      // Add temporary scroll margin
+      recentDocsRef.current.style.scrollMarginTop = '96px';
+      recentDocsRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      // Remove scroll margin after scroll
+      setTimeout(() => {
+        if (recentDocsRef.current) {
+          recentDocsRef.current.style.scrollMarginTop = '';
+        }
+      }, 1000);
+    }
+  }, []);
+
   return (
     <div className="p-6 max-w-[1200px] mx-auto select-none">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={handleGoBack}
-          className="gap-2 hover-primary-effect group"
-        >
-          <ArrowLeftIcon size={16} />
-          Back to Home
-        </Button>
-      </div>
+
 
       {/* Enhanced Profile Header */}
       <Card className="overflow-hidden border-primary/20 mb-8 shadow-lg relative">
@@ -430,7 +477,7 @@ const Profile = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
         {/* Your Documents */}
         <div>
-          <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
+          <h2 ref={yourDocsRef} className="text-2xl font-semibold mb-6 flex items-center gap-3">
             <FileTextIcon size={24} className="text-primary" />
             Your Documents ({userDocuments.length})
           </h2>
@@ -469,7 +516,7 @@ const Profile = () => {
 
                 {/* User Documents */}
                 {userDocuments
-                  .slice(0, showAllDocs ? undefined : 2)
+                  .slice(0, showAllDocs ? userDocuments.length : 2)
                   .map((doc) => (
                     <Card 
                       key={doc.id}
@@ -605,9 +652,10 @@ const Profile = () => {
             )}
             
             {userDocuments.length > 2 && (
-              <div className="flex justify-center mt-6">
+              <div className="relative flex justify-center mt-6">
                 <Button 
                   variant="outline" 
+                  size="sm"
                   onClick={() => setShowAllDocs(!showAllDocs)}
                   className="gap-2 hover-primary-effect shadow-sm"
                 >
@@ -623,6 +671,17 @@ const Profile = () => {
                     </>
                   )}
                 </Button>
+                {showAllDocs && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="absolute right-0 hover-primary-effect shadow-sm"
+                    onClick={scrollToYourDocs}
+                    aria-label="Scroll to top of Your Documents"
+                  >
+                    <ArrowUpIcon size={16} />
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -630,13 +689,13 @@ const Profile = () => {
 
         {/* Saved Documents */}
         <div>
-          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+          <h2 ref={savedDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <BookmarkIcon size={24} className="text-primary" />
-            Saved
+            Saved ({favoriteDocuments.length})
           </h2>
           {favoriteDocuments.length > 0 ? (
             <div className="space-y-4">
-              {favoriteDocuments.slice(0, showAllBookmarkedDocs ? 5 : 3).map((doc) => (
+              {favoriteDocuments.slice(0, showAllBookmarkedDocs ? favoriteDocuments.length : 3).map((doc) => (
                 <Card 
                   key={doc.id} 
                   className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
@@ -718,7 +777,7 @@ const Profile = () => {
             </Card>
           )}
           {favoriteDocuments.length > 3 && (
-            <div className="flex justify-center mt-6">
+            <div className="relative flex justify-center mt-6">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -737,6 +796,17 @@ const Profile = () => {
                   </>
                 )}
               </Button>
+              {showAllBookmarkedDocs && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="absolute right-0 hover-primary-effect shadow-sm"
+                  onClick={scrollToSavedDocs}
+                  aria-label="Scroll to top of Saved Documents"
+                >
+                  <ArrowUpIcon size={16} />
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -978,14 +1048,14 @@ const Profile = () => {
 
         {/* Recent Documents */}
         <div>
-          <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
+          <h2 ref={recentDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <ClockIcon size={24} className="text-primary" />
-            Recent Documents
+            Recent Documents ({[...userDocuments, ...favoriteDocuments].length})
           </h2>
           {userDocuments.length > 0 ? (
             <div className="space-y-4">
               {[...userDocuments, ...favoriteDocuments]
-                .slice(0, showAllRecentDocs ? undefined : 3)
+                .slice(0, showAllRecentDocs ? [...userDocuments, ...favoriteDocuments].length : 3)
                 .map((doc, index) => {
                   return (
                     <Card 
@@ -1056,7 +1126,7 @@ const Profile = () => {
             </Card>
           )}
           {(userDocuments.length + favoriteDocuments.length) > 2 && (
-            <div className="flex justify-center mt-6">
+            <div className="relative flex justify-center mt-6">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -1075,6 +1145,17 @@ const Profile = () => {
                   </>
                 )}
               </Button>
+              {showAllRecentDocs && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="absolute right-0 hover-primary-effect shadow-sm"
+                  onClick={scrollToRecentDocs}
+                  aria-label="Scroll to top of Recent Documents"
+                >
+                  <ArrowUpIcon size={16} />
+                </Button>
+              )}
             </div>
           )}
         </div>
