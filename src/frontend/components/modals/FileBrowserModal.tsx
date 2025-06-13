@@ -79,8 +79,65 @@ const formatDate = (date: Date): string => {
 
 // Extract any tag currently being typed - moved outside component
 const extractCurrentTag = (input: string): string | null => {
+  const match = input.match(/#(\w*)$/);
+  return match ? match[1] : null;
+};
+
+// Extract any user currently being typed - moved outside component
+const extractCurrentUser = (input: string): string | null => {
   const match = input.match(/@(\w*)$/);
   return match ? match[1] : null;
+};
+
+// Search scoring function to prioritize results
+const scoreDocument = (doc: MockDocument, searchQuery: string): number => {
+  if (!searchQuery.trim()) return 0;
+  
+  const query = searchQuery.toLowerCase();
+  const title = doc.title.toLowerCase();
+  const description = doc.description.toLowerCase();
+  const tags = doc.file.tags.map(tag => tag.toLowerCase());
+  
+  let score = 0;
+  
+  // Title matches (highest priority - 100 points base)
+  if (title.includes(query)) {
+    score += 100;
+    // Bonus for exact match
+    if (title === query) score += 50;
+    // Bonus for starting with query
+    if (title.startsWith(query)) score += 25;
+  }
+  
+  // Tag matches (medium priority - 50 points base)
+  for (const tag of tags) {
+    if (tag.includes(query)) {
+      score += 50;
+      // Bonus for exact tag match
+      if (tag === query) score += 25;
+    }
+  }
+  
+  // Description matches (low priority - 10 points base)
+  if (description.includes(query)) {
+    score += 10;
+    // Count multiple occurrences
+    const occurrences = (description.match(new RegExp(query, 'g')) || []).length;
+    score += (occurrences - 1) * 5; // Additional 5 points per extra occurrence
+  }
+  
+  return score;
+};
+
+// Sort documents by search relevance score
+const sortDocumentsByRelevance = (docs: MockDocument[], searchQuery: string): MockDocument[] => {
+  if (!searchQuery.trim()) return docs;
+  
+  return docs
+    .map(doc => ({ doc, score: scoreDocument(doc, searchQuery) }))
+    .filter(item => item.score > 0) // Only include documents with matches
+    .sort((a, b) => b.score - a.score) // Sort by score descending
+    .map(item => item.doc);
 };
 
 interface SearchModalProps {
@@ -579,7 +636,8 @@ UserItem.displayName = 'UserItem';
 const SearchInput = memo(({ 
   inputValue, 
   selectedTags, 
-  currentTag, 
+  currentTag,
+  currentUser,
   handleSearchInputChange, 
   handleKeyPress, 
   handleRemoveTagFromInput,
@@ -592,6 +650,7 @@ const SearchInput = memo(({
   inputValue: string;
   selectedTags: string[];
   currentTag: string | null;
+  currentUser: string | null;
   handleSearchInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleKeyPress: (e: KeyboardEvent<HTMLInputElement>) => void;
   handleRemoveTagFromInput: (tag: string) => void;
@@ -690,7 +749,9 @@ const SearchInput = memo(({
               placeholder={
                 currentTag 
                   ? "Press Enter or Space to complete tag..." 
-                  : "Search for documents, users, or use @tag..."
+                  : currentUser
+                  ? "Press Enter or Space to complete user search..."
+                  : "Search for documents or use #tag..."
               }
               className="border-none shadow-none focus-visible:ring-0 pl-0 h-auto p-0 w-full"
               autoFocus
@@ -751,6 +812,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [currentTag, setCurrentTag] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   // Add a ref to track the latest search request
@@ -928,8 +990,15 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         // Filter recent documents by search query when there's a query but no tags
         filteredRecentDocs = originalRecentDocuments.filter(doc => 
           doc.title.toLowerCase().includes(query.toLowerCase()) ||
-          doc.file.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+          doc.file.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase())) ||
+          doc.description.toLowerCase().includes(query.toLowerCase())
         );
+      }
+      
+      // Apply scoring and sorting to search results
+      if (query.trim()) {
+        filteredDocuments = sortDocumentsByRelevance(filteredDocuments, query);
+        filteredRecentDocs = sortDocumentsByRelevance(filteredRecentDocs, query);
       }
       
       // Filter each collection based on the search results
@@ -985,7 +1054,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       setSelectedTags(newTags);
       
       // Remove the tag from input
-      const newInputValue = inputValue.replace(/@\w*$/, '');
+      const newInputValue = inputValue.replace(/#\w*$/, '');
       setInputValue(newInputValue);
       
       // Update search
@@ -1000,6 +1069,23 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     // Reset current tag
     setCurrentTag(null);
   }, [currentTag, selectedTags, inputValue, performSearch]);
+
+  // Handle user search when @ is used
+  const handleUserSearch = useCallback((userQuery: string) => {
+    if (!userQuery.trim()) return;
+    
+    // Remove the @ from input and set it as the search query
+    const newInputValue = inputValue.replace(/@\w*$/, userQuery);
+    setInputValue(newInputValue);
+    setSearchQuery(userQuery);
+    
+    // Reset current user
+    setCurrentUser(null);
+    
+    // Perform search with the user query
+    setIsLoading(true);
+    performSearch(userQuery, selectedTags);
+  }, [inputValue, selectedTags, performSearch]);
 
   // Optimized debounced search function with a longer delay for better performance
   const debouncedSearch = useMemo(() => 
@@ -1016,6 +1102,9 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       // Extract tag being typed without triggering search
       const tagBeingTyped = extractCurrentTag(value);
       setCurrentTag(tagBeingTyped);
+      // Extract user being typed
+      const userBeingTyped = extractCurrentUser(value);
+      setCurrentUser(userBeingTyped);
     }, 50),
     []
   );
@@ -1029,7 +1118,19 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     
     // Process the search query with debouncing
     // This is done separately from UI updates to maintain responsiveness
-    const cleanQuery = value.replace(/@\w*$/, '').trim();
+    // Extract user search if present (e.g., "@homer" -> "homer")
+    const userMatch = value.match(/@(\w+)/);
+    let cleanQuery = value.replace(/#\w*$/, '').trim();
+    
+    if (userMatch) {
+      // If there's a user search pattern, extract the username and add it to the query
+      const username = userMatch[1];
+      cleanQuery = cleanQuery.replace(/@\w+/g, username);
+    } else {
+      // Remove incomplete user search patterns (e.g., "@" with no following text)
+      cleanQuery = cleanQuery.replace(/@\w*$/, '');
+    }
+    
     setSearchQuery(cleanQuery);
     
     // Update last text query ref when text input changes
@@ -1046,28 +1147,48 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       e.preventDefault();
       completeTag();
     }
-    // Complete current tag and start a new one when @ is typed
-    else if (e.key === '@') {
+    // Complete user search on Enter
+    else if (e.key === 'Enter' && currentUser) {
+      e.preventDefault();
+      handleUserSearch(currentUser);
+    }
+    // Complete current tag and start a new one when # is typed
+    else if (e.key === '#') {
       if (currentTag) {
         e.preventDefault();
         completeTag();
-        // Add the @ character after completing the tag
+        // Add the # character after completing the tag
+        setTimeout(() => {
+          setInputValue((prev) => `${prev}#`);
+        }, 0);
+      }
+    }
+    // Complete current user search and start a new one when @ is typed
+    else if (e.key === '@') {
+      if (currentUser) {
+        e.preventDefault();
+        handleUserSearch(currentUser);
+        // Add the @ character after completing the user search
         setTimeout(() => {
           setInputValue((prev) => `${prev}@`);
         }, 0);
       }
     }
-    // Handle space - finalize tag without adding space to the input
-    else if (e.key === ' ' && currentTag) {
+    // Handle space - finalize tag or user search without adding space to the input
+    else if (e.key === ' ' && (currentTag || currentUser)) {
       e.preventDefault();
-      completeTag();
+      if (currentTag) {
+        completeTag();
+      } else if (currentUser) {
+        handleUserSearch(currentUser);
+      }
     }
-  }, [currentTag, completeTag]);
+  }, [currentTag, currentUser, completeTag, handleUserSearch]);
 
   // Apply a recent search
   const handleRecentSearchClick = useCallback((searchTerm: string) => {
-    // Extract any tags from the search term (format: "@tag text")
-    const tagRegex = /@(\w+)/g;
+    // Extract any tags from the search term (format: "#tag text")
+    const tagRegex = /#(\w+)/g;
     const extractedTags: string[] = [];
     let match: RegExpExecArray | null = tagRegex.exec(searchTerm);
     while (match !== null) {
@@ -1076,7 +1197,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     }
     
     // Set the search query without the tag part
-    const cleanQuery = searchTerm.replace(/@\w+\s*/g, '').trim();
+    const cleanQuery = searchTerm.replace(/#\w+\s*/g, '').trim();
     
     setInputValue(cleanQuery);
     setSearchQuery(cleanQuery);
@@ -1102,7 +1223,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     setSelectedTags(updatedTags);
     
     // Update the input field to reflect selected tags
-    const newInputValue = inputValue.replace(/@\w*$/, '');
+    const newInputValue = inputValue.replace(/#\w*$/, '');
     setInputValue(newInputValue);
     
     // Trigger search with updated tags and the current searchQuery
@@ -1138,7 +1259,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     setSelectedTags(updatedTags);
     
     // Remove the partial tag from input
-    const newInputValue = inputValue.replace(/@\w*$/, '');
+    const newInputValue = inputValue.replace(/#\w*$/, '');
     setInputValue(newInputValue);
     
     // Update search query
@@ -1279,6 +1400,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     setInputValue('');
     setSelectedTags([]);
     setCurrentTag(null);
+    setCurrentUser(null);
     setSearchQuery('');
     setDocumentResults([]);
     setUserResults([]);
@@ -1340,6 +1462,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             inputValue={inputValue}
             selectedTags={selectedTags}
             currentTag={currentTag}
+            currentUser={currentUser}
             handleSearchInputChange={handleSearchInputChange}
             handleKeyPress={handleKeyPress}
             handleRemoveTagFromInput={handleRemoveTagFromInput}

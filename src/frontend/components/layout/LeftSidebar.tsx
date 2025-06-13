@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   HomeIcon, 
   BookmarkIcon, 
@@ -18,6 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { mockService } from '../../lib/mocking/mockedData';
 import { useAppNavigate } from '@/lib/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
+import type { MockDocument, MockUser } from '../../lib/mocking/mocked';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -61,7 +62,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, tit
         <DropdownMenuContent 
           side="right" 
           align="start" 
-          className="ml-2 w-64"
+          className="ml-2 w-64 max-h-80 overflow-y-auto"
         >
           {dropdownContent}
         </DropdownMenuContent>
@@ -85,6 +86,9 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, tit
 const LeftSidebar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSessionExpiredOpen, setIsSessionExpiredOpen] = useState(false);
+  const [recentDocuments, setRecentDocuments] = useState<MockDocument[]>([]);
+  const [savedDocuments, setSavedDocuments] = useState<MockDocument[]>([]);
+  const [currentMockUser, setCurrentMockUser] = useState<MockUser | null>(null);
   const appNavigate = useAppNavigate();
   const { isAuthenticated, user, isLoading } = useAuth();
   
@@ -93,13 +97,86 @@ const LeftSidebar: React.FC = () => {
     console.log('LeftSidebar auth state:', { isAuthenticated, user: user?.email, isLoading });
   }, [isAuthenticated, user, isLoading]);
   
-  // Get documents for dropdowns
-  const allDocuments = mockService.getDocuments();
-  const recentDocuments = allDocuments.slice(0, 5); // Mock recent files
-  const savedDocuments = allDocuments.slice(0, 3); // Mock saved files
+  // Get the current mock user based on authenticated user
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // For now, we'll use bartsimpson as the default mock user
+      // In a real app, you'd match by user.id or user.email
+      const mockUser = mockService.getUsers().find(u => u.username === 'bartsimpson');
+      setCurrentMockUser(mockUser || null);
+    } else {
+      setCurrentMockUser(null);
+    }
+  }, [isAuthenticated, user]);
+
+  // Calculate recent documents based on view history simulation
+  const getRecentDocuments = useMemo(() => {
+    if (!currentMockUser) return [];
+    
+    const allDocuments = mockService.getDocuments();
+    
+    // Simulate recent documents by sorting all documents by a "last viewed" algorithm
+    // In a real app, this would come from user's view history
+    const recentDocs = allDocuments
+      .map(doc => {
+        // Create a simulated "last viewed" timestamp based on document properties
+        // Use document ID and current user ID to create consistent but varied timestamps
+        const seed = doc.id.charCodeAt(0) + doc.id.charCodeAt(doc.id.length - 1) + 
+                    currentMockUser.id.charCodeAt(0);
+        const hoursAgo = (seed % 168) + 1; // 1-168 hours ago (1 week)
+        const lastViewed = new Date(Date.now() - hoursAgo * 60 * 60 * 1000);
+        
+        return {
+          ...doc,
+          lastViewed
+        };
+      })
+      .sort((a, b) => b.lastViewed.getTime() - a.lastViewed.getTime())
+      .slice(0, 10); // Get top 10 most recent
+    
+    return recentDocs;
+  }, [currentMockUser]);
+
+  // Get saved documents from user's bookmarks
+  const getSavedDocuments = useMemo(() => {
+    if (!currentMockUser) return [];
+    
+    // Get user's bookmarked documents
+    const bookmarks = mockService.getBookmarksForUser(currentMockUser.id);
+    const savedDocs = bookmarks
+      .map(bookmark => bookmark.document)
+      .sort((a, b) => new Date(b.file.uploadedAt).getTime() - new Date(a.file.uploadedAt).getTime());
+    
+    return savedDocs;
+  }, [currentMockUser]);
+
+  // Update state when computed values change
+  useEffect(() => {
+    setRecentDocuments(getRecentDocuments);
+  }, [getRecentDocuments]);
+
+  useEffect(() => {
+    setSavedDocuments(getSavedDocuments);
+  }, [getSavedDocuments]);
   
   const handleDocumentClick = (docId: string) => {
     appNavigate(`/document/${docId}`);
+  };
+
+  // Format relative time for recent documents
+  const formatRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours === 1) return '1 hour ago';
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays === 1) return 'Yesterday';
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    
+    return date.toLocaleDateString();
   };
 
   // Reader dropdown content
@@ -107,30 +184,32 @@ const LeftSidebar: React.FC = () => {
     <>
       <DropdownMenuLabel>Recent Files</DropdownMenuLabel>
       <DropdownMenuSeparator />
-      {recentDocuments.length > 0 ? (
-        recentDocuments.map((doc) => (
-          <DropdownMenuItem 
-            key={doc.id} 
-            onClick={() => handleDocumentClick(doc.id)}
-            className="cursor-pointer hover-primary-effect"
-          >
-            <div className="flex items-center gap-2 w-full">
-              <FileTextIcon size={14} className="text-primary flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{doc.title}</div>
-                <div className="text-xs text-muted-foreground truncate">
-                  by {doc.author.firstName} {doc.author.lastName}
+      <div className="max-h-64 overflow-y-auto">
+        {recentDocuments.length > 0 ? (
+          recentDocuments.map((doc) => (
+            <DropdownMenuItem 
+              key={doc.id} 
+              onClick={() => handleDocumentClick(doc.id)}
+              className="cursor-pointer hover-primary-effect"
+            >
+              <div className="flex items-center gap-2 w-full">
+                <FileTextIcon size={14} className="text-primary flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{doc.title}</div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    by {doc.author.firstName} {doc.author.lastName} • {formatRelativeTime((doc as any).lastViewed)}
+                  </div>
                 </div>
+                <ChevronRightIcon size={12} className="text-muted-foreground flex-shrink-0" />
               </div>
-              <ChevronRightIcon size={12} className="text-muted-foreground flex-shrink-0" />
-            </div>
+            </DropdownMenuItem>
+          ))
+        ) : (
+          <DropdownMenuItem disabled>
+            <span className="text-muted-foreground">No recent files</span>
           </DropdownMenuItem>
-        ))
-      ) : (
-        <DropdownMenuItem disabled>
-          <span className="text-muted-foreground">No recent files</span>
-        </DropdownMenuItem>
-      )}
+        )}
+      </div>
     </>
   );
 
@@ -139,30 +218,32 @@ const LeftSidebar: React.FC = () => {
     <>
       <DropdownMenuLabel>Saved Documents</DropdownMenuLabel>
       <DropdownMenuSeparator />
-      {savedDocuments.length > 0 ? (
-        savedDocuments.map((doc) => (
-          <DropdownMenuItem 
-            key={doc.id} 
-            onClick={() => handleDocumentClick(doc.id)}
-            className="cursor-pointer hover-primary-effect"
-          >
-            <div className="flex items-center gap-2 w-full">
-              <BookmarkIcon size={14} className="text-blue-500 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{doc.title}</div>
-                <div className="text-xs text-muted-foreground truncate">
-                  by {doc.author.firstName} {doc.author.lastName}
+      <div className="max-h-64 overflow-y-auto">
+        {savedDocuments.length > 0 ? (
+          savedDocuments.map((doc) => (
+            <DropdownMenuItem 
+              key={doc.id} 
+              onClick={() => handleDocumentClick(doc.id)}
+              className="cursor-pointer hover-primary-effect"
+            >
+              <div className="flex items-center gap-2 w-full">
+                <BookmarkIcon size={14} className="text-blue-500 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{doc.title}</div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    by {doc.author.firstName} {doc.author.lastName}
+                  </div>
                 </div>
+                <ChevronRightIcon size={12} className="text-muted-foreground flex-shrink-0" />
               </div>
-              <ChevronRightIcon size={12} className="text-muted-foreground flex-shrink-0" />
-            </div>
+            </DropdownMenuItem>
+          ))
+        ) : (
+          <DropdownMenuItem disabled>
+            <span className="text-muted-foreground">No saved documents</span>
           </DropdownMenuItem>
-        ))
-      ) : (
-        <DropdownMenuItem disabled>
-          <span className="text-muted-foreground">No saved documents</span>
-        </DropdownMenuItem>
-      )}
+        )}
+      </div>
     </>
   );
   

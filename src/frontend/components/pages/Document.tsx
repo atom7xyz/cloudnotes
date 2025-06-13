@@ -53,6 +53,7 @@ import { useReadingSpeed } from '../../lib/contexts/ReadingSpeedContext';
 import ReportProblemModal from '../modals/ReportProblemModal';
 import EditDocumentModal from '../modals/EditDocumentModal';
 import ReadingSpeedTestModal from '../modals/ReadingSpeedTestModal';
+import TimerWelcomeModal from '../modals/TimerWelcomeModal';
 
 const Document = () => {
   const { id } = useParams<{ id: string }>();
@@ -70,6 +71,7 @@ const Document = () => {
   const [selectedTimerDuration, setSelectedTimerDuration] = useState<number | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReadingSpeedTestModalOpen, setIsReadingSpeedTestModalOpen] = useState(false);
+  const [isTimerWelcomeModalOpen, setIsTimerWelcomeModalOpen] = useState(false);
 
   // Mock current user - in a real app this would come from auth context
   const currentUser = {
@@ -202,34 +204,32 @@ const Document = () => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Get the current user from mock service (bartsimpson)
+      const currentUser = mockService.getUsers().find(u => u.username === 'bartsimpson');
+      if (!currentUser) {
+        throw new Error('Current user not found');
+      }
+
+      // Add comment to mock service
       const newCommentData = {
-        id: `comment-${Date.now()}`,
-        author: {
-          id: 'current-user',
-          firstName: 'Bart',
-          lastName: 'Simpson',
-          username: 'bartsimpson',
-          avatar: 'https://github.com/shadcn.png',
-          comments: [],
-          ratings: [],
-          documents: [],
-          savedDocuments: [],
-          bio: '',
-          joinDate: new Date()
-        },
-        document: document,
         content: newComment.trim(),
         timestamp: new Date()
       };
 
-      // Add new comment at the beginning (latest first)
-      setComments(prev => [newCommentData, ...prev]);
-      setNewComment('');
+      const createdComment = mockService.addComment(newCommentData, currentUser.id, document.id);
       
-      toast.success("Comment posted", {
-        description: "Your comment has been added to the discussion",
-        icon: <MessageSquareIcon size={16} />,
-      });
+      if (createdComment) {
+        // Add new comment at the beginning (latest first)
+        setComments(prev => [createdComment, ...prev]);
+        setNewComment('');
+        
+        toast.success("Comment posted", {
+          description: "Your comment has been added to the discussion",
+          icon: <MessageSquareIcon size={16} />,
+        });
+      } else {
+        throw new Error('Failed to create comment');
+      }
     } catch (error) {
       toast.error("Failed to post comment", {
         description: "Please try again",
@@ -282,6 +282,31 @@ const Document = () => {
     }
   }, []);
 
+  // Handle comment deletion
+  const handleDeleteComment = useCallback((commentId: string) => {
+    const success = mockService.removeComment(commentId);
+    if (success) {
+      setComments(prev => prev.filter(comment => comment.id !== commentId));
+      toast.success("Comment deleted", {
+        description: "The comment has been removed",
+        icon: <TrashIcon size={16} />,
+      });
+    }
+  }, []);
+
+  // Handle user profile navigation
+  const handleUserProfileClick = useCallback((username: string) => {
+    const currentUsername = "bartsimpson"; // This would be dynamic in a real app
+    
+    if (username === currentUsername) {
+      // Navigate to own profile page
+      appNavigate('/profile');
+    } else {
+      // Navigate to other user's profile
+      appNavigate(`/profile/${username}`);
+    }
+  }, [appNavigate]);
+
   // Handle timer duration selection
   const handleTimerSelection = useCallback((duration: number | null) => {
     setSelectedTimerDuration(duration);
@@ -316,11 +341,26 @@ const Document = () => {
   // Handle document opening with timer
   const handleOpenDocument = useCallback(() => {
     if (selectedTimerDuration) {
-      appNavigate(`/reader/${document?.id}?timer=${selectedTimerDuration}`);
+      // Show timer welcome modal first before navigation
+      setIsTimerWelcomeModalOpen(true);
     } else {
       appNavigate(`/reader/${document?.id}`);
     }
   }, [selectedTimerDuration, document?.id, appNavigate]);
+
+  // Handle starting reading from timer welcome modal
+  const handleStartReadingFromModal = useCallback(() => {
+    if (selectedTimerDuration && document?.id) {
+      appNavigate(`/reader/${document?.id}?timer=${selectedTimerDuration}`);
+    }
+    setIsTimerWelcomeModalOpen(false);
+  }, [selectedTimerDuration, document?.id, appNavigate]);
+
+  // Handle retaking speed test from timer welcome modal
+  const handleRetakeSpeedTestFromModal = useCallback(() => {
+    setIsTimerWelcomeModalOpen(false);
+    setIsReadingSpeedTestModalOpen(true);
+  }, []);
 
   // Handle document update after editing
   const handleDocumentUpdate = useCallback((updatedDocument: Partial<MockDocument>) => {
@@ -577,18 +617,7 @@ const Document = () => {
                     variant="outline" 
                     size="sm" 
                     className="gap-2 hover-primary-effect cursor-pointer"
-                    onClick={() => {
-                      // Check if it's the current user's document
-                      const currentUsername = "bartsimpson"; // This would be dynamic in a real app
-                      
-                      if (document.author.username === currentUsername) {
-                        // Navigate to own profile page
-                        appNavigate('/profile');
-                      } else {
-                        // Navigate to other user's profile
-                        appNavigate(`/profile/${document.author.username}`);
-                      }
-                    }}
+                    onClick={() => handleUserProfileClick(document.author.username)}
                   >
                     <UserIcon size={14} />
                     View Profile
@@ -763,14 +792,27 @@ const Document = () => {
                   <div key={report.id} className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8 border-2 border-orange-200">
+                        <Avatar 
+                          className="h-10 w-10 border-2 border-orange-200 cursor-pointer hover:border-orange-300 transition-colors"
+                          onClick={() => handleUserProfileClick(report.author.username)}
+                        >
                           <img src={report.author.avatar} alt={report.author.username} />
                         </Avatar>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-medium">{report.author.firstName} {report.author.lastName}</span>
+                            <span 
+                              className="font-medium cursor-pointer hover:text-primary transition-colors"
+                              onClick={() => handleUserProfileClick(report.author.username)}
+                            >
+                              {report.author.firstName} {report.author.lastName}
+                            </span>
                           </div>
-                          <p className="text-xs text-muted-foreground">@{report.author.username}</p>
+                          <p 
+                            className="text-xs text-muted-foreground cursor-pointer hover:text-primary transition-colors"
+                            onClick={() => handleUserProfileClick(report.author.username)}
+                          >
+                            @{report.author.username}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -822,7 +864,7 @@ const Document = () => {
             </h2>
 
             {/* Enhanced Add Comment */}
-            <div className="mb-10 p-6 bg-muted/20 rounded-lg border border-primary/10">
+            <div className="mb-10 p-2">
               <div className="flex gap-4">
                 <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-primary/20">
                   <img src="https://github.com/shadcn.png" alt="Your avatar" />
@@ -860,7 +902,7 @@ const Document = () => {
             </div>
 
             {/* Enhanced Comments List */}
-            <div className="space-y-8">
+            <div className="space-y-4">
               {comments.length === 0 ? (
                 <div className="text-center py-12">
                   <MessageSquareIcon size={64} className="mx-auto text-muted-foreground/30 mb-4" />
@@ -868,35 +910,59 @@ const Document = () => {
                   <p className="text-muted-foreground">Be the first to share your thoughts about this document!</p>
                 </div>
               ) : (
-                comments.map((comment, index) => (
-                  <div key={comment.id} className="space-y-4">
-                    {/* Enhanced Main Comment */}
-                    <div className="flex gap-4">
-                      <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-primary/10">
-                        <img src={comment.author.avatar} alt={comment.author.username} />
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="bg-muted/30 rounded-lg p-4 border border-primary/10">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="flex flex-col">
-                                <span className="font-semibold">{comment.author.firstName} {comment.author.lastName}</span>
-                                <span className="text-xs text-muted-foreground">@{comment.author.username}</span>
-                              </div>
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              {relativeDateFormatted(comment.timestamp)}
+                comments.map((comment) => (
+                  <div key={comment.id} className="p-4 bg-muted rounded-lg border border-primary/10">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar 
+                          className="h-10 w-10 border-2 border-muted cursor-pointer hover:border-primary/30 transition-colors"
+                          onClick={() => handleUserProfileClick(comment.author.username)}
+                        >
+                          <img src={comment.author.avatar} alt={comment.author.username} />
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span 
+                              className="font-medium cursor-pointer hover:text-primary transition-colors"
+                              onClick={() => handleUserProfileClick(comment.author.username)}
+                            >
+                              {comment.author.firstName} {comment.author.lastName}
                             </span>
                           </div>
-                          <p className="text-sm leading-relaxed">{comment.content}</p>
+                          <p 
+                            className="text-xs text-muted-foreground cursor-pointer hover:text-primary transition-colors"
+                            onClick={() => handleUserProfileClick(comment.author.username)}
+                          >
+                            @{comment.author.username}
+                          </p>
                         </div>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {relativeDateFormatted(comment.timestamp)}
+                        </span>
+                        {(isAuthor || comment.author.username === 'bartsimpson') && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:border-red-300"
+                                  onClick={() => handleDeleteComment(comment.id)}
+                                >
+                                  <TrashIcon size={14} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete comment</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
                     </div>
-
-                    {/* Separator between comments */}
-                    {index < comments.length - 1 && (
-                      <Separator className="my-8" />
-                    )}
+                    <p className="text-sm leading-relaxed bg-background p-3 rounded border border-muted">
+                      {comment.content}
+                    </p>
                   </div>
                 ))
               )}
@@ -932,6 +998,15 @@ const Document = () => {
         <ReadingSpeedTestModal 
           isOpen={isReadingSpeedTestModalOpen}
           onClose={() => setIsReadingSpeedTestModalOpen(false)}
+        />
+
+        {/* Timer Welcome Modal */}
+        <TimerWelcomeModal 
+          isOpen={isTimerWelcomeModalOpen}
+          onClose={() => setIsTimerWelcomeModalOpen(false)}
+          timerMinutes={selectedTimerDuration || 0}
+          onStartReading={handleStartReadingFromModal}
+          onRetakeSpeedTest={handleRetakeSpeedTestFromModal}
         />
       </div>
 

@@ -410,18 +410,26 @@ class MockDataStore {
         const author = availableUsers[authorIndex];
         
         const reportReasons = [
-          'This document contains inappropriate content that violates community guidelines.',
-          'The content appears to be plagiarized from another source without proper attribution.',
-          'The document contains factual errors and misleading information.',
-          'This content is spam or promotional material disguised as academic work.',
-          'The document violates copyright laws by including unauthorized material.',
-          'The content is offensive and discriminatory towards certain groups.',
-          'This document appears to be AI-generated without disclosure.',
-          'The content is not relevant to the academic nature of this platform.',
-          'The document title is misleading and does not match the content.',
-          'This content promotes harmful or dangerous activities.',
-          'The document contains personal information that should not be shared publicly.',
-          'This content violates the platform\'s terms of service regarding academic integrity.'
+          'There is a typo on page 19 at line 5 - "recieve" should be "receive". Hope this helps!',
+          'I think this section could use some clarification about the historical context mentioned in paragraph 3.',
+          'Found a small formatting issue on page 12 - the footnote reference seems to be missing.',
+          'The citation on page 8 appears to be incomplete - missing the publication year.',
+          'There\'s a grammatical error in the second paragraph: "was" should be "were" when referring to multiple subjects.',
+          'I noticed the bibliography is missing an entry for the source quoted on page 15.',
+          'The diagram on page 7 is a bit unclear - perhaps adding labels would help readers understand it better.',
+          'There seems to be a factual inconsistency between the dates mentioned on pages 4 and 11.',
+          'I think adding a glossary would be helpful for readers unfamiliar with some of the technical terms used.',
+          'The conclusion could benefit from a brief summary of the main points discussed earlier.',
+          'There\'s a broken internal reference on page 6 - it says "see page XX" but the page number is missing.',
+          'I found a duplicate sentence in the third paragraph of the introduction.',
+          'The table on page 13 has some alignment issues that make it hard to read.',
+          'I think this would benefit from more recent sources - most references are from before 2010.',
+          'There\'s a spacing issue in the header on page 9 that affects readability.',
+          'The abstract could be more concise - it currently exceeds the typical word limit for academic papers.',
+          'I noticed some inconsistent terminology - "theatre" vs "theater" is used interchangeably.',
+          'The methodology section could use more detail about the data collection process.',
+          'There\'s a missing closing quotation mark in the quote on page 16.',
+          'I think adding page numbers to the table of contents would improve navigation.'
         ];
         
         const report: MockReport = {
@@ -860,13 +868,13 @@ const mockDataStore = MockDataStore.getInstance();
 
 // Define recent searches
 const recentSearches: string[] = [
-  "@pdf Analysis",
+  "#pdf Analysis",
   "philosophy",
-  "@epub @mythology the odyssey",
+  "#epub #mythology the odyssey",
   "plato",
   "literature",
-  "@italian Dante's Divine Comedy",
-  "@powerpoint poetry"
+  "#italian Dante's Divine Comedy",
+  "#powerpoint poetry"
 ];
 
 // Export the API to interact with mock data

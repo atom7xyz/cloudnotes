@@ -16,7 +16,6 @@ import {
   ListIcon
 } from 'lucide-react';
 import { useReadingSpeed } from "@/lib/contexts/ReadingSpeedContext";
-import { useNavigate } from 'react-router-dom';
 
 interface TimerWelcomeModalProps {
   isOpen: boolean;
@@ -55,7 +54,7 @@ const TimerWelcomeModal: React.FC<TimerWelcomeModalProps> = ({
 
   const handleRetakeTest = () => {
     onRetakeSpeedTest();
-    onClose();
+    // Don't close the modal here - let the parent handle the transition
   };
 
   return (

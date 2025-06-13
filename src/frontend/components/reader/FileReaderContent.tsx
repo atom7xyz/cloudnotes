@@ -14,7 +14,7 @@ import PageNavigation from '@/components/reader/PageNavigation';
 import LeftToolbar from '@/components/reader/LeftToolbar';
 import SearchBar from '@/components/reader/SearchBar';
 import FileReaderSettingsModal from '@/components/modals/FileReaderSettingsModal';
-import TimerWelcomeModal from '@/components/modals/TimerWelcomeModal';
+
 import ReadingSpeedTestModal from '@/components/modals/ReadingSpeedTestModal';
 import FloatingTimer from '@/components/ui/FloatingTimer';
 
@@ -90,7 +90,6 @@ const FileReaderContent = memo(() => {
   // Timer states
   const [timerDuration, setTimerDuration] = useState<number | null>(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
-  const [isTimerWelcomeModalOpen, setIsTimerWelcomeModalOpen] = useState(false);
   const [isSpeedTestModalOpen, setIsSpeedTestModalOpen] = useState(false);
 
   // Handler for finding text (called from search modal)
@@ -559,20 +558,7 @@ const FileReaderContent = memo(() => {
     setTimerDuration(newDurationMinutes);
   }, []);
 
-  // Handler for starting reading from timer welcome modal
-  const handleStartReading = useCallback(() => {
-    setIsTimerActive(true);
-    setIsTimerWelcomeModalOpen(false);
-    // Timer will auto-start when FloatingTimer component receives isActive=true
-  }, []);
 
-  // Handler for retaking speed test from timer welcome modal
-  const handleRetakeSpeedTest = useCallback(() => {
-    navigate(-1); // Go back to previous page
-    setTimeout(() => {
-      setIsSpeedTestModalOpen(true);
-    }, 100);
-  }, [navigate]);
 
   // Detect timer from URL parameters
   useEffect(() => {
@@ -583,8 +569,8 @@ const FileReaderContent = memo(() => {
       const duration = parseInt(timerParam, 10);
       if (!isNaN(duration)) {
         setTimerDuration(duration);
-        setIsTimerWelcomeModalOpen(true);
-        // Timer will be activated when user starts reading
+        // Start the timer immediately since the user already confirmed in the welcome modal
+        setIsTimerActive(true);
         return;
       }
     }
@@ -592,7 +578,6 @@ const FileReaderContent = memo(() => {
     // Reset timer if no timer param
     setIsTimerActive(false);
     setTimerDuration(null);
-    setIsTimerWelcomeModalOpen(false);
   }, [location.search]);
 
   // This function will be passed to PDFViewer's onTextSearch prop
@@ -772,14 +757,7 @@ const FileReaderContent = memo(() => {
         onSettingsChange={handleSettingsChange}
       />
 
-      {/* Timer Welcome Modal */}
-      <TimerWelcomeModal
-        isOpen={isTimerWelcomeModalOpen}
-        onClose={() => setIsTimerWelcomeModalOpen(false)}
-        timerMinutes={timerDuration || 0}
-        onStartReading={handleStartReading}
-        onRetakeSpeedTest={handleRetakeSpeedTest}
-      />
+
 
       {/* Reading Speed Test Modal */}
       <ReadingSpeedTestModal

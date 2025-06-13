@@ -7,7 +7,7 @@ import {
   TimerIcon, 
   PlayIcon, 
   PauseIcon, 
-  SettingsIcon,
+  RotateCcwIcon,
   ZapIcon,
   ClockIcon,
   AlertTriangleIcon,
@@ -30,7 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from './tooltip';
-import { useReadingSpeed } from '@/lib/contexts/ReadingSpeedContext';
+
 import { toast } from 'sonner';
 import { playSound } from '@/lib/utils/sound';
 
@@ -57,12 +57,13 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
   documentWordCount,
   documentType = 'general'
 }) => {
-  const { readingSpeed, estimateReadingTime, getOptimalTimerDuration, hasValidReadingSpeed } = useReadingSpeed();
+
   
   const [timerState, setTimerState] = useState<TimerState>('idle');
   const [timeRemaining, setTimeRemaining] = useState(initialDuration * 60); // in seconds
   const [totalTime, setTotalTime] = useState(initialDuration * 60);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
+  const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const warningShownRef = useRef(false);
@@ -165,25 +166,54 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
     onTimerStop?.();
   }, [initialDuration, onTimerStop]);
 
-  // Reset timer duration
-  const resetTimer = useCallback((newDurationMinutes: number) => {
-    stopTimer();
-    setTimeRemaining(newDurationMinutes * 60);
-    setTotalTime(newDurationMinutes * 60);
-    onDurationChange?.(newDurationMinutes);
-  }, [stopTimer, onDurationChange]);
+  // Restart timer
+  const restartTimer = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setTimeRemaining(initialDuration * 60);
+    setTotalTime(initialDuration * 60);
+    warningShownRef.current = false;
+    setShowRestartConfirm(false);
+    setTimerState('running');
+    
+    // Start the timer immediately
+    intervalRef.current = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          setTimerState('completed');
+          onTimerComplete?.();
+          toast.success("Reading time completed!", {
+            description: "And... Done! You've reached your reading goal.",
+            icon: <CheckCircleIcon size={16} />,
+          });
+          playSound();
+          return 0;
+        }
 
-  // Get estimated reading time for current document
-  const getEstimatedTime = useCallback(() => {
-    if (!documentWordCount || !hasValidReadingSpeed) return null;
-    return estimateReadingTime(documentWordCount, documentType);
-  }, [documentWordCount, documentType, estimateReadingTime, hasValidReadingSpeed]);
+        // Show warning at 2 minutes remaining
+        if (prev === 120 && !warningShownRef.current) {
+          setTimerState('warning');
+          warningShownRef.current = true;
+          toast.warning("2 minutes remaining", {
+            description: "",
+            icon: <AlertTriangleIcon size={16} />,
+          });
+        }
 
-  // Get optimal timer duration
-  const getOptimalDuration = useCallback(() => {
-    if (!documentWordCount || !hasValidReadingSpeed) return null;
-    return getOptimalTimerDuration(documentWordCount, documentType);
-  }, [documentWordCount, documentType, getOptimalTimerDuration, hasValidReadingSpeed]);
+        return prev - 1;
+      });
+    }, 1000);
+
+    toast.success("Timer restarted!", {
+      description: `Timer reset to ${initialDuration} minutes and started`,
+      icon: <RotateCcwIcon size={16} />,
+    });
+  }, [initialDuration, onTimerComplete]);
+
+
+
+
 
   // Clean up interval on unmount
   useEffect(() => {
@@ -207,9 +237,6 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
   if (!isActive) {
     return null;
   }
-
-  const estimatedTime = getEstimatedTime();
-  const optimalDuration = getOptimalDuration();
 
   return (
     <TooltipProvider>
@@ -349,49 +376,38 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
           )}
         </div>
 
-        {/* Timer Settings Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 hover-primary-effect">
-                    <SettingsIcon size={14} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Timer settings</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel className="flex items-center gap-2 select-none">
-              <TimerIcon size={16} />
-              Reading Timer Settings
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            
-            {/* Quick Duration Settings */}
-            <div className="p-2">
-              <div className="text-sm font-medium mb-2 select-none">Set new duration</div>
-              <div className="grid grid-cols-3 gap-1">
-                {[5, 10, 15, 30, 45, 60].map((minutes) => (
-                  <Button
-                    key={minutes}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-7 hover-primary-effect"
-                    onClick={() => resetTimer(minutes)}
-                    disabled={timerState === 'running'}
-                  >
-                    {minutes}m
-                  </Button>
-                ))}
+        {/* Timer Restart Button with Confirmation */}
+        {(timerState === 'running' || timerState === 'paused' || timerState === 'warning') && (
+          <DropdownMenu open={showRestartConfirm} onOpenChange={setShowRestartConfirm}>
+            <DropdownMenuTrigger asChild>
+              <div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 hover-primary-effect">
+                      <RotateCcwIcon size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Restart timer</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Restart Timer?</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={restartTimer}
+                className="text-red-600 focus:text-red-600 hover-primary-effect"
+              >
+                Confirm
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowRestartConfirm(false)} className="hover-primary-effect">
+                Cancel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </TooltipProvider>
   );
