@@ -56,6 +56,11 @@ const UserProfile = () => {
     };
   }, [username]);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Calculate last opened time (in a real app this would come from user session data)
   const getLastOpenedTime = useCallback((doc: MockDocument): string => {
     // For demo purposes, generate a random time within the last 7 days

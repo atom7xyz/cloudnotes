@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   SaveIcon,
   XIcon,
@@ -10,7 +10,10 @@ import {
   UploadIcon,
   FileIcon,
   PaletteIcon,
-  ImageIcon
+  LockIcon,
+  Link2Icon,
+  EyeIcon,
+  GlobeIcon
 } from 'lucide-react';
 import { Modal } from '../ui/modal';
 import { Button } from '../ui/button';
@@ -18,9 +21,17 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
 import { playSound } from '@/lib/utils/sound';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 interface UploadDocumentModalProps {
   isOpen: boolean;
@@ -31,6 +42,7 @@ interface UploadDocumentModalProps {
     tags: string[];
     file: File;
     thumbnailColor: string;
+    visibility: 'private' | 'public' | 'link-only';
   }) => void;
   maxWidth?: string;
 }
@@ -62,7 +74,8 @@ const UploadDocumentModal = ({
     title: '',
     description: '',
     tags: [] as string[],
-    thumbnailColor: '#3b82f6'
+    thumbnailColor: '#3b82f6',
+    visibility: 'public' as 'private' | 'public' | 'link-only'
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [newTag, setNewTag] = useState('');
@@ -70,7 +83,30 @@ const UploadDocumentModal = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isDragOver, setIsDragOver] = useState(false);
   const [hoveredColor, setHoveredColor] = useState<string | null>(null);
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      // Reset form when modal opens
+      setFormData({
+        title: '',
+        description: '',
+        tags: [],
+        thumbnailColor: '#3b82f6',
+        visibility: 'public'
+      });
+      setSelectedFile(null);
+      setNewTag('');
+      setErrors({});
+      setIsDragOver(false);
+      setHoveredColor(null);
+    } else {
+      // Close unsaved changes modal when main modal closes
+      setShowUnsavedChangesModal(false);
+    }
+  }, [isOpen]);
 
   // Handle form field changes
   const handleFieldChange = useCallback((field: string, value: string) => {
@@ -189,6 +225,18 @@ const UploadDocumentModal = ({
     return Object.keys(newErrors).length === 0;
   }, [formData, selectedFile]);
 
+  // Get visibility display info
+  const getVisibilityInfo = useCallback((visibility: 'private' | 'public' | 'link-only') => {
+    switch (visibility) {
+      case 'private':
+        return { icon: LockIcon, color: 'text-muted-foreground', label: 'Private', description: 'Only visible to you' };
+      case 'public':
+        return { icon: GlobeIcon, color: 'text-primary', label: 'Public', description: 'Visible to everyone' };
+      case 'link-only':
+        return { icon: Link2Icon, color: 'text-blue-500', label: 'Link Only', description: 'Only accessible via direct link' };
+    }
+  }, []);
+
   // Handle upload
   const handleUpload = useCallback(async () => {
     if (!validateForm() || !selectedFile) return;
@@ -204,7 +252,8 @@ const UploadDocumentModal = ({
         description: formData.description.trim(),
         tags: formData.tags,
         file: selectedFile,
-        thumbnailColor: formData.thumbnailColor
+        thumbnailColor: formData.thumbnailColor,
+        visibility: formData.visibility
       };
 
       onUpload(documentData);
@@ -221,7 +270,8 @@ const UploadDocumentModal = ({
         title: '',
         description: '',
         tags: [],
-        thumbnailColor: '#3b82f6'
+        thumbnailColor: '#3b82f6',
+        visibility: 'public'
       });
       setSelectedFile(null);
       setNewTag('');
@@ -243,26 +293,31 @@ const UploadDocumentModal = ({
       formData.title.trim() ||
       formData.description.trim() ||
       formData.tags.length > 0 ||
-      selectedFile;
+      selectedFile ||
+      formData.visibility !== 'public';
 
     if (hasChanges) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to close?')) {
-        // Reset form
-        setFormData({
-          title: '',
-          description: '',
-          tags: [],
-          thumbnailColor: '#3b82f6'
-        });
-        setSelectedFile(null);
-        setNewTag('');
-        setErrors({});
-        onClose();
-      }
+      setShowUnsavedChangesModal(true);
     } else {
       onClose();
     }
   }, [formData, selectedFile, onClose]);
+
+  // Handle unsaved changes confirmation
+  const handleUnsavedChangesConfirm = useCallback(() => {
+    // Reset form
+    setFormData({
+      title: '',
+      description: '',
+      tags: [],
+      thumbnailColor: '#3b82f6',
+      visibility: 'public'
+    });
+    setSelectedFile(null);
+    setNewTag('');
+    setErrors({});
+    onClose();
+  }, [onClose]);
 
   // Render thumbnail preview
   const renderThumbnailPreview = useCallback(() => {
@@ -464,6 +519,50 @@ const UploadDocumentModal = ({
                 </Button>
               </div>
             </div>
+
+            {/* Document Visibility */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <EyeIcon size={16} className="text-primary" />
+                <label className="font-medium text-sm">Visibility:</label>
+              </div>
+              
+              <Select value={formData.visibility} onValueChange={(value) => handleFieldChange('visibility', value)}>
+                <SelectTrigger className="w-full h-12 hover-primary-effect">
+                  <SelectValue>
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const info = getVisibilityInfo(formData.visibility);
+                        const Icon = info.icon;
+                        return (
+                          <>
+                            <Icon size={16} className={info.color} />
+                            <span>{info.label}</span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {(['public', 'link-only', 'private'] as const).map((visibility) => {
+                    const info = getVisibilityInfo(visibility);
+                    const Icon = info.icon;
+                    return (
+                      <SelectItem key={visibility} value={visibility} className="hover-primary-effect">
+                        <div className="flex items-center gap-3 w-full">
+                          <Icon size={16} className={info.color} />
+                          <div className="flex-1">
+                            <div className="font-medium">{info.label}</div>
+                            <div className="text-xs text-muted-foreground">{info.description}</div>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -500,6 +599,14 @@ const UploadDocumentModal = ({
           </Button>
         </div>
       </div>
+
+      <UnsavedChangesModal
+        isOpen={showUnsavedChangesModal}
+        onClose={() => setShowUnsavedChangesModal(false)}
+        onConfirm={handleUnsavedChangesConfirm}
+        title="Discard Upload?"
+        actionType="close"
+      />
     </Modal>
   );
 };

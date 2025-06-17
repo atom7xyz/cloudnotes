@@ -32,6 +32,11 @@ const Home = () => {
   const recentDocsRef = useRef<HTMLHeadingElement>(null);
   const savedDocsRef = useRef<HTMLHeadingElement>(null);
   
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Calculate last opened time (in a real app this would come from user session data)
   const getLastOpenedTime = useCallback((doc: MockDocument): string => {
     // For demo purposes, generate a random time within the last 7 days
@@ -685,7 +690,7 @@ const Home = () => {
                       
                       <div className="flex-grow min-w-0 flex flex-col h-32">
                         <div className="flex justify-between items-start">
-                          <h3 className="font-semibold text-sm line-clamp-1">{doc.title}</h3>
+                          <h3 className="font-semibold text-md line-clamp-1">{doc.title}</h3>
                           <Button 
                             variant="ghost" 
                             size="icon" 
@@ -703,11 +708,11 @@ const Home = () => {
                         </div>
                         
                         <div className="flex items-center gap-2 mt-2">
-                          <Avatar className="h-5 w-5 border border-primary/20">
+                          <Avatar className="h-6 w-6 border border-primary/20">
                             <img src={doc.author.avatar} alt={doc.author.username} />
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="text-xs text-muted-foreground font-medium">{doc.author.firstName} {doc.author.lastName}</span>
+                            <span className="text-sm font-medium">{doc.author.firstName} {doc.author.lastName}</span>
                             <span className="text-xs text-muted-foreground">@{doc.author.username}</span>
                           </div>
                         </div>

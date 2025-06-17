@@ -72,6 +72,8 @@ const Document = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReadingSpeedTestModalOpen, setIsReadingSpeedTestModalOpen] = useState(false);
   const [isTimerWelcomeModalOpen, setIsTimerWelcomeModalOpen] = useState(false);
+  const [showDeleteReportConfirm, setShowDeleteReportConfirm] = useState<string | null>(null);
+  const [showDeleteCommentConfirm, setShowDeleteCommentConfirm] = useState<string | null>(null);
 
   // Mock current user - in a real app this would come from auth context
   const currentUser = {
@@ -137,6 +139,11 @@ const Document = () => {
       }
     }
   }, [id]);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Format date to relative time
   const relativeDateFormatted = useCallback((date: Date): string => {
@@ -280,6 +287,7 @@ const Document = () => {
         icon: <TrashIcon size={16} />,
       });
     }
+    setShowDeleteReportConfirm(null);
   }, []);
 
   // Handle comment deletion
@@ -292,6 +300,7 @@ const Document = () => {
         icon: <TrashIcon size={16} />,
       });
     }
+    setShowDeleteCommentConfirm(null);
   }, []);
 
   // Handle user profile navigation
@@ -822,14 +831,36 @@ const Document = () => {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:border-red-300"
-                                onClick={() => handleDeleteReport(report.id)}
+                              <DropdownMenu 
+                                open={showDeleteReportConfirm === report.id} 
+                                onOpenChange={(open) => setShowDeleteReportConfirm(open ? report.id : null)}
                               >
-                                <TrashIcon size={14} />
-                              </Button>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:border-red-300"
+                                  >
+                                    <TrashIcon size={14} />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuLabel>Delete Report?</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDeleteReport(report.id)}
+                                    className="text-red-600 focus:text-red-600 hover-primary-effect cursor-pointer"
+                                  >
+                                    Confirm Delete
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => setShowDeleteReportConfirm(null)} 
+                                    className="hover-primary-effect cursor-pointer"
+                                  >
+                                    Cancel
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </TooltipTrigger>
                             <TooltipContent>Delete report</TooltipContent>
                           </Tooltip>
@@ -945,14 +976,36 @@ const Document = () => {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:border-red-300"
-                                  onClick={() => handleDeleteComment(comment.id)}
+                                <DropdownMenu 
+                                  open={showDeleteCommentConfirm === comment.id} 
+                                  onOpenChange={(open) => setShowDeleteCommentConfirm(open ? comment.id : null)}
                                 >
-                                  <TrashIcon size={14} />
-                                </Button>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:border-red-300"
+                                    >
+                                      <TrashIcon size={14} />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuLabel>Delete Comment?</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem 
+                                      onClick={() => handleDeleteComment(comment.id)}
+                                      className="text-red-600 focus:text-red-600 hover-primary-effect cursor-pointer"
+                                    >
+                                      Confirm Delete
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                      onClick={() => setShowDeleteCommentConfirm(null)} 
+                                      className="hover-primary-effect cursor-pointer"
+                                    >
+                                      Cancel
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               </TooltipTrigger>
                               <TooltipContent>Delete comment</TooltipContent>
                             </Tooltip>

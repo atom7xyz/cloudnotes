@@ -40,6 +40,10 @@ contextBridge.exposeInMainWorld('electron', {
       await ipcRenderer.invoke('auth:get-users')
   },
   
+  // Language detection API
+  getSystemLanguage: async () => 
+    await ipcRenderer.invoke('get-system-language'),
+  
   // Window state listeners
   onMaximizeChange: (callback: (isMaximized: boolean) => void) => {
     ipcRenderer.on('maximize-change', (_event: any, isMaximized: boolean) => callback(isMaximized));

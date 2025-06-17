@@ -18,6 +18,7 @@ import { Separator } from '../ui/separator';
 import { cn } from '../../lib/utils';
 import { toast } from 'sonner';
 import { playSound } from '@/lib/utils/sound';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -56,10 +57,11 @@ const EditProfileModal = ({
   });
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
 
   // Initialize form data when user changes
   useEffect(() => {
-    if (user) {
+    if (user && isOpen) {
       setFormData({
         firstName: user.firstName,
         lastName: user.lastName,
@@ -69,7 +71,14 @@ const EditProfileModal = ({
       });
       setErrors({});
     }
-  }, [user]);
+  }, [user, isOpen]);
+
+  // Close unsaved changes modal when main modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setShowUnsavedChangesModal(false);
+    }
+  }, [isOpen]);
 
   // Handle form field changes
   const handleFieldChange = useCallback((field: string, value: string) => {
@@ -171,13 +180,16 @@ const EditProfileModal = ({
       formData.avatar !== user.avatar;
 
     if (hasChanges) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to close?')) {
-        onClose();
-      }
+      setShowUnsavedChangesModal(true);
     } else {
       onClose();
     }
   }, [formData, user, onClose]);
+
+  // Handle unsaved changes confirmation
+  const handleUnsavedChangesConfirm = useCallback(() => {
+    onClose();
+  }, [onClose]);
 
   if (!user) return null;
 
@@ -330,6 +342,14 @@ const EditProfileModal = ({
           </div>
         </div>
       </div>
+
+      <UnsavedChangesModal
+        isOpen={showUnsavedChangesModal}
+        onClose={() => setShowUnsavedChangesModal(false)}
+        onConfirm={handleUnsavedChangesConfirm}
+        title="Discard Profile Changes?"
+        actionType="close"
+      />
     </Modal>
   );
 };

@@ -12,7 +12,6 @@ import {
   BarChart3Icon,
   ClockIcon,
   MessageSquareIcon,
-  ArrowLeftIcon,
   HistoryIcon,
   ChevronUpIcon,
   Share2Icon,
@@ -23,7 +22,8 @@ import {
   PlusIcon,
   Activity,
   TimerIcon,
-  ArrowUpIcon
+  ArrowUpIcon,
+  GlobeIcon
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -31,16 +31,23 @@ import { Avatar } from '../ui/avatar';
 import { Card, CardContent } from '../ui/card';
 import { formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import ShareLinksDropdown from '../ui/ShareLinksDropdown';
+import AdBanner from '../ui/AdBanner';
 import { mockService } from '../../lib/mocking/mockedData';
-import type { MockDocument } from '../../lib/mocking/mocked';
+import type { MockDocument, MockUser } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import DocumentView from '../modals/DocumentView';
 import EditProfileModal from '../modals/EditProfileModal';
 import UploadDocumentModal from '../modals/UploadDocumentModal';
 import { Switch } from '../ui/switch';
-import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 
 const Profile = () => {
   const appNavigate = useAppNavigate();
@@ -84,6 +91,11 @@ const Profile = () => {
 
   // Get the display user data (use currentUserState if available, fallback to currentUser)
   const displayUser = currentUserState || currentUser;
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Calculate last opened time (in a real app this would come from user session data)
   const getLastOpenedTime = useCallback((doc: MockDocument): string => {
@@ -191,7 +203,7 @@ const Profile = () => {
     
     const visibilityIcons = {
       'private': <LockIcon size={16} />,
-      'public': <UnlockIcon size={16} />,
+      'public': <GlobeIcon size={16} />,
       'link-only': <Link2Icon size={16} />
     };
     
@@ -257,9 +269,9 @@ const Profile = () => {
   const getVisibilityInfo = useCallback((visibility: 'private' | 'public' | 'link-only') => {
     switch (visibility) {
       case 'private':
-        return { icon: LockIcon, color: 'text-muted-foreground', label: 'Private' };
+        return { icon: LockIcon, color: 'text-primary', label: 'Private' };
       case 'public':
-        return { icon: UnlockIcon, color: 'text-primary', label: 'Public' };
+        return { icon: GlobeIcon, color: 'text-primary', label: 'Public' };
       case 'link-only':
         return { icon: Link2Icon, color: 'text-blue-500', label: 'Link Only' };
     }
@@ -320,19 +332,73 @@ const Profile = () => {
     tags: string[];
     file: File;
     thumbnailColor: string;
+    visibility: 'private' | 'public' | 'link-only';
   }) => {
-    // In a real app, this would upload the file to a server and create a document
-    // For demo purposes, we'll just show a success message
+    // Map file type properly
+    const getFileType = (mimeType: string): 'pdf' | 'word' | 'powerpoint' | 'txt' | 'epub' => {
+      if (mimeType.includes('pdf')) return 'pdf';
+      if (mimeType.includes('word') || mimeType.includes('document')) return 'word';
+      if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'powerpoint';
+      if (mimeType.includes('epub')) return 'epub';
+      return 'txt';
+    };
+
+    // Create a complete MockUser for author
+    const mockAuthor: MockUser = {
+      id: currentUser.id,
+      firstName: currentUser.firstName,
+      lastName: currentUser.lastName,
+      username: currentUser.username,
+      avatar: currentUser.avatar,
+      comments: [],
+      ratings: [],
+      documents: [],
+      savedDocuments: [],
+      bio: currentUser.bio,
+      joinDate: currentUser.joinDate
+    };
+
+    // Create a mock document for demo purposes
+    const newDocument: MockDocument = {
+      id: `doc-${Date.now()}`, // Simple ID generation
+      title: documentData.title,
+      description: documentData.description,
+      author: mockAuthor,
+      file: {
+        id: `file-${Date.now()}`,
+        author: mockAuthor,
+        name: documentData.file.name,
+        type: getFileType(documentData.file.type),
+        size: `${(documentData.file.size / 1024 / 1024).toFixed(1)}MB`,
+        uploadedAt: new Date(),
+        downloadCount: 0,
+        viewCount: 0,
+        tags: documentData.tags,
+        thumbnail: `${documentData.thumbnailColor}:${encodeURIComponent(documentData.title)}`,
+        visibility: documentData.visibility
+      },
+      rating: {
+        id: `rating-${Date.now()}`,
+        author: mockAuthor,
+        document: {} as MockDocument, // Will be set below
+        rating: 0,
+        timestamp: new Date()
+      },
+      comments: [],
+      reports: []
+    };
+
+    // Set the document reference in rating
+    newDocument.rating.document = newDocument;
+
+    // Add the new document to the beginning of the user documents list
+    setUserDocuments(prev => [newDocument, ...prev]);
+
     toast.success("Document uploaded successfully", {
       description: `"${documentData.title}" has been uploaded to your collection`,
       icon: <FileTextIcon size={16} />,
     });
-    
-    // In a real implementation, you would:
-    // 1. Upload the file to a server
-    // 2. Create a document record in the database
-    // 3. Refresh the user's documents list
-  }, []);
+  }, [currentUser]);
 
   // Scroll to section top functions
   const scrollToYourDocs = useCallback(() => {
@@ -540,7 +606,7 @@ const Profile = () => {
                                         <Button
                                           variant="ghost"
                                           size="sm"
-                                          className="h-7 w-7 cursor-pointer hover:bg-green-50 dark:hover:bg-green-950/20 text-green-500"
+                                          className="h-9 w-9 cursor-pointer bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-200"
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             copyDocumentLink(doc.id);
@@ -557,53 +623,36 @@ const Profile = () => {
                                     </Tooltip>
                                   </TooltipProvider>
                                 )}
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-7 w-7 cursor-pointer hover:bg-primary/10 shadow-sm"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
+                                <Select 
+                                  value={doc.file.visibility} 
+                                  onValueChange={(value: 'private' | 'public' | 'link-only') => setDocumentVisibility(doc.id, value)}
+                                >
+                                  <SelectTrigger 
+                                    className="h-7 w-auto min-w-[60px] hover-primary-effect"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <SelectValue>
                                       {(() => {
                                         const { icon: Icon, color } = getVisibilityInfo(doc.file.visibility);
                                         return <Icon size={14} className={color} />;
                                       })()}
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuItem
-                                      onClick={(e) => setDocumentVisibility(doc.id, 'public', e)}
-                                      className="gap-2 cursor-pointer hover-primary-effect"
-                                    >
-                                      <UnlockIcon size={14} className="text-primary" />
-                                      <div className="flex flex-col">
-                                        <span className="font-medium">Public</span>
-                                        <span className="text-xs text-muted-foreground">Visible to everyone</span>
-                                      </div>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={(e) => setDocumentVisibility(doc.id, 'link-only', e)}
-                                      className="gap-2 cursor-pointer hover-primary-effect"
-                                    >
-                                      <Link2Icon size={14} className="text-blue-500" />
-                                      <div className="flex flex-col">
-                                        <span className="font-medium">Link Only</span>
-                                        <span className="text-xs text-muted-foreground">Only accessible via direct link</span>
-                                      </div>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={(e) => setDocumentVisibility(doc.id, 'private', e)}
-                                      className="gap-2 cursor-pointer hover-primary-effect"
-                                    >
-                                      <LockIcon size={14} className="text-muted-foreground" />
-                                      <div className="flex flex-col">
-                                        <span className="font-medium">Private</span>
-                                        <span className="text-xs text-muted-foreground">Only visible to you</span>
-                                      </div>
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {(['public', 'link-only', 'private'] as const).map((visibility) => {
+                                      const info = getVisibilityInfo(visibility);
+                                      const Icon = info.icon;
+                                      return (
+                                        <SelectItem key={visibility} value={visibility} className="hover-primary-effect">
+                                          <div className="flex items-center gap-2">
+                                            <Icon size={14} className={info.color} />
+                                            <span className="font-medium">{info.label}</span>
+                                          </div>
+                                        </SelectItem>
+                                      );
+                                    })}
+                                  </SelectContent>
+                                </Select>
                               </div>
                             </div>
                             

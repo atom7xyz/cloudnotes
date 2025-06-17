@@ -19,6 +19,7 @@ import { cn } from '../../lib/utils';
 import type { MockDocument } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
 import { playSound } from '@/lib/utils/sound';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 interface EditDocumentModalProps {
   isOpen: boolean;
@@ -51,10 +52,11 @@ const EditDocumentModal = ({
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hoveredColor, setHoveredColor] = useState<string | null>(null);
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
 
   // Initialize form data when document changes
   useEffect(() => {
-    if (document) {
+    if (document && isOpen) {
       // Extract color from thumbnail data
       const [color] = document.file.thumbnail.split(':');
       setFormData({
@@ -64,8 +66,17 @@ const EditDocumentModal = ({
         thumbnailColor: color || '#3b82f6'
       });
       setErrors({});
+      setNewTag('');
+      setHoveredColor(null);
     }
-  }, [document]);
+  }, [document, isOpen]);
+
+  // Close unsaved changes modal when main modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setShowUnsavedChangesModal(false);
+    }
+  }, [isOpen]);
 
   // Generate thumbnail preview
   const generateThumbnail = useCallback((color: string, title: string) => {
@@ -180,13 +191,16 @@ const EditDocumentModal = ({
       formData.thumbnailColor !== document.file.thumbnail.split(':')[0];
 
     if (hasChanges) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to close?')) {
-        onClose();
-      }
+      setShowUnsavedChangesModal(true);
     } else {
       onClose();
     }
   }, [formData, document, onClose]);
+
+  // Handle unsaved changes confirmation
+  const handleUnsavedChangesConfirm = useCallback(() => {
+    onClose();
+  }, [onClose]);
 
   // Render thumbnail preview
   const renderThumbnailPreview = useCallback(() => {
@@ -363,6 +377,13 @@ const EditDocumentModal = ({
           </div>
         </div>
       </div>
+      <UnsavedChangesModal
+        isOpen={showUnsavedChangesModal}
+        onClose={() => setShowUnsavedChangesModal(false)}
+        onConfirm={handleUnsavedChangesConfirm}
+        title="Discard Document Changes?"
+        actionType="close"
+      />
     </Modal>
   );
 };
