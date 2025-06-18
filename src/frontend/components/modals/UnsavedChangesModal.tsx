@@ -1,10 +1,8 @@
 import { useState, useCallback } from 'react';
 import {
-  AlertTriangleIcon,
-  XIcon
+  AlertTriangleIcon
 } from 'lucide-react';
 import { Modal } from '../ui/modal';
-import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 
 interface UnsavedChangesModalProps {
@@ -20,7 +18,7 @@ export default function UnsavedChangesModal({
   isOpen, 
   onClose, 
   onConfirm,
-  title = "Unsaved Changes",
+  title = "Modifiche Non Salvate",
   description,
   actionType = 'close'
 }: UnsavedChangesModalProps) {
@@ -28,16 +26,16 @@ export default function UnsavedChangesModal({
 
   const actionTexts = {
     close: {
-      warning: "You have unsaved changes. If you close now, your changes will be lost.",
-      button: "Discard Changes"
+      warning: "Hai modifiche non salvate. Se chiudi ora, le tue modifiche andranno perse.",
+      button: "Scarta Modifiche"
     },
     navigate: {
-      warning: "You have unsaved changes. If you navigate away now, your changes will be lost.",
-      button: "Discard Changes"
+      warning: "Hai modifiche non salvate. Se navighi via ora, le tue modifiche andranno perse.",
+      button: "Scarta Modifiche"
     },
     reset: {
-      warning: "You have unsaved changes. If you reset now, your changes will be lost.",
-      button: "Reset Form"
+      warning: "Hai modifiche non salvate. Se resetti ora, le tue modifiche andranno perse.",
+      button: "Resetta Modulo"
     }
   };
 
@@ -65,6 +63,19 @@ export default function UnsavedChangesModal({
       onClose={handleClose}
       title={title}
       maxWidth="max-w-md"
+      cancelButton={{
+        text: "Continua a Modificare",
+        disabled: loading
+      }}
+      actionButton={{
+        text: currentTexts.button,
+        onClick: handleConfirm,
+        variant: "destructive",
+        disabled: loading,
+        loadingText: "Scartando...",
+        icon: <AlertTriangleIcon size={16} />
+      }}
+      isLoading={loading}
     >
       <div className="p-8 select-none">
         <div className="flex flex-col items-center text-center space-y-6">
@@ -78,28 +89,6 @@ export default function UnsavedChangesModal({
             <p className="text-muted-foreground">
               {description || currentTexts.warning}
             </p>
-          </div>
-
-          <Separator />
-
-          {/* Action buttons */}
-          <div className="flex gap-3 w-full">
-            <Button 
-              variant="outline" 
-              onClick={handleClose}
-              disabled={loading}
-              className="flex-1 hover-primary-effect rounded-full cursor-pointer"
-            >
-              Keep Editing
-            </Button>
-            <Button 
-              variant="destructive"
-              onClick={handleConfirm}
-              disabled={loading}
-              className="flex-1 rounded-full cursor-pointer"
-            >
-              {loading ? 'Discarding...' : currentTexts.button}
-            </Button>
           </div>
         </div>
       </div>

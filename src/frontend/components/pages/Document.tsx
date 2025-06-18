@@ -100,13 +100,13 @@ const Document = () => {
 
   // Timer duration options (in minutes)
   const baseTimerOptions = [
-    { label: '5 minutes', value: 5 },
-    { label: '10 minutes', value: 10 },
-    { label: '15 minutes', value: 15 },
-    { label: '30 minutes', value: 30 },
-    { label: '45 minutes', value: 45 },
-    { label: '60 minutes', value: 60 },
-    { label: 'No timer', value: null }
+    { label: '5 minuti', value: 5 },
+    { label: '10 minuti', value: 10 },
+    { label: '15 minuti', value: 15 },
+    { label: '30 minuti', value: 30 },
+    { label: '45 minuti', value: 45 },
+    { label: '60 minuti', value: 60 },
+    { label: 'Nessun timer', value: null }
   ];
 
   // Use base timer options without recommendations
@@ -170,8 +170,8 @@ const Document = () => {
   // Toggle save with animation
   const toggleBookmark = useCallback(() => {
     setIsBookmarked(prev => !prev);
-    toast.success(isBookmarked ? "Removed from saved" : "Added to saved", {
-      description: isBookmarked ? "Document removed from your saved documents" : "Document saved to your saved documents",
+    toast.success(isBookmarked ? "Rimosso dai salvati" : "Aggiunto ai salvati", {
+      description: isBookmarked ? "Documento rimosso dai tuoi documenti salvati" : "Documento salvato nei tuoi documenti salvati",
       icon: <BookmarkIcon size={16} />,
     });
   }, [isBookmarked]);
@@ -182,8 +182,8 @@ const Document = () => {
       const documentUrl = `${window.location.origin}/document/${document?.id}`;
       await navigator.clipboard.writeText(documentUrl);
 
-      toast.success("Link copied to clipboard", {
-        description: "You can now paste it anywhere",
+      toast.success("Link copiato negli appunti", {
+        description: "Ora puoi incollarlo ovunque",
         icon: <LinkIcon size={16} />,
       });
     } catch (err) {
@@ -230,16 +230,16 @@ const Document = () => {
         setComments(prev => [createdComment, ...prev]);
         setNewComment('');
         
-        toast.success("Comment posted", {
-          description: "Your comment has been added to the discussion",
+        toast.success("Commento pubblicato", {
+          description: "Il tuo commento è stato aggiunto alla discussione",
           icon: <MessageSquareIcon size={16} />,
         });
       } else {
         throw new Error('Failed to create comment');
       }
     } catch (error) {
-      toast.error("Failed to post comment", {
-        description: "Please try again",
+      toast.error("Impossibile pubblicare il commento", {
+        description: "Riprova di nuovo",
       });
     } finally {
       setIsSubmittingComment(false);
@@ -265,14 +265,14 @@ const Document = () => {
       link.download = document?.title || 'document';
       link.click();
       
-      toast.success("Document downloaded", {
-        description: "Your document has been downloaded",
+      toast.success("Documento scaricato", {
+        description: "Il documento è stato scaricato",
         icon: <DownloadIcon size={16} />,
       });
       
     } catch (error) {
-      toast.error("Download failed", {
-        description: "Unable to download the document",
+      toast.error("Download fallito", {
+        description: "Impossibile scaricare il documento",
       });
     }
   }, [document]);
@@ -282,8 +282,8 @@ const Document = () => {
     const success = mockService.removeReport(reportId);
     if (success) {
       setReports(prev => prev.filter(report => report.id !== reportId));
-      toast.success("Report deleted", {
-        description: "The report has been removed",
+      toast.success("Segnalazione eliminata", {
+        description: "La segnalazione è stata rimossa",
         icon: <TrashIcon size={16} />,
       });
     }
@@ -295,8 +295,8 @@ const Document = () => {
     const success = mockService.removeComment(commentId);
     if (success) {
       setComments(prev => prev.filter(comment => comment.id !== commentId));
-      toast.success("Comment deleted", {
-        description: "The comment has been removed",
+      toast.success("Commento eliminato", {
+        description: "Il commento è stato rimosso",
         icon: <TrashIcon size={16} />,
       });
     }
@@ -326,13 +326,13 @@ const Document = () => {
     }
     
     if (duration) {
-      toast.success("Timer duration set", {
-        description: `Reading timer set to ${duration} minutes`,
-        icon: <TimerIcon size={16} />,
-      });
+          toast.success("Durata timer impostata", {
+      description: `Timer di lettura impostato a ${duration} minuti`,
+      icon: <TimerIcon size={16} />,
+    });
     } else {
-      toast.success("Timer disabled", {
-        description: "Document will open without a timer",
+      toast.success("Timer disabilitato", {
+        description: "Il documento si aprirà senza timer",
         icon: <TimerIcon size={16} />,
       });
     }
@@ -341,8 +341,8 @@ const Document = () => {
   // Handle timer duration change from ReadingTimer component
   const handleTimerDurationChange = useCallback((newDurationMinutes: number) => {
     setSelectedTimerDuration(newDurationMinutes);
-    toast.success("Timer duration updated", {
-      description: `Reading timer updated to ${newDurationMinutes} minutes`,
+    toast.success("Durata timer aggiornata", {
+      description: `Timer di lettura aggiornato a ${newDurationMinutes} minuti`,
       icon: <TimerIcon size={16} />,
     });
   }, []);
@@ -388,15 +388,15 @@ const Document = () => {
       <div className="p-6 max-w-[1200px] mx-auto">
         <div className="text-center py-12">
           <FileTextIcon size={64} className="mx-auto text-muted-foreground/50 mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Document not found</h2>
-          <p className="text-muted-foreground mb-6">The document you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-xl font-semibold mb-2">Documento non trovato</h2>
+          <p className="text-muted-foreground mb-6">Il documento che stai cercando non esiste o è stato rimosso.</p>
           <Button 
             variant="outline" 
             className="gap-2 hover-primary-effect"
             onClick={handleGoBack}
           >
             <ArrowLeftIcon size={16} />
-            Go Back
+            Torna Indietro
           </Button>
         </div>
       </div>
@@ -436,7 +436,7 @@ const Document = () => {
                           <BookmarkIcon size={20} className={isBookmarked ? "fill-primary" : ""} />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>{isBookmarked ? "Removed from saved" : "Add to saved"}</TooltipContent>
+                      <TooltipContent>{isBookmarked ? "Rimosso dai salvati" : "Aggiungi ai salvati"}</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                   
@@ -452,7 +452,7 @@ const Document = () => {
                           />
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent>Share document</TooltipContent>
+                      <TooltipContent>Condividi documento</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
 
@@ -468,7 +468,7 @@ const Document = () => {
                           <PrinterIcon size={20} />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>Print document</TooltipContent>
+                      <TooltipContent>Stampa documento</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
 
@@ -484,7 +484,7 @@ const Document = () => {
                           <DownloadIcon size={20} />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>Download document</TooltipContent>
+                      <TooltipContent>Scarica documento</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
 
@@ -501,7 +501,7 @@ const Document = () => {
                             <EditIcon size={20} />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Edit document</TooltipContent>
+                        <TooltipContent>Modifica documento</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   )}
@@ -519,7 +519,7 @@ const Document = () => {
                             <AlertTriangleIcon size={20} />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Report a problem</TooltipContent>
+                        <TooltipContent>Segnala un problema</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   )}
@@ -527,7 +527,7 @@ const Document = () => {
 
                 {/* User Rating Section - Moved here */}
                 <div className="w-full mb-4 p-4 bg-muted/20 rounded-lg">
-                  <h3 className="font-semibold mb-3 text-center">Rate this document</h3>
+                  <h3 className="font-semibold mb-3 text-center">Valuta questo documento</h3>
                   <div className="flex items-center justify-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -553,7 +553,7 @@ const Document = () => {
                   {userRating > 0 && (
                     <div className="text-center mt-2">
                       <p className="text-sm text-muted-foreground mb-2">
-                        You rated this {userRating} star{userRating !== 1 ? 's' : ''}
+                        Hai dato {userRating} stell{userRating !== 1 ? 'e' : 'a'}
                       </p>
                       <Button 
                         variant="ghost" 
@@ -562,7 +562,7 @@ const Document = () => {
                         className="text-xs text-muted-foreground hover:text-destructive hover-primary-effect"
                       >
                         <XIcon size={12} className="mr-1" />
-                        Remove rating
+                        Rimuovi valutazione
                       </Button>
                     </div>
                   )}
@@ -579,7 +579,7 @@ const Document = () => {
                 <div className="flex items-center gap-6 mb-6 p-4 bg-muted/30 rounded-lg">
                   <div className="flex items-center gap-2 text-sm">
                     <CalendarIcon size={16} className="text-primary" />
-                    <span className="font-medium">Published:</span>
+                    <span className="font-medium">Pubblicato:</span>
                     <span className="text-muted-foreground">{relativeDateFormatted(document.file.uploadedAt)}</span>
                   </div>
                   
@@ -588,7 +588,7 @@ const Document = () => {
                   <div className="flex items-center gap-2 text-sm">
                     <StarIcon size={16} className="text-yellow-500" />
                     <span className="font-medium">{document.rating.rating.toFixed(1)}</span>
-                    <span className="text-muted-foreground">rating</span>
+                    <span className="text-muted-foreground">valutazione</span>
                   </div>
                   
                   <Separator orientation="vertical" className="h-4" />
@@ -596,7 +596,7 @@ const Document = () => {
                   <div className="flex items-center gap-2 text-sm">
                     <BookmarkIcon size={16} className="text-primary" />
                     <span className="font-medium">{document.file.downloadCount}</span>
-                    <span className="text-muted-foreground">saved</span>
+                    <span className="text-muted-foreground">salvati</span>
                   </div>
                   
                   <Separator orientation="vertical" className="h-4" />
@@ -604,7 +604,7 @@ const Document = () => {
                   <div className="flex items-center gap-2 text-sm">
                     <MessageSquareIcon size={16} />
                     <span className="font-medium">{comments.length}</span>
-                    <span className="text-muted-foreground">comments</span>
+                    <span className="text-muted-foreground">commenti</span>
                   </div>
                 </div>
                 
@@ -617,7 +617,7 @@ const Document = () => {
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-lg">{document.author.firstName} {document.author.lastName}</span>
                       <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                        Author
+                        Autore
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">@{document.author.username}</p>
@@ -629,7 +629,7 @@ const Document = () => {
                     onClick={() => handleUserProfileClick(document.author.username)}
                   >
                     <UserIcon size={14} />
-                    View Profile
+                    Visualizza Profilo
                   </Button>
                 </div>
                 
@@ -637,7 +637,7 @@ const Document = () => {
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
                     <TagIcon size={16} className="text-primary" />
-                    <span className="font-medium">Tags</span>
+                    <span className="font-medium">Tag</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {document.file.tags.map((tag) => (
@@ -656,7 +656,7 @@ const Document = () => {
                 <div className="mb-8">
                   <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                     <FileTextIcon size={18} className="text-primary" />
-                    Description
+                    Descrizione
                   </h3>
                   <p className="text-muted-foreground leading-relaxed text-base bg-muted/20 p-4 rounded-lg border-l-4 border-primary/30">
                     {document.description}
@@ -670,7 +670,7 @@ const Document = () => {
                       <span className="font-medium text-foreground">{document.file.type.toUpperCase()}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span>Last edited: {relativeDateFormatted(document.file.uploadedAt)}</span>
+                      <span>Ultima modifica: {relativeDateFormatted(document.file.uploadedAt)}</span>
                     </div>
                   </div>
                   
@@ -700,7 +700,7 @@ const Document = () => {
                       <DropdownMenuContent align="end" className="w-80 select-none">
                         <DropdownMenuLabel className="flex items-center gap-2">
                           <TimerIcon size={16} />
-                          Reading Timer Settings
+                          Impostazioni Timer di Lettura
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
 
@@ -734,11 +734,11 @@ const Document = () => {
                             <div className="px-3 py-2">
                               <div className="text-sm font-medium flex items-center gap-2">
                                 <TrendingUpIcon size={14} className="text-blue-600" />
-                                Current metrics
+                                Metriche attuali
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 <div className="flex justify-between">
-                                  <span>Average reading speed:</span>
+                                  <span>Velocità di lettura media:</span>
                                   <span className="font-medium">{readingSpeed.averageWpm} WPM</span>
                                 </div>
                               </div>
@@ -758,12 +758,12 @@ const Document = () => {
                             </div>
                             <div className="flex-1">
                               <div className="font-medium">
-                                {hasValidReadingSpeed ? 'Retake Reading Speed Test' : 'Take Reading Speed Test'}
+                                {hasValidReadingSpeed ? 'Ripeti Test di Velocità di Lettura' : 'Fai Test di Velocità di Lettura'}
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 {hasValidReadingSpeed 
-                                  ? 'Update your reading speed for better recommendations'
-                                  : 'By taking this test the system will be able to determine and automatically divide your work'
+                                  ?                                   'Aggiorna la tua velocità di lettura per raccomandazioni migliori'
+                                  : 'Facendo questo test il sistema sarà in grado di determinare e dividere automaticamente il tuo lavoro'
                                 }
                               </div>
                             </div>
@@ -778,7 +778,7 @@ const Document = () => {
                       onClick={handleOpenDocument}
                     >
                       <ExternalLinkIcon size={18} />
-                      {selectedTimerDuration ? `Open with ${selectedTimerDuration}min Timer` : 'Open Document'}
+                      {selectedTimerDuration ? `Apri con Timer ${selectedTimerDuration}min` : 'Apri Documento'}
                     </Button>
                   </div>
                 </div>
@@ -793,7 +793,7 @@ const Document = () => {
             <CardContent className="p-8">
               <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
                 <AlertTriangleIcon size={24} className="text-orange-600" />
-                Document Reports ({reports.length})
+                Segnalazioni Documento ({reports.length})
               </h2>
               
               <div className="space-y-4">
@@ -845,24 +845,24 @@ const Document = () => {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-48">
-                                  <DropdownMenuLabel>Delete Report?</DropdownMenuLabel>
+                                  <DropdownMenuLabel>Eliminare Segnalazione?</DropdownMenuLabel>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem 
                                     onClick={() => handleDeleteReport(report.id)}
                                     className="text-red-600 focus:text-red-600 hover-primary-effect cursor-pointer"
                                   >
-                                    Confirm Delete
+                                                                            Conferma Eliminazione
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    onClick={() => setShowDeleteReportConfirm(null)} 
-                                    className="hover-primary-effect cursor-pointer"
-                                  >
-                                    Cancel
-                                  </DropdownMenuItem>
+                                                                        <DropdownMenuItem 
+                                        onClick={() => setShowDeleteReportConfirm(null)} 
+                                        className="hover-primary-effect cursor-pointer"
+                                      >
+                                        Annulla
+                                      </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </TooltipTrigger>
-                            <TooltipContent>Delete report</TooltipContent>
+                                                                <TooltipContent>Elimina segnalazione</TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
                       </div>
@@ -891,7 +891,7 @@ const Document = () => {
           <CardContent className="p-8">
             <h2 className="text-2xl font-semibold mb-8 flex items-center gap-3">
               <MessageSquareIcon size={24} className="text-primary" />
-              Comments ({comments.length})
+              Commenti ({comments.length})
             </h2>
 
             {/* Enhanced Add Comment */}
@@ -902,7 +902,7 @@ const Document = () => {
                 </Avatar>
                 <div className="flex-1">
                   <Textarea
-                    placeholder="Share your thoughts about this document..."
+                    placeholder="Condividi i tuoi pensieri su questo documento..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     className="min-h-[100px] resize-none border-primary/20 focus:border-primary/40"
@@ -918,12 +918,12 @@ const Document = () => {
                           <span className="animate-spin">
                             <RefreshCwIcon size={14} />
                           </span>
-                          Posting...
+                          Pubblicando...
                         </>
                       ) : (
                         <>
                           <SendIcon size={14} />
-                          Post Comment
+                          Pubblica Commento
                         </>
                       )}
                     </Button>
@@ -937,8 +937,8 @@ const Document = () => {
               {comments.length === 0 ? (
                 <div className="text-center py-12">
                   <MessageSquareIcon size={64} className="mx-auto text-muted-foreground/30 mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No comments yet</h3>
-                  <p className="text-muted-foreground">Be the first to share your thoughts about this document!</p>
+                  <h3 className="text-lg font-medium mb-2">Nessun commento ancora</h3>
+                  <p className="text-muted-foreground">Sii il primo a condividere i tuoi pensieri su questo documento!</p>
                 </div>
               ) : (
                 comments.map((comment) => (
@@ -990,24 +990,24 @@ const Document = () => {
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuLabel>Delete Comment?</DropdownMenuLabel>
+                                    <DropdownMenuLabel>Eliminare Commento?</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem 
                                       onClick={() => handleDeleteComment(comment.id)}
                                       className="text-red-600 focus:text-red-600 hover-primary-effect cursor-pointer"
                                     >
-                                      Confirm Delete
+                                      Conferma Eliminazione
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem 
-                                      onClick={() => setShowDeleteCommentConfirm(null)} 
-                                      className="hover-primary-effect cursor-pointer"
-                                    >
-                                      Cancel
-                                    </DropdownMenuItem>
+                                                                          <DropdownMenuItem 
+                                        onClick={() => setShowDeleteCommentConfirm(null)} 
+                                        className="hover-primary-effect cursor-pointer"
+                                      >
+                                        Annulla
+                                      </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
                               </TooltipTrigger>
-                              <TooltipContent>Delete comment</TooltipContent>
+                              <TooltipContent>Elimina commento</TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         )}

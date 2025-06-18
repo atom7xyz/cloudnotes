@@ -46,10 +46,10 @@ const Notifications: React.FC<NotificationsProps> = ({
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    if (diffInSeconds < 60) return 'Ora';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m fa`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h fa`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}g fa`;
     
     return date.toLocaleDateString();
   };
@@ -91,7 +91,7 @@ const Notifications: React.FC<NotificationsProps> = ({
           variant="ghost" 
           size="icon" 
           className="p-1 h-8 w-8 rounded-full transition-all duration-200 hover-primary-effect relative"
-          title="Notifications"
+          title="Notifiche"
         >
           <BellIcon size={16} />
           {unreadCount > 0 && (
@@ -107,7 +107,7 @@ const Notifications: React.FC<NotificationsProps> = ({
       
       <DropdownMenuContent align="end" className="w-80 select-none">
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span>Notifications</span>
+          <span>Notifiche</span>
           {unreadCount > 0 && (
             <Button 
               variant="ghost" 
@@ -116,7 +116,7 @@ const Notifications: React.FC<NotificationsProps> = ({
               onClick={handleMarkAllAsRead}
             >
               <Check size={12} />
-              Mark all as read
+              Segna tutte come lette
             </Button>
           )}
         </DropdownMenuLabel>
@@ -126,8 +126,8 @@ const Notifications: React.FC<NotificationsProps> = ({
         {notifications.length === 0 ? (
           <div className="py-8 px-2 flex flex-col items-center justify-center text-center">
             <BellIcon size={32} className="text-muted-foreground mb-2 opacity-20" />
-            <p className="text-sm text-muted-foreground">No notifications yet</p>
-            <p className="text-xs text-muted-foreground/70">We'll notify you when something important happens</p>
+            <p className="text-sm text-muted-foreground">Nessuna notifica</p>
+            <p className="text-xs text-muted-foreground/70">Ti avviseremo quando succede qualcosa di importante</p>
           </div>
         ) : (
           <div className="max-h-[350px] overflow-y-auto py-1">
@@ -181,7 +181,7 @@ const Notifications: React.FC<NotificationsProps> = ({
         >
           <div className="flex items-center gap-2 text-foreground w-full justify-center">
             <SettingsIcon size={14} />
-            <span>Notification Settings</span>
+            <span>Impostazioni Notifiche</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

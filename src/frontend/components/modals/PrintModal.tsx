@@ -22,8 +22,8 @@ export default function PrintModal({
   isOpen, 
   onClose, 
   sections,
-  title = "CloudNotes Terms of Service",
-  lastUpdated = "May 10, 2024"
+  title = "Termini di Servizio CloudNotes",
+  lastUpdated = "10 Maggio 2024"
 }: PrintModalProps) {
   
   const printDocument = () => {
@@ -34,14 +34,14 @@ export default function PrintModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Print Preview"
+      title="Anteprima di Stampa"
       maxWidth="max-w-4xl"
       maxHeight="max-h-[calc(90vh-10rem)]"
       cancelButton={{
-        text: "Cancel"
+        text: "Annulla"
       }}
       actionButton={{
-        text: "Print",
+        text: "Stampa",
         onClick: printDocument,
         icon: <PrinterIcon size={16} />
       }}
@@ -49,7 +49,7 @@ export default function PrintModal({
       <div className="p-8 print:p-0">
         <div className="print:max-w-none mx-auto print:mx-0">
           <h1 className="text-3xl font-bold mb-1 select-none">{title}</h1>
-          <p className="text-sm text-foreground/80 mb-6 select-none">Last updated: {lastUpdated}</p>
+          <p className="text-sm text-foreground/80 mb-6 select-none">Ultimo aggiornamento: {lastUpdated}</p>
           
           {sections.map((section, index) => (
             <div key={section.id} className="mb-8">

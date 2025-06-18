@@ -135,13 +135,13 @@ const PageNavigation = memo(({ pageNumber, numPages, onPageChange, isVisible, is
                 onClick={handlePrevPage}
                 disabled={pageNumber <= 1}
                 className="h-8 w-8 rounded-full hover-primary-effect transition-colors"
-                aria-label="Previous page"
+                aria-label="Pagina precedente"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Previous page</p>
+              <p>Pagina precedente</p>
             </TooltipContent>
           </Tooltip>
 
@@ -153,14 +153,14 @@ const PageNavigation = memo(({ pageNumber, numPages, onPageChange, isVisible, is
               onBlur={handlePageInputBlur}
               onKeyDown={handlePageInputKeyDown}
               className="w-20 text-center appearance-none text-sm h-8 bg-transparent border rounded px-2"
-              aria-label="Current page number"
+              aria-label="Numero pagina corrente"
               style={{ 
                 MozAppearance: 'textfield',
                 WebkitAppearance: 'none',
                 margin: 0
               }}
             />
-            <span className="mx-1 text-muted-foreground text-sm whitespace-nowrap">of {numPages || 1}</span>
+            <span className="mx-1 text-muted-foreground text-sm whitespace-nowrap">di {numPages || 1}</span>
           </div>
 
           <Tooltip>
@@ -171,13 +171,13 @@ const PageNavigation = memo(({ pageNumber, numPages, onPageChange, isVisible, is
                 onClick={handleNextPage}
                 disabled={pageNumber >= (numPages || 1)}
                 className="h-8 w-8 rounded-full hover-primary-effect transition-colors"
-                aria-label="Next page"
+                aria-label="Pagina successiva"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Next page</p>
+              <p>Pagina successiva</p>
             </TooltipContent>
           </Tooltip>
         </div>

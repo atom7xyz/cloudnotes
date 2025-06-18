@@ -26,7 +26,7 @@ import {
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockUser, MockBookmark } from '../../lib/mocking/mocked';
 import { debounce, throttle } from '../../lib/utils';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider, TooltipContentArrowColored } from '../ui/tooltip';
 import DocumentView from './DocumentView';
 import { useAppNavigate } from '@/lib/navigation';
 
@@ -71,12 +71,29 @@ const formatDate = (date: Date): string => {
   const now = new Date();
   const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
   
-  if (diffInDays === 0) return 'Today';
-  if (diffInDays === 1) return 'Yesterday';
-  if (diffInDays < 7) return `${diffInDays} days ago`;
-  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
-  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
-  return `${Math.floor(diffInDays / 365)} years ago`;
+  if (diffInDays === 0) return 'Oggi';
+  if (diffInDays === 1) return 'Ieri';
+
+  if (diffInDays < 7) {
+    const days = diffInDays;
+    return `${days} giorni fa`;
+  }
+
+  if (diffInDays < 30) {
+    const weeks = Math.floor(diffInDays / 7);
+    if (weeks === 1) return '1 settimana fa';
+    return `${weeks} settimane fa`;
+  }
+
+  if (diffInDays < 365) {
+    const months = Math.floor(diffInDays / 30);
+    if (months === 1) return '1 mese fa';
+    return `${months} mesi fa`;
+  }
+
+  const years = Math.floor(diffInDays / 365);
+  if (years === 1) return '1 anno fa';
+  return `${years} anni fa`;
 };
 
 // Extract any tag currently being typed - moved outside component
@@ -473,7 +490,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <CalendarIcon size={16} />
-                <span className="font-medium">Published:</span>
+                <span className="font-medium">Pubblicato:</span>
                 <span className="text-muted-foreground">{formattedDate}</span>
               </div>
               
@@ -486,7 +503,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
                     <span className="font-medium">{displayDoc.rating.toFixed(1)}</span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>Rating</TooltipContent>
+                <TooltipContent>Valutazione</TooltipContent>
               </Tooltip>
               
               <div className="h-4 w-px bg-muted-foreground/20" />
@@ -498,7 +515,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
                     <span className="font-medium">{displayDoc.downloadCount.toLocaleString()}</span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>Bookmarks</TooltipContent>
+                <TooltipContent>Segnalibri</TooltipContent>
               </Tooltip>
               
               <div className="h-4 w-px bg-muted-foreground/20" />
@@ -510,7 +527,7 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
                     <span className="font-medium">{displayDoc.commentCount}</span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>Comments</TooltipContent>
+                <TooltipContent>Commenti</TooltipContent>
               </Tooltip>
             </div>
           </div>
@@ -601,7 +618,7 @@ const UserItem = memo(({
                   >
                     <FileIcon size={12} />
                     <span className="font-medium">{publicDocumentsCount}</span>
-                    <span>document{publicDocumentsCount !== 1 ? 's' : ''}</span>
+                    <span>documento{publicDocumentsCount !== 1 ? 'i' : ''}</span>
                   </button>
                 </>
               )}
@@ -628,7 +645,9 @@ const SearchInput = memo(({
   inputRef,
   searchContainerRef,
   fileTypeTags,
-  onClearAll
+  onClearAll,
+  showHelpTooltip,
+  onHelpButtonClick
 }: {
   inputValue: string;
   selectedTags: string[];
@@ -643,6 +662,8 @@ const SearchInput = memo(({
   searchContainerRef: React.RefObject<HTMLDivElement | null>;
   fileTypeTags: string[];
   onClearAll: () => void;
+  showHelpTooltip: boolean;
+  onHelpButtonClick: () => void;
 }) => {
   const shouldWrapInput = selectedTags.length > 2;
   
@@ -671,12 +692,15 @@ const SearchInput = memo(({
   // Check if there's any content to clear
   const hasContent = inputValue.trim() || selectedTags.length > 0;
   
+  // Determine if we should show the colored placeholder
+  const shouldShowColoredPlaceholder = !inputValue && selectedTags.length === 0 && !currentTag && !currentUser;
+  
   return (
     <div className="mb-6">
       <div className="relative mb-2">
         <div 
           ref={searchContainerRef}
-          className="pl-10 pr-12 py-2 rounded-full border border-muted-foreground/40 bg-background flex flex-wrap items-center gap-2 relative"
+          className="pl-10 pr-16 py-2 rounded-full border border-muted-foreground/40 bg-background flex flex-wrap items-center gap-2 relative"
         >
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none z-10" size={18} />
           {selectedTags.length > 0 && (
@@ -724,7 +748,7 @@ const SearchInput = memo(({
               })}
             </div>
           )}
-          <div className={`flex-1 ${shouldWrapInput ? 'w-full' : 'min-w-[180px]'}`}>
+          <div className={`flex-1 ${shouldWrapInput ? 'w-full' : 'min-w-[180px]'} relative`}>
             <Input
               ref={inputRef}
               value={inputValue}
@@ -732,17 +756,59 @@ const SearchInput = memo(({
               onKeyDown={handleKeyPress}
               placeholder={
                 currentTag 
-                  ? "Press Enter or Space to complete tag..." 
+                  ? "Premi Invio o Spazio per completare il tag..." 
                   : currentUser
-                  ? "Press Enter or Space to complete user search..."
+                  ? "Premi Invio o Spazio per completare la ricerca utente..."
                   : activeTab === 'users'
-                  ? "Search for users by name or username..."
-                  : "Search for documents, users, or use #tag..."
+                  ? "Cerca utenti per nome o nome utente..."
+                  : ""
               }
               className="border-none shadow-none focus-visible:ring-0 pl-0 h-auto p-0 w-full"
               autoFocus
             />
+            
+            {/* Colored Placeholder Overlay */}
+            {shouldShowColoredPlaceholder && activeTab !== 'users' && (
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground text-sm flex items-center gap-1">
+                <span>Cerca documenti o utenti...</span>
+              </div>
+            )}
           </div>
+          
+          {/* Help Button */}
+          <TooltipProvider>
+            <Tooltip open={showHelpTooltip}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`absolute ${hasContent ? 'right-8' : 'right-2'} top-1/2 -translate-y-1/2 h-6 w-6 rounded-full text-muted-foreground hover:text-foreground hover-primary-effect z-10`}
+                  onClick={onHelpButtonClick}
+                >
+                  <HelpCircle size={14} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContentArrowColored 
+                side="bottom" 
+                className="bg-white border border-muted-foreground/20 shadow-lg p-3 max-w-xl"
+                arrowColor="bg-white fill-white border-b border-r border-muted-foreground/20"
+              >
+                <div className="text-sm">
+                  <p className="font-medium mb-2 text-primary">Suggerimenti per la Ricerca:</p>
+                  <ul className="space-y-1 text-xs">
+                    <li className="flex items-start gap-2 text-primary">
+                      <span className="text-muted-foreground">•</span>
+                      <span>Usa <span className="text-blue-600 font-medium">#tag</span> per filtrare per tag (es. #pdf #italian Commedia Dante)</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-primary">
+                      <span className="text-muted-foreground">•</span>
+                      <span>Cerca utenti per <span className="text-blue-600 font-medium">nome e cognome</span> o per <span className="text-blue-600 font-medium">@username</span></span>
+                    </li>
+                  </ul>
+                </div>
+              </TooltipContentArrowColored>
+            </Tooltip>
+          </TooltipProvider>
           
           {/* Clear All Button */}
           {hasContent && (
@@ -759,7 +825,7 @@ const SearchInput = memo(({
           
           {tagSuggestions.length > 0 && (
             <div className="w-full mt-1 flex flex-wrap gap-1">
-              <span className="text-xs text-muted-foreground mr-1 select-none">Suggestions:</span>
+              <span className="text-xs text-muted-foreground mr-1 select-none">Suggerimenti:</span>
               {tagSuggestions.map(tag => (
                 <Badge 
                   key={tag}
@@ -802,6 +868,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [isUserSearch, setIsUserSearch] = useState(false);
+  const [showHelpTooltip, setShowHelpTooltip] = useState(false);
+  const [hasUserStartedTyping, setHasUserStartedTyping] = useState(false);
   
   // Add navigation hook
   const appNavigate = useAppNavigate();
@@ -832,8 +900,21 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       };
       
       loadInitialData();
+      
+      // Show help tooltip automatically after 1 second
+      const tooltipTimer = setTimeout(() => {
+        if (!hasUserStartedTyping) {
+          setShowHelpTooltip(true);
+        }
+      }, 1000);
+      
+      return () => clearTimeout(tooltipTimer);
+    } else {
+      // Reset states when modal closes
+      setShowHelpTooltip(false);
+      setHasUserStartedTyping(false);
     }
-  }, [isOpen]);
+  }, [isOpen, hasUserStartedTyping]);
 
   const performSearch = useCallback(async (query: string, tags: string[]) => {
     const currentRequestId = Date.now();
@@ -1047,6 +1128,12 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
   const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
+    // Close help tooltip and mark that user has started typing
+    if (value.length > 0 && !hasUserStartedTyping) {
+      setHasUserStartedTyping(true);
+      setShowHelpTooltip(false);
+    }
+    
     throttledUIUpdate(value);
     
     // Check if this is a user search (starts with @ and has a complete username)
@@ -1082,7 +1169,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     lastTextQueryRef.current = cleanQuery;
     
     debouncedSearch(cleanQuery, selectedTags);
-  }, [throttledUIUpdate, debouncedSearch, selectedTags, activeTab]);
+  }, [throttledUIUpdate, debouncedSearch, selectedTags, activeTab, hasUserStartedTyping]);
 
   const handleKeyPress = useCallback((e: KeyboardEvent<HTMLInputElement>) => {
     // Complete tag on Enter
@@ -1143,6 +1230,13 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     setSearchQuery(cleanQuery);
     setSelectedTags(extractedTags);
     setIsLoading(true);
+    
+    // Close tooltip and mark that user has interacted since there's content now
+    if (cleanQuery || extractedTags.length > 0) {
+      setShowHelpTooltip(false);
+      setHasUserStartedTyping(true);
+    }
+    
     performSearch(cleanQuery, extractedTags);
   }, [performSearch]);
 
@@ -1278,6 +1372,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
       setSearchCompleted(false);
       setSelectedTags([]);
       setCurrentTag(null);
+      setShowHelpTooltip(false);
+      setHasUserStartedTyping(false);
       lastTextQueryRef.current = '';
       userResultsRef.current = [];
       
@@ -1321,6 +1417,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     setUserResults([]);
     setIsLoading(false);
     setSearchCompleted(false);
+    setHasUserStartedTyping(false);
     
     lastTextQueryRef.current = '';
     userResultsRef.current = [];
@@ -1352,6 +1449,11 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
+    }, []);
+
+  const handleHelpButtonClick = useCallback(() => {
+    // Toggle tooltip on click
+    setShowHelpTooltip(prev => !prev);
   }, []);
 
   return (
@@ -1362,7 +1464,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
         title={
           <div className="flex items-center gap-2 text-lg font-medium select-none">
             <Search size={18} />
-            <span>Search CloudNotes</span>
+            <span>Cerca in CloudNotes</span>
           </div>
         }
         maxWidth="max-w-4xl"
@@ -1384,6 +1486,8 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
             searchContainerRef={searchContainerRef}
             fileTypeTags={fileTypeTags}
             onClearAll={handleClearAll}
+            showHelpTooltip={showHelpTooltip}
+            onHelpButtonClick={handleHelpButtonClick}
           />
 
           <Tabs defaultValue="discover" value={activeTab} onValueChange={(value) => setActiveTab(value as 'discover' | 'users' | 'saved' | 'user')}>
@@ -1391,7 +1495,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               <TabsList className="bg-background p-1 border border-muted-foreground/20 shadow select-none flex gap-1">
                 <TabsTrigger value="discover" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
                   <Compass size={16} className="select-none" />
-                  <span>Discover</span>
+                  <span>Scopri</span>
                   {documentResults.length > 0 && (
                     <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
                       {documentResults.length}
@@ -1403,7 +1507,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 
                 <TabsTrigger value="users" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
                   <Users size={16} className="select-none" />
-                  <span>Users</span>
+                  <span>Utenti</span>
                   {userResults.length > 0 && (
                     <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
                       {userResults.length}
@@ -1415,7 +1519,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 
                 <TabsTrigger value="saved" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
                   <BookmarkIcon size={16} className="select-none" />
-                  <span>Saved</span>
+                  <span>Salvati</span>
                   {bookmarkResults.length > 0 && (
                     <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
                       {bookmarkResults.length}
@@ -1427,7 +1531,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 
                 <TabsTrigger value="user" className="gap-2 text-[13px] cursor-pointer data-[state=active]:bg-primary/10 select-none">
                   <FolderHeart size={16} className="select-none" />
-                  <span>Your Documents</span>
+                  <span>I Tuoi Documenti</span>
                   {userDocuments.length > 0 && (
                     <Badge variant="secondary" className="ml-1.5 rounded-full select-none">
                       {userDocuments.length}
@@ -1439,7 +1543,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               {selectedTags.length > 0 && activeTab === 'users' && (
                 <div className="text-xs text-muted-foreground flex items-center gap-1 select-none ml-2">
                   <HelpCircle size={14} className="select-none" />
-                  <span>Tags are not applicable to users search</span>
+                  <span>I tag non sono applicabili alla ricerca utenti</span>
                 </div>
               )}
             </div>
@@ -1448,7 +1552,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5 select-none">
                   <Clock size={14} className="select-none" />
-                  Recent Searches
+                  Ricerche Recenti
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {recentSearches.map((term) => {
@@ -1522,29 +1626,29 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               ) : documentResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <Compass className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">No documents found</h3>
+                  <h3 className="text-lg font-medium">Nessun documento trovato</h3>
                   <p className="text-muted-foreground max-w-sm">
                     {searchQuery ? 
-                      `We couldn't find any documents matching "${searchQuery}"` : 
-                      "No documents match the selected filters"}
-                    {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
-                    {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
-                    {selectedTags.length > 0 ? ' or remove some tags' : ''}.
+                      `Non abbiamo trovato documenti corrispondenti a "${searchQuery}"` : 
+                      "Nessun documento corrisponde ai filtri selezionati"}
+                    {selectedTags.length > 0 ? ' con i tag selezionati' : ''}. 
+                    {searchQuery ? ' Prova un termine di ricerca diverso' : ' Prova ad aggiustare i filtri'}
+                    {selectedTags.length > 0 ? ' o rimuovi alcuni tag' : ''}.
                   </p>
                 </div>
               ) : documentResults.length === 0 && !searchQuery && !selectedTags.length ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">Discover documents</h3>
+                  <h3 className="text-lg font-medium">Scopri documenti</h3>
                   <p className="text-muted-foreground max-w-sm">
-                    Enter a search term to find documents by name, content, or tags.
+                    Inserisci un termine di ricerca per trovare documenti per nome, contenuto o tag.
                   </p>
                 </div>
               ) : (
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Found {documentResults.length} document{documentResults.length !== 1 ? 's' : ''}
+                      Trovati {documentResults.length} documento{documentResults.length !== 1 ? 'i' : ''}
                     </div>
                   )}
                   {documentResults.map((doc) => (
@@ -1576,16 +1680,16 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               ) : searchQuery && userResults.length === 0 && searchCompleted ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <User className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">No users found</h3>
+                  <h3 className="text-lg font-medium">Nessun utente trovato</h3>
                   <p className="text-muted-foreground max-w-sm">
-                    We couldn't find any users matching "{searchQuery}". Try a different search term.
+                    Non abbiamo trovato utenti corrispondenti a "{searchQuery}". Prova un termine di ricerca diverso.
                   </p>
                 </div>
               ) : searchQuery ? (
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Found {userResults.length} user{userResults.length !== 1 ? 's' : ''}
+                      Trovati {userResults.length} utente{userResults.length !== 1 ? 'i' : ''}
                     </div>
                   )}
                   {userResults.map((user) => (
@@ -1600,9 +1704,9 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               ) : (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <Search className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">Search for users</h3>
+                  <h3 className="text-lg font-medium">Cerca utenti</h3>
                   <p className="text-muted-foreground max-w-sm">
-                    Enter a search term to find users by name or username.
+                    Inserisci un termine di ricerca per trovare utenti per nome o nome utente.
                   </p>
                 </div>
               )}
@@ -1619,29 +1723,29 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               ) : bookmarkResults.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">No saved documents found</h3>
+                  <h3 className="text-lg font-medium">Nessun documento salvato trovato</h3>
                   <p className="text-muted-foreground max-w-sm">
                     {searchQuery ? 
-                      `We couldn't find any saved documents matching "${searchQuery}"` : 
-                      "No saved documents match the selected filters"}
-                    {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
-                    {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
-                    {selectedTags.length > 0 ? ' or remove some tags' : ''}.
+                      `Non abbiamo trovato documenti salvati corrispondenti a "${searchQuery}"` : 
+                      "Nessun documento salvato corrisponde ai filtri selezionati"}
+                    {selectedTags.length > 0 ? ' con i tag selezionati' : ''}. 
+                    {searchQuery ? ' Prova un termine di ricerca diverso' : ' Prova ad aggiustare i filtri'}
+                    {selectedTags.length > 0 ? ' o rimuovi alcuni tag' : ''}.
                   </p>
                 </div>
               ) : bookmarkResults.length === 0 && !searchQuery && !selectedTags.length ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <BookmarkIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">No saved documents yet</h3>
+                  <h3 className="text-lg font-medium">Nessun documento salvato ancora</h3>
                   <p className="text-muted-foreground max-w-sm">
-                    You haven't saved any documents yet. Saved documents will appear here.
+                    Non hai ancora salvato documenti. I documenti salvati appariranno qui.
                   </p>
                 </div>
               ) : (
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Found {bookmarkResults.length} saved document{bookmarkResults.length !== 1 ? 's' : ''}
+                      Trovati {bookmarkResults.length} documento{bookmarkResults.length !== 1 ? 'i' : ''} salvato{bookmarkResults.length !== 1 ? 'i' : ''}
                     </div>
                   )}
                   {bookmarkResults.map((doc) => (
@@ -1673,29 +1777,29 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
               ) : userDocuments.length === 0 && searchCompleted && (searchQuery || selectedTags.length > 0) ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <FolderHeart className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">No user documents found</h3>
+                  <h3 className="text-lg font-medium">Nessun documento utente trovato</h3>
                   <p className="text-muted-foreground max-w-sm">
                     {searchQuery ? 
-                      `We couldn't find any of your documents matching "${searchQuery}"` : 
-                      "None of your documents match the selected filters"}
-                    {selectedTags.length > 0 ? ' with the selected tags' : ''}. 
-                    {searchQuery ? ' Try a different search term' : ' Try adjusting your filters'}
-                    {selectedTags.length > 0 ? ' or remove some tags' : ''}.
+                      `Non abbiamo trovato tuoi documenti corrispondenti a "${searchQuery}"` : 
+                      "Nessuno dei tuoi documenti corrisponde ai filtri selezionati"}
+                    {selectedTags.length > 0 ? ' con i tag selezionati' : ''}. 
+                    {searchQuery ? ' Prova un termine di ricerca diverso' : ' Prova ad aggiustare i filtri'}
+                    {selectedTags.length > 0 ? ' o rimuovi alcuni tag' : ''}.
                   </p>
                 </div>
               ) : userDocuments.length === 0 && !searchQuery && !selectedTags.length ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center select-none">
                   <FolderHeart className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                  <h3 className="text-lg font-medium">No user documents</h3>
+                  <h3 className="text-lg font-medium">Nessun documento utente</h3>
                   <p className="text-muted-foreground max-w-sm">
-                    You haven't uploaded any documents yet. Upload files to access them here.
+                    Non hai ancora caricato documenti. Carica file per accedervi qui.
                   </p>
                 </div>
               ) : (
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Found {userDocuments.length} document{userDocuments.length !== 1 ? 's' : ''} uploaded by you
+                      Trovati {userDocuments.length} documento{userDocuments.length !== 1 ? 'i' : ''} caricato{userDocuments.length !== 1 ? 'i' : ''} da te
                     </div>
                   )}
                   {userDocuments.map((doc) => (

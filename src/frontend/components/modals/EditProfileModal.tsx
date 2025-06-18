@@ -1,16 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   SaveIcon,
-  XIcon,
   UserIcon,
   FileTextIcon,
-  ImageIcon,
   TypeIcon,
-  RefreshCwIcon,
   CameraIcon
 } from 'lucide-react';
 import { Modal } from '../ui/modal';
-import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Avatar } from '../ui/avatar';
@@ -109,19 +105,19 @@ const EditProfileModal = ({
     const newErrors: Record<string, string> = {};
     
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = 'Il nome è obbligatorio';
     }
     
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = 'Il cognome è obbligatorio';
     }
     
     if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
+      newErrors.username = 'Il nome utente è obbligatorio';
     } else if (formData.username.trim().length < 3) {
-      newErrors.username = 'Username must be at least 3 characters long';
+      newErrors.username = 'Il nome utente deve essere di almeno 3 caratteri';
     } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username.trim())) {
-      newErrors.username = 'Username can only contain letters, numbers, and underscores';
+      newErrors.username = 'Il nome utente può contenere solo lettere, numeri e trattini bassi';
     }
     
     setErrors(newErrors);
@@ -150,15 +146,15 @@ const EditProfileModal = ({
       
       playSound();
       
-      toast.success("Profile updated successfully", {
-        description: "Your changes have been saved",
+      toast.success("Profilo aggiornato con successo", {
+        description: "Le tue modifiche sono state salvate",
         icon: <SaveIcon size={16} />,
       });
       
       onClose();
     } catch (error) {
-      toast.error("Failed to update profile", {
-        description: "Please try again",
+      toast.error("Errore nell'aggiornamento del profilo", {
+        description: "Riprova di nuovo",
       });
     } finally {
       setIsSaving(false);
@@ -197,8 +193,20 @@ const EditProfileModal = ({
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title="Edit Profile"
+      title="Modifica Profilo"
       maxWidth={maxWidth}
+      cancelButton={{
+        text: "Annulla",
+        disabled: isSaving
+      }}
+      actionButton={{
+        text: "Salva",
+        onClick: handleSave,
+        disabled: isSaving,
+        loadingText: "Salvataggio...",
+        icon: <SaveIcon size={16} />
+      }}
+      isLoading={isSaving}
     >
       <div className="p-8 select-none">
         <div className="flex gap-8">
@@ -206,7 +214,7 @@ const EditProfileModal = ({
           <div className="flex flex-col items-center">
             <div className="relative mb-6">
               <Avatar className="h-32 w-32 border-4 border-primary/20 shadow-md">
-                <img src={formData.avatar} alt="Profile" />
+                <img src={formData.avatar} alt="Profilo" />
               </Avatar>
               <div className="absolute bottom-0 right-0">
                 <label htmlFor="avatar-upload" className="cursor-pointer">
@@ -233,13 +241,13 @@ const EditProfileModal = ({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <UserIcon size={16} className="text-primary" />
-                  <label className="font-medium text-sm">First Name:</label>
+                  <label className="font-medium text-sm">Nome:</label>
                   <span className="text-red-500">*</span>
                 </div>
                 <Input
                   value={formData.firstName}
                   onChange={(e) => handleFieldChange('firstName', e.target.value)}
-                  placeholder="Enter your first name..."
+                  placeholder="Inserisci il tuo nome..."
                   className={cn(
                     "text-base",
                     errors.firstName && "border-red-500 focus-visible:ring-red-500"
@@ -254,13 +262,13 @@ const EditProfileModal = ({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <UserIcon size={16} className="text-primary" />
-                  <label className="font-medium text-sm">Last Name:</label>
+                  <label className="font-medium text-sm">Cognome:</label>
                   <span className="text-red-500">*</span>
                 </div>
                 <Input
                   value={formData.lastName}
                   onChange={(e) => handleFieldChange('lastName', e.target.value)}
-                  placeholder="Enter your last name..."
+                  placeholder="Inserisci il tuo cognome..."
                   className={cn(
                     "text-base",
                     errors.lastName && "border-red-500 focus-visible:ring-red-500"
@@ -276,13 +284,13 @@ const EditProfileModal = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <TypeIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Username:</label>
+                <label className="font-medium text-sm">Nome Utente:</label>
                 <span className="text-red-500">*</span>
               </div>
               <Input
                 value={formData.username}
                 onChange={(e) => handleFieldChange('username', e.target.value)}
-                placeholder="Enter your username..."
+                placeholder="Inserisci il tuo nome utente..."
                 className={cn(
                   "text-base",
                   errors.username && "border-red-500 focus-visible:ring-red-500"
@@ -297,47 +305,14 @@ const EditProfileModal = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <FileTextIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Bio:</label>
+                <label className="font-medium text-sm">Biografia:</label>
               </div>
               <Textarea
                 value={formData.bio}
                 onChange={(e) => handleFieldChange('bio', e.target.value)}
-                placeholder="Tell us about yourself..."
+                placeholder="Raccontaci di te..."
                 className="min-h-[120px] resize-none text-sm"
               />
-            </div>
-
-            <Separator />
-
-            {/* Action buttons */}
-            <div className="flex justify-end gap-3 pt-4">
-              <Button 
-                variant="outline" 
-                onClick={handleClose}
-                disabled={isSaving}
-                className="gap-2 rounded-full hover-primary-effect cursor-pointer"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSave}
-                disabled={isSaving}
-                className="gap-2 rounded-full cursor-pointer"
-              >
-                {isSaving ? (
-                  <>
-                    <span className="animate-spin">
-                      <RefreshCwIcon size={16} />
-                    </span>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <SaveIcon size={16} />
-                    Save
-                  </>
-                )}
-              </Button>
             </div>
           </div>
         </div>
@@ -347,7 +322,7 @@ const EditProfileModal = ({
         isOpen={showUnsavedChangesModal}
         onClose={() => setShowUnsavedChangesModal(false)}
         onConfirm={handleUnsavedChangesConfirm}
-        title="Discard Profile Changes?"
+        title="Scartare le Modifiche al Profilo?"
         actionType="close"
       />
     </Modal>

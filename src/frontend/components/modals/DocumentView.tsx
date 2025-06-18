@@ -105,8 +105,8 @@ const DocumentView = ({
       const documentUrl = `${window.location.origin}/reader/${document.id}`;
       await navigator.clipboard.writeText(documentUrl);
 
-      toast.success("Link copied to clipboard", {
-        description: "You can now paste it anywhere",
+      toast.success("Link copiato negli appunti", {
+        description: "Ora puoi incollarlo ovunque",
         icon: <LinkIcon size={16} />,
       });
     } catch (err) {
@@ -124,7 +124,7 @@ const DocumentView = ({
     <Modal 
       isOpen={isOpen} 
       onClose={onClose}
-      title="Document View"
+      title="Visualizzazione Documento"
       maxWidth={maxWidth}
     >
       <div className="p-8 select-none">
@@ -151,7 +151,7 @@ const DocumentView = ({
                       <BookmarkIcon size={20} className={isBookmarked(document.id) ? "fill-primary" : ""} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>{isBookmarked(document.id) ? "Remove from saved" : "Add to saved"}</TooltipContent>
+                  <TooltipContent>{isBookmarked(document.id) ? "Rimuovi dai salvati" : "Aggiungi ai salvati"}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               
@@ -167,7 +167,7 @@ const DocumentView = ({
                       />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent>Share document</TooltipContent>
+                  <TooltipContent>Condividi documento</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
@@ -183,7 +183,7 @@ const DocumentView = ({
             <div className="flex items-center gap-6 mb-6 p-4 bg-muted/30 rounded-lg">
               <div className="flex items-center gap-2 text-sm">
                 <CalendarIcon size={16} className="text-primary" />
-                <span className="font-medium">Published:</span>
+                <span className="font-medium">Pubblicato:</span>
                 <span className="text-muted-foreground">{formatDate(document.file.uploadedAt)}</span>
               </div>
               
@@ -192,7 +192,7 @@ const DocumentView = ({
               <div className="flex items-center gap-2 text-sm">
                 <StarIcon size={16} className="text-yellow-500" />
                 <span className="font-medium">{document.rating.rating.toFixed(1)}</span>
-                <span className="text-muted-foreground">rating</span>
+                <span className="text-muted-foreground">valutazione</span>
               </div>
               
               <Separator orientation="vertical" className="h-4" />
@@ -200,7 +200,7 @@ const DocumentView = ({
               <div className="flex items-center gap-2 text-sm">
                 <BookmarkIcon size={16} className="text-primary" />
                 <span className="font-medium">{document.file.downloadCount}</span>
-                <span className="text-muted-foreground">saved</span>
+                <span className="text-muted-foreground">salvati</span>
               </div>
 
               <Separator orientation="vertical" className="h-4" />
@@ -208,7 +208,7 @@ const DocumentView = ({
               <div className="flex items-center gap-2 text-sm">
                 <MessageSquareIcon size={16} />
                 <span className="font-medium">{document.comments.length}</span>
-                <span className="text-muted-foreground">comments</span>
+                <span className="text-muted-foreground">commenti</span>
               </div>
             </div>
             
@@ -221,14 +221,14 @@ const DocumentView = ({
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-lg">{document.author.firstName} {document.author.lastName}</span>
                   <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                    Author
+                    Autore
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">@{document.author.username}</p>
               </div>
               <Button variant="outline" size="sm" className="gap-2 hover-primary-effect cursor-pointer" onClick={handleViewProfileClick}>
                 <UserIcon size={14} />
-                View Profile
+                Visualizza Profilo
               </Button>
             </div>
             
@@ -236,7 +236,7 @@ const DocumentView = ({
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <TagIcon size={16} className="text-primary" />
-                <span className="font-medium">Tags</span>
+                <span className="font-medium">Tag</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {document.file.tags.map((tag) => (
@@ -255,7 +255,7 @@ const DocumentView = ({
             <div className="mb-8">
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                 <FileTextIcon size={18} className="text-primary" />
-                Description
+                Descrizione
               </h3>
               <p className="text-muted-foreground leading-relaxed text-base bg-muted/20 p-4 rounded-lg border-l-4 border-primary/30">
                 {document.description}
@@ -269,14 +269,14 @@ const DocumentView = ({
                   <span className="font-medium text-foreground">{document.file.type.toUpperCase()}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span>Last edited: {relativeDateFormatted(document.file.uploadedAt)}</span>
+                  <span>Ultima modifica: {relativeDateFormatted(document.file.uploadedAt)}</span>
                 </div>
               </div>
               
               <Button className="gap-2 rounded-full cursor-pointer shadow-md" size="lg" asChild>
                 <AppLink href={`/document/${document.id}`} preventNavigation className="no-underline hover:no-underline" onClick={handleOpenDocumentPage}>
                   <ExternalLinkIcon size={18} />
-                  Open Document Page
+                  Apri Pagina Documento
                 </AppLink>
               </Button>
             </div>

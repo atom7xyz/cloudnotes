@@ -115,9 +115,9 @@ const ZoomControl = memo(({
 }) => {
   // Predefined zoom levels
   const zoomLevels = [
-    { label: 'Actual size', value: 100, id: 'zoom-actual' },
-    { label: 'Page fit', value: 'fit', id: 'zoom-fit' },
-    { label: 'Page width', value: 'width', id: 'zoom-width' },
+    { label: 'Dimensione reale', value: 100, id: 'zoom-actual' },
+    { label: 'Adatta pagina', value: 'fit', id: 'zoom-fit' },
+    { label: 'Larghezza pagina', value: 'width', id: 'zoom-width' },
     { label: '50%', value: 50, id: 'zoom-50' },
     { label: '75%', value: 75, id: 'zoom-75' },
     { label: '100%', value: 100, id: 'zoom-100' },
@@ -164,7 +164,7 @@ const ZoomControl = memo(({
     <div className="flex items-center gap-1" style={noDragRegion}>
       <NavButton
         icon={<ZoomOut className="h-4 w-4" />}
-        title="Zoom out"
+        title="Riduci zoom"
         onClick={handleZoomOut}
       />
       
@@ -205,7 +205,7 @@ const ZoomControl = memo(({
       
       <NavButton
         icon={<ZoomIn className="h-4 w-4" />}
-        title="Zoom in"
+        title="Aumenta zoom"
         onClick={handleZoomIn}
       />
     </div>
@@ -233,7 +233,7 @@ const WindowControls = memo(({
         variant="ghost"
         size="icon"
         className="h-12 w-[50px] rounded-none hover-primary-effect" style={noDragRegion}
-        title="Minimize"
+        title="Riduci a icona"
       >
         <MinusIcon size={16} />
       </Button>
@@ -243,7 +243,7 @@ const WindowControls = memo(({
         variant="ghost"
         size="icon"
         className="h-12 w-[50px] rounded-none hover-primary-effect" style={noDragRegion}
-        title={isMaximized ? "Restore" : "Maximize"}
+        title={isMaximized ? "Ripristina" : "Ingrandisci"}
       >
         {isMaximized ? <SquareIcon size={16} /> : <MaximizeIcon size={16} />}
       </Button>
@@ -253,7 +253,7 @@ const WindowControls = memo(({
         variant="ghost"
         size="icon"
         className="h-12 w-[50px] rounded-none hover:bg-destructive hover:text-white transition-all duration-200" style={noDragRegion}
-        title="Close"
+        title="Chiudi"
       >
         <XIcon size={16} />
       </Button>
@@ -308,7 +308,7 @@ const DropdownTabItem = memo(({
         type="button"
         className="opacity-50 hover:opacity-100"
         onClick={handleClose}
-        title="Close"
+        title="Chiudi"
       >
         <XIcon className="h-4 w-4" />
       </button>
@@ -339,7 +339,7 @@ const ScrollModeSelector = memo(({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel>Page View Mode</DropdownMenuLabel>
+          <DropdownMenuLabel>Modalità Visualizzazione</DropdownMenuLabel>
           <DropdownMenuSeparator />
           
           <DropdownMenuItem 
@@ -348,8 +348,8 @@ const ScrollModeSelector = memo(({
           >
             <MonitorSmartphone className="h-4 w-4" />
             <div className="flex flex-col">
-              <span>Page Scrolling</span>
-              <span className="text-xs text-muted-foreground">Show one page at a time</span>
+              <span>Scorrimento Pagina</span>
+              <span className="text-xs text-muted-foreground">Mostra una pagina alla volta</span>
             </div>
           </DropdownMenuItem>
           
@@ -359,8 +359,8 @@ const ScrollModeSelector = memo(({
           >
             <ScrollText className="h-4 w-4" />
             <div className="flex flex-col">
-              <span>Vertical Scrolling</span>
-              <span className="text-xs text-muted-foreground">Show all pages in a column</span>
+              <span>Scorrimento Verticale</span>
+              <span className="text-xs text-muted-foreground">Mostra tutte le pagine in colonna</span>
             </div>
           </DropdownMenuItem>
           
@@ -370,8 +370,8 @@ const ScrollModeSelector = memo(({
           >
             <MoveHorizontal className="h-4 w-4" />
             <div className="flex flex-col">
-              <span>Wrapped Scrolling</span>
-              <span className="text-xs text-muted-foreground">Show pages in a wrapped layout</span>
+              <span>Scorrimento Avvolto</span>
+              <span className="text-xs text-muted-foreground">Mostra le pagine in layout avvolto</span>
             </div>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -447,17 +447,17 @@ const RecentFilesDropdown = memo(({ isLoading }: { isLoading?: boolean }) => {
           <DropdownMenuTrigger asChild disabled={isLoading}>
             <Button variant="outline" size="sm" className={`gap-1 rounded-full ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} hover-primary-effect`}>
               <NotebookText className="h-4 w-4" />
-              <span>Your cloudnotes</span>
+              <span>Le tue cloudnotes</span>
               <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-80">
-            <DropdownMenuLabel>Open Files</DropdownMenuLabel>
+            <DropdownMenuLabel>File Aperti</DropdownMenuLabel>
             <DropdownMenuSeparator />
             
             {sortedTabs.length === 0 ? (
               <div className="py-2 px-2 text-sm text-muted-foreground">
-                No files open
+                Nessun file aperto
               </div>
             ) : (
               sortedTabs.map(tab => (
@@ -479,7 +479,7 @@ const RecentFilesDropdown = memo(({ isLoading }: { isLoading?: boolean }) => {
                 handleBrowseAllFiles();
               }}>
               <FolderOpenIcon size={16} className="text-blue-500 mr-2" />
-              <span>Browse All Files</span>
+              <span>Sfoglia Tutti i File</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -830,7 +830,7 @@ const FileReaderTopNavbar = memo(({
               <Input
                 ref={searchInputRef}
                 id="document-search"
-                placeholder={isSearchActive ? "Search..." : "Find in document..."}
+                placeholder={isSearchActive ? "Cerca..." : "Trova nel documento..."}
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onKeyPress={handleSearchKeyPress}

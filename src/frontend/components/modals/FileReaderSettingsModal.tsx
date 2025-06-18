@@ -14,11 +14,11 @@ import { Toaster } from '../ui/sonner';
 
 // Define color presets with good contrast combinations
 const COLOR_PRESETS = [
-  { name: 'White', backgroundColor: '#ffffff', textColor: '#000000', class: 'bg-white' },
-  { name: 'Light Gray', backgroundColor: '#f8f9fa', textColor: '#000000', class: 'bg-gray-50' },
-  { name: 'Warm White', backgroundColor: '#fefcf3', textColor: '#000000', class: 'bg-yellow-50' },
-  { name: 'Sepia', backgroundColor: '#f4f1e8', textColor: '#000000', class: 'bg-yellow-100' },
-  { name: 'Light Blue', backgroundColor: '#f0f9ff', textColor: '#000000', class: 'bg-blue-50' },
+  { name: 'Bianco', backgroundColor: '#ffffff', textColor: '#000000', class: 'bg-white' },
+  { name: 'Grigio Chiaro', backgroundColor: '#f8f9fa', textColor: '#000000', class: 'bg-gray-50' },
+  { name: 'Bianco Caldo', backgroundColor: '#fefcf3', textColor: '#000000', class: 'bg-yellow-50' },
+  { name: 'Seppia', backgroundColor: '#f4f1e8', textColor: '#000000', class: 'bg-yellow-100' },
+  { name: 'Blu Chiaro', backgroundColor: '#f0f9ff', textColor: '#000000', class: 'bg-blue-50' },
 ];
 
 // Default settings
@@ -109,12 +109,12 @@ export default function FileReaderSettingsModal({
       >
         <div className="absolute inset-0" />
         <div className="text-center p-4 relative z-10">
-          <h4 className="font-semibold text-lg mb-2">Document Preview</h4>
+          <h4 className="font-semibold text-lg mb-2">Anteprima Documento</h4>
           <p className="text-xs opacity-75">
-            Hover the color to preview the document with the selected colors.
-            Click the color to apply it.
-            Click Save to apply the changes.
-            Have fun!
+            Passa il mouse sui colori per vedere l'anteprima del documento con i colori selezionati.
+            Clicca sul colore per applicarlo.
+            Clicca Salva per applicare le modifiche.
+            Divertiti!
           </p>
         </div>
       </div>
@@ -129,10 +129,19 @@ export default function FileReaderSettingsModal({
         title={
           <div className="flex items-center gap-2 text-lg font-medium">
             <SettingsIcon size={20} />
-            <span>Settings</span>
+            <span>Impostazioni</span>
           </div>
         }
         maxWidth="max-w-4xl"
+        cancelButton={{
+          text: "Annulla",
+          onClick: handleCancel
+        }}
+        actionButton={{
+          text: "Salva",
+          onClick: handleSave,
+          icon: <SaveIcon size={16} />
+        }}
       >
         <div className="p-8 select-none">
           <div className="flex gap-8">
@@ -148,7 +157,7 @@ export default function FileReaderSettingsModal({
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <PaletteIcon size={16} className="text-primary" />
-                  <span className="font-medium text-lg">Colors</span>
+                  <span className="font-medium text-lg">Colori</span>
                 </div>
                 
                 <div className="grid grid-cols-4 gap-6">
@@ -176,36 +185,18 @@ export default function FileReaderSettingsModal({
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Footer with action buttons */}
-          <Separator className="my-8" />
-          
-          <div className="flex items-center justify-between">
-            <Button 
-              variant="outline" 
-              onClick={handleResetToDefaults}
-              className="flex items-center gap-2 cursor-pointer rounded-full hover-primary-effect"
-            >
-              <RotateCcwIcon size={16} />
-              Reset to Defaults
-            </Button>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={handleCancel}
-                className="cursor-pointer rounded-full hover-primary-effect"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSave}
-                className="cursor-pointer rounded-full"
-              >
-                <SaveIcon size={16} />
-                Save
-              </Button>
+              {/* Reset to defaults button moved here */}
+              <div className="pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={handleResetToDefaults}
+                  className="flex items-center gap-2 cursor-pointer rounded-full hover-primary-effect"
+                >
+                  <RotateCcwIcon size={16} />
+                  Ripristina Predefiniti
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -226,6 +226,18 @@ const EditDocumentModal = ({
       onClose={handleClose}
       title="Edit Document"
       maxWidth={maxWidth}
+      cancelButton={{
+        text: "Cancel",
+        disabled: isSaving
+      }}
+      actionButton={{
+        text: "Save",
+        onClick: handleSave,
+        disabled: isSaving,
+        loadingText: "Saving...",
+        icon: <SaveIcon size={16} />
+      }}
+      isLoading={isSaving}
     >
       <div className="p-8 select-none">
         <div className="flex gap-8">
@@ -340,39 +352,6 @@ const EditDocumentModal = ({
                   Add Tag
                 </Button>
               </div>
-            </div>
-
-            <Separator />
-
-            {/* Action buttons */}
-            <div className="flex justify-end gap-3 pt-4">
-              <Button 
-                variant="outline" 
-                onClick={handleClose}
-                disabled={isSaving}
-                className="gap-2 rounded-full hover-primary-effect cursor-pointer"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSave}
-                disabled={isSaving}
-                className="gap-2 rounded-full cursor-pointer"
-              >
-                {isSaving ? (
-                  <>
-                    <span className="animate-spin">
-                      <RefreshCwIcon size={16} />
-                    </span>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <SaveIcon size={16} />
-                    Save
-                  </>
-                )}
-              </Button>
             </div>
           </div>
         </div>

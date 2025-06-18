@@ -36,14 +36,14 @@ class MockDataStore {
   
   private generateUsers(): void {
     const scholarlyBackgrounds = [
-      'Classical literature professor specializing in Greek and Roman epic poetry',
-      'Philosophy researcher with focus on Stoicism and its applications in modern therapy',
-      'Political philosophy researcher at Oxford',
-      'Biblical studies scholar with expertise in historical-critical method',
-      'Comparative mythology researcher and teacher focusing on European myths',
-      'Medieval European history professor and author',
-      'Business strategy consultant with background in military history',
-      'Italian literature specialist with focus on Dante and the Renaissance'
+      'Professore di letteratura classica specializzato in poesia epica greca e romana',
+      'Ricercatore di filosofia con focus sullo stoicismo e le sue applicazioni nella terapia moderna',
+      'Ricercatore di filosofia politica ad Oxford',
+      'Studioso di studi biblici con competenza nel metodo storico-critico',
+      'Ricercatore e insegnante di mitologia comparata focalizzato sui miti europei',
+      'Professore di storia medievale europea e autore',
+      'Consulente di strategia aziendale con background in storia militare',
+      'Specialista di letteratura italiana con focus su Dante e il Rinascimento'
     ];
     
     for (let i = 0; i < 8; i++) {
@@ -79,7 +79,7 @@ class MockDataStore {
       ratings: [],
       documents: [],
       savedDocuments: [],
-      bio: "Opera enthusiast and classical music aficionado with expertise in European opera history",
+      bio: "Appassionato di opera e musica classica con competenza nella storia dell'opera europea",
       joinDate: faker.date.past({ years: 1 })
     };
     
@@ -88,48 +88,48 @@ class MockDataStore {
   
   private generateDocuments(): void {
     const documentTitles = [
-      'The Iliad: Critical Analysis and Commentary',
-      'Meditations by Marcus Aurelius: Stoicism in Practice',
-      'The Republic: Plato\'s Vision of Justice',
-      'The Bible: Historical Context and Literary Structure',
-      'The Odyssey: Journey of Transformation',
-      'The Canterbury Tales: Chaucer\'s Medieval Masterpiece',
-      'On War: Clausewitz\'s Military Theory and Strategy',
-      'Dante\'s Divine Comedy: The Journey Through Afterlife',
-      'Gilgamesh: The World\'s First Epic Hero',
-      'Machiavelli\'s The Prince: Power Politics Then and Now',
-      'Don Quixote: Cervantes and the Birth of the Modern Novel',
-      'Beowulf: The Oldest English Epic'
+      'L\'Iliade: Analisi Critica e Commento',
+      'Meditazioni di Marco Aurelio: Lo Stoicismo in Pratica',
+      'La Repubblica: La Visione di Platone della Giustizia',
+      'La Bibbia: Contesto Storico e Struttura Letteraria',
+      'L\'Odissea: Viaggio di Trasformazione',
+      'I Racconti di Canterbury: Il Capolavoro Medievale di Chaucer',
+      'Della Guerra: Teoria Militare e Strategia di Clausewitz',
+      'La Divina Commedia di Dante: Il Viaggio Attraverso l\'Aldilà',
+      'Gilgamesh: Il Primo Eroe Epico del Mondo',
+      'Il Principe di Machiavelli: Politica di Potere Ieri e Oggi',
+      'Don Chisciotte: Cervantes e la Nascita del Romanzo Moderno',
+      'Beowulf: L\'Epica Inglese più Antica'
     ];
     
     const documentDescriptions = [
-      'A comprehensive literary analysis of Homer\'s epic poem "The Iliad", examining themes of war, honor, and divine intervention.',
-      'An exploration of Stoic philosophy through the personal writings of Roman Emperor Marcus Aurelius.',
-      'A detailed study of Plato\'s "Republic" focusing on concepts of justice, governance, and the ideal society.',
-      'A scholarly examination of the historical development, literary forms, and cultural contexts of biblical texts.',
-      'An interpretive analysis of Homer\'s "Odyssey", examining the hero\'s journey and mythological elements.',
-      'A critical examination of Geoffrey Chaucer\'s landmark work exploring the social fabric of medieval England.',
-      'An analysis of Carl von Clausewitz\'s influential treatise on military theory and its impact on European strategic thinking.',
-      'A literary exploration of Dante Alighieri\'s epic poem, examining its allegorical structure and themes.',
-      'Analyzing the Epic of Gilgamesh as the earliest surviving work of great literature.',
-      'Examining Niccolò Machiavelli\'s controversial political treatise on power and governance.',
-      'A thorough study of Miguel de Cervantes\' revolutionary novel and its place in European literary tradition.',
-      'A thorough analysis of the Old English heroic epic poem Beowulf and its cultural significance.'
+      'Un\'analisi letteraria completa del poema epico di Omero "L\'Iliade", che esamina i temi della guerra, dell\'onore e dell\'intervento divino.',
+      'Un\'esplorazione della filosofia stoica attraverso gli scritti personali dell\'imperatore romano Marco Aurelio.',
+      'Uno studio dettagliato della "Repubblica" di Platone incentrato sui concetti di giustizia, governo e società ideale.',
+      'Un esame accademico dello sviluppo storico, delle forme letterarie e dei contesti culturali dei testi biblici.',
+      'Un\'analisi interpretativa dell\'"Odissea" di Omero, che esamina il viaggio dell\'eroe e gli elementi mitologici.',
+      'Un esame critico dell\'opera fondamentale di Geoffrey Chaucer che esplora il tessuto sociale dell\'Inghilterra medievale.',
+      'Un\'analisi del trattato influente di Carl von Clausewitz sulla teoria militare e il suo impatto sul pensiero strategico europeo.',
+      'Un\'esplorazione letteraria del poema epico di Dante Alighieri, esaminando la sua struttura allegorica e i suoi temi.',
+      'Analizzando l\'Epopea di Gilgamesh come la prima opera di grande letteratura sopravvissuta.',
+      'Esaminando il controverso trattato politico di Niccolò Machiavelli sul potere e il governo.',
+      'Uno studio approfondito del romanzo rivoluzionario di Miguel de Cervantes e il suo posto nella tradizione letteraria europea.',
+      'Un\'analisi approfondita del poema epico eroico inglese antico Beowulf e il suo significato culturale.'
     ];
     
     const tagsPool = [
-      ['ancient', 'literature', 'homer', 'greek'],
-      ['stoicism', 'philosophy', 'ethics'],
-      ['plato', 'philosophy', 'justice'],
-      ['religion', 'history', 'literature'],
-      ['homer', 'greek', 'mythology'],
-      ['medieval', 'english', 'literature', 'chaucer'],
-      ['strategy', 'military', 'theory', 'european', 'warfare'],
-      ['dante', 'medieval', 'italian', 'poetry'],
-      ['mesopotamia', 'epic', 'poetry', 'ancient'],
-      ['machiavelli', 'politics', 'renaissance'],
-      ['spanish', 'literature', 'renaissance', 'cervantes'],
-      ['medieval', 'old', 'english', 'epic', 'poetry']
+      ['antico', 'letteratura', 'omero', 'greco'],
+      ['stoicismo', 'filosofia', 'etica'],
+      ['platone', 'filosofia', 'giustizia'],
+      ['religione', 'storia', 'letteratura'],
+      ['omero', 'greco', 'mitologia'],
+      ['medievale', 'inglese', 'letteratura', 'chaucer'],
+      ['strategia', 'militare', 'teoria', 'europeo', 'guerra'],
+      ['dante', 'medievale', 'italiano', 'poesia'],
+      ['mesopotamia', 'epico', 'poesia', 'antico'],
+      ['machiavelli', 'politica', 'rinascimento'],
+      ['spagnolo', 'letteratura', 'rinascimento', 'cervantes'],
+      ['medievale', 'inglese-antico', 'epico', 'poesia']
     ];
     
     const fileTypes: ('pdf' | 'word' | 'powerpoint' | 'txt' | 'epub')[] = [
@@ -198,44 +198,44 @@ class MockDataStore {
       // Add European opera documents for Bart Simpson
       const operaDocuments = [
         {
-          title: "Wagner's Ring Cycle: A Complete Analysis",
-          description: "A comprehensive exploration of Richard Wagner's monumental four-opera cycle 'Der Ring des Nibelungen', examining its revolutionary musical techniques, complex mythology, and profound philosophical themes.",
-          tags: ['opera', 'wagner', 'classical', 'music', 'german', 'mythology', 'leitmotif', 'nibelungen'],
+          title: "Il Ciclo dell'Anello di Wagner: Un'Analisi Completa",
+          description: "Un'esplorazione completa del monumentale ciclo di quattro opere 'Der Ring des Nibelungen' di Richard Wagner, esaminando le sue tecniche musicali rivoluzionarie, la mitologia complessa e i profondi temi filosofici.",
+          tags: ['opera', 'wagner', 'classica', 'musica', 'tedesco', 'mitologia', 'leitmotiv', 'nibelungen'],
           type: 'pdf',
           color: '#8C4646', // Darker red for good contrast with white text
-          text: 'Wagner%27s%20Ring'
+          text: 'Anello%20Wagner'
         },
         {
-          title: "Verdi's Italian Operas and Political Influence",
-          description: "An examination of Giuseppe Verdi's operatic masterpieces within the context of Italian unification, analyzing how his works reflected and inspired the Risorgimento movement while establishing a distinctly Italian operatic tradition.",
-          tags: ['opera', 'verdi', 'classical', 'music', 'italian', 'political', 'risorgimento', 'nationalism'],
+          title: "Le Opere Italiane di Verdi e l'Influenza Politica",
+          description: "Un esame dei capolavori operistici di Giuseppe Verdi nel contesto dell'unificazione italiana, analizzando come le sue opere riflettevano e ispiravano il movimento del Risorgimento stabilendo una tradizione operistica distintamente italiana.",
+          tags: ['opera', 'verdi', 'classica', 'musica', 'italiano', 'politico', 'risorgimento', 'nazionalismo'],
           type: 'epub',
           color: '#3A5683', // Dark blue for good contrast with white text
-          text: 'Verdi%20Operas'
+          text: 'Opere%20Verdi'
         },
         {
-          title: "Mozart's Operas: The Evolution of a Genius",
-          description: "An in-depth study of Wolfgang Amadeus Mozart's operatic works, tracing his development from youthful compositions to his mature masterpieces, with analysis of his innovative musical language and character development techniques.",
-          tags: ['opera', 'mozart', 'classical', 'music', 'austrian', 'enlightenment', 'character', 'composition'],
+          title: "Le Opere di Mozart: L'Evoluzione di un Genio",
+          description: "Uno studio approfondito delle opere liriche di Wolfgang Amadeus Mozart, tracciando il suo sviluppo dalle composizioni giovanili ai suoi capolavori maturi, con analisi del suo linguaggio musicale innovativo e delle tecniche di sviluppo del carattere.",
+          tags: ['opera', 'mozart', 'classica', 'musica', 'austriaco', 'illuminismo', 'carattere', 'composizione'],
           type: 'pdf',
           color: '#2C4770', // Dark blue-gray for good contrast with white text
-          text: 'Mozart%20Operas'
+          text: 'Opere%20Mozart'
         },
         {
-          title: "Puccini and Italian Verismo: Realism in Opera",
-          description: "A detailed examination of Giacomo Puccini's contributions to the verismo movement in Italian opera, analyzing his realistic portrayal of everyday characters and emotional directness that revolutionized late 19th and early 20th century operatic composition.",
-          tags: ['opera', 'puccini', 'classical', 'music', 'italian', 'verismo', 'realism', 'boheme', 'butterfly'],
+          title: "Puccini e il Verismo Italiano: Realismo nell'Opera",
+          description: "Un esame dettagliato dei contributi di Giacomo Puccini al movimento verista nell'opera italiana, analizzando la sua rappresentazione realistica di personaggi quotidiani e la franchezza emotiva che rivoluzionò la composizione operistica di fine Ottocento e inizio Novecento.",
+          tags: ['opera', 'puccini', 'classica', 'musica', 'italiano', 'verismo', 'realismo', 'boheme', 'butterfly'],
           type: 'epub',
           color: '#56452C', // Dark brown for good contrast with white text
           text: 'Puccini%20Verismo'
         },
         {
-          title: "The History of Opera Houses in Europe",
-          description: "A comprehensive architectural and cultural history of Europe's greatest opera houses, from La Scala in Milan to the Paris Opera, exploring their design, acoustics, social significance, and ongoing legacy in contemporary performance spaces.",
-          tags: ['opera', 'architecture', 'europe', 'cultural', 'history', 'performance', 'acoustics', 'design'],
+          title: "La Storia dei Teatri d'Opera in Europa",
+          description: "Una storia architettonica e culturale completa dei più grandi teatri d'opera d'Europa, dalla Scala di Milano all'Opera di Parigi, esplorando il loro design, l'acustica, il significato sociale e l'eredità continua negli spazi di spettacolo contemporanei.",
+          tags: ['opera', 'architettura', 'europa', 'culturale', 'storia', 'spettacolo', 'acustica', 'design'],
           type: 'pdf',
           color: '#644D7A', // Deep purple for good contrast with white text
-          text: 'Opera%20Houses'
+          text: 'Teatri%20Opera'
         }
       ];
       
@@ -410,26 +410,26 @@ class MockDataStore {
         const author = availableUsers[authorIndex];
         
         const reportReasons = [
-          'There is a typo on page 19 at line 5 - "recieve" should be "receive". Hope this helps!',
-          'I think this section could use some clarification about the historical context mentioned in paragraph 3.',
-          'Found a small formatting issue on page 12 - the footnote reference seems to be missing.',
-          'The citation on page 8 appears to be incomplete - missing the publication year.',
-          'There\'s a grammatical error in the second paragraph: "was" should be "were" when referring to multiple subjects.',
-          'I noticed the bibliography is missing an entry for the source quoted on page 15.',
-          'The diagram on page 7 is a bit unclear - perhaps adding labels would help readers understand it better.',
-          'There seems to be a factual inconsistency between the dates mentioned on pages 4 and 11.',
-          'I think adding a glossary would be helpful for readers unfamiliar with some of the technical terms used.',
-          'The conclusion could benefit from a brief summary of the main points discussed earlier.',
-          'There\'s a broken internal reference on page 6 - it says "see page XX" but the page number is missing.',
-          'I found a duplicate sentence in the third paragraph of the introduction.',
-          'The table on page 13 has some alignment issues that make it hard to read.',
-          'I think this would benefit from more recent sources - most references are from before 2010.',
-          'There\'s a spacing issue in the header on page 9 that affects readability.',
-          'The abstract could be more concise - it currently exceeds the typical word limit for academic papers.',
-          'I noticed some inconsistent terminology - "theatre" vs "theater" is used interchangeably.',
-          'The methodology section could use more detail about the data collection process.',
-          'There\'s a missing closing quotation mark in the quote on page 16.',
-          'I think adding page numbers to the table of contents would improve navigation.'
+          'C\'è un errore di battitura alla pagina 19 alla linea 5 - "recieve" dovrebbe essere "receive". Spero che questo ti aiuti!',
+          'Penso che questa sezione potrebbe richiedere una chiarificazione sul contesto storico menzionato nel paragrafo 3.',
+          'Ho trovato un piccolo problema di formattazione alla pagina 12 - la nota a piè di pagina sembra mancare.',
+          'La citazione alla pagina 8 sembra incompleta - manca l\'anno di pubblicazione.',
+          'C\'è un errore grammaticale nel secondo paragrafo: "was" dovrebbe essere "were" quando si fa riferimento a più soggetti.',
+          'Ho notato che la bibliografia manca un accesso per la fonte citata alla pagina 15.',
+          'Il diagramma alla pagina 7 è un po\' ambiguo - aggiungere etichette potrebbe aiutare i lettori a capirlo meglio.',
+          'Sembra esserci una inconsistenza fattuale tra le date menzionate alle pagine 4 e 11.',
+          'Penso che aggiungere un glossario sarebbe utile per i lettori che non sono familiari con alcuni termini tecnici usati.',
+          'La conclusione potrebbe beneficiare di una breve sintesi dei punti principali discussi in precedenza.',
+          'C\'è un riferimento interno rotto alla pagina 6 - dice "vedi pagina XX" ma il numero di pagina è mancante.',
+          'Ho trovato una frase duplicata nel terzo paragrafo dell\'introduzione.',
+          'La tabella alla pagina 13 ha alcuni problemi di allineamento che la rendono difficile da leggere.',
+          'Penso che questo beneficerebbe di fonti più recenti - la maggior parte delle citazioni sono da prima del 2010.',
+          'C\'è un problema di spaziatura nell\'intestazione alla pagina 9 che influisce sulla leggibilità.',
+          'Il riassunto potrebbe essere più conciso - attualmente supera la lunghezza tipica per i documenti accademici.',
+          'Ho notato alcuni termini inconsistenti - "theatre" vs "theater" è usato in modo intercambiabile.',
+          'La sezione metodologica potrebbe richiedere più dettagli sul processo di raccolta dei dati.',
+          'C\'è una virgola di chiusura mancante nella citazione alla pagina 16.',
+          'Penso che aggiungere i numeri di pagina nella tabella delle mieve sarebbe migliorata la navigazione.'
         ];
         
         const report: MockReport = {
@@ -868,13 +868,13 @@ const mockDataStore = MockDataStore.getInstance();
 
 // Define recent searches
 const recentSearches: string[] = [
-  "#pdf Analysis",
-  "philosophy",
-  "#epub #mythology the odyssey",
-  "plato",
-  "literature",
-  "#italian Dante's Divine Comedy",
-  "#powerpoint poetry"
+  "#pdf Analisi",
+  "filosofia",
+  "#epub #mitologia l'odissea",
+  "platone",
+  "letteratura",
+  "#italiano Divina Commedia di Dante",
+  "#powerpoint poesia"
 ];
 
 // Export the API to interact with mock data

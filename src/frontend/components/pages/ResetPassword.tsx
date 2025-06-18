@@ -50,13 +50,13 @@ export default function ResetPassword() {
     <AuthPageLayout>
       <AuthCard 
         title="CloudNotes"
-        description="Your virtual oasis of knowledge"
-        subtitle="Reset Password"
+        description="La tua oasi virtuale di conoscenza"
+        subtitle="Reimposta Password"
         className="rounded-3xl border-none shadow-2xl"
       >
         <div className="mb-6">
           <p className="text-sm text-muted-foreground -mt-1 text-center select-none">
-            Create a new password for your account. Make sure it's secure and different from your previous password.
+            Crea una nuova password per il tuo account. Assicurati che sia sicura e diversa dalla tua password precedente.
           </p>
         </div>
         
@@ -64,23 +64,23 @@ export default function ResetPassword() {
           form={form}
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
-          submitLabel="Reset Password"
+          submitLabel="Reimposta Password"
           loading={isLoading}
-          loadingText="Resetting password..."
+          loadingText="Reimpostazione password..."
         >
           <PasswordInput
             form={form}
             name="password"
-            label="New Password"
+            label="Nuova Password"
             autoComplete="new-password"
             required
-            description="Password must be at least 8 characters"
+            description="La password deve essere di almeno 8 caratteri"
           />
           
           <PasswordInput
             form={form}
             name="confirmPassword"
-            label="Confirm New Password"
+            label="Conferma Nuova Password"
             autoComplete="new-password"
             required
           />

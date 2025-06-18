@@ -1,4 +1,3 @@
-import { Button } from "../ui/button";
 import { Modal } from "../ui/modal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import type React from "react";
@@ -92,9 +91,18 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
   const getButtonText = () => {
     switch (stage) {
       case "final":
-        return "Start your journey";
+        return "Inizia il tuo viaggio";
       default:
-        return "Next";
+        return "Avanti";
+    }
+  };
+
+  const getButtonIcon = () => {
+    switch (stage) {
+      case "final":
+        return <ArrowRightToLineIcon size={16} />;
+      default:
+        return <ChevronRightIcon size={16} />;
     }
   };
 
@@ -105,11 +113,16 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
       title={
         <div className="flex items-center gap-2 select-none">
           <BookOpenIcon size={20} />
-          <span>Welcome to CloudNotes</span>
+          <span>Benvenuto in CloudNotes</span>
         </div>
       }
       maxWidth="max-w-6xl"
       className="overflow-hidden min-h-[800px]"
+      actionButton={{
+        text: getButtonText(),
+        onClick: handleNext,
+        icon: getButtonIcon()
+      }}
     >
       <div className="p-6 h-[750px] flex flex-col">
         <div className="flex-1 flex items-center justify-center overflow-y-auto">
@@ -119,10 +132,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           <div className="text-center space-y-6 animate-in fade-in duration-500">
             <div className="space-y-4">
                   <h2 className="text-3xl font-bold text-foreground">
-                Welcome to CloudNotes
+                Benvenuto in CloudNotes
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                This application is for everybody whose intent is to learn from and explore the catalog of documents that other users have made. From school to careers, CloudNotes helps with easy finding and reading of documents of all kinds of things — for free!
+                Questa applicazione è per tutti coloro che vogliono imparare ed esplorare il catalogo di documenti creati da altri utenti. Dalla scuola alle carriere, CloudNotes aiuta a trovare e leggere facilmente documenti di ogni tipo — gratuitamente!
               </p>
             </div>
 
@@ -146,10 +159,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                 <div className="mt-3 text-center">
                   <div className="flex items-center justify-center gap-2 text-primary">
                     <GraduationCapIcon size={16} />
-                    <span className="text-sm font-medium">Academic Learning</span>
+                    <span className="text-sm font-medium">Apprendimento Accademico</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Explore historical documents and educational content
+                    Esplora documenti storici e contenuti educativi
                   </p>
                 </div>
               </div>
@@ -173,10 +186,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                 <div className="mt-3 text-center">
                   <div className="flex items-center justify-center gap-2 text-primary">
                     <BriefcaseIcon size={16} />
-                    <span className="text-sm font-medium">Professional Growth</span>
+                    <span className="text-sm font-medium">Crescita Professionale</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Access career resources and professional documents
+                    Accedi a risorse per la carriera e documenti professionali
                   </p>
                 </div>
               </div>
@@ -189,10 +202,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           <div className="space-y-6 animate-in fade-in duration-500">
             <div className="text-center space-y-2">
               <h2 className="text-3xl font-bold text-foreground">
-                    Smart Search
+                    Ricerca Intelligente
               </h2>
               <p className="text-lg text-muted-foreground">
-                    Find exactly what you're looking for
+                    Trova esattamente quello che stai cercando
               </p>
             </div>
 
@@ -210,38 +223,38 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold text-foreground">
-                        Search Features
+                        Funzionalità di Ricerca
                       </h3>
                       
                       <div className="space-y-3">
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Advanced Filters</p>
-                            <p className="text-xs text-muted-foreground">Filter by document type, subject, and date</p>
+                            <p className="font-medium text-sm">Filtri Avanzati</p>
+                            <p className="text-xs text-muted-foreground">Filtra per tipo di documento, argomento e data</p>
                           </div>
                         </div>
                         
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Instant Results</p>
-                            <p className="text-xs text-muted-foreground">Get results as you type with real-time search</p>
+                            <p className="font-medium text-sm">Risultati Istantanei</p>
+                            <p className="text-xs text-muted-foreground">Ottieni risultati mentre digiti con la ricerca in tempo reale</p>
                   </div>
                 </div>
 
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Content Search</p>
-                            <p className="text-xs text-muted-foreground">Search within document content, not just titles</p>
+                            <p className="font-medium text-sm">Ricerca nel Contenuto</p>
+                            <p className="text-xs text-muted-foreground">Cerca all'interno del contenuto dei documenti, non solo nei titoli</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Smart Suggestions</p>
-                            <p className="text-xs text-muted-foreground">Get intelligent search suggestions and recommendations</p>
+                            <p className="font-medium text-sm">Suggerimenti Intelligenti</p>
+                            <p className="text-xs text-muted-foreground">Ottieni suggerimenti di ricerca intelligenti e raccomandazioni</p>
                           </div>
                         </div>
                   </div>
@@ -256,10 +269,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
               <div className="space-y-6 animate-in fade-in duration-500">
                 <div className="text-center space-y-2">
                   <h2 className="text-3xl font-bold text-foreground">
-                    Easy Upload
+                    Caricamento Facile
                   </h2>
                   <p className="text-lg text-muted-foreground">
-                    Share your documents with the community
+                    Condividi i tuoi documenti con la community
                   </p>
               </div>
 
@@ -277,23 +290,23 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold text-foreground">
-                        Upload Features
+                        Funzionalità di Caricamento
                       </h3>
                       
                       <div className="space-y-3">
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Multiple Formats</p>
-                            <p className="text-xs text-muted-foreground">Support for PDF, EPUB, Word, PowerPoint and TXT</p>
+                            <p className="font-medium text-sm">Formati Multipli</p>
+                            <p className="text-xs text-muted-foreground">Supporto per PDF, EPUB, Word, PowerPoint e TXT</p>
                   </div>
                 </div>
 
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Tag system</p>
-                            <p className="text-xs text-muted-foreground">Tag your documents with keywords and categories to make them easier to find</p>
+                            <p className="font-medium text-sm">Sistema di Tag</p>
+                            <p className="text-xs text-muted-foreground">Etichetta i tuoi documenti con parole chiave e categorie per renderli più facili da trovare</p>
                           </div>
                         </div>
                   </div>
@@ -308,10 +321,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           <div className="space-y-6 animate-in fade-in duration-500">
             <div className="text-center space-y-2">
               <h2 className="text-3xl font-bold text-foreground">
-                    Built-in Reader
+                    Lettore Integrato
               </h2>
               <p className="text-lg text-muted-foreground">
-                    Advanced document viewing experience
+                    Esperienza avanzata di visualizzazione documenti
               </p>
             </div>
 
@@ -329,47 +342,47 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
               <div className="space-y-6">
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-foreground">
-                        Reader Features
+                        Funzionalità del Lettore
                   </h3>
                   
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                       <div>
-                            <p className="font-medium text-sm">Zoom & Pan</p>
-                            <p className="text-xs text-muted-foreground">Smooth zooming and panning for detailed viewing</p>
+                            <p className="font-medium text-sm">Zoom e Panoramica</p>
+                            <p className="text-xs text-muted-foreground">Zoom e panoramica fluidi per una visualizzazione dettagliata</p>
                           </div>
                         </div>
                         
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Draw & Highlight</p>
-                            <p className="text-xs text-muted-foreground">Highlight text and draw on documents</p>
+                            <p className="font-medium text-sm">Disegna ed Evidenzia</p>
+                            <p className="text-xs text-muted-foreground">Evidenzia il testo e disegna sui documenti</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                       <div>
-                            <p className="font-medium text-sm">Notes and Bookmarks</p>
-                            <p className="text-xs text-muted-foreground">Add notes and bookmarks to pages</p>
+                            <p className="font-medium text-sm">Note e Segnalibri</p>
+                            <p className="text-xs text-muted-foreground">Aggiungi note e segnalibri alle pagine</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                       <div>
-                            <p className="font-medium text-sm">Undo-redo</p>
-                            <p className="text-xs text-muted-foreground">Undo and redo your actions</p>
+                            <p className="font-medium text-sm">Annulla-Ripeti</p>
+                            <p className="text-xs text-muted-foreground">Annulla e ripeti le tue azioni</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                       <div>
-                            <p className="font-medium text-sm">Personalization</p>
-                            <p className="text-xs text-muted-foreground">Customize your reading experience with different document themes</p>
+                            <p className="font-medium text-sm">Personalizzazione</p>
+                            <p className="text-xs text-muted-foreground">Personalizza la tua esperienza di lettura con diversi temi per i documenti</p>
                           </div>
                         </div>
                       </div>
@@ -384,10 +397,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
               <div className="space-y-6 animate-in fade-in duration-500">
                 <div className="text-center space-y-2">
                   <h2 className="text-3xl font-bold text-foreground">
-                    Personal Library
+                    Biblioteca Personale
                   </h2>
                   <p className="text-lg text-muted-foreground">
-                    Organize and manage your document collection
+                    Organizza e gestisci la tua collezione di documenti
                   </p>
                 </div>
 
@@ -405,31 +418,31 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold text-foreground">
-                        Library Features
+                        Funzionalità della Biblioteca
                       </h3>
                       
                       <div className="space-y-3">
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Save to Favorites</p>
-                            <p className="text-xs text-muted-foreground">Save and quickly access your favorite documents</p>
+                            <p className="font-medium text-sm">Salva nei Preferiti</p>
+                            <p className="text-xs text-muted-foreground">Salva e accedi rapidamente ai tuoi documenti preferiti</p>
                           </div>
                         </div>
                         
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Recent History</p>
-                            <p className="text-xs text-muted-foreground">Keep track of recently viewed documents</p>
+                            <p className="font-medium text-sm">Cronologia Recente</p>
+                            <p className="text-xs text-muted-foreground">Tieni traccia dei documenti visualizzati di recente</p>
                           </div>
                         </div>
 
                         <div className="flex items-start gap-3">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                           <div>
-                            <p className="font-medium text-sm">Privacy Controls</p>
-                            <p className="text-xs text-muted-foreground">Choose who can access your shared documents</p>
+                            <p className="font-medium text-sm">Controlli Privacy</p>
+                            <p className="text-xs text-muted-foreground">Scegli chi può accedere ai tuoi documenti condivisi</p>
                           </div>
                         </div>
                       </div>
@@ -448,7 +461,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       CloudNotes
               </h2>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                      your virtual oasis of knowledge.
+                      la tua oasi virtuale di conoscenza.
               </p>
             </div>
                 </div>
@@ -459,9 +472,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto">
                         <SearchIcon size={24} className="text-blue-500" />
                       </div>
-                      <h3 className="text-lg font-semibold">Discover</h3>
+                      <h3 className="text-lg font-semibold">Scopri</h3>
                       <p className="text-sm text-muted-foreground">
-                        Search through thousands of documents and find exactly what you need
+                        Cerca tra migliaia di documenti e trova esattamente quello di cui hai bisogno
                       </p>
               </div>
               
@@ -469,9 +482,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto">
                         <BookOpenIcon size={24} className="text-green-500" />
                 </div>
-                      <h3 className="text-lg font-semibold">Learn</h3>
+                      <h3 className="text-lg font-semibold">Impara</h3>
                       <p className="text-sm text-muted-foreground">
-                        Use our advanced reader to study and take notes on any document
+                        Usa il nostro lettore avanzato per studiare e prendere appunti su qualsiasi documento
                       </p>
               </div>
               
@@ -479,32 +492,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto">
                         <UploadIcon size={24} className="text-orange-500" />
                       </div>
-                      <h3 className="text-lg font-semibold">Share</h3>
+                      <h3 className="text-lg font-semibold">Condividi</h3>
                       <p className="text-sm text-muted-foreground">
-                        Contribute to the community by sharing your own documents
+                        Contribuisci alla community condividendo i tuoi documenti
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Navigation - Fixed at absolute bottom */}
-        <div className="flex-shrink-0 pt-6 pb-2">
-          <div className="flex justify-center">
-            <Button 
-              onClick={handleNext}
-              className="px-8 py-2 rounded-full font-medium transition-colors cursor-pointer"
-              size="lg"
-            >
-              <span className="select-none flex items-center gap-2">
-                {getButtonText()}
-                {stage !== "final" && <ChevronRightIcon size={16} />}
-                {stage === "final" && <ArrowRightToLineIcon size={16} />}
-              </span>
-            </Button>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ interface LoadingModalProps {
 
 const LoadingModal: React.FC<LoadingModalProps> = ({
   isOpen,
-  message = "Loading, please wait...",
+  message = "Caricamento, attendere prego...",
   fullScreen = false
 }) => {
   useEffect(() => {

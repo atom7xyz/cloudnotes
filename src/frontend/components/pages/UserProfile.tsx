@@ -51,7 +51,7 @@ const UserProfile = () => {
       lastName: userDoc.author.lastName,
       username: userDoc.author.username,
       avatar: userDoc.author.avatar,
-      bio: 'Passionate about sharing knowledge through educational documents and research papers.',
+      bio: 'Appassionato di condividere conoscenza attraverso documenti educativi e articoli di ricerca.',
       joinDate: new Date('2023-06-20') // Mock join date
     };
   }, [username]);
@@ -74,13 +74,13 @@ const UserProfile = () => {
     // Format the relative time
     const diffInHours = Math.floor((now.getTime() - lastOpened.getTime()) / (1000 * 60 * 60));
     
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours === 1) return '1 hour ago';
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInHours < 1) return 'Adesso';
+    if (diffInHours === 1) return '1 ora fa';
+    if (diffInHours < 24) return `${diffInHours} ore fa`;
     
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return 'Yesterday';
-    return `${diffInDays} days ago`;
+    if (diffInDays === 1) return 'Ieri';
+    return `${diffInDays} giorni fa`;
   }, []);
 
   // Load user documents
@@ -103,8 +103,8 @@ const UserProfile = () => {
     if (docExists) {
       // Remove from favorites
       setFavoriteDocuments(prev => prev.filter(doc => doc.id !== docId));
-      toast.success("Removed from saved", {
-        description: "Document removed from your saved documents",
+      toast.success("Rimosso dai salvati", {
+        description: "Documento rimosso dai tuoi documenti salvati",
         icon: <BookmarkIcon size={16} />,
       });
     } else {
@@ -112,8 +112,8 @@ const UserProfile = () => {
       const docToAdd = userDocuments.find(doc => doc.id === docId);
       if (docToAdd) {
         setFavoriteDocuments(prev => [...prev, docToAdd]);
-        toast.success("Added to saved", {
-          description: "Document saved to your saved documents",
+        toast.success("Aggiunto ai salvati", {
+          description: "Documento salvato nei tuoi documenti salvati",
           icon: <BookmarkIcon size={16} />,
         });
       }
@@ -161,14 +161,14 @@ const UserProfile = () => {
       const profileUrl = `${window.location.origin}/profile/${profileUser.username}`;
       await navigator.clipboard.writeText(profileUrl);
 
-      toast.success("Profile link copied", {
-        description: "Profile URL has been copied to clipboard",
+      toast.success("Link profilo copiato", {
+        description: "L'URL del profilo è stato copiato negli appunti",
         icon: <Share2Icon size={16} />,
       });
     } catch (err) {
       console.error('Failed to copy profile link:', err);
-      toast.error("Failed to copy link", {
-        description: "Could not copy profile URL to clipboard",
+      toast.error("Impossibile copiare il link", {
+        description: "Non è stato possibile copiare l'URL del profilo negli appunti",
       });
     }
   }, [profileUser]);
@@ -178,14 +178,14 @@ const UserProfile = () => {
       <div className="p-6 max-w-[1200px] mx-auto select-none">
         <div className="text-center py-12">
           <UserIcon size={64} className="mx-auto text-muted-foreground/30 mb-4" />
-          <h3 className="text-lg font-medium mb-2">User not found</h3>
-          <p className="text-muted-foreground">The requested user profile could not be found.</p>
+          <h3 className="text-lg font-medium mb-2">Utente non trovato</h3>
+          <p className="text-muted-foreground">Il profilo utente richiesto non è stato trovato.</p>
           <Button 
             variant="outline" 
             onClick={handleGoBack}
             className="mt-4"
           >
-            Back to Home
+            Torna alla Home
           </Button>
         </div>
       </div>
@@ -220,7 +220,7 @@ const UserProfile = () => {
                         />
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent>Share profile</TooltipContent>
+                    <TooltipContent>Condividi profilo</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 
@@ -234,10 +234,10 @@ const UserProfile = () => {
                         }}
                       >
                         <HeartIcon size={18} />
-                        Donate
+                        Dona
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Support this creator</TooltipContent>
+                    <TooltipContent>Sostieni questo creatore</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
@@ -260,7 +260,7 @@ const UserProfile = () => {
               <div className="mb-6">
                 <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                   <UserIcon size={18} className="text-primary" />
-                  About
+                  Info
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base bg-muted/20 p-4 rounded-lg border-l-4 border-primary/30">
                   {profileUser.bio}
@@ -271,7 +271,7 @@ const UserProfile = () => {
               <div className="text-sm">
                 <div className="flex items-center gap-2">
                   <CalendarIcon size={16} className="text-primary" />
-                  <span className="font-medium">Joined:</span>
+                  <span className="font-medium">Iscritto:</span>
                   <span className="text-muted-foreground">{formatRelativeDate(profileUser.joinDate)}</span>
                 </div>
               </div>
@@ -285,15 +285,15 @@ const UserProfile = () => {
         <div>
           <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
             <FileTextIcon size={24} className="text-primary" />
-            {profileUser.firstName}'s Documents ({userDocuments.length})
+            Documenti di {profileUser.firstName} ({userDocuments.length})
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {userDocuments.length === 0 ? (
               <div className="col-span-2 text-center py-12">
                 <FileTextIcon size={64} className="mx-auto text-muted-foreground/30 mb-4" />
-                <h3 className="text-lg font-medium mb-2">No documents yet</h3>
-                <p className="text-muted-foreground">This user hasn't uploaded any documents yet.</p>
+                <h3 className="text-lg font-medium mb-2">Nessun documento ancora</h3>
+                <p className="text-muted-foreground">Questo utente non ha ancora caricato alcun documento.</p>
               </div>
             ) : (
               <>
@@ -344,12 +344,12 @@ const UserProfile = () => {
                           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <ClockIcon size={12} className="text-primary" />
-                              <span>Published: {formatRelativeDate(doc.file.uploadedAt)}</span>
+                              <span>Pubblicato: {formatRelativeDate(doc.file.uploadedAt)}</span>
                             </div>
                             
                             <div className="flex items-center gap-1">
                               <StarIcon size={12} className="text-yellow-500" />
-                              <span className="font-medium">{doc.rating.rating.toFixed(1)} rating</span>
+                              <span className="font-medium">{doc.rating.rating.toFixed(1)} valutazione</span>
                             </div>
                           </div>
                           
@@ -388,12 +388,12 @@ const UserProfile = () => {
                     >
                       {showAllDocs ? (
                         <>
-                          Show Less
+                          Mostra di meno
                           <ChevronUpIcon size={16} />
                         </>
                       ) : (
                         <>
-                          View All Documents
+                          Mostra di piú
                           <ChevronRightIcon size={16} />
                         </>
                       )}

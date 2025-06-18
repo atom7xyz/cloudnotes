@@ -79,16 +79,16 @@ const TopNavbar: React.FC = () => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
       id: '2',
-      title: 'New comment',
-      message: '@hyman.hills commented on "Mozart\'s Operas: The Evolution of a Genius"',
+      title: 'Nuovo commento',
+      message: '@hyman.hills ha commentato "Le Opere di Mozart: L\'evoluzione di un Genio"',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       isRead: false,
       type: 'comment'
     },
     {
       id: '3',
-      title: 'Document milestone',
-      message: 'Your document has reached 1000 saves',
+      title: 'Traguardo documento',
+      message: 'Il tuo documento ha raggiunto 1000 salvataggi',
       timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
       isRead: true,
       type: 'bookmark_milestone'
@@ -261,21 +261,21 @@ const TopNavbar: React.FC = () => {
           <div className="flex items-center space-x-1 mr-2" style={noDragRegion}>
             <NavButton 
               icon={<ArrowLeftIcon size={16} />}
-              title="Go back"
+              title="Indietro"
               onClick={handleGoBack}
               disabled={!canGoBack}
             />
             
             <NavButton 
               icon={<ArrowRightIcon size={16} />}
-              title="Go forward"
+              title="Avanti"
               onClick={handleGoForward}
               disabled={!canGoForward}
             />
             
             <NavButton 
               icon={<RotateCwIcon size={16} />}
-              title="Reload"
+              title="Ricarica"
               onClick={handleReload}
             />
           </div>
@@ -292,7 +292,7 @@ const TopNavbar: React.FC = () => {
               <div className="group">
                 <Input
                   type="text"
-                  placeholder="Search"
+                  placeholder="Cerca"
                   className={cn(
                     "h-8 w-full rounded-full py-1.5 pl-10 pr-16 text-sm transition-all duration-200 cursor-pointer z-10 relative",
                     "border border-muted-foreground/40",
@@ -330,7 +330,7 @@ const TopNavbar: React.FC = () => {
             variant="ghost"
             size="icon"
             className="h-12 w-[50px] rounded-none hover-primary-effect transition-all duration-200"
-            title="Minimize"
+            title="Riduci a icona"
           >
             <MinusIcon size={16} />
           </Button>
@@ -340,7 +340,7 @@ const TopNavbar: React.FC = () => {
             variant="ghost"
             size="icon"
             className="h-12 w-[50px] rounded-none hover-primary-effect transition-all duration-200" 
-            title={isMaximized ? "Restore" : "Maximize"}
+            title={isMaximized ? "Ripristina" : "Ingrandisci"}
           >
             {isMaximized ? <SquareIcon size={16} /> : <MaximizeIcon size={16} />}
           </Button>
@@ -350,7 +350,7 @@ const TopNavbar: React.FC = () => {
             variant="ghost"
             size="icon"
             className="h-12 w-[50px] rounded-none hover:bg-destructive hover:text-white transition-all duration-200"
-            title="Close"
+            title="Chiudi"
           >
             <XIcon size={16} />
           </Button>

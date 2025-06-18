@@ -1,6 +1,5 @@
 import type React from 'react';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
 import { cn } from "@/lib/utils";
@@ -37,27 +36,27 @@ interface TestTopic {
 const TEST_TOPICS: TestTopic[] = [
   {
     id: 'general-1',
-    title: 'The Future of Technology',
+    title: 'Il Futuro della Tecnologia',
     type: 'general',
     difficulty: 'medium',
     wordCount: 150,
-    content: `The rapid advancement of technology continues to reshape our daily lives in unprecedented ways. From artificial intelligence powering smart homes to quantum computing promising breakthrough solutions, we stand at the threshold of a new era. Mobile devices have evolved from simple communication tools to powerful computers that fit in our pockets. Cloud computing has revolutionized how we store and access information, making collaboration seamless across continents. Social media platforms have transformed human interaction, creating global communities and new forms of expression. As we look toward the future, emerging technologies like virtual reality, blockchain, and biotechnology hold immense potential to solve complex problems and enhance human capabilities. The challenge lies not just in developing these technologies, but in ensuring they benefit humanity while addressing ethical concerns and privacy issues that arise.`
+    content: `Il rapido avanzamento della tecnologia continua a rimodellare la nostra vita quotidiana in modi senza precedenti. Dall'intelligenza artificiale che alimenta le case intelligenti al calcolo quantistico che promette soluzioni rivoluzionarie, ci troviamo sulla soglia di una nuova era. I dispositivi mobili si sono evoluti da semplici strumenti di comunicazione a potenti computer che entrano nelle nostre tasche. Il cloud computing ha rivoluzionato il modo in cui archiviamo e accediamo alle informazioni, rendendo la collaborazione fluida attraverso i continenti. Le piattaforme dei social media hanno trasformato l'interazione umana, creando comunità globali e nuove forme di espressione. Mentre guardiamo al futuro, le tecnologie emergenti come la realtà virtuale, la blockchain e la biotecnologia hanno un immenso potenziale per risolvere problemi complessi e migliorare le capacità umane. La sfida non sta solo nello sviluppare queste tecnologie, ma nel garantire che vadano a beneficio dell'umanità affrontando le preoccupazioni etiche e i problemi di privacy che sorgono.`
   },
   {
     id: 'technical-1',
-    title: 'Machine Learning',
+    title: 'Apprendimento Automatico',
     type: 'technical',
     difficulty: 'hard',
     wordCount: 140,
-    content: `Machine learning algorithms are designed to identify patterns within large datasets and make predictions or decisions without explicit programming for each scenario. Supervised learning methods utilize labeled training data to build predictive models, while unsupervised learning discovers hidden structures in unlabeled data. Neural networks, inspired by biological brain structures, consist of interconnected nodes that process information through weighted connections and activation functions. Deep learning architectures, particularly convolutional neural networks, have achieved remarkable success in image recognition and natural language processing tasks. Feature engineering remains crucial for model performance, involving the selection and transformation of input variables. Regularization techniques prevent overfitting by adding penalty terms to loss functions. Cross-validation ensures model generalization by testing performance on unseen data subsets.`
+    content: `Gli algoritmi di apprendimento automatico sono progettati per identificare pattern all'interno di grandi dataset e fare previsioni o decisioni senza programmazione esplicita per ogni scenario. I metodi di apprendimento supervisionato utilizzano dati di addestramento etichettati per costruire modelli predittivi, mentre l'apprendimento non supervisionato scopre strutture nascoste in dati non etichettati. Le reti neurali, ispirate alle strutture biologiche del cervello, consistono di nodi interconnessi che processano informazioni attraverso connessioni ponderate e funzioni di attivazione. Le architetture di deep learning, in particolare le reti neurali convoluzionali, hanno raggiunto successi notevoli nel riconoscimento di immagini e nell'elaborazione del linguaggio naturale. L'ingegneria delle caratteristiche rimane cruciale per le prestazioni del modello, coinvolgendo la selezione e trasformazione delle variabili di input. Le tecniche di regolarizzazione prevengono l'overfitting aggiungendo termini di penalità alle funzioni di perdita. La validazione incrociata assicura la generalizzazione del modello testando le prestazioni su sottoinsiemi di dati non visti.`
   },
   {
     id: 'literary-1',
-    title: 'A Moment of Reflection',
+    title: 'Un Momento di Riflessione',
     type: 'literary',
     difficulty: 'medium',
     wordCount: 160,
-    content: `The old oak tree stood sentinel in the garden, its gnarled branches reaching toward the amber sky like the weathered hands of time itself. Beneath its sprawling canopy, Maya found solace from the chaos of modern life. The gentle rustle of leaves whispered secrets of seasons past, each sound a melody composed by nature's own symphony. She remembered her grandmother's stories, told beneath this very tree, tales of courage and love that had shaped her understanding of the world. The scent of jasmine drifted on the evening breeze, mingling with memories of childhood summers spent exploring hidden corners of the garden. As twilight painted the horizon in shades of purple and gold, Maya realized that some treasures could never be measured in material terms. The wisdom of trees, the comfort of familiar places, and the enduring power of memory created a tapestry of meaning that transcended the temporary concerns of daily existence.`
+    content: `La vecchia quercia stava di sentinella nel giardino, i suoi rami nodosi che si protendevano verso il cielo ambrato come le mani logore del tempo stesso. Sotto la sua chioma espansa, Maya trovava sollievo dal caos della vita moderna. Il dolce fruscio delle foglie sussurrava segreti di stagioni passate, ogni suono una melodia composta dalla sinfonia della natura stessa. Si ricordava delle storie della nonna, raccontate sotto questo stesso albero, racconti di coraggio e amore che avevano plasmato la sua comprensione del mondo. Il profumo del gelsomino galleggiava nella brezza serale, mescolandosi con i ricordi delle estati dell'infanzia trascorse esplorando angoli nascosti del giardino. Mentre il crepuscolo dipingeva l'orizzonte con sfumature di viola e oro, Maya si rese conto che alcuni tesori non potevano mai essere misurati in termini materiali. La saggezza degli alberi, il comfort dei luoghi familiari e il potere duraturo della memoria creavano un arazzo di significato che trascendeva le preoccupazioni temporanee dell'esistenza quotidiana.`
   }
 ];
 
@@ -85,18 +84,18 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
     switch (topic.id) {
       case 'general-1':
         return [
-          { id: 1, question: "What are some examples of emerging technologies mentioned?", answers: ["VR, blockchain, biotechnology", "Only AI and quantum computing", "Just mobile devices", "Social media only"], correct: 0 },
-          { id: 2, question: "What challenge is mentioned regarding future technology?", answers: ["Cost reduction", "Speed improvement", "Ethical concerns and privacy", "Storage capacity"], correct: 2 }
+          { id: 1, question: "Quali sono alcuni esempi di tecnologie emergenti menzionate?", answers: ["VR, blockchain, biotecnologie", "Solo AI e calcolo quantistico", "Solo dispositivi mobili", "Solo social media"], correct: 0 },
+          { id: 2, question: "Quale sfida è menzionata riguardo alla tecnologia futura?", answers: ["Riduzione dei costi", "Miglioramento della velocità", "Preoccupazioni etiche e privacy", "Capacità di archiviazione"], correct: 2 }
         ];
       case 'technical-1':
         return [
-          { id: 1, question: "What is the difference between supervised and unsupervised learning?", answers: ["No difference", "Supervised uses labeled data", "Unsupervised is faster", "Supervised is newer"], correct: 1 },
-          { id: 2, question: "What prevents overfitting in machine learning?", answers: ["More data", "Regularization techniques", "Faster computers", "Larger networks"], correct: 1 }
+          { id: 1, question: "Qual è la differenza tra apprendimento supervisionato e non supervisionato?", answers: ["Nessuna differenza", "Il supervisionato usa dati etichettati", "Il non supervisionato è più veloce", "Il supervisionato è più nuovo"], correct: 1 },
+          { id: 2, question: "Cosa previene l'overfitting nell'apprendimento automatico?", answers: ["Più dati", "Tecniche di regolarizzazione", "Computer più veloci", "Reti più grandi"], correct: 1 }
         ];
       case 'literary-1':
         return [
-          { id: 1, question: "Where does Maya find solace?", answers: ["In the city", "Under an oak tree", "At the beach", "In her room"], correct: 1 },
-          { id: 2, question: "What does the story suggest about true treasures?", answers: ["They are expensive", "They are material objects", "They include wisdom and memory", "They are rare metals"], correct: 2 }
+          { id: 1, question: "Dove trova sollievo Maya?", answers: ["In città", "Sotto una quercia", "In spiaggia", "Nella sua stanza"], correct: 1 },
+          { id: 2, question: "Cosa suggerisce la storia sui veri tesori?", answers: ["Sono costosi", "Sono oggetti materiali", "Includono saggezza e memoria", "Sono metalli rari"], correct: 2 }
         ];
       default:
         return [];
@@ -204,8 +203,8 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
     setTestState('results');
     setIsLoading(false);
     
-    toast.success("Reading speed test completed!", {
-      description: `Your reading speed: ${finalWpm} WPM with ${accuracy}% comprehension`,
+    toast.success("Test di velocità di lettura completato!", {
+      description: `La tua velocità di lettura: ${finalWpm} PPM con ${accuracy}% di comprensione`,
       icon: <CheckCircleIcon size={16} />,
     });
   }, [startTime, endTime, selectedTopic, questionsAnswered, questions, updateReadingSpeed]);
@@ -228,10 +227,10 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
 
   // Get reading speed category info
   const getSpeedCategoryInfo = (wpm: number) => {
-    if (wpm < 150) return { category: 'Slow Reader', color: 'text-orange-600', icon: <ClockIcon size={16} /> };
-    if (wpm < 250) return { category: 'Average Reader', color: 'text-blue-600', icon: <BookOpenIcon size={16} /> };
-    if (wpm < 350) return { category: 'Fast Reader', color: 'text-green-600', icon: <TrendingUpIcon size={16} /> };
-    return { category: 'Speed Reader', color: 'text-purple-600', icon: <ZapIcon size={16} /> };
+    if (wpm < 150) return { category: 'Lettore Lento', color: 'text-orange-600', icon: <ClockIcon size={16} /> };
+    if (wpm < 250) return { category: 'Lettore Medio', color: 'text-blue-600', icon: <BookOpenIcon size={16} /> };
+    if (wpm < 350) return { category: 'Lettore Veloce', color: 'text-green-600', icon: <TrendingUpIcon size={16} /> };
+    return { category: 'Lettore Rapidissimo', color: 'text-purple-600', icon: <ZapIcon size={16} /> };
   };
 
   // Handle close and reset
@@ -253,17 +252,69 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
     return 'text-green-600 border-green-200 bg-gradient-to-br from-green-50 to-green-100';
   };
 
+  // Get modal props based on current state
+  const getModalProps = () => {
+    switch (testState) {
+      case 'setup':
+        return {
+          cancelButton: { text: "Annulla" },
+          actionButton: {
+            text: "Inizia Test",
+            onClick: startTest,
+            icon: <PlayIcon size={16} />
+          }
+        };
+      case 'reading':
+        return {
+          cancelButton: { text: "Annulla" },
+          actionButton: {
+            text: "Fatto",
+            onClick: finishReading,
+            icon: <CheckCircleIcon size={16} />
+          }
+        };
+      case 'questions':
+        return {
+          cancelButton: { text: "Annulla" },
+          actionButton: {
+            text: "Invia",
+            onClick: completeTest,
+            disabled: questionsAnswered.length !== questions.length || isLoading,
+            loadingText: "Elaborazione Risultati...",
+            icon: <CheckCircleIcon size={16} />
+          },
+          isLoading
+        };
+      case 'results':
+        return {
+          cancelButton: {
+            text: "Fai un Altro Test",
+            onClick: resetTest
+          },
+          actionButton: {
+            text: "Fatto",
+            onClick: handleClose,
+            icon: <CheckCircleIcon size={16} />
+          }
+        };
+      default:
+        return {};
+    }
+  };
+
+  const modalProps = getModalProps();
+
   const renderSetup = () => (
     <div className="space-y-6">
       <div className="text-center space-y-4">
         <div>
-          <h2 className="text-2xl font-bold">Reading Speed Test</h2>
-          <p className="text-muted-foreground">Test your reading speed and comprehension</p>
+          <h2 className="text-2xl font-bold">Test di Velocità di Lettura</h2>
+          <p className="text-muted-foreground">Testa la tua velocità di lettura e comprensione</p>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="font-semibold">Choose a test topic:</h3>
+        <h3 className="font-semibold">Scegli un argomento del test:</h3>
         <div className="grid grid-cols-3 gap-3">
           {TEST_TOPICS.map((topic) => (
             <Card 
@@ -279,11 +330,11 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
                   <h4 className="font-medium text-sm">{topic.title}</h4>
                   <div className="flex flex-col gap-1">
                     <Badge variant="outline" className="text-sm px-3 py-1 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30 w-fit">
-                      {topic.type}
+                      {topic.type === 'general' ? 'generale' : topic.type === 'technical' ? 'tecnico' : 'letterario'}
                     </Badge>
                   </div>
                   <div className="absolute">
-                    <span className="text-xs text-muted-foreground">{topic.wordCount} words</span>
+                    <span className="text-xs text-muted-foreground">{topic.wordCount} parole</span>
                   </div>
                 </div>
               </CardContent>
@@ -295,24 +346,14 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
       <div className="bg-muted/20 p-4 rounded-lg">
         <h4 className="font-medium mb-2 flex items-center gap-2">
           <HelpCircleIcon size={16} />
-          How it works:
+          Come funziona:
         </h4>
         <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-          <li>Read the selected topic at your normal pace</li>
-          <li>Click "Done" when finished</li>
-          <li>Answer 2 comprehension questions</li>
-          <li>Get your reading speed and accuracy results</li>
+          <li>Leggi l'argomento selezionato al tuo ritmo normale</li>
+          <li>Clicca "Fatto" quando hai finito</li>
+          <li>Rispondi a 2 domande di comprensione</li>
+          <li>Ottieni i risultati di velocità di lettura e precisione</li>
         </ol>
-      </div>
-
-      <div className="flex justify-end border-t pt-4 gap-2">
-        <Button onClick={handleCancel} variant="outline" className="rounded-full cursor-pointer hover-primary-effect">
-          Cancel
-        </Button>
-        <Button onClick={startTest} className="rounded-full cursor-pointer hover:bg-primary/90">
-          <PlayIcon size={16} />
-          Start Test
-        </Button>
       </div>
     </div>
   );
@@ -324,9 +365,9 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
           <h2 className="text-xl font-bold">{selectedTopic.title}</h2>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant="outline" className="text-sm px-3 py-1 bg-gradient-to-r from-primary/5 to-primary/10 text-primary border-primary/30">
-              {selectedTopic.type}
+              {selectedTopic.type === 'general' ? 'generale' : selectedTopic.type === 'technical' ? 'tecnico' : 'letterario'}
             </Badge>
-            <span className="text-sm text-muted-foreground">{selectedTopic.wordCount} words</span>
+            <span className="text-sm text-muted-foreground">{selectedTopic.wordCount} parole</span>
           </div>
         </div>
         <div className="text-right">
@@ -345,24 +386,14 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
           </div>
         </CardContent>
       </Card>
-
-      <div className="flex justify-end border-t pt-4 gap-2">
-        <Button onClick={handleCancel} variant="outline" className="rounded-full cursor-pointer hover-primary-effect">
-          Cancel
-        </Button>
-        <Button onClick={finishReading} className="gap-2 rounded-full cursor-pointer hover:bg-primary/90">
-          <CheckCircleIcon size={16} />
-          Done
-        </Button>
-      </div>
     </div>
   );
 
   const renderQuestions = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-bold">Comprehension Check</h2>
-        <p className="text-muted-foreground">Answer these questions based on what you just read</p>
+        <h2 className="text-xl font-bold">Verifica di Comprensione</h2>
+        <p className="text-muted-foreground">Rispondi a queste domande basate su quello che hai appena letto</p>
       </div>
 
       <div className="grid grid-cols-2 gap-6">
@@ -391,29 +422,6 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
           </Card>
         ))}
       </div>
-
-      <div className="flex justify-end border-t pt-4 gap-2">
-        <Button onClick={handleCancel} variant="outline" className="rounded-full cursor-pointer hover-primary-effect">
-          Cancel
-        </Button>
-        <Button 
-          onClick={completeTest} 
-          disabled={questionsAnswered.length !== questions.length || isLoading}
-          className="gap-2 rounded-full cursor-pointer hover:bg-primary/90"
-        >
-          {isLoading ? (
-            <>
-              <RefreshCwIcon size={16} className="animate-spin" />
-              Processing Results...
-            </>
-          ) : (
-            <>
-              <CheckCircleIcon size={16} />
-              Submit
-            </>
-          )}
-        </Button>
-      </div>
     </div>
   );
 
@@ -432,15 +440,15 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
     return (
       <div className="space-y-6">
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold">Test completed</h2>
-          <p className="text-muted-foreground">Here are your results:</p>
+          <h2 className="text-2xl font-bold">Test completato</h2>
+          <p className="text-muted-foreground">Ecco i tuoi risultati:</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <Card className="border-primary/20">
             <CardContent className="p-4 text-center flex flex-col items-center justify-center">
               <div className="text-3xl font-bold text-primary mb-2">{finalWpm}</div>
-              <div className="text-sm font-medium">Words Per Minute (WPM)</div>
+              <div className="text-sm font-medium">Parole Al Minuto (PPM)</div>
             </CardContent>
           </Card>
 
@@ -451,20 +459,9 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
                 accuracy <= 66 ? "text-orange-600" : 
                 "text-green-600"
               )}>{accuracy}%</div>
-              <div className="text-sm font-medium">Text comprehension</div>
+              <div className="text-sm font-medium">Comprensione del testo</div>
             </CardContent>
           </Card>
-        </div>
-
-        <div className="flex justify-end gap-2 border-t pt-4">
-          <Button onClick={resetTest} variant="outline" className="rounded-full cursor-pointer hover-primary-effect">
-            <RotateCcwIcon size={16} />
-            Take Another Test
-          </Button>
-          <Button onClick={handleClose} className="rounded-full cursor-pointer hover:bg-primary/90">
-            <CheckCircleIcon size={16} />
-            Done
-          </Button>
         </div>
       </div>
     );
@@ -474,9 +471,12 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Reading Speed Test"
+      title="Test di Velocità di Lettura"
       maxWidth="max-w-3xl"
       className="max-h-[90vh]"
+      cancelButton={modalProps.cancelButton}
+      actionButton={modalProps.actionButton}
+      isLoading={modalProps.isLoading}
     >
       <div className="p-6">
         {testState === 'setup' && renderSetup()}

@@ -42,7 +42,6 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, tit
       className={cn(
         "w-full flex flex-col items-center justify-center py-2 px-1 h-auto",
         "hover-primary-effect rounded-none transition-all duration-200",
-        active ? "bg-sidebar-accent/70 text-sidebar-foreground font-semibold" : "text-sidebar-foreground"
       )}
     >
       <div className="mb-1">{icon}</div>
@@ -168,13 +167,13 @@ const LeftSidebar: React.FC = () => {
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
     
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours === 1) return '1 hour ago';
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInHours < 1) return 'Ora';
+    if (diffInHours === 1) return '1 ora fa';
+    if (diffInHours < 24) return `${diffInHours} ore fa`;
     
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return 'Yesterday';
-    if (diffInDays < 7) return `${diffInDays} days ago`;
+    if (diffInDays === 1) return 'Ieri';
+    if (diffInDays < 7) return `${diffInDays} giorni fa`;
     
     return date.toLocaleDateString();
   };
@@ -182,7 +181,7 @@ const LeftSidebar: React.FC = () => {
   // Reader dropdown content
   const readerDropdownContent = (
     <>
-      <DropdownMenuLabel>Recent Files</DropdownMenuLabel>
+      <DropdownMenuLabel>Documenti Recenti</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <div className="max-h-64 overflow-y-auto">
         {recentDocuments.length > 0 ? (
@@ -197,7 +196,7 @@ const LeftSidebar: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{doc.title}</div>
                   <div className="text-xs text-muted-foreground truncate">
-                    by {doc.author.firstName} {doc.author.lastName} • {formatRelativeTime((doc as any).lastViewed)}
+                    di {doc.author.firstName} {doc.author.lastName} • {formatRelativeTime((doc as any).lastViewed)}
                   </div>
                 </div>
                 <ChevronRightIcon size={12} className="text-muted-foreground flex-shrink-0" />
@@ -206,7 +205,7 @@ const LeftSidebar: React.FC = () => {
           ))
         ) : (
           <DropdownMenuItem disabled>
-            <span className="text-muted-foreground">No recent files</span>
+            <span className="text-muted-foreground">Nessun file recente</span>
           </DropdownMenuItem>
         )}
       </div>
@@ -216,7 +215,7 @@ const LeftSidebar: React.FC = () => {
   // Saved dropdown content
   const savedDropdownContent = (
     <>
-      <DropdownMenuLabel>Saved Documents</DropdownMenuLabel>
+      <DropdownMenuLabel>Documenti Salvati</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <div className="max-h-64 overflow-y-auto">
         {savedDocuments.length > 0 ? (
@@ -231,7 +230,7 @@ const LeftSidebar: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{doc.title}</div>
                   <div className="text-xs text-muted-foreground truncate">
-                    by {doc.author.firstName} {doc.author.lastName}
+                    di {doc.author.firstName} {doc.author.lastName}
                   </div>
                 </div>
                 <ChevronRightIcon size={12} className="text-muted-foreground flex-shrink-0" />
@@ -240,7 +239,7 @@ const LeftSidebar: React.FC = () => {
           ))
         ) : (
           <DropdownMenuItem disabled>
-            <span className="text-muted-foreground">No saved documents</span>
+            <span className="text-muted-foreground">Nessun documento salvato</span>
           </DropdownMenuItem>
         )}
       </div>
@@ -258,7 +257,7 @@ const LeftSidebar: React.FC = () => {
               <Separator className="w-full my-2" />
               <NavItem 
                 icon={<FileTextIcon size={32} />} 
-                label="RECENT" 
+                label="RECENTI" 
                 to="/reader" 
                 hasDropdown={true}
                 dropdownContent={readerDropdownContent}
@@ -266,7 +265,7 @@ const LeftSidebar: React.FC = () => {
               <Separator className="w-full my-2" />
               <NavItem 
                 icon={<BookmarkIcon size={32} />} 
-                label="SAVED" 
+                label="SALVATI" 
                 to="/saved" 
                 hasDropdown={true}
                 dropdownContent={savedDropdownContent}
@@ -275,13 +274,13 @@ const LeftSidebar: React.FC = () => {
               <NavItem 
                 icon={
                   <Avatar className="h-6 w-6 border-2 border-sidebar">
-                    <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
+                    <AvatarImage src="https://github.com/shadcn.png" alt="Avatar Utente" />
                     <AvatarFallback>
                       <UserIcon size={14} />
                     </AvatarFallback>
                   </Avatar>
                 } 
-                label="PROFILE" 
+                label="PROFILO" 
                 to="/profile" 
               />
             </>
@@ -292,7 +291,7 @@ const LeftSidebar: React.FC = () => {
         <div className="flex flex-col items-center">
           <NavItem 
             icon={<SettingsIcon size={32} />} 
-            label="SETTINGS" 
+            label="IMPOSTAZ." 
             to="/settings" 
             onClick={() => setIsSettingsOpen(true)} 
           />

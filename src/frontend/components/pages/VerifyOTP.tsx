@@ -51,8 +51,8 @@ export default function VerifyOTP() {
     <AuthPageLayout>
       <AuthCard 
         title="CloudNotes"
-        description="Your virtual oasis of knowledge"
-        subtitle="Verification"
+        description="La tua oasi virtuale di conoscenza"
+        subtitle="Verifica"
         footer={
           <p className="text-center text-sm text-muted-foreground w-full">
             <AppLink 
@@ -60,7 +60,7 @@ export default function VerifyOTP() {
               className="flex items-center justify-left gap-1 font-medium text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
             >
               <ArrowLeftIcon size={16} />
-              Didn't receive a code? Request again
+              Non hai ricevuto un codice? Richiedi di nuovo
             </AppLink>
           </p>
         }
@@ -68,8 +68,8 @@ export default function VerifyOTP() {
       >
         <div className="mb-6">
           <p className="text-sm text-muted-foreground -mt-1 text-center select-none">
-            We've sent a 6-digit verification code to your email.
-            Enter the code below to continue.
+            Abbiamo inviato un codice di verifica a 6 cifre alla tua email.
+            Inserisci il codice qui sotto per continuare.
           </p>
         </div>
         
@@ -77,9 +77,9 @@ export default function VerifyOTP() {
           form={form}
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
-          submitLabel="Verify Code"
+          submitLabel="Verifica Codice"
           loading={isLoading}
-          loadingText="Verifying code..."
+          loadingText="Verifica del codice..."
         >
           <FormOTP
             form={form}

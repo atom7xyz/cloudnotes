@@ -84,20 +84,20 @@ const ReportProblemModal = ({
       title={
         <div className="flex items-center gap-2 text-lg font-medium select-none">
           <AlertTriangleIcon size={18} className="text-orange-500" />
-          <span>Report a Problem</span>
+          <span>Segnala un Problema</span>
         </div>
       }
       maxWidth="max-w-2xl"
       cancelButton={{
-        text: "Cancel",
+        text: "Annulla",
         disabled: isLoading
       }}
       actionButton={{
-        text: "Send Report",
+        text: "Invia Segnalazione",
         onClick: handleReportProblem,
         disabled: !reportMessage.trim() || isLoading,
-        loadingText: "Sending report...",
-        icon: <SendIcon size={14} />
+        loadingText: "Invio segnalazione...",
+        icon: <SendIcon size={16} />
       }}
       isLoading={isLoading}
       showSuccess={showSuccess}
@@ -106,7 +106,7 @@ const ReportProblemModal = ({
         title: (
           <div className="flex items-center gap-2 text-lg font-medium select-none">
             <CheckCircleIcon size={18} className="text-green-600" />
-            <span>Report Sent Successfully</span>
+            <span>Segnalazione Inviata con Successo</span>
           </div>
         ),
         content: (
@@ -114,9 +114,9 @@ const ReportProblemModal = ({
             {/* Success message */}
             <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 rounded-lg">
               <p className="text-sm text-green-800">
-                Your report has been successfully sent to the document author 
+                La tua segnalazione è stata inviata con successo all'autore del documento 
                 <strong> {document.author.firstName} {document.author.lastName}</strong>. 
-                They will be notified about the issue you've identified.
+                Sarà notificato riguardo al problema che hai identificato.
               </p>
             </div>
 
@@ -124,18 +124,18 @@ const ReportProblemModal = ({
             <div className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
-                  <span>Details:</span>
+                  <span>Dettagli:</span>
                 </div>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>• The author will receive a notification about your report</p>
-                  <p>• They can review the issue and take appropriate action</p>
-                  <p>• The document may be updated to fix the problem</p>
+                  <p>• L'autore riceverà una notifica riguardo alla tua segnalazione</p>
+                  <p>• Potrà esaminare il problema e prendere le misure appropriate</p>
+                  <p>• Il documento potrebbe essere aggiornato per risolvere il problema</p>
                 </div>
               </div>
             </div>
           </div>
         ),
-        closeButtonText: "Done",
+        closeButtonText: "Fatto",
         iconBgColor: "bg-green-100",
         iconColor: "text-green-600"
       }}
@@ -145,8 +145,8 @@ const ReportProblemModal = ({
           {/* Description */}
           <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200/50 rounded-lg">
             <p className="text-sm text-orange-800">
-              Found an issue with this document? Let the author know so they can fix it. 
-              Your report will be sent directly to <strong>{document.author.firstName} {document.author.lastName}</strong>.
+              Hai trovato un problema con questo documento? Fallo sapere all'autore così può risolverlo. 
+              La tua segnalazione sarà inviata direttamente a <strong>{document.author.firstName} {document.author.lastName}</strong>.
             </p>
           </div>
 
@@ -154,19 +154,19 @@ const ReportProblemModal = ({
           <div className="space-y-4">
             <div className="space-y-3">
               <label htmlFor="report-message" className="text-sm font-medium flex items-center gap-2">
-                Describe the problem:
+                Descrivi il problema:
               </label>
               <Textarea
                 ref={textareaRef}
                 id="report-message"
-                placeholder="Please describe the issue you found (e.g., broken links, formatting issues...)"
+                placeholder="Descrivi il problema che hai trovato (es. link non funzionanti, problemi di formattazione...)"
                 value={reportMessage}
                 onChange={(e) => setReportMessage(e.target.value)}
                 disabled={isLoading}
                 className="min-h-[140px] resize-none border-primary/20 focus:border-primary/40 bg-muted/20"
               />
               <p className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-orange-300/50">
-                Be specific about the issue to help the author understand and fix the problem quickly.
+                Sii specifico riguardo al problema per aiutare l'autore a comprendere e risolvere rapidamente il problema.
               </p>
             </div>
           </div>

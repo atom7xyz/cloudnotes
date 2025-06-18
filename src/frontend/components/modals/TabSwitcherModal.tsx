@@ -5,7 +5,6 @@ import { FileIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 
 // Define FileTab type for tab management

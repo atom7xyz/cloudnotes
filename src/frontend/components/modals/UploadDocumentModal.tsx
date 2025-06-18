@@ -212,13 +212,13 @@ const UploadDocumentModal = ({
     const newErrors: Record<string, string> = {};
     
     if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
+      newErrors.title = 'Il titolo è obbligatorio';
     } else if (formData.title.trim().length < 3) {
-      newErrors.title = 'Title must be at least 3 characters long';
+      newErrors.title = 'Il titolo deve essere di almeno 3 caratteri';
     }
 
     if (!selectedFile) {
-      newErrors.file = 'Please select a file to upload';
+      newErrors.file = 'Seleziona un file da caricare';
     }
     
     setErrors(newErrors);
@@ -229,11 +229,11 @@ const UploadDocumentModal = ({
   const getVisibilityInfo = useCallback((visibility: 'private' | 'public' | 'link-only') => {
     switch (visibility) {
       case 'private':
-        return { icon: LockIcon, color: 'text-muted-foreground', label: 'Private', description: 'Only visible to you' };
+        return { icon: LockIcon, color: 'text-muted-foreground', label: 'Privato', description: 'Visibile solo a te' };
       case 'public':
-        return { icon: GlobeIcon, color: 'text-primary', label: 'Public', description: 'Visible to everyone' };
+        return { icon: GlobeIcon, color: 'text-primary', label: 'Pubblico', description: 'Visibile a tutti' };
       case 'link-only':
-        return { icon: Link2Icon, color: 'text-blue-500', label: 'Link Only', description: 'Only accessible via direct link' };
+        return { icon: Link2Icon, color: 'text-blue-500', label: 'Solo Link', description: 'Accessibile solo tramite link diretto' };
     }
   }, []);
 
@@ -347,8 +347,20 @@ const UploadDocumentModal = ({
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title="Upload Document"
+      title="Carica Documento"
       maxWidth={maxWidth}
+      cancelButton={{
+        text: "Annulla",
+        disabled: isUploading
+      }}
+      actionButton={{
+        text: "Carica Documento",
+        onClick: handleUpload,
+        disabled: isUploading || !selectedFile,
+        loadingText: "Caricamento...",
+        icon: <UploadIcon size={16} />
+      }}
+      isLoading={isUploading}
     >
       <div className="p-8 select-none">
         <div className="flex gap-8">
@@ -363,7 +375,7 @@ const UploadDocumentModal = ({
             <div className="w-full">
               <div className="flex items-center gap-2 mb-3">
                 <PaletteIcon size={16} className="text-primary" />
-                <span className="font-medium text-sm">Select color:</span>
+                <span className="font-medium text-sm">Seleziona colore:</span>
               </div>
               <div className="grid grid-cols-5 gap-2">
                 {thumbnailColors.map((color) => (
@@ -420,10 +432,10 @@ const UploadDocumentModal = ({
                     "text-base font-medium text-center px-2 mt-2",
                     isDragOver ? "text-primary" : "text-muted-foreground"
                   )}>
-                    {isDragOver ? "Drop file here" : "Drag & drop or click to browse"}
+                    {isDragOver ? "Rilascia il file qui" : "Trascina e rilascia o clicca per sfogliare"}
                   </span>
                   <span className="text-sm text-muted-foreground mt-1">
-                    PDF, Word, PowerPoint, EPUB, TXT up to 50MB
+                    PDF, Word, PowerPoint, EPUB, TXT fino a 50MB
                   </span>
                 </>
               )}
@@ -445,13 +457,13 @@ const UploadDocumentModal = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <TypeIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Title:</label>
+                <label className="font-medium text-sm">Titolo:</label>
                 <span className="text-red-500">*</span>
               </div>
               <Input
                 value={formData.title}
                 onChange={(e) => handleFieldChange('title', e.target.value)}
-                placeholder="Enter document title..."
+                placeholder="Inserisci il titolo del documento..."
                 className={cn(
                   "text-base",
                   errors.title && "border-red-500 focus-visible:ring-red-500"
@@ -466,12 +478,12 @@ const UploadDocumentModal = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <FileTextIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Description:</label>
+                <label className="font-medium text-sm">Descrizione:</label>
               </div>
               <Textarea
                 value={formData.description}
                 onChange={(e) => handleFieldChange('description', e.target.value)}
-                placeholder="Enter document description..."
+                placeholder="Inserisci la descrizione del documento..."
                 className="min-h-[120px] resize-none text-sm"
               />
             </div>
@@ -480,7 +492,7 @@ const UploadDocumentModal = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <TagIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Tags:</label>
+                <label className="font-medium text-sm">Tag:</label>
               </div>
               
               {/* Current tags */}
@@ -504,7 +516,7 @@ const UploadDocumentModal = ({
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={handleTagKeyPress}
-                  placeholder="Add tags..."
+                  placeholder="Aggiungi tag..."
                   className="text-sm"
                 />
                 <Button 
@@ -515,7 +527,7 @@ const UploadDocumentModal = ({
                   className="gap-2 hover-primary-effect"
                 >
                   <PlusIcon size={16} />
-                  Add Tag
+                  Aggiungi Tag
                 </Button>
               </div>
             </div>
@@ -524,7 +536,7 @@ const UploadDocumentModal = ({
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <EyeIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Visibility:</label>
+                <label className="font-medium text-sm">Visibilità:</label>
               </div>
               
               <Select value={formData.visibility} onValueChange={(value) => handleFieldChange('visibility', value)}>
@@ -564,39 +576,6 @@ const UploadDocumentModal = ({
               </Select>
             </div>
           </div>
-        </div>
-
-        {/* Action buttons moved to bottom */}
-        <Separator className="my-8" />
-        
-        <div className="flex justify-end gap-3">
-          <Button 
-            variant="outline" 
-            onClick={handleClose}
-            disabled={isUploading}
-            className="gap-2 rounded-full hover-primary-effect cursor-pointer"
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleUpload}
-            disabled={isUploading || !selectedFile}
-            className="gap-2 rounded-full cursor-pointer"
-          >
-            {isUploading ? (
-              <>
-                <span className="animate-spin">
-                  <RefreshCwIcon size={16} />
-                </span>
-                Uploading...
-              </>
-            ) : (
-              <>
-                <UploadIcon size={16} />
-                Upload Document
-              </>
-            )}
-          </Button>
         </div>
       </div>
 

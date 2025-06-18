@@ -230,7 +230,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
       return (
         <div className="h-[842px] w-[595px] bg-muted rounded-md flex items-center justify-center shadow-md">
           <div className="text-center p-4">
-            <h3 className="text-lg font-semibold text-destructive mb-2">Error Loading Document</h3>
+            <h3 className="text-lg font-semibold text-destructive mb-2">Errore nel Caricamento del Documento</h3>
             <p className="text-muted-foreground">{error.message}</p>
           </div>
         </div>
@@ -265,8 +265,8 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
         return (
           <div className="h-[842px] w-[595px] bg-muted rounded-md flex items-center justify-center shadow-md">
             <div className="text-center p-4">
-              <h3 className="text-lg font-semibold mb-2">Unsupported File Type</h3>
-              <p className="text-muted-foreground">The file type could not be determined or is not supported.</p>
+              <h3 className="text-lg font-semibold mb-2">Tipo di File Non Supportato</h3>
+              <p className="text-muted-foreground">Il tipo di file non può essere determinato o non è supportato.</p>
             </div>
           </div>
         );
@@ -280,7 +280,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = memo(({
       {/* Loading Modal - only shown when initially loading a file */}
       <LoadingModal 
         isOpen={showLoadingModal}
-        message={"Loading document..."}
+        message={"Caricamento documento..."}
         fullScreen={false}
       />
     </>

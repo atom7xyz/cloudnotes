@@ -1,6 +1,5 @@
 import type React from 'react';
 import { useState } from 'react';
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,35 +60,44 @@ const TimerWelcomeModal: React.FC<TimerWelcomeModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Setup"
+      title="Configurazione"
       maxWidth="max-w-md"
+      cancelButton={{
+        text: hasValidReadingSpeed ? "Rifai Test Velocità" : "Fai Prima il Test di Velocità",
+        onClick: handleRetakeTest
+      }}
+      actionButton={{
+        text: "Inizia a Leggere",
+        onClick: handleStartReading,
+        icon: <PlayIcon size={16} />
+      }}
     >
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h2 className="text-xl font-bold select-none">Ready to Start Reading?</h2>
+          <h2 className="text-xl font-bold select-none">Pronto per Iniziare a Leggere?</h2>
           <p className="text-muted-foreground text-sm select-none">
-            You've set up a timed reading session
+            Hai configurato una sessione di lettura cronometrata
           </p>
         </div>
 
         {/* Reading Session Info */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium select-none">Reading Time:</span>
-            <span className="text-sm font-medium select-none">{timerMinutes} minutes</span>
+            <span className="text-sm font-medium select-none">Tempo di Lettura:</span>
+            <span className="text-sm font-medium select-none">{timerMinutes} minuti</span>
           </div>
 
           {hasValidReadingSpeed && (
             <>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium select-none">Your Reading Speed:</span>
-                <span className="text-sm font-medium select-none">{readingSpeed.averageWpm} WPM</span>
+                <span className="text-sm font-medium select-none">La Tua Velocità di Lettura:</span>
+                <span className="text-sm font-medium select-none">{readingSpeed.averageWpm} PPM</span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium select-none">Estimated Pages:</span>
-                <span className="text-sm font-medium select-none">~{estimatedPages} pages</span>
+                <span className="text-sm font-medium select-none">Pagine Stimate:</span>
+                <span className="text-sm font-medium select-none">~{estimatedPages} pagine</span>
               </div>
             </>
           )}
@@ -97,7 +105,7 @@ const TimerWelcomeModal: React.FC<TimerWelcomeModalProps> = ({
           {!hasValidReadingSpeed && (
             <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200/50 rounded-lg">
               <p className="text-sm text-orange-800 select-none">
-                <strong>No reading speed data found.</strong> Take a speed test to get personalized estimates.
+                <strong>Nessun dato sulla velocità di lettura trovato.</strong> Fai un test di velocità per ottenere stime personalizzate.
               </p>
             </div>
           )}
@@ -109,12 +117,12 @@ const TimerWelcomeModal: React.FC<TimerWelcomeModalProps> = ({
             <div className="space-y-1">
               <Label htmlFor="auto-page-division" className={`text-sm font-medium flex items-center gap-2 ${!hasValidReadingSpeed ? 'text-muted-foreground' : ''}`}>
                 <ListIcon size={16} />
-                Auto page division
+                Divisione automatica pagine
               </Label>
               <p className="text-xs text-muted-foreground select-none">
                 {hasValidReadingSpeed 
-                  ? "Automatically divide document pages based on your reading speed"
-                  : "Requires reading speed data (take the speed test first)"
+                  ? "Dividi automaticamente le pagine del documento in base alla tua velocità di lettura"
+                  : "Richiede dati sulla velocità di lettura (fai prima il test di velocità)"
                 }
               </p>
             </div>
@@ -126,39 +134,6 @@ const TimerWelcomeModal: React.FC<TimerWelcomeModalProps> = ({
               className="cursor-pointer"
             />
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-2 border-t pt-4">
-          {hasValidReadingSpeed && (
-            <Button 
-              variant="outline" 
-              onClick={handleRetakeTest}
-              className="rounded-full cursor-pointer hover-primary-effect"
-            >
-              <RefreshCwIcon size={16} />
-              Retake Speed Test
-            </Button>
-          )}
-
-          {!hasValidReadingSpeed && (
-            <Button 
-              variant="outline" 
-              onClick={handleRetakeTest}
-              className="rounded-full cursor-pointer hover-primary-effect"
-            >
-              <RefreshCwIcon size={16} />
-              Take Speed Test First
-            </Button>
-          )}
-
-          <Button 
-            onClick={handleStartReading}
-            className="rounded-full cursor-pointer hover:bg-primary/90"
-          >
-            <PlayIcon size={16} />
-            Start Reading
-          </Button>
         </div>
       </div>
     </Modal>

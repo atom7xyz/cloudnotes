@@ -90,7 +90,7 @@ export function PasswordInput<
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
                     onClick={togglePasswordVisibility}
                     tabIndex={-1}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? "Nascondi password" : "Mostra password"}
                   >
                     {showPassword ? (
                       <EyeOffIcon className="h-4 w-4 text-muted-foreground cursor-pointer" />
@@ -100,7 +100,7 @@ export function PasswordInput<
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p>{showPassword ? "Hide password" : "Show password"}</p>
+                  <p>{showPassword ? "Nascondi password" : "Mostra password"}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

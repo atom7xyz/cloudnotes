@@ -8,7 +8,6 @@ import {
   EditIcon,
   LinkIcon,
   LockIcon,
-  UnlockIcon,
   BarChart3Icon,
   ClockIcon,
   MessageSquareIcon,
@@ -23,7 +22,8 @@ import {
   Activity,
   TimerIcon,
   ArrowUpIcon,
-  GlobeIcon
+  GlobeIcon,
+  EyeOffIcon
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -39,7 +39,6 @@ import {
   SelectValue,
 } from '../ui/select';
 import ShareLinksDropdown from '../ui/ShareLinksDropdown';
-import AdBanner from '../ui/AdBanner';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockUser } from '../../lib/mocking/mocked';
 import { toast } from 'sonner';
@@ -53,6 +52,7 @@ const Profile = () => {
   const appNavigate = useAppNavigate();
   const [userDocuments, setUserDocuments] = useState<MockDocument[]>([]);
   const [favoriteDocuments, setFavoriteDocuments] = useState<MockDocument[]>([]);
+  const [recentDocs, setRecentDocs] = useState<MockDocument[]>([]);
   const [selectedDoc, setSelectedDoc] = useState<MockDocument | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [showAllDocs, setShowAllDocs] = useState(false);
@@ -85,7 +85,7 @@ const Profile = () => {
     lastName: 'Simpson',
     username: 'bartsimpson',
     avatar: 'https://github.com/shadcn.png',
-    bio: 'Passionate opera enthusiast and classical music aficionado with over a decade of experience in musical composition and performance. I specialize in 18th-century baroque compositions and have performed with various symphony orchestras across Europe. When I\'m not immersed in music, I enjoy sharing my knowledge through educational documents and helping others discover the beauty of classical arts. My collection includes rare manuscripts, performance notes, and detailed analyses of masterpieces from Mozart, Bach, and Vivaldi.',
+    bio: 'Appassionato di opera e amante della musica classica con oltre un decennio di esperienza nella composizione e nell\'esecuzione musicale. Mi specializzo in composizioni barocche del XVIII secolo e ho suonato con varie orchestre sinfoniche in tutta Europa. Quando non sono immerso nella musica, mi piace condividere le mie conoscenze attraverso documenti educativi e aiutare gli altri a scoprire la bellezza delle arti classiche. La mia collezione include manoscritti rari, appunti di esecuzione e analisi dettagliate di capolavori di Mozart, Bach e Vivaldi.',
     joinDate: new Date('2023-01-15')
   }), []);
 
@@ -110,13 +110,20 @@ const Profile = () => {
     // Format the relative time
     const diffInHours = Math.floor((now.getTime() - lastOpened.getTime()) / (1000 * 60 * 60));
     
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours === 1) return '1 hour ago';
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInHours < 1) return 'Ora';
+    if (diffInHours === 1) return '1 ora fa';
+    if (diffInHours < 24) return `${diffInHours} ore fa`;
     
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return 'Yesterday';
-    return `${diffInDays} days ago`;
+    if (diffInDays === 1) return 'Ieri';
+    return `${diffInDays} giorni fa`;
+  }, []);
+
+  // Get hours since last opened (for sorting) - same logic as Home
+  const getHoursSinceLastOpened = useCallback((doc: MockDocument): number => {
+    // Generate a consistent value based on document ID
+    const seed = doc.id.charCodeAt(0) + doc.id.charCodeAt(doc.id.length - 1);
+    return Math.floor((seed % 150) + 1); // 1-150 hours, using doc ID as seed
   }, []);
 
   // Load user documents and favorites
@@ -129,6 +136,12 @@ const Profile = () => {
       .sort((a, b) => new Date(b.file.uploadedAt).getTime() - new Date(a.file.uploadedAt).getTime());
     setUserDocuments(userDocs);
     
+    // Sort for recent (by "last opened" rather than upload date) - same as Home
+    const recentDocuments = [...allDocuments].sort((a, b) => 
+      getHoursSinceLastOpened(a) - getHoursSinceLastOpened(b)
+    );
+    setRecentDocs(recentDocuments);
+    
     // Mock favorites (in a real app, this would come from user data)
     const favorites = allDocuments.slice(0, 3);
     setFavoriteDocuments(favorites);
@@ -137,7 +150,7 @@ const Profile = () => {
     if (!currentUserState) {
       setCurrentUserState(currentUser);
     }
-  }, [currentUser, currentUserState]);
+  }, [currentUser, currentUserState, getHoursSinceLastOpened]);
 
   // Toggle favorite (in a real app, this would call an API)
   const toggleFavorite = useCallback((docId: string) => {
@@ -147,13 +160,13 @@ const Profile = () => {
         return prev.filter(doc => doc.id !== docId);
       }
       
-      const docToAdd = userDocuments.find(doc => doc.id === docId);
+      const docToAdd = [...recentDocs, ...userDocuments].find(doc => doc.id === docId);
       if (docToAdd) {
         return [...prev, docToAdd];
       }
       return prev;
     });
-  }, [userDocuments]);
+  }, [recentDocs, userDocuments]);
 
   // Check if a document is in favorites
   const isDocumentFavorite = useCallback((docId: string) => {
@@ -299,14 +312,14 @@ const Profile = () => {
       const profileUrl = `${window.location.origin}/profile/${displayUser.username}`;
       await navigator.clipboard.writeText(profileUrl);
 
-      toast.success("Profile link copied", {
-        description: "Profile URL has been copied to clipboard",
-        icon: <LinkIcon size={16} />,
-      });
+          toast.success("Link profilo copiato", {
+      description: "L'URL del profilo è stato copiato negli appunti",
+      icon: <LinkIcon size={16} />,
+    });
     } catch (err) {
       console.error('Failed to copy profile link:', err);
-      toast.error("Failed to copy link", {
-        description: "Could not copy profile URL to clipboard",
+      toast.error("Impossibile copiare il link", {
+        description: "Non è stato possibile copiare l'URL del profilo negli appunti",
         icon: <LinkIcon size={16} />,
       });
     }
@@ -367,7 +380,6 @@ const Profile = () => {
       file: {
         id: `file-${Date.now()}`,
         author: mockAuthor,
-        name: documentData.file.name,
         type: getFileType(documentData.file.type),
         size: `${(documentData.file.size / 1024 / 1024).toFixed(1)}MB`,
         uploadedAt: new Date(),
@@ -394,8 +406,8 @@ const Profile = () => {
     // Add the new document to the beginning of the user documents list
     setUserDocuments(prev => [newDocument, ...prev]);
 
-    toast.success("Document uploaded successfully", {
-      description: `"${documentData.title}" has been uploaded to your collection`,
+    toast.success("Documento caricato con successo", {
+      description: `"${documentData.title}" è stato caricato nella tua collezione`,
       icon: <FileTextIcon size={16} />,
     });
   }, [currentUser]);
@@ -480,7 +492,7 @@ const Profile = () => {
                         <EditIcon size={20} />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Edit profile</TooltipContent>
+                    <TooltipContent>Modifica profilo</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 
@@ -496,7 +508,7 @@ const Profile = () => {
                         />
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent>Share profile</TooltipContent>
+                    <TooltipContent>Condividi profilo</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
@@ -519,7 +531,7 @@ const Profile = () => {
               <div className="mb-6">
                 <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                   <UserIcon size={18} className="text-primary" />
-                  About
+                  Info
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base bg-muted/20 p-4 rounded-lg border-l-4 border-primary/30">
                   {displayUser.bio}
@@ -530,7 +542,7 @@ const Profile = () => {
               <div className="text-sm">
                 <div className="flex items-center gap-2">
                   <CalendarIcon size={16} className="text-primary" />
-                  <span className="font-medium">Joined:</span>
+                  <span className="font-medium">Iscritto:</span>
                   <span className="text-muted-foreground">{formatRelativeDate(displayUser.joinDate)}</span>
                 </div>
               </div>
@@ -545,15 +557,15 @@ const Profile = () => {
         <div>
           <h2 ref={yourDocsRef} className="text-2xl font-semibold mb-6 flex items-center gap-3">
             <FileTextIcon size={24} className="text-primary" />
-            Your Documents ({userDocuments.length})
+            I Tuoi Documenti ({userDocuments.length})
           </h2>
 
           <div className="space-y-4">
             {userDocuments.length === 0 ? (
               <div className="text-center py-12">
                 <FileTextIcon size={64} className="mx-auto text-muted-foreground/30 mb-4" />
-                <h3 className="text-lg font-medium mb-2">No documents yet</h3>
-                <p className="text-muted-foreground">Start by uploading your first document!</p>
+                <h3 className="text-lg font-medium mb-2">Nessun documento ancora</h3>
+                <p className="text-muted-foreground">Inizia caricando il tuo primo documento!</p>
               </div>
             ) : (
               <>
@@ -571,9 +583,9 @@ const Profile = () => {
                       </div>
                       
                       <div className="flex-grow min-w-0 flex flex-col h-32 justify-center">
-                        <h3 className="font-semibold text-lg mb-2">Upload Document</h3>
+                        <h3 className="font-semibold text-lg mb-2">Carica Documento</h3>
                         <p className="text-muted-foreground text-sm">
-                          Share your knowledge by uploading a new document to your collection.
+                          Condividi la tua conoscenza caricando un nuovo documento nella tua collezione.
                         </p>
                       </div>
                     </div>
@@ -595,66 +607,69 @@ const Profile = () => {
                             {renderThumbnail(doc.file.thumbnail, doc.title)}
                           </div>
                           
-                          <div className="flex-grow min-w-0 flex flex-col h-32">
+                          <div className="flex-grow min-w-0 flex flex-col h-32 relative">
                             <div className="flex justify-between items-start">
-                              <h3 className="font-semibold line-clamp-1">{doc.title}</h3>
-                              <div className="flex items-center gap-1 ml-2 flex-shrink-0">
-                              {doc.file.visibility === 'link-only' && (
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-9 w-9 cursor-pointer bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-200"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            copyDocumentLink(doc.id);
-                                          }}
-                                        >
-                                          {copiedLinkId === doc.id ? (
-                                            <CheckIcon size={14} />
-                                          ) : (
-                                            <LinkIcon size={14} />
-                                          )}
-                                        </Button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>Copy link</TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                )}
+                              <h3 className="font-semibold line-clamp-1 max-w-[340px]">{doc.title}</h3>
+                              <div className="relative">
                                 <Select 
                                   value={doc.file.visibility} 
                                   onValueChange={(value: 'private' | 'public' | 'link-only') => setDocumentVisibility(doc.id, value)}
                                 >
                                   <SelectTrigger 
-                                    className="h-7 w-auto min-w-[60px] hover-primary-effect"
+                                    className="h-7 w-auto min-w-[60px] hover-primary-effect absolute -top-1 right-0"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    <SelectValue>
-                                      {(() => {
-                                        const { icon: Icon, color } = getVisibilityInfo(doc.file.visibility);
-                                        return <Icon size={14} className={color} />;
-                                      })()}
-                                    </SelectValue>
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {(['public', 'link-only', 'private'] as const).map((visibility) => {
-                                      const info = getVisibilityInfo(visibility);
-                                      const Icon = info.icon;
-                                      return (
-                                        <SelectItem key={visibility} value={visibility} className="hover-primary-effect">
-                                          <div className="flex items-center gap-2">
-                                            <Icon size={14} className={info.color} />
-                                            <span className="font-medium">{info.label}</span>
-                                          </div>
-                                        </SelectItem>
-                                      );
-                                    })}
-                                  </SelectContent>
-                                </Select>
+                                  <SelectValue>
+                                    {(() => {
+                                      const { icon: Icon, color } = getVisibilityInfo(doc.file.visibility);
+                                      return <Icon size={14} className={color} />;
+                                    })()}
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {(['public', 'link-only', 'private'] as const).map((visibility) => {
+                                    const info = getVisibilityInfo(visibility);
+                                    const Icon = info.icon;
+                                    return (
+                                      <SelectItem key={visibility} value={visibility} className="hover-primary-effect">
+                                        <div className="flex items-center gap-2">
+                                          <Icon size={14} className={info.color} />
+                                          <span className="font-medium">{info.label}</span>
+                                        </div>
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
                               </div>
                             </div>
+                            
+                            {doc.file.visibility === 'link-only' && (
+                              <div className="absolute top-9 right-0">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 w-7 cursor-pointer bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-200 border border-green-600/20"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          copyDocumentLink(doc.id);
+                                        }}
+                                      >
+                                        {copiedLinkId === doc.id ? (
+                                          <CheckIcon size={12} />
+                                        ) : (
+                                          <LinkIcon size={12} />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Copia link</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            )}
                             
                             <div className="flex items-center gap-2 mt-2">
                               <Avatar className="h-6 w-6 border border-primary/20">
@@ -669,7 +684,7 @@ const Profile = () => {
                             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1.5">
                                 <CalendarIcon size={12} className="text-primary" />
-                                <span>Published: {formatRelativeDate(doc.file.uploadedAt)}</span>
+                                <span>Pubblicato: {formatRelativeDate(doc.file.uploadedAt)}</span>
                               </div>
                             </div>
                             
@@ -710,12 +725,12 @@ const Profile = () => {
                 >
                   {showAllDocs ? (
                     <>
-                      Show Less
+                      Mostra di meno
                       <ChevronUpIcon size={16} />
                     </>
                   ) : (
                     <>
-                      View All Documents
+                      Mostra di piú
                       <ChevronRightIcon size={16} />
                     </>
                   )}
@@ -740,7 +755,7 @@ const Profile = () => {
         <div>
           <h2 ref={savedDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <BookmarkIcon size={24} className="text-primary" />
-            Saved ({favoriteDocuments.length})
+            Salvati ({favoriteDocuments.length})
           </h2>
           {favoriteDocuments.length > 0 ? (
             <div className="space-y-4">
@@ -788,7 +803,7 @@ const Profile = () => {
                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             <HistoryIcon size={12} className="text-primary" />
-                            <span>Last opened: {getLastOpenedTime(doc)}</span>
+                            <span>Ultimo accesso: {getLastOpenedTime(doc)}</span>
                           </div>
                         </div>
                         
@@ -821,7 +836,7 @@ const Profile = () => {
             <Card className="bg-gradient-to-r from-muted/20 to-muted/40 shadow-md border-primary/10">
               <CardContent className="p-8 text-center">
                 <BookmarkIcon size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground font-medium">You haven't added any saved documents yet.</p>
+                <p className="text-muted-foreground font-medium">Non hai ancora aggiunto documenti salvati.</p>
               </CardContent>
             </Card>
           )}
@@ -833,14 +848,14 @@ const Profile = () => {
                 className="gap-2 hover-primary-effect shadow-sm"
                 onClick={() => setShowAllBookmarkedDocs(!showAllBookmarkedDocs)}
               >
-                {showAllBookmarkedDocs ? (
+                                {showAllBookmarkedDocs ? (
                   <>
-                    Show Less
+                    Mostra di meno
                     <ChevronUpIcon size={16} />
                   </>
                 ) : (
                   <>
-                    View All Saved
+                    Visualizza Tutti i Salvati
                     <ChevronRightIcon size={16} />
                   </>
                 )}
@@ -866,7 +881,7 @@ const Profile = () => {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold flex items-center gap-3">
             <BarChart3Icon size={24} className="text-primary" />
-            Your Revenue
+            Guadagni
           </h2>
           <Button 
             variant="outline" 
@@ -874,8 +889,8 @@ const Profile = () => {
             onClick={() => setShowRevenueNumbers(!showRevenueNumbers)}
             className="gap-2 hover-primary-effect"
           >
-            {showRevenueNumbers ? <EyeIcon size={16} /> : <LockIcon size={16} />}
-            {showRevenueNumbers ? 'Hide Numbers' : 'Show Numbers'}
+            {showRevenueNumbers ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
+            {showRevenueNumbers ? 'Nascondi numeri' : 'Mostra numeri'}
           </Button>
         </div>
 
@@ -888,16 +903,16 @@ const Profile = () => {
                   <LinkIcon size={20} className="text-green-500" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-2">Affiliate Program</h3>
+                  <h3 className="text-lg font-semibold mb-2">Programma affiliato</h3>
                   <p className="text-muted-foreground text-sm mb-4">
-                    Earn money from automated ads on your document pages. When users click and purchase, you get a cut.
+                    Guadagna denaro dagli annunci automatici sulle tue pagine di documenti.
                   </p>
                 </div>
               </div>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
-                  <span className="text-sm font-medium">Enable Ads on Documents</span>
+                <div className="flex items-center justify-between p-3 bg-muted/20 rounded-lg border border-muted">
+                  <span className="text-sm font-medium">Abilita gli annunci sui documenti</span>
                   <Switch 
                     checked={adsEnabled}
                     onCheckedChange={setAdsEnabled}
@@ -908,21 +923,21 @@ const Profile = () => {
                 {adsEnabled && (
                   <>
                     <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
-                      <span className="text-sm font-medium">Total Earnings</span>
+                      <span className="text-sm font-medium">Guadagni totali</span>
                       <span className="text-lg font-bold text-green-500">
                         {showRevenueNumbers ? '$247.50' : '******'}
                       </span>
                     </div>
                     
                     <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
-                      <span className="text-sm font-medium">This Month</span>
+                      <span className="text-sm font-medium">Questo mese</span>
                       <span className="text-sm font-bold text-green-500">
                         {showRevenueNumbers ? '$32.80' : '*****'}
                       </span>
                     </div>
                     
                     <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
-                      <span className="text-sm font-medium">Ad Clicks</span>
+                      <span className="text-sm font-medium">Click annunci</span>
                       <span className="text-sm font-bold text-primary">
                         {showRevenueNumbers ? '21' : '****'}
                       </span>
@@ -931,11 +946,11 @@ const Profile = () => {
                 )}
                 
                 {!adsEnabled && (
-                  <div className="text-center py-6">
-                    <div className="text-muted-foreground text-sm">
-                      Enable ads to start earning revenue from your documents
+                    <div className="text-center py-6">
+                      <div className="text-muted-foreground text-sm">
+                        Abilita gli annunci per iniziare a guadagnare dai tuoi documenti
+                      </div>
                     </div>
-                  </div>
                 )}
               </div>
             </CardContent>
@@ -949,37 +964,37 @@ const Profile = () => {
                   <StarIcon size={20} className="text-blue-500" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-2">Personal Donations</h3>
+                  <h3 className="text-lg font-semibold mb-2">Donazioni</h3>
                   <p className="text-muted-foreground text-sm mb-4">
-                    Receive donations from users.
+                    Ricevi donazioni dagli utenti.
                   </p>
                 </div>
               </div>
               
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
-                  <span className="text-sm font-medium">Total Received</span>
+                  <span className="text-sm font-medium">Totale ricevuto</span>
                   <span className="text-lg font-bold text-blue-500">
                     {showRevenueNumbers ? '$89.20' : '*****'}
                   </span>
                 </div>
                 
                 <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
-                  <span className="text-sm font-medium">This Month</span>
+                  <span className="text-sm font-medium">Questo mese</span>
                   <span className="text-sm font-bold text-blue-500">
                     {showRevenueNumbers ? '$15.40' : '*****'}
                   </span>
                 </div>
                 
                 <div className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
-                  <span className="text-sm font-medium">Supporters</span>
+                  <span className="text-sm font-medium">Sostenitori totali</span>
                   <span className="text-sm font-bold text-primary">
-                    {showRevenueNumbers ? '7 people' : '* people'}
+                    {showRevenueNumbers ? '7' : '*'}
                   </span>
                 </div>
                 
                 <ShareLinksDropdown
-                  triggerText="Share Donation Link"
+                  triggerText="Condividi link donazioni"
                   triggerIcon={<LinkIcon size={16} />}
                   triggerClassName="w-full gap-2 mt-4 hover-primary-effect"
                   onCopyLink={() => {
@@ -1006,7 +1021,7 @@ const Profile = () => {
         <Card className="mt-6 border-primary/10 shadow-md">
           <CardContent className="p-6">
             <h4 className="font-semibold mb-8 flex items-center gap-2 text-lg">
-              Revenue Summary
+              Riepilogo entrate
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1014,21 +1029,21 @@ const Profile = () => {
                 <div className="text-2xl font-bold text-primary mb-1">
                   {showRevenueNumbers ? '$336.70' : '*******'}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Revenue</div>
+                <div className="text-sm text-muted-foreground">Entrate totali</div>
               </div>
               
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-500 mb-1">
                   {showRevenueNumbers ? '$48.20' : '*****'}
                 </div>
-                <div className="text-sm text-muted-foreground">This Month</div>
+                <div className="text-sm text-muted-foreground">Questo mese</div>
               </div>
               
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-500 mb-1">
                   {showRevenueNumbers ? '25' : '**'}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Supporters</div>
+                <div className="text-sm text-muted-foreground">Sostenitori totali</div>
               </div>
             </div>
           </CardContent>
@@ -1041,7 +1056,7 @@ const Profile = () => {
         <div>
           <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
             <Activity size={24} className="text-primary" />
-            Activity
+            Attività
           </h2>
           
           <div className="grid grid-cols-1 gap-4">
@@ -1053,7 +1068,7 @@ const Profile = () => {
                 <div className="text-2xl font-bold text-primary">
                   {userDocuments.length > 0 ? Math.floor(userDocuments.length * 2.5) : 0}h
                 </div>
-                <div className="text-sm text-muted-foreground">Hours Reading</div>
+                <div className="text-sm text-muted-foreground">Ore di lettura</div>
               </CardContent>
             </Card>
             
@@ -1065,7 +1080,7 @@ const Profile = () => {
                 <div className="text-2xl font-bold text-blue-500">
                   {userDocuments.length + favoriteDocuments.length * 2}
                 </div>
-                <div className="text-sm text-muted-foreground">Reads with Timer</div>
+                <div className="text-sm text-muted-foreground">Letture con timer</div>
               </CardContent>
             </Card>
             
@@ -1077,7 +1092,7 @@ const Profile = () => {
                 <div className="text-2xl font-bold text-yellow-500">
                   {Math.floor(userDocuments.length * 3.2)}
                 </div>
-                <div className="text-sm text-muted-foreground">Comments Written</div>
+                <div className="text-sm text-muted-foreground">Commenti scritti</div>
               </CardContent>
             </Card>
             
@@ -1089,7 +1104,7 @@ const Profile = () => {
                 <div className="text-2xl font-bold text-purple-500">
                   {Math.floor(userDocuments.length * 1.8)}
                 </div>
-                <div className="text-sm text-muted-foreground">Ratings Given</div>
+                <div className="text-sm text-muted-foreground">Valutazioni date</div>
               </CardContent>
             </Card>
           </div>
@@ -1099,16 +1114,16 @@ const Profile = () => {
         <div>
           <h2 ref={recentDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <ClockIcon size={24} className="text-primary" />
-            Recent Documents ({[...userDocuments, ...favoriteDocuments].length})
+            Recenti ({recentDocs.length})
           </h2>
-          {userDocuments.length > 0 ? (
+          {recentDocs.length > 0 ? (
             <div className="space-y-4">
-              {[...userDocuments, ...favoriteDocuments]
-                .slice(0, showAllRecentDocs ? [...userDocuments, ...favoriteDocuments].length : 3)
-                .map((doc, index) => {
+              {recentDocs
+                .slice(0, showAllRecentDocs ? recentDocs.length : 3)
+                .map((doc) => {
                   return (
                     <Card 
-                      key={`${doc.id}-${index}`}
+                      key={doc.id}
                       className="hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 overflow-hidden cursor-pointer shadow-md hover:shadow-lg border-primary/10"
                       onClick={() => openDocModal(doc)}
                     >
@@ -1120,7 +1135,24 @@ const Profile = () => {
                           
                           <div className="flex-grow min-w-0 flex flex-col h-32">
                             <div className="flex justify-between items-start">
-                              <h3 className="font-semibold line-clamp-1">{doc.title}</h3>
+                              <h3 className="font-semibold text-md line-clamp-1">{doc.title}</h3>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-7 w-7 ml-2 flex-shrink-0 cursor-pointer hover:bg-primary/10 shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent card click
+                                  toggleFavorite(doc.id);
+                                }}
+                              >
+                                <BookmarkIcon 
+                                  size={16} 
+                                  className={isDocumentFavorite(doc.id) 
+                                    ? "fill-primary text-primary" 
+                                    : "hover:text-primary hover:fill-primary/30"
+                                  } 
+                                />
+                              </Button>
                             </div>
                             
                             <div className="flex items-center gap-2 mt-2">
@@ -1136,7 +1168,7 @@ const Profile = () => {
                             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1.5">
                                 <HistoryIcon size={12} className="text-primary" />
-                                <span>Last read: {Math.floor(Math.random() * 7) + 1}d ago</span>
+                                <span>Ultima lettura: {getLastOpenedTime(doc)}</span>
                               </div>
                             </div>
                             
@@ -1170,11 +1202,11 @@ const Profile = () => {
             <Card className="bg-gradient-to-r from-muted/20 to-muted/40 shadow-md border-primary/10">
               <CardContent className="p-8 text-center">
                 <ClockIcon size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground font-medium">You haven't read any documents recently.</p>
+                <p className="text-muted-foreground font-medium">Non hai letto documenti di recente.</p>
               </CardContent>
             </Card>
           )}
-          {(userDocuments.length + favoriteDocuments.length) > 2 && (
+          {recentDocs.length > 2 && (
             <div className="relative flex justify-center mt-6">
               <Button 
                 variant="outline" 
@@ -1184,12 +1216,12 @@ const Profile = () => {
               >
                 {showAllRecentDocs ? (
                   <>
-                    Show Less
+                    Mostra di meno
                     <ChevronUpIcon size={16} />
                   </>
                 ) : (
                   <>
-                    View All Recent
+                    Mostra di piú
                     <ChevronRightIcon size={16} />
                   </>
                 )}
@@ -1200,7 +1232,7 @@ const Profile = () => {
                   size="sm" 
                   className="absolute right-0 hover-primary-effect shadow-sm"
                   onClick={scrollToRecentDocs}
-                  aria-label="Scroll to top of Recent Documents"
+                  aria-label="Scorri in cima ai Documenti Recenti"
                 >
                   <ArrowUpIcon size={16} />
                 </Button>

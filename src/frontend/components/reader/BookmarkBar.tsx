@@ -59,9 +59,9 @@ const getSelectedText = (): { text: string; previewText: string } => {
 
 // Helper function to get a human-readable location string
 const getBookmarkLocationText = (bookmark: BookmarkType): string => {
-  let location = `Page ${bookmark.pageNumber}`;
+  let location = `Pagina ${bookmark.pageNumber}`;
   if (bookmark.lineNumber) {
-    location += `, Line ${bookmark.lineNumber}`;
+    location += `, Riga ${bookmark.lineNumber}`;
   }
   return location;
 };
@@ -172,7 +172,7 @@ const SortableBookmark = memo(({
                 e.stopPropagation();
                 handleNavigate();
               }}
-              title="Go to bookmark"
+              title="Vai al segnalibro"
             >
               <MapPin className="h-4 w-4" />
             </Button>
@@ -185,7 +185,7 @@ const SortableBookmark = memo(({
                 handleDelete();
               }}
             >
-              <span className="sr-only">Delete bookmark</span>
+              <span className="sr-only">Elimina segnalibro</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -260,7 +260,7 @@ const BookmarkBar = memo(({
     const { text: selectedText, previewText } = getSelectedText();
     
     // Create simple numbered title
-    const defaultTitle = `Bookmark ${bookmarks.length + 1}`;
+    const defaultTitle = `Segnalibro ${bookmarks.length + 1}`;
     
     const newBookmark: BookmarkType = {
       id: `bookmark-${Date.now()}`,
@@ -339,7 +339,7 @@ const BookmarkBar = memo(({
   // Render empty state when there are no bookmarks
   const emptyBookmarksContent = useMemo(() => (
     <p className="text-sm text-muted-foreground text-center py-4 select-none">
-      No bookmarks in this document
+      Nessun segnalibro in questo documento
     </p>
   ), []);
   
@@ -381,7 +381,7 @@ const BookmarkBar = memo(({
             size="icon" 
             className="h-10 w-10 rounded-full shadow-md bg-background hover-primary-effect"
             onClick={toggleSidebar}
-            title="Hide sidebar"
+            title="Nascondi barra laterale"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
@@ -390,21 +390,21 @@ const BookmarkBar = memo(({
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="select-none">Bookmarks</Label>
+              <Label className="select-none">Segnalibri</Label>
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={addBookmark}
                 className="select-none hover-primary-effect"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Bookmark
+                <Plus className="h-4 w-4" />
+                Aggiungi
               </Button>
             </div>
             
             {/* Helpful tip */}
             <div className="text-xs text-center select-none border border-yellow-300 rounded-md p-2 bg-yellow-50 dark:bg-yellow-950/20 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300">
-              <span className="font-medium">TIP:</span> Select text before adding a bookmark to capture the content
+              <span className="font-medium">SUGGERIMENTO:</span> Seleziona il testo prima di aggiungere un segnalibro per catturare il contenuto
             </div>
             
             <div className="space-y-2">
@@ -421,7 +421,7 @@ const BookmarkBar = memo(({
             size="icon" 
             className="h-10 w-10 rounded-full shadow-md bg-background hover-primary-effect"
             onClick={toggleSidebar}
-            title="Show sidebar"
+            title="Mostra barra laterale"
           >
             <ChevronFirst className="h-5 w-5" />
           </Button>

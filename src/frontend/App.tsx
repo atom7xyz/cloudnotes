@@ -205,7 +205,7 @@ function App() {
     <>
       {/* Splash screen with animation - always render first */}
       <AnimatePresence>
-        {isLoading && <ApplicationSplash isOpen={true} message={appReady ? "Almost there..." : "Getting things ready..."} />}
+        {isLoading && <ApplicationSplash isOpen={true} message={appReady ? "Quasi pronto..." : "Preparando l'applicazione..."} />}
       </AnimatePresence>
 
       {/* Welcome Modal for new users */}

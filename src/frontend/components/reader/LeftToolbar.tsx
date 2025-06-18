@@ -28,19 +28,19 @@ import { useEditHistoryContext } from '@/lib/contexts/EditHistoryContext';
 
 // Define color palettes
 const MARKER_COLORS = [
-  { label: 'Yellow', value: 'rgba(255, 255, 0, 0.3)' },
-  { label: 'Green', value: 'rgba(0, 255, 0, 0.3)' },
-  { label: 'Blue', value: 'rgba(0, 196, 255, 0.3)' },
-  { label: 'Pink', value: 'rgba(255, 0, 255, 0.3)' },
-  { label: 'Orange', value: 'rgba(255, 165, 0, 0.3)' },
+  { label: 'Giallo', value: 'rgba(255, 255, 0, 0.3)' },
+  { label: 'Verde', value: 'rgba(0, 255, 0, 0.3)' },
+  { label: 'Blu', value: 'rgba(0, 196, 255, 0.3)' },
+  { label: 'Rosa', value: 'rgba(255, 0, 255, 0.3)' },
+  { label: 'Arancione', value: 'rgba(255, 165, 0, 0.3)' },
 ];
 
 const DRAWING_COLORS = [
-  { label: 'Red', value: '#FF0000' },
-  { label: 'Blue', value: '#0000FF' },
-  { label: 'Green', value: '#00FF00' },
-  { label: 'Black', value: '#000000' },
-  { label: 'Orange', value: '#FFA500' },
+  { label: 'Rosso', value: '#FF0000' },
+  { label: 'Blu', value: '#0000FF' },
+  { label: 'Verde', value: '#00FF00' },
+  { label: 'Nero', value: '#000000' },
+  { label: 'Arancione', value: '#FFA500' },
 ];
 
 // Default drawing line width - medium (3px)
@@ -100,26 +100,26 @@ const LeftToolbar = memo(({
 
   // Create base tools array
   const baseTools: Tool[] = [
-    { id: 'move', icon: <Hand className="h-4 w-4" />, title: 'Move/drag document', tooltip: 'Click and drag to move around the document\n\nKeybind: M' },
+    { id: 'move', icon: <Hand className="h-4 w-4" />, title: 'Sposta/trascina documento', tooltip: 'Clicca e trascina per muoverti nel documento\n\nTasto: M' },
     { 
       id: 'marker', 
       icon: <Highlighter className="h-4 w-4" />, 
-      title: 'Marker', 
-      tooltip: 'Select text to mark it with highlight color\n\nKeybind: K',
+      title: 'Evidenziatore', 
+      tooltip: 'Seleziona il testo per evidenziarlo con il colore scelto\n\nTasto: K',
       showPopover: true
     },
     { 
       id: 'pencil', 
       icon: <Pencil className="h-4 w-4" />, 
-      title: 'Draw', 
-      tooltip: 'Draw directly on the document\n\nKeybind: D',
+      title: 'Disegna', 
+      tooltip: 'Disegna direttamente sul documento\n\nTasto: D',
       showPopover: true
     },
     { 
       id: 'eraser', 
       icon: <Eraser className="h-4 w-4" />, 
-      title: 'Erase drawings', 
-      tooltip: 'Drag over drawings to erase them\n\nKeybind: E',
+      title: 'Cancella disegni', 
+      tooltip: 'Trascina sui disegni per cancellarli\n\nTasto: E',
       addSeparatorAfter: true
     },
   ];
@@ -128,8 +128,8 @@ const LeftToolbar = memo(({
   const noteTool: Tool = {
     id: 'note',
     icon: isNotesOpen ? <X className="h-4 w-4 text-destructive" /> : <StickyNote className="h-4 w-4" />,
-    title: isNotesOpen ? 'Close Notes' : 'Notes',
-    tooltip: isNotesOpen ? 'Close the notes panel\n\nKeybind: N' : 'View and manage notes\n\nKeybind: N',
+    title: isNotesOpen ? 'Chiudi Note' : 'Note',
+    tooltip: isNotesOpen ? 'Chiudi il pannello delle note\n\nTasto: N' : 'Visualizza e gestisci le note\n\nTasto: N',
     onClick: onAddNote,
     variant: isNotesOpen ? "destructive" : undefined
   };
@@ -138,8 +138,8 @@ const LeftToolbar = memo(({
   const bookmarkTool: Tool = {
     id: 'bookmark',
     icon: isBookmarksOpen ? <X className="h-4 w-4 text-destructive" /> : <PinIcon className="h-4 w-4" />,
-    title: isBookmarksOpen ? 'Close Bookmarks' : 'Bookmarks',
-    tooltip: isBookmarksOpen ? 'Close the bookmarks panel\n\nKeybind: B' : 'View and manage bookmarks\n\nKeybind: B',
+    title: isBookmarksOpen ? 'Chiudi Segnalibri' : 'Segnalibri',
+    tooltip: isBookmarksOpen ? 'Chiudi il pannello dei segnalibri\n\nTasto: B' : 'Visualizza e gestisci i segnalibri\n\nTasto: B',
     onClick: onToggleBookmarks,
     variant: isBookmarksOpen ? "destructive" : undefined,
     addSeparatorAfter: true
@@ -149,8 +149,8 @@ const LeftToolbar = memo(({
   const settingsTool: Tool = {
     id: 'settings',
     icon: <Settings className="h-4 w-4" />,
-    title: 'Settings',
-    tooltip: 'Manage document settings\n\nKeybind: S',
+    title: 'Impostazioni',
+    tooltip: 'Gestisci le impostazioni del documento\n\nTasto: S',
     onClick: onOpenSettings
   };
   
@@ -159,16 +159,16 @@ const LeftToolbar = memo(({
     { 
       id: 'undo', 
       icon: <Undo className="h-4 w-4" />, 
-      title: 'Undo', 
-      tooltip: 'Undo last action\n\nKeybind: Ctrl+Z',
+      title: 'Annulla', 
+      tooltip: 'Annulla ultima azione\n\nTasto: Ctrl+Z',
       onClick: undo,
       variant: canUndo ? undefined : "ghost"
     },
     { 
       id: 'redo', 
       icon: <Redo className="h-4 w-4" />, 
-      title: 'Redo', 
-      tooltip: 'Redo last undone action\n\nKeybind: Ctrl+Shift+Z',
+      title: 'Ripeti', 
+      tooltip: 'Ripeti ultima azione annullata\n\nTasto: Ctrl+Shift+Z',
       onClick: redo,
       variant: canRedo ? undefined : "ghost"
     },
@@ -338,7 +338,7 @@ const LeftToolbar = memo(({
                   >
                     {tool.id === 'marker' && (
                       <div className="space-y-2">
-                        <p className="text-xs font-medium">Marker Color</p>
+                        <p className="text-xs font-medium">Colore Evidenziatore</p>
                         <div className="flex flex-wrap gap-1">
                           {MARKER_COLORS.map(color => (
                             <Button
@@ -363,7 +363,7 @@ const LeftToolbar = memo(({
                     {tool.id === 'pencil' && (
                       <div className="space-y-3">
                         <div>
-                          <p className="text-xs font-medium mb-1">Drawing Color</p>
+                          <p className="text-xs font-medium mb-1">Colore Disegno</p>
                           <div className="flex flex-wrap gap-1">
                             {DRAWING_COLORS.map(color => (
                               <Button
@@ -385,7 +385,7 @@ const LeftToolbar = memo(({
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-medium mb-1">Line Width</p>
+                          <p className="text-xs font-medium mb-1">Spessore Linea</p>
                           <div className="flex gap-2">
                             <Button
                               size="sm"
@@ -393,7 +393,7 @@ const LeftToolbar = memo(({
                               onClick={() => onDrawingLineWidthChange(1)}
                               variant={drawingLineWidth === 1 ? "default" : "outline"}
                             >
-                              Thin
+                              Sottile
                             </Button>
                             <Button
                               size="sm"
@@ -401,7 +401,7 @@ const LeftToolbar = memo(({
                               onClick={() => onDrawingLineWidthChange(3)}
                               variant={drawingLineWidth === 3 ? "default" : "outline"}
                             >
-                              Medium
+                              Medio
                             </Button>
                             <Button
                               size="sm"
@@ -409,7 +409,7 @@ const LeftToolbar = memo(({
                               onClick={() => onDrawingLineWidthChange(5)}
                               variant={drawingLineWidth === 5 ? "default" : "outline"}
                             >
-                              Thick
+                              Spesso
                             </Button>
                           </div>
                         </div>

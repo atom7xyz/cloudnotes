@@ -35,7 +35,7 @@ const confirmPinSchema = (createdPin: string) =>
   z.object({
     pin: pinDigitSchema
       .refine((val) => val === createdPin, {
-        message: "PINs do not match. Please try again.",
+        message: "I PIN non corrispondono. Riprova.",
       }),
   });
 
@@ -205,7 +205,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
       // PIN doesn't match - show error
       verifyForm.setError("pin", {
         type: "manual",
-        message: "Incorrect PIN. Please try again.",
+        message: "PIN non corretto. Riprova.",
       });
       
       // Clear the input for a new attempt and focus it
@@ -268,7 +268,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
       // PINs don't match - show error
       confirmForm.setError("pin", {
         type: "manual",
-        message: "PINs do not match. Please try again.",
+        message: "I PIN non corrispondono. Riprova.",
       });
       
       // Clear the input for a new attempt and focus it
@@ -307,11 +307,11 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
   const title = () => {
     switch (stage) {
       case "verify":
-        return "Enter your PIN";
+        return "Inserisci il tuo PIN";
       case "create":
-        return currentPin ? "Create a new PIN" : "Create a PIN";
+        return currentPin ? "Crea un nuovo PIN" : "Crea un PIN";
       case "confirm":
-        return "Confirm your PIN";
+        return "Conferma il tuo PIN";
       default:
         return "PIN Lock";
     }
@@ -321,11 +321,11 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
   const description = () => {
     switch (stage) {
       case "verify":
-        return "Please enter your PIN to continue";
+        return "Inserisci il tuo PIN per continuare";
       case "create":
-        return "Create a new 4-digit PIN";
+        return "Crea un nuovo PIN di 4 cifre";
       case "confirm":
-        return "Enter your PIN again to confirm";
+        return "Inserisci di nuovo il tuo PIN per confermare";
       default:
         return "";
     }
@@ -333,16 +333,16 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
 
   // Define the submit button text based on the current stage
   const buttonText = () => {
-    switch (stage) {
-      case "verify":
-        return "Continue";
-      case "create":
-        return "Continue";
-      case "confirm":
-        return "Confirm";
-      default:
-        return "Submit";
-    }
+          switch (stage) {
+        case "verify":
+          return "Continua";
+        case "create":
+          return "Continua";
+        case "confirm":
+          return "Conferma";
+        default:
+          return "Invia";
+      }
   };
 
   // Handle keyboard events (e.g., pressing Enter to submit)
@@ -437,7 +437,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
               onClick={handleBackFromConfirm}
               className="w-1/3 mr-2 rounded-full cursor-pointer"
             >
-              <span className="select-none">Back</span>
+              <span className="select-none">Indietro</span>
             </Button>
           )}
           

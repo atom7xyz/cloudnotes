@@ -6,12 +6,12 @@ import * as z from "zod";
 export const loginSchema = z.object({
   email: z
     .string()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Invalid email address" }),
+    .min(1, { message: "L'email è obbligatoria" })
+    .email({ message: "Indirizzo email non valido" }),
   password: z
     .string()
-    .min(1, { message: "Password is required" })
-    .min(8, { message: "Password must be at least 8 characters" }),
+    .min(1, { message: "La password è obbligatoria" })
+    .min(8, { message: "La password deve essere di almeno 8 caratteri" }),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
@@ -23,29 +23,29 @@ export const registerSchema = z
   .object({
     firstName: z
       .string()
-      .min(1, { message: "First name is required" })
-      .max(50, { message: "First name must be less than 50 characters" }),
+      .min(1, { message: "Il nome è obbligatorio" })
+      .max(50, { message: "Il nome deve essere inferiore a 50 caratteri" }),
     lastName: z
       .string()
-      .min(1, { message: "Last name is required" })
-      .max(50, { message: "Last name must be less than 50 characters" }),
+      .min(1, { message: "Il cognome è obbligatorio" })
+      .max(50, { message: "Il cognome deve essere inferiore a 50 caratteri" }),
     email: z
       .string()
-      .min(1, { message: "Email is required" })
-      .email({ message: "Invalid email address" }),
+      .min(1, { message: "L'email è obbligatoria" })
+      .email({ message: "Indirizzo email non valido" }),
     password: z
       .string()
-      .min(1, { message: "Password is required" })
-      .min(8, { message: "Password must be at least 8 characters" }),
+      .min(1, { message: "La password è obbligatoria" })
+      .min(8, { message: "La password deve essere di almeno 8 caratteri" }),
     confirmPassword: z
       .string()
-      .min(1, { message: "Please confirm your password" }),
+      .min(1, { message: "Conferma la password" }),
     acceptTerms: z.boolean().refine(val => val === true, {
-      message: "You must accept the terms and conditions",
+      message: "Devi accettare i termini e condizioni",
     }),
   })
   .refine(data => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Le password non corrispondono",
     path: ["confirmPassword"],
   });
 
@@ -57,8 +57,8 @@ export type RegisterFormValues = z.infer<typeof registerSchema>;
 export const forgotPasswordSchema = z.object({
   email: z
     .string()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Invalid email address" }),
+    .min(1, { message: "L'email è obbligatoria" })
+    .email({ message: "Indirizzo email non valido" }),
 });
 
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
@@ -69,9 +69,9 @@ export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 export const otpSchema = z.object({
   otp: z
     .string()
-    .min(6, { message: "OTP must be 6 digits" })
-    .max(6, { message: "OTP must be 6 digits" })
-    .regex(/^\d{6}$/, { message: "OTP must contain only digits" }),
+    .min(6, { message: "L'OTP deve essere di 6 cifre" })
+    .max(6, { message: "L'OTP deve essere di 6 cifre" })
+    .regex(/^\d{6}$/, { message: "L'OTP deve contenere solo cifre" }),
 });
 
 export type OtpFormValues = z.infer<typeof otpSchema>;
@@ -83,14 +83,14 @@ export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(1, { message: "Password is required" })
-      .min(8, { message: "Password must be at least 8 characters" }),
+      .min(1, { message: "La password è obbligatoria" })
+      .min(8, { message: "La password deve essere di almeno 8 caratteri" }),
     confirmPassword: z
       .string()
-      .min(1, { message: "Please confirm your password" }),
+      .min(1, { message: "Conferma la password" }),
   })
   .refine(data => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Le password non corrispondono",
     path: ["confirmPassword"],
   });
 

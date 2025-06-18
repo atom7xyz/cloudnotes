@@ -78,19 +78,19 @@ const PinRecoveryModal = ({
       title={
         <div className="flex items-center gap-2 select-none">
           <MailIcon size={20} />
-          <span>PIN Recovery</span>
+          <span>Recupero PIN</span>
         </div>
       }
       maxWidth="max-w-md"
       cancelButton={{
-        text: "Cancel",
+        text: "Annulla",
         disabled: isLoading
       }}
       actionButton={{
-        text: "Send Recovery Email",
+        text: "Invia Email di Recupero",
         onClick: handleSendRecoveryEmail,
         disabled: isLoading,
-        loadingText: "Sending..."
+        loadingText: "Invio in corso..."
       }}
       isLoading={isLoading}
       showSuccess={showSuccess}
@@ -99,7 +99,7 @@ const PinRecoveryModal = ({
         title: (
           <div className="flex items-center gap-2 select-none">
             <CheckCircleIcon size={20} className="text-green-600" />
-            <span>Email Sent Successfully</span>
+            <span>Email Inviata con Successo</span>
           </div>
         ),
         content: (
@@ -107,8 +107,8 @@ const PinRecoveryModal = ({
             {/* Success message */}
             <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 rounded-lg">
               <p className="text-sm text-green-800">
-                A PIN recovery link has been successfully sent to <strong>{obscuredEmail}</strong>. 
-                Check your inbox and follow the instructions to reset your PIN.
+                Un link di recupero PIN è stato inviato con successo a <strong>{obscuredEmail}</strong>. 
+                Controlla la tua casella di posta e segui le istruzioni per reimpostare il tuo PIN.
               </p>
             </div>
 
@@ -116,21 +116,21 @@ const PinRecoveryModal = ({
             <div className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
-                  <span>Details:</span>
+                  <span>Dettagli:</span>
                 </div>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>• Follow the instructions in the email to reset your PIN</p>
-                  <p>• Link is valid for the next 24 hours</p>
+                                      <p>• Segui le istruzioni nell'email per reimpostare il tuo PIN</p>
+                    <p>• Il link è valido per le prossime 24 ore</p>
                 </div>
               </div>
               
               <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-blue-300/50">
-                If you don't receive the email within a few minutes, please check your spam folder or try sending another recovery email.
+                Se non ricevi l'email entro pochi minuti, controlla la cartella spam o prova a inviare un'altra email di recupero.
               </div>
             </div>
           </div>
         ),
-        closeButtonText: "Done",
+        closeButtonText: "Fatto",
         iconBgColor: "bg-green-100",
         iconColor: "text-green-600"
       }}
@@ -140,8 +140,8 @@ const PinRecoveryModal = ({
           {/* Description */}
           <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg">
             <p className="text-sm text-blue-800">
-              Forgot your PIN? We'll send a secure recovery link to your registered email address 
-              so you can reset it safely.
+              Hai dimenticato il tuo PIN? Invieremo un link di recupero sicuro al tuo indirizzo email registrato 
+              così potrai reimpostarlo in sicurezza.
             </p>
           </div>
 
@@ -149,16 +149,16 @@ const PinRecoveryModal = ({
           <div className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm font-medium">
-                <span>Details:</span>
+                <span>Dettagli:</span>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p>• Email address: {obscuredEmail}</p>
+                <p>• Indirizzo email: {obscuredEmail}</p>
               </div>
             </div>
             
             <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-blue-300/50">
-              We'll send a secure link to your registered email address to reset your PIN. 
-              Make sure to check your spam folder if you don't see it in your inbox.
+              Invieremo un link sicuro al tuo indirizzo email registrato per reimpostare il tuo PIN. 
+              Assicurati di controllare la cartella spam se non lo vedi nella posta in arrivo.
             </div>
           </div>
         </div>

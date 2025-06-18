@@ -8,7 +8,7 @@ interface ApplicationSplashProps {
 
 const ApplicationSplash: React.FC<ApplicationSplashProps> = ({
   isOpen,
-  message = "Getting things ready..."
+  message = "Preparando l'applicazione..."
 }) => {
   // Lock body scroll when splash is open
   useEffect(() => {

@@ -56,19 +56,19 @@ export default function ExportDataModal({
       title={
         <div className="flex items-center gap-2">
           <DownloadIcon size={20} className="text-blue-500" />
-          <span>Export Your Data</span>
+          <span>Esporta i Tuoi Dati</span>
         </div>
       }
       maxWidth="max-w-md"
       cancelButton={{
-        text: "Cancel",
+        text: "Annulla",
         disabled: loading
       }}
       actionButton={{
-        text: "Export",
+        text: "Esporta",
         onClick: handleConfirm,
         disabled: loading,
-        loadingText: "Processing..."
+        loadingText: "Elaborazione..."
       }}
       isLoading={loading}
       showSuccess={exportSuccess}
@@ -77,7 +77,7 @@ export default function ExportDataModal({
         title: (
           <div className="flex items-center gap-2 select-none">
             <CheckCircleIcon size={20} className="text-green-600" />
-            <span>Export Request Submitted</span>
+            <span>Richiesta di Esportazione Inviata</span>
           </div>
         ),
         content: (
@@ -85,8 +85,8 @@ export default function ExportDataModal({
             {/* Success message */}
             <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 rounded-lg">
               <p className="text-sm text-green-800">
-                Your export request has been successfully submitted and is now being processed. 
-                A secure download link will be sent to <strong>{email}</strong>.
+                La tua richiesta di esportazione è stata inviata con successo ed è ora in elaborazione. 
+                Un link di download sicuro verrà inviato a <strong>{email}</strong>.
               </p>
             </div>
 
@@ -94,23 +94,23 @@ export default function ExportDataModal({
             <div className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
-                  <span>Details:</span>
+                  <span>Dettagli:</span>
                 </div>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>• All your notes and documents will be included</p>
-                  <p>• Export format: ZIP file with organized folders</p>
-                  <p>• Processing time: 24-72 hours</p>
-                  <p>• Download link expires after 7 days</p>
+                  <p>• Tutte le tue note e documenti saranno inclusi</p>
+                  <p>• Formato di esportazione: File ZIP con cartelle organizzate</p>
+                  <p>• Tempo di elaborazione: 24-72 ore</p>
+                  <p>• Il link di download scade dopo 7 giorni</p>
                 </div>
               </div>
               
               <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-green-300/50">
-                If you don't receive the email within 72 hours, please contact support for assistance.
+                Se non ricevi l'email entro 72 ore, contatta il supporto per assistenza.
               </div>
             </div>
           </div>
         ),
-        closeButtonText: "Done",
+        closeButtonText: "Fatto",
         iconBgColor: "bg-green-100",
         iconColor: "text-green-600"
       }}
@@ -120,8 +120,8 @@ export default function ExportDataModal({
           {/* Description */}
           <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-lg">
             <p className="text-sm text-blue-800">
-              Your data will be prepared and sent as a downloadable file to <strong>{email}</strong>. 
-              This includes all your notes, documents, and settings.
+              I tuoi dati verranno preparati e inviati come file scaricabile a <strong>{email}</strong>. 
+              Questo include tutte le tue note, documenti e impostazioni.
             </p>
           </div>
 
@@ -129,18 +129,18 @@ export default function ExportDataModal({
           <div className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm font-medium">
-                <span>Details:</span>
+                <span>Dettagli:</span>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p>• All your notes and documents will be included</p>
-                <p>• Export format: ZIP file with organized folders</p>
-                <p>• Processing time: 24-72 hours</p>
-                <p>• Download link expires after 7 days</p>
+                <p>• Tutte le tue note e documenti saranno inclusi</p>
+                <p>• Formato di esportazione: File ZIP con cartelle organizzate</p>
+                <p>• Tempo di elaborazione: 24-72 ore</p>
+                <p>• Il link di download scade dopo 7 giorni</p>
               </div>
             </div>
             
             <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md border-l-4 border-blue-300/50">
-              You'll receive an email notification when your export is ready for download.
+              Riceverai una notifica via email quando l'esportazione sarà pronta per il download.
             </div>
           </div>
         </div>

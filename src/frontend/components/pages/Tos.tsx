@@ -22,7 +22,7 @@ export default function Tos() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const lastUpdated = "May 10, 2024";
+  const lastUpdated = "10 Maggio 2024";
   
   const scrollToSection = (sectionId: string) => {
     const section = sectionRefs.current[sectionId];
@@ -53,212 +53,212 @@ export default function Tos() {
   const sections: TosSection[] = [
     {
       id: "legal-terms",
-      title: "Agreement to Our Legal Terms",
+      title: "Accordo sui Nostri Termini Legali",
       content: (
         <div className="space-y-4">
           <p>
-            We are CloudNotes LLC ("Company," "we," "us," "our"), a company registered in Italy at Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125.
+            Siamo CloudNotes LLC ("Società," "noi," "nostro"), una società registrata in Italia presso Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125.
           </p>
           <p>
-            We operate the website <strong>cloudnotes.com</strong> (the "Site"), as well as any other related products and services that refer or link to these legal terms (the "Legal Terms") (collectively, the "Services").
+            Gestiamo il sito web <strong>cloudnotes.com</strong> (il "Sito"), così come qualsiasi altro prodotto e servizio correlato che fa riferimento o si collega a questi termini legali (i "Termini Legali") (collettivamente, i "Servizi").
           </p>
           <p>
-            This application aims to help students of all ages find their own study methods using various integrated technological tools.
+            Questa applicazione mira ad aiutare studenti di tutte le età a trovare i propri metodi di studio utilizzando vari strumenti tecnologici integrati.
           </p>
           <p>
-            You can contact us by phone at <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>, email at <AppLink href="mailto:contact@cloudnotes.com" external>contact@cloudnotes.com</AppLink>, or by mail to Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125, Italy.
+            Puoi contattarci per telefono al <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>, via email a <AppLink href="mailto:contact@cloudnotes.com" external>contact@cloudnotes.com</AppLink>, o per posta a Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125, Italia.
           </p>
           <p>
-            These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you"), and CloudNotes LLC, concerning your access to and use of the Services. You agree that by accessing the Services, you have read, understood, and agreed to be bound by all of these Legal Terms.{" "}
+            Questi Termini Legali costituiscono un accordo legalmente vincolante stipulato tra te, personalmente o per conto di un'entità ("tu"), e CloudNotes LLC, riguardo al tuo accesso e utilizzo dei Servizi. Accetti che accedendo ai Servizi, hai letto, compreso e accettato di essere vincolato da tutti questi Termini Legali.{" "}
             <strong>
-              IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.
+              SE NON ACCETTI TUTTI QUESTI TERMINI LEGALI, ALLORA TI È ESPRESSAMENTE VIETATO UTILIZZARE I SERVIZI E DEVI INTERROMPERE IMMEDIATAMENTE L'UTILIZZO.
             </strong>
           </p>
           <p>
-            Supplemental terms and conditions or documents that may be posted on the Services from time to time are hereby explicitly incorporated herein by reference. We reserve the right, in our sole discretion, to make changes or modifications to these Legal Terms from time to time. We will alert you about any changes by updating the "Last updated" date, and you waive any right to receive specific notice of each such change. It is your responsibility to periodically review these Legal Terms to stay informed of updates. Your continued use of the Services after any such changes have been posted will signify your acceptance of the revised Legal Terms.
+            Termini e condizioni supplementari o documenti che possono essere pubblicati sui Servizi di volta in volta sono qui esplicitamente incorporati per riferimento. Ci riserviamo il diritto, a nostra esclusiva discrezione, di apportare modifiche o modificazioni a questi Termini Legali di volta in volta. Ti avviseremo di eventuali modifiche aggiornando la data "Ultimo aggiornamento", e rinunci a qualsiasi diritto di ricevere un avviso specifico di ogni tale modifica. È tua responsabilità rivedere periodicamente questi Termini Legali per rimanere informato degli aggiornamenti. Il tuo uso continuato dei Servizi dopo la pubblicazione di tali modifiche significherà la tua accettazione dei Termini Legali rivisti.
           </p>
           <p>
-            All users who are minors in the jurisdiction in which they reside (generally under the age of 18) must have the permission of, and be directly supervised by, a parent or guardian to use the Services. If you are a minor, you must have your parent or guardian read and agree to these Legal Terms before using the Services.
+            Tutti gli utenti che sono minori nella giurisdizione in cui risiedono (generalmente sotto i 18 anni) devono avere il permesso di, ed essere direttamente supervisionati da, un genitore o tutore per utilizzare i Servizi. Se sei minorenne, devi far leggere e accettare questi Termini Legali al tuo genitore o tutore prima di utilizzare i Servizi.
           </p>
-          <p>We recommend that you print a copy of these Legal Terms for your records.</p>
+          <p>Ti consigliamo di stampare una copia di questi Termini Legali per i tuoi archivi.</p>
         </div>
       ),
     },
     {
       id: "our-services",
-      title: "Our Services",
+      title: "I Nostri Servizi",
       content: (
         <div className="space-y-4">
           <p>
-            The information provided when using the Services is not intended for distribution to or use by any person or entity in any jurisdiction or country where such distribution or use would be contrary to law or regulation or which would subject us to registration requirements. Those who access the Services from other locations do so at their own initiative and are solely responsible for compliance with local laws.
+            Le informazioni fornite quando si utilizzano i Servizi non sono destinate alla distribuzione o all'uso da parte di qualsiasi persona o entità in qualsiasi giurisdizione o paese dove tale distribuzione o uso sarebbe contrario alla legge o al regolamento o che ci sottoporrebbe a requisiti di registrazione. Coloro che accedono ai Servizi da altre località lo fanno di propria iniziativa e sono gli unici responsabili della conformità alle leggi locali.
           </p>
           <p>
-            The Services are not tailored to comply with specific industry regulations (such as HIPAA or FISMA); if your interactions must meet such standards, you may not use the Services. Additionally, you may not use the Services in a manner that would violate the Gramm-Leach-Bliley Act (GLBA).
+            I Servizi non sono personalizzati per rispettare specifiche normative del settore (come HIPAA o FISMA); se le tue interazioni devono soddisfare tali standard, non puoi utilizzare i Servizi. Inoltre, non puoi utilizzare i Servizi in modo che violi il Gramm-Leach-Bliley Act (GLBA).
           </p>
         </div>
       ),
     },
     {
       id: "intellectual-property-rights",
-      title: "Intellectual Property Rights",
+      title: "Diritti di Proprietà Intellettuale",
       content: (
         <div className="space-y-4">
-          <h3><strong>Our Intellectual Property</strong></h3>
+          <h3><strong>La Nostra Proprietà Intellettuale</strong></h3>
           <p>
-            We are the owner or licensee of all intellectual property rights in the Services, including all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics (collectively, the "Content"), as well the trademarks, service marks, and logos (the "Marks").
+            Siamo proprietari o licenziatari di tutti i diritti di proprietà intellettuale nei Servizi, inclusi tutto il codice sorgente, database, funzionalità, software, design del sito web, audio, video, testi, fotografie e grafici (collettivamente, il "Contenuto"), così come i marchi commerciali, marchi di servizio e loghi (i "Marchi").
           </p>
           <p>
-            Our Content and Marks are protected by copyright, trademark, and other intellectual property laws and treaties worldwide.
+            Il nostro Contenuto e i Marchi sono protetti da copyright, marchi commerciali e altre leggi e trattati sulla proprietà intellettuale in tutto il mondo.
           </p>
           <p>
-            The Content and Marks are provided "AS IS" for your personal, non-commercial use or internal business purposes only.
+            Il Contenuto e i Marchi sono forniti "COSÌ COME SONO" solo per il tuo uso personale, non commerciale o per scopi aziendali interni.
           </p>
-          <h3><strong>Your Use of Our Services</strong></h3>
+          <h3><strong>Il Tuo Utilizzo dei Nostri Servizi</strong></h3>
           <p>
-            Subject to your compliance with these Legal Terms (including the "Prohibited Activities" section below), we grant you a non-exclusive, non-transferable, revocable license to:
+            Soggetto alla tua conformità con questi Termini Legali (inclusa la sezione "Attività Proibite" di seguito), ti concediamo una licenza non esclusiva, non trasferibile e revocabile per:
           </p>
           <ol className="pl-4">
-            <li>- Access the Services;</li>
-            <li>- Download or print a copy of any portion of the Content that you have legally accessed.</li>
+            <li>- Accedere ai Servizi;</li>
+            <li>- Scaricare o stampare una copia di qualsiasi porzione del Contenuto a cui hai legalmente avuto accesso.</li>
           </ol>
           <p>
-            This license is solely for your personal, non-commercial use. Any other use of the Services, Content, or Marks without our explicit written permission is prohibited.
+            Questa licenza è esclusivamente per il tuo uso personale e non commerciale. Qualsiasi altro uso dei Servizi, Contenuto o Marchi senza il nostro permesso scritto esplicito è vietato.
           </p>
           <p>
-            If you wish to use the Services, Content, or Marks in any other way, please contact us at <a href="mailto:contact@cloudnotes.com">contact@cloudnotes.com</a>.
+            Se desideri utilizzare i Servizi, il Contenuto o i Marchi in qualsiasi altro modo, ti preghiamo di contattarci a <a href="mailto:contact@cloudnotes.com">contact@cloudnotes.com</a>.
           </p>
           <p>
-            We reserve all rights not expressly granted herein. Any breach of these Intellectual Property Rights will constitute a material breach of these Legal Terms and result in immediate termination of your right to use the Services.
+            Ci riserviamo tutti i diritti non espressamente concessi qui. Qualsiasi violazione di questi Diritti di Proprietà Intellettuale costituirà una violazione materiale di questi Termini Legali e comporterà la terminazione immediata del tuo diritto di utilizzare i Servizi.
           </p>
         </div>
       ),
     },
     {
       id: "user-representations",
-      title: "User Representations",
+      title: "Dichiarazioni dell'Utente",
       content: (
         <div className="space-y-4">
-          <p>By using the Services, you represent and warrant that:</p>
+          <p>Utilizzando i Servizi, dichiari e garantisci che:</p>
           <ol className="pl-4">
-            <li>- All registration information will be true, accurate, current, and complete;</li>
-            <li>- You will maintain and update this information as necessary;</li>
-            <li>- You have the legal capacity to enter into these Legal Terms;</li>
-            <li>- You are not a minor, or if you are, you have obtained parental permission;</li>
-            <li>- You will not use automated means (like bots or scripts) to access the Services;</li>
-            <li>- You will not use the Services for any illegal or unauthorized purpose; and</li>
-            <li>- Your use of the Services complies with all applicable laws and regulations.</li>
+            <li>- Tutte le informazioni di registrazione saranno vere, accurate, aggiornate e complete;</li>
+            <li>- Manterrai e aggiornerai queste informazioni quando necessario;</li>
+            <li>- Hai la capacità legale di accettare questi Termini Legali;</li>
+            <li>- Non sei minorenne, o se lo sei, hai ottenuto il permesso dei genitori;</li>
+            <li>- Non utilizzerai mezzi automatizzati (come bot o script) per accedere ai Servizi;</li>
+            <li>- Non utilizzerai i Servizi per scopi illegali o non autorizzati; e</li>
+            <li>- Il tuo utilizzo dei Servizi rispetta tutte le leggi e regolamenti applicabili.</li>
           </ol>
           <p>
-            If any information is untrue or incomplete, we reserve the right to suspend or terminate your account.
+            Se qualsiasi informazione è falsa o incompleta, ci riserviamo il diritto di sospendere o terminare il tuo account.
           </p>
         </div>
       ),
     },
     {
       id: "prohibited-activities",
-      title: "Prohibited Activities",
+      title: "Attività Proibite",
       content: (
         <div className="space-y-4">
           <p>
-            You may only use the Services for their intended purpose. The Services may not be used for any commercial endeavors unless expressly approved by us.
+            Puoi utilizzare i Servizi solo per il loro scopo previsto. I Servizi non possono essere utilizzati per attività commerciali a meno che non sia espressamente approvato da noi.
           </p>
           <p>
-            You may not:
+            Non puoi:
           </p>
           <ol>
-            <li>- Systematically retrieve data to create a database or directory without our written permission;</li>
-            <li>- Trick, defraud, or mislead us or other users (for example, by trying to obtain sensitive account information);</li>
-            <li>- Circumvent, disable, or interfere with security features of the Services;</li>
-            <li>- Disparage, tarnish, or harm the Services or CloudNotes LLC;</li>
-            <li>- Use information from the Services to harass, abuse, or harm anyone;</li>
-            <li>- Misuse our support services or submit false abuse reports;</li>
-            <li>- Use the Services in violation of any applicable law or regulation;</li>
-            <li>- Engage in unauthorized framing or linking to the Services;</li>
-            <li>- Upload or transmit viruses, Trojan horses, or malicious materials that disrupt the Services;</li>
-            <li>- Use automated tools (such as bots or scrapers) to access the Services;</li>
-            <li>- Remove or alter any copyright or proprietary notices from the Content;</li>
-            <li>- Impersonate another user or use someone else's username;</li>
-            <li>- Upload materials that serve as hidden data collection mechanisms (e.g., web bugs or cookies);</li>
-            <li>- Interfere with, disrupt, or impose an undue burden on the Services;</li>
-            <li>- Harass, intimidate, or threaten any of our employees or agents;</li>
-            <li>- Attempt to bypass access restrictions on any portion of the Services;</li>
-            <li>- Copy or adapt our software (including Flash, PHP, HTML, or JavaScript) without permission;</li>
-            <li>- Reverse engineer, decompile, or disassemble any part of the Services, except as permitted by law;</li>
-            <li>- Deploy automated systems to access the Services without authorization;</li>
-            <li>- Use purchasing agents to make transactions on the Services;</li>
-            <li>- Collect users' personal data for unsolicited emails or create accounts under false pretenses;</li>
-            <li>- Use the Services to compete with us or for revenue-generating enterprises;</li>
-            <li>- Sell or transfer your profile data;</li>
-            <li>- Use the Services to advertise or offer goods and services.</li>
+            <li>- Recuperare sistematicamente dati per creare un database o directory senza il nostro permesso scritto;</li>
+            <li>- Ingannare, frodare o fuorviare noi o altri utenti (per esempio, cercando di ottenere informazioni sensibili dell'account);</li>
+            <li>- Aggirare, disabilitare o interferire con le funzionalità di sicurezza dei Servizi;</li>
+            <li>- Denigrare, danneggiare o nuocere ai Servizi o a CloudNotes LLC;</li>
+            <li>- Utilizzare informazioni dai Servizi per molestare, abusare o danneggiare chiunque;</li>
+            <li>- Abusare dei nostri servizi di supporto o inviare false segnalazioni di abuso;</li>
+            <li>- Utilizzare i Servizi in violazione di qualsiasi legge o regolamento applicabile;</li>
+            <li>- Impegnarsi in frame o collegamento non autorizzato ai Servizi;</li>
+            <li>- Caricare o trasmettere virus, cavalli di Troia o materiali dannosi che disturbano i Servizi;</li>
+            <li>- Utilizzare strumenti automatizzati (come bot o scraper) per accedere ai Servizi;</li>
+            <li>- Rimuovere o alterare qualsiasi avviso di copyright o proprietario dal Contenuto;</li>
+            <li>- Impersonare un altro utente o utilizzare il nome utente di qualcun altro;</li>
+            <li>- Caricare materiali che servono come meccanismi nascosti di raccolta dati (es. web bug o cookie);</li>
+            <li>- Interferire con, disturbare o imporre un carico eccessivo sui Servizi;</li>
+            <li>- Molestare, intimidire o minacciare qualsiasi nostro dipendente o agente;</li>
+            <li>- Tentare di aggirare le restrizioni di accesso su qualsiasi porzione dei Servizi;</li>
+            <li>- Copiare o adattare il nostro software (inclusi Flash, PHP, HTML o JavaScript) senza permesso;</li>
+            <li>- Fare reverse engineering, decompilare o disassemblare qualsiasi parte dei Servizi, eccetto come permesso dalla legge;</li>
+            <li>- Implementare sistemi automatizzati per accedere ai Servizi senza autorizzazione;</li>
+            <li>- Utilizzare agenti di acquisto per fare transazioni sui Servizi;</li>
+            <li>- Raccogliere dati personali degli utenti per email non sollecitate o creare account sotto false pretese;</li>
+            <li>- Utilizzare i Servizi per competere con noi o per imprese che generano entrate;</li>
+            <li>- Vendere o trasferire i dati del tuo profilo;</li>
+            <li>- Utilizzare i Servizi per pubblicizzare o offrire beni e servizi.</li>
           </ol>
         </div>
       ),
     },
     {
       id: "term-and-termination",
-      title: "Term and Termination",
+      title: "Durata e Risoluzione",
       content: (
         <div className="space-y-4">
           <p>
-            These Legal Terms remain in full effect while you use the Services.{" "}
+            Questi Termini Legali rimangono in pieno vigore mentre utilizzi i Servizi.{" "}
             <strong>
-              Without limiting other provisions, we reserve the right to deny access (including blocking IP addresses) at our sole discretion and without notice for any breach of these terms or applicable law.
+              Senza limitare altre disposizioni, ci riserviamo il diritto di negare l'accesso (incluso il blocco degli indirizzi IP) a nostra esclusiva discrezione e senza preavviso per qualsiasi violazione di questi termini o della legge applicabile.
             </strong>
           </p>
           <p>
-            If we terminate or suspend your account, you may not register a new account under your name, a fake or borrowed name, or on behalf of a third party. We also reserve the right to pursue legal action, including civil, criminal, and injunctive relief.
+            Se terminiamo o sospendiamo il tuo account, non puoi registrare un nuovo account con il tuo nome, un nome falso o preso in prestito, o per conto di una terza parte. Ci riserviamo anche il diritto di perseguire azioni legali, inclusi rimedi civili, penali e ingiuntivi.
           </p>
         </div>
       ),
     },
     {
       id: "governing-law",
-      title: "Governing Law",
+      title: "Legge Applicabile",
       content: (
         <div className="space-y-4">
           <p>
-            These Legal Terms are governed by the laws of Italy, excluding the United Nations Convention on Contracts for the International Sale of Goods. If you reside in the EU as a consumer, you may have additional rights under your national laws. Both CloudNotes LLC and you agree to submit to the non-exclusive jurisdiction of the courts in Sardegna.
+            Questi Termini Legali sono regolati dalle leggi d'Italia, escludendo la Convenzione delle Nazioni Unite sui Contratti per la Vendita Internazionale di Merci. Se risiedi nell'UE come consumatore, potresti avere diritti aggiuntivi sotto le tue leggi nazionali. Sia CloudNotes LLC che tu accettate di sottomettervi alla giurisdizione non esclusiva dei tribunali della Sardegna.
           </p>
         </div>
       ),
     },
     {
       id: "disclaimer",
-      title: "Disclaimer",
+      title: "Esclusione di Responsabilità",
       content: (
         <div className="space-y-4">
           <p>
-            The Services are provided on an "as-is" and "as-available" basis. Your use is at your own risk. To the fullest extent allowed by law, we disclaim all warranties, whether express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not guarantee the accuracy or completeness of the Services' content and are not liable for any errors, damages, or interruptions arising from its use. Please exercise caution with any third-party products or services referenced herein.
+            I Servizi sono forniti "così come sono" e "come disponibili". Il tuo utilizzo è a tuo rischio. Nella misura massima consentita dalla legge, escludiamo tutte le garanzie, esplicite o implicite, incluse le garanzie di commerciabilità, idoneità per uno scopo particolare e non violazione. Non garantiamo l'accuratezza o la completezza del contenuto dei Servizi e non siamo responsabili per errori, danni o interruzioni derivanti dal suo utilizzo. Ti preghiamo di esercitare cautela con qualsiasi prodotto o servizio di terze parti qui menzionato.
           </p>
         </div>
       ),
     },
     {
       id: "limitations-of-liability",
-      title: "Limitations of Liability",
+      title: "Limitazioni di Responsabilità",
       content: (
         <div className="space-y-4">
           <p>
-            In no event will we, our directors, employees, or agents be liable for any direct, indirect, consequential, exemplary, incidental, special, or punitive damages (including lost profits, revenue, or data) arising from your use of the Services, even if we have been advised of the possibility of such damages. Our total liability to you shall be limited to the amount you have paid us, if any, subject to applicable law.
+            In nessun caso noi, i nostri direttori, dipendenti o agenti saremo responsabili per danni diretti, indiretti, consequenziali, esemplari, incidentali, speciali o punitivi (inclusi profitti persi, entrate o dati) derivanti dal tuo utilizzo dei Servizi, anche se siamo stati avvisati della possibilità di tali danni. La nostra responsabilità totale verso di te sarà limitata all'importo che ci hai pagato, se presente, soggetto alla legge applicabile.
           </p>
         </div>
       ),
     },
     {
       id: "contact-us",
-      title: "Contact Us",
+      title: "Contattaci",
       content: (
         <div className="space-y-4">
           <p>
-            To resolve any complaint or to obtain further information regarding the Services, please contact us at:
+            Per risolvere qualsiasi reclamo o per ottenere ulteriori informazioni riguardo ai Servizi, ti preghiamo di contattarci a:
           </p>
           <div className="contact-info select-none">
             <p>CloudNotes LLC</p>
             <p>Pescheria del Porto di Cagliari</p>
             <p>Cagliari, Cagliari 09125</p>
-            <p>Italy</p>
+            <p>Italia</p>
             <p>
-              Phone: <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>
+              Telefono: <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>
             </p>
             <p>
               Email: <AppLink href="mailto:contact@cloudnotes.com" external>contact@cloudnotes.com</AppLink>
@@ -296,8 +296,8 @@ export default function Tos() {
         <div className="bg-background/95 backdrop-blur-sm rounded-xl shadow-md p-6 sm:p-8">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold select-none">Terms of Service</h2>
-              <p className="text-sm text-foreground/80 mt-1 select-none">Last updated: {lastUpdated}</p>
+              <h2 className="text-2xl sm:text-3xl font-bold select-none">Termini di Servizio</h2>
+                              <p className="text-sm text-foreground/80 mt-1 select-none">Ultimo aggiornamento: {lastUpdated}</p>
             </div>
             <Button 
               variant="default" 
@@ -306,7 +306,7 @@ export default function Tos() {
               aria-label="Print Terms of Service"
             >
               <PrinterIcon className="size-4" />
-              Print
+              Stampa
             </Button>
           </div>
           
@@ -316,7 +316,7 @@ export default function Tos() {
             <aside className="lg:w-1/5 xl:w-3/10">
               <div className="lg:sticky lg:top-8">
                 <nav className="bg-background/50 backdrop-blur-sm rounded-lg shadow-sm p-4 select-none">
-                  <h3 className="text-lg font-semibold mb-4 text-foreground">Navigation</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-foreground">Navigazione</h3>
                   <div className="space-y-1 custom-scrollbar">
                     {sections.map((section, index) => (
                       <div key={section.id}>
@@ -387,7 +387,7 @@ export default function Tos() {
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
         sections={sections}
-        title="CloudNotes Terms of Service"
+        title="Termini di Servizio CloudNotes"
         lastUpdated={lastUpdated}
       />
     </div>

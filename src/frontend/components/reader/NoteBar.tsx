@@ -39,9 +39,9 @@ interface NoteBarProps {
 // Helper function to get a human-readable location string
 const getNoteLocationText = (note: Note): string => {
   if (note.isGlobal) {
-    return "Global note (visible on all pages)";
+    return "Nota globale (visibile su tutte le pagine)";
   }
-  return `Page ${note.pageNumber}`;
+  return `Pagina ${note.pageNumber}`;
 };
 
 // Sortable note component with dnd-kit - now memoized
@@ -146,7 +146,7 @@ const SortableNote = memo(({
               size="icon" 
               className={`h-6 w-6 ${note.isGlobal ? 'text-primary' : 'text-muted-foreground'} hover-primary-effect`}
               onClick={handleToggleGlobal}
-              title={note.isGlobal ? "Global note (click to make page-specific)" : "Page-specific note (click to make global)"}
+              title={note.isGlobal ? "Nota globale (clicca per rendere pagina-specifica)" : "Nota pagina-specifica (clicca per rendere globale)"}
             >
               {note.isGlobal ? <PenSquare className="h-4 w-4" /> : <Globe className="h-4 w-4" />}
             </Button>
@@ -156,7 +156,7 @@ const SortableNote = memo(({
               className="h-6 w-6 hover-primary-effect" 
               onClick={handleDelete}
             >
-              <span className="sr-only">Delete note</span>
+              <span className="sr-only">Elimina nota</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -240,8 +240,8 @@ const NoteBar = memo(({
     const newNote: Note = {
       id: `note-${Date.now()}`,
       pageNumber: currentPage,
-      content: `New note on page ${currentPage}`,
-      title: `Note ${notes.length + 1}`,
+      content: `Nuova nota sulla pagina ${currentPage}`,
+      title: `Nota ${notes.length + 1}`,
       isGlobal: false,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -307,7 +307,7 @@ const NoteBar = memo(({
   // Render empty state when there are no notes
   const emptyNotesContent = useMemo(() => (
     <p className="text-sm text-muted-foreground text-center py-4 select-none">
-      No notes on this page
+      Nessuna nota su questa pagina
     </p>
   ), []);
   
@@ -350,7 +350,7 @@ const NoteBar = memo(({
             size="icon" 
             className="h-10 w-10 rounded-full shadow-md bg-background hover-primary-effect"
             onClick={toggleSidebar}
-            title="Hide sidebar"
+            title="Nascondi barra laterale"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
@@ -359,15 +359,15 @@ const NoteBar = memo(({
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="select-none">Notes</Label>
+              <Label className="select-none">Note</Label>
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={addNote}
                 className="select-none hover-primary-effect"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Note
+                <Plus className="h-4 w-4" />
+                Aggiungi
               </Button>
             </div>
             
@@ -385,7 +385,7 @@ const NoteBar = memo(({
             size="icon" 
             className="h-10 w-10 rounded-full shadow-md bg-background hover-primary-effect"
             onClick={toggleSidebar}
-            title="Show sidebar"
+            title="Mostra barra laterale"
           >
             <ChevronFirst className="h-5 w-5" />
           </Button>

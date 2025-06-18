@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
   const [activeSection, setActiveSection] = useState<string>("");
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   
-  const lastUpdated = "May 15, 2024";
+  const lastUpdated = "15 Maggio 2024";
   
   const scrollToSection = (sectionId: string) => {
     const section = sectionRefs.current[sectionId];
@@ -50,248 +50,248 @@ export default function PrivacyPolicy() {
   const sections: PrivacySection[] = [
     {
       id: "introduction",
-      title: "Introduction",
+      title: "Introduzione",
       content: (
         <div className="space-y-4">
           <p>
-            At CloudNotes LLC ("we," "us," "our"), we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our services.
+            Noi di CloudNotes LLC ("noi," "nostro"), rispettiamo la tua privacy e siamo impegnati a proteggere i tuoi dati personali. Questa Informativa sulla Privacy spiega come raccogliamo, utilizziamo, divulghiamo e proteggiamo le tue informazioni quando utilizzi i nostri servizi.
           </p>
           <p>
-            We operate the website <strong>cloudnotes.com</strong> (the "Site"), as well as any other related products and services that refer or link to this privacy policy (collectively, the "Services").
+            Gestiamo il sito web <strong>cloudnotes.com</strong> (il "Sito"), così come qualsiasi altro prodotto e servizio correlato che fa riferimento o si collega a questa informativa sulla privacy (collettivamente, i "Servizi").
           </p>
           <p>
-            Please read this privacy policy carefully. If you do not agree with our policies and practices, please do not use our Services. By accessing or using our Services, you agree to this privacy policy.
+            Ti preghiamo di leggere attentamente questa informativa sulla privacy. Se non sei d'accordo con le nostre politiche e pratiche, ti preghiamo di non utilizzare i nostri Servizi. Accedendo o utilizzando i nostri Servizi, accetti questa informativa sulla privacy.
           </p>
           <p>
-            You can contact us with questions or concerns about our privacy practices by email at <AppLink href="mailto:privacy@cloudnotes.com" external>privacy@cloudnotes.com</AppLink>, by phone at <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>, or by mail at Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125, Italy.
+            Puoi contattarci per domande o preoccupazioni riguardo alle nostre pratiche sulla privacy via email a <AppLink href="mailto:privacy@cloudnotes.com" external>privacy@cloudnotes.com</AppLink>, per telefono al <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>, o per posta a Pescheria del Porto di Cagliari, Cagliari, Cagliari 09125, Italia.
           </p>
         </div>
       ),
     },
     {
       id: "information-we-collect",
-      title: "Information We Collect",
+      title: "Informazioni che Raccogliamo",
       content: (
         <div className="space-y-4">
           <p>
-            We collect several types of information from and about users of our Services, including:
+            Raccogliamo diversi tipi di informazioni da e sui utenti dei nostri Servizi, incluse:
           </p>
-          <h3><strong>Personal Data</strong></h3>
+          <h3><strong>Dati Personali</strong></h3>
           <p>
-            We may collect personal information that you voluntarily provide when using our Services, including:
+            Potremmo raccogliere informazioni personali che fornisci volontariamente quando utilizzi i nostri Servizi, incluse:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Contact information (such as name, email address, phone number)</li>
-            <li>Account credentials (such as usernames and passwords)</li>
-            <li>Profile information (such as profile pictures and educational background)</li>
-            <li>Content you upload to our Services (such as notes, documents, and comments)</li>
-            <li>Payment information when you make purchases (processed by our payment providers)</li>
-            <li>Feedback and correspondence (such as support requests or survey responses)</li>
+            <li>Informazioni di contatto (come nome, indirizzo email, numero di telefono)</li>
+            <li>Credenziali dell'account (come nomi utente e password)</li>
+            <li>Informazioni del profilo (come foto del profilo e background educativo)</li>
+            <li>Contenuti che carichi sui nostri Servizi (come note, documenti e commenti)</li>
+            <li>Informazioni di pagamento quando effettui acquisti (elaborate dai nostri fornitori di pagamento)</li>
+            <li>Feedback e corrispondenza (come richieste di supporto o risposte a sondaggi)</li>
           </ul>
           
-          <h3><strong>Automatically Collected Information</strong></h3>
+          <h3><strong>Informazioni Raccolte Automaticamente</strong></h3>
           <p>
-            When you use our Services, we may automatically collect certain information about your device and how you interact with our Services:
+            Quando utilizzi i nostri Servizi, potremmo raccogliere automaticamente certe informazioni sul tuo dispositivo e su come interagisci con i nostri Servizi:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Device information (such as IP address, browser type, operating system)</li>
-            <li>Usage data (such as pages visited, features used, time spent on the site)</li>
-            <li>Location data (such as general geographic location based on IP address)</li>
-            <li>Cookies and similar tracking technologies (as described in our Cookie Policy)</li>
+            <li>Informazioni del dispositivo (come indirizzo IP, tipo di browser, sistema operativo)</li>
+            <li>Dati di utilizzo (come pagine visitate, funzionalità utilizzate, tempo trascorso sul sito)</li>
+            <li>Dati di localizzazione (come posizione geografica generale basata sull'indirizzo IP)</li>
+            <li>Cookie e tecnologie di tracciamento simili (come descritto nella nostra Politica sui Cookie)</li>
           </ul>
         </div>
       ),
     },
     {
       id: "how-we-use-information",
-      title: "How We Use Your Information",
+      title: "Come Utilizziamo le Tue Informazioni",
       content: (
         <div className="space-y-4">
           <p>
-            We use the information we collect for various purposes, including:
+            Utilizziamo le informazioni che raccogliamo per vari scopi, inclusi:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Providing, maintaining, and improving our Services</li>
-            <li>Creating and managing your account</li>
-            <li>Processing transactions and sending related information</li>
-            <li>Responding to your requests and providing customer support</li>
-            <li>Sending administrative messages, updates, and security alerts</li>
-            <li>Sending promotional communications if you have opted in to receive them</li>
-            <li>Personalizing your experience with our Services</li>
-            <li>Analyzing usage patterns to improve our Services</li>
-            <li>Protecting our Services and users from fraudulent, harmful, or illegal activity</li>
-            <li>Complying with legal obligations</li>
+            <li>Fornire, mantenere e migliorare i nostri Servizi</li>
+            <li>Creare e gestire il tuo account</li>
+            <li>Elaborare transazioni e inviare informazioni correlate</li>
+            <li>Rispondere alle tue richieste e fornire supporto clienti</li>
+            <li>Inviare messaggi amministrativi, aggiornamenti e avvisi di sicurezza</li>
+            <li>Inviare comunicazioni promozionali se hai scelto di riceverle</li>
+            <li>Personalizzare la tua esperienza con i nostri Servizi</li>
+            <li>Analizzare i modelli di utilizzo per migliorare i nostri Servizi</li>
+            <li>Proteggere i nostri Servizi e utenti da attività fraudolente, dannose o illegali</li>
+            <li>Rispettare le obbligazioni legali</li>
           </ul>
           
           <p>
-            We process your personal information only when we have a valid legal basis to do so, including:
+            Elaboriamo le tue informazioni personali solo quando abbiamo una base legale valida per farlo, inclusa:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Your consent</li>
-            <li>Performance of a contract with you</li>
-            <li>Compliance with a legal obligation</li>
-            <li>Protection of your vital interests or those of another person</li>
-            <li>Our legitimate interests (which we balance against your rights and interests)</li>
+            <li>Il tuo consenso</li>
+            <li>L'esecuzione di un contratto con te</li>
+            <li>Il rispetto di un obbligo legale</li>
+            <li>La protezione dei tuoi interessi vitali o di quelli di un'altra persona</li>
+            <li>I nostri interessi legittimi (che bilanceiamo contro i tuoi diritti e interessi)</li>
           </ul>
         </div>
       ),
     },
     {
       id: "information-sharing",
-      title: "Information Sharing and Disclosure",
+      title: "Condivisione e Divulgazione delle Informazioni",
       content: (
         <div className="space-y-4">
           <p>
-            We may share your information in the following situations:
+            Potremmo condividere le tue informazioni nelle seguenti situazioni:
           </p>
-          <h3><strong>Third-Party Service Providers</strong></h3>
+          <h3><strong>Fornitori di Servizi di Terze Parti</strong></h3>
           <p>
-            We may share your information with third-party vendors, service providers, contractors, or agents who perform services on our behalf, such as:
-          </p>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>Cloud hosting and infrastructure providers</li>
-            <li>Payment processors</li>
-            <li>Analytics providers</li>
-            <li>Customer support services</li>
-            <li>Email service providers</li>
-          </ul>
-          <p>
-            These third parties are only permitted to use your personal information to provide services to us and are required to maintain the confidentiality and security of your information.
-          </p>
-          
-          <h3><strong>Business Transfers</strong></h3>
-          <p>
-            If we are involved in a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction. We will notify you of any change in ownership or use of your personal information.
-          </p>
-          
-          <h3><strong>Legal Requirements</strong></h3>
-          <p>
-            We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court or government agency).
-          </p>
-          
-          <h3><strong>Protection of Rights</strong></h3>
-          <p>
-            We may disclose your information when we believe disclosure is necessary to:
+            Potremmo condividere le tue informazioni con fornitori terzi, prestatori di servizi, appaltatori o agenti che svolgono servizi per nostro conto, come:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Protect our rights, property, or safety</li>
-            <li>Protect the rights, property, or safety of our users or others</li>
-            <li>Investigate fraud, security, or technical issues</li>
-            <li>Enforce our terms of service</li>
+            <li>Fornitori di hosting cloud e infrastrutture</li>
+            <li>Processori di pagamento</li>
+            <li>Fornitori di analytics</li>
+            <li>Servizi di supporto clienti</li>
+            <li>Fornitori di servizi email</li>
+          </ul>
+          <p>
+            Queste terze parti sono autorizzate solo a utilizzare le tue informazioni personali per fornire servizi a noi e sono tenute a mantenere la riservatezza e la sicurezza delle tue informazioni.
+          </p>
+          
+          <h3><strong>Trasferimenti Aziendali</strong></h3>
+          <p>
+            Se siamo coinvolti in una fusione, acquisizione o vendita di tutti o parte dei nostri beni, le tue informazioni potrebbero essere trasferite come parte di quella transazione. Ti notificheremo qualsiasi cambiamento di proprietà o utilizzo delle tue informazioni personali.
+          </p>
+          
+          <h3><strong>Requisiti Legali</strong></h3>
+          <p>
+            Potremmo divulgare le tue informazioni se richiesto dalla legge o in risposta a richieste valide da parte di autorità pubbliche (ad es., un tribunale o agenzia governativa).
+          </p>
+          
+          <h3><strong>Protezione dei Diritti</strong></h3>
+          <p>
+            Potremmo divulgare le tue informazioni quando riteniamo che la divulgazione sia necessaria per:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Proteggere i nostri diritti, proprietà o sicurezza</li>
+            <li>Proteggere i diritti, proprietà o sicurezza dei nostri utenti o altri</li>
+            <li>Investigare frodi, problemi di sicurezza o tecnici</li>
+            <li>Far rispettare i nostri termini di servizio</li>
           </ul>
           
-          <h3><strong>With Your Consent</strong></h3>
+          <h3><strong>Con il Tuo Consenso</strong></h3>
           <p>
-            We may share your information with third parties when you have given us your consent to do so.
+            Potremmo condividere le tue informazioni con terze parti quando ci hai dato il tuo consenso per farlo.
           </p>
         </div>
       ),
     },
     {
       id: "data-security",
-      title: "Data Security",
+      title: "Sicurezza dei Dati",
       content: (
         <div className="space-y-4">
           <p>
-            We implement appropriate technical and organizational measures to protect your personal information against unauthorized or unlawful processing, accidental loss, destruction, or damage. However, no method of transmission over the Internet or electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.
+            Implementiamo misure tecniche e organizzative appropriate per proteggere le tue informazioni personali contro elaborazioni non autorizzate o illegali, perdite accidentali, distruzione o danni. Tuttavia, nessun metodo di trasmissione su Internet o di archiviazione elettronica è sicuro al 100%. Mentre ci sforziamo di utilizzare mezzi commercialmente accettabili per proteggere le tue informazioni personali, non possiamo garantire la loro sicurezza assoluta.
           </p>
           <p>
-            We limit access to your personal information to employees, agents, contractors, and other third parties who have a business need to know. They are subject to confidentiality obligations and may only process your personal information on our instructions.
+            Limitiamo l'accesso alle tue informazioni personali a dipendenti, agenti, appaltatori e altre terze parti che hanno una necessità aziendale di conoscerle. Sono soggetti a obblighi di riservatezza e possono elaborare le tue informazioni personali solo secondo le nostre istruzioni.
           </p>
           <p>
-            In the event of a data breach that affects your personal information, we will notify you and the relevant authorities as required by applicable law.
+            In caso di una violazione dei dati che interessa le tue informazioni personali, ti notificheremo e informeremo le autorità competenti come richiesto dalla legge applicabile.
           </p>
         </div>
       ),
     },
     {
       id: "your-rights",
-      title: "Your Privacy Rights",
+      title: "I Tuoi Diritti sulla Privacy",
       content: (
         <div className="space-y-4">
           <p>
-            Depending on your location, you may have the following rights regarding your personal information:
+            A seconda della tua posizione, potresti avere i seguenti diritti riguardo alle tue informazioni personali:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Access:</strong> You may request a copy of the personal information we hold about you.</li>
-            <li><strong>Correction:</strong> You may request that we correct any incomplete or inaccurate information we hold about you.</li>
-            <li><strong>Deletion:</strong> You may request that we delete your personal information in certain circumstances.</li>
-            <li><strong>Restriction:</strong> You may request that we restrict the processing of your personal information in certain circumstances.</li>
-            <li><strong>Portability:</strong> You may request to receive a copy of your personal information in a structured, commonly used, and machine-readable format.</li>
-            <li><strong>Objection:</strong> You may object to the processing of your personal information in certain circumstances.</li>
-            <li><strong>Withdraw Consent:</strong> If we rely on your consent to process your personal information, you have the right to withdraw that consent at any time.</li>
+            <li><strong>Accesso:</strong> Puoi richiedere una copia delle informazioni personali che conserviamo su di te.</li>
+            <li><strong>Correzione:</strong> Puoi richiedere che correggiamo qualsiasi informazione incompleta o inaccurata che conserviamo su di te.</li>
+            <li><strong>Cancellazione:</strong> Puoi richiedere che cancelliamo le tue informazioni personali in certe circostanze.</li>
+            <li><strong>Limitazione:</strong> Puoi richiedere che limitiamo l'elaborazione delle tue informazioni personali in certe circostanze.</li>
+            <li><strong>Portabilità:</strong> Puoi richiedere di ricevere una copia delle tue informazioni personali in un formato strutturato, comunemente utilizzato e leggibile da macchina.</li>
+            <li><strong>Obiezione:</strong> Puoi opporti all'elaborazione delle tue informazioni personali in certe circostanze.</li>
+            <li><strong>Ritiro del Consenso:</strong> Se ci basiamo sul tuo consenso per elaborare le tue informazioni personali, hai il diritto di ritirare quel consenso in qualsiasi momento.</li>
           </ul>
           <p>
-            To exercise any of these rights, please contact us using the contact information provided at the beginning of this policy. We may need to verify your identity before responding to your request.
+            Per esercitare uno qualsiasi di questi diritti, ti preghiamo di contattarci utilizzando le informazioni di contatto fornite all'inizio di questa politica. Potremmo dover verificare la tua identità prima di rispondere alla tua richiesta.
           </p>
           <p>
-            Please note that some of these rights may be limited or not applicable in certain jurisdictions or under certain circumstances.
+            Ti preghiamo di notare che alcuni di questi diritti potrebbero essere limitati o non applicabili in certe giurisdizioni o sotto certe circostanze.
           </p>
         </div>
       ),
     },
     {
       id: "international-transfers",
-      title: "International Data Transfers",
+      title: "Trasferimenti Internazionali di Dati",
       content: (
         <div className="space-y-4">
           <p>
-            We may store and process your information in the European Union and other countries where we or our service providers operate. These countries may have data protection laws that are different from those in your country.
+            Potremmo archiviare ed elaborare le tue informazioni nell'Unione Europea e in altri paesi dove noi o i nostri fornitori di servizi operiamo. Questi paesi potrebbero avere leggi sulla protezione dei dati diverse da quelle del tuo paese.
           </p>
           <p>
-            When we transfer your personal information to countries outside the European Economic Area (EEA), we ensure that appropriate safeguards are in place to protect your information, such as:
+            Quando trasferiamo le tue informazioni personali in paesi al di fuori dello Spazio Economico Europeo (SEE), garantiamo che siano in atto salvaguardie appropriate per proteggere le tue informazioni, come:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Transferring to countries that have been recognized as providing an adequate level of legal protection</li>
-            <li>Implementing standard contractual clauses approved by the European Commission</li>
-            <li>Using other legally approved transfer mechanisms</li>
+            <li>Trasferire in paesi che sono stati riconosciuti come fornitori di un livello adeguato di protezione legale</li>
+            <li>Implementare clausole contrattuali standard approvate dalla Commissione Europea</li>
+            <li>Utilizzare altri meccanismi di trasferimento legalmente approvati</li>
           </ul>
         </div>
       ),
     },
     {
       id: "children-privacy",
-      title: "Children's Privacy",
+      title: "Privacy dei Minori",
       content: (
         <div className="space-y-4">
           <p>
-            Our Services are not directed to children under 16 years of age. We do not knowingly collect personal information from children under 16. If we learn that we have collected personal information from a child under 16 without parental consent, we will take steps to delete that information as soon as possible.
+            I nostri Servizi non sono diretti a bambini di età inferiore ai 16 anni. Non raccogliamo consapevolmente informazioni personali da bambini di età inferiore ai 16 anni. Se veniamo a sapere di aver raccolto informazioni personali da un bambino di età inferiore ai 16 anni senza il consenso dei genitori, prenderemo provvedimenti per cancellare tali informazioni il prima possibile.
           </p>
           <p>
-            If you are a parent or guardian and believe that your child has provided us with personal information without your consent, please contact us so that we can take appropriate action.
+            Se sei un genitore o tutore e credi che tuo figlio ci abbia fornito informazioni personali senza il tuo consenso, ti preghiamo di contattarci così che possiamo prendere le azioni appropriate.
           </p>
         </div>
       ),
     },
     {
       id: "policy-changes",
-      title: "Changes to This Privacy Policy",
+      title: "Modifiche a Questa Informativa sulla Privacy",
       content: (
         <div className="space-y-4">
           <p>
-            We may update this privacy policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We will notify you of any material changes by posting the new privacy policy on this page and updating the "Last Updated" date.
+            Potremmo aggiornare questa informativa sulla privacy di volta in volta per riflettere cambiamenti nelle nostre pratiche o per altre ragioni operative, legali o normative. Ti notificheremo qualsiasi cambiamento materiale pubblicando la nuova informativa sulla privacy su questa pagina e aggiornando la data "Ultimo aggiornamento".
           </p>
           <p>
-            We encourage you to review this privacy policy periodically for any changes. Your continued use of our Services after any changes to this privacy policy constitutes your acceptance of the updated policy.
+            Ti incoraggiamo a rivedere questa informativa sulla privacy periodicamente per eventuali cambiamenti. Il tuo uso continuato dei nostri Servizi dopo qualsiasi cambiamento a questa informativa sulla privacy costituisce la tua accettazione della politica aggiornata.
           </p>
         </div>
       ),
     },
     {
       id: "contact-us",
-      title: "Contact Us",
+      title: "Contattaci",
       content: (
         <div className="space-y-4">
           <p>
-            If you have any questions or concerns about this privacy policy or our privacy practices, please contact us at:
+            Se hai domande o preoccupazioni riguardo a questa informativa sulla privacy o alle nostre pratiche sulla privacy, ti preghiamo di contattarci a:
           </p>
           <div className="contact-info select-none">
             <p>CloudNotes LLC</p>
             <p>Pescheria del Porto di Cagliari</p>
             <p>Cagliari, Cagliari 09125</p>
-            <p>Italy</p>
+            <p>Italia</p>
             <p>
-              Phone: <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>
+              Telefono: <AppLink href="tel:+39000000000" external>+39 000 000 000</AppLink>
             </p>
             <p>
               Email: <AppLink href="mailto:privacy@cloudnotes.com" external>privacy@cloudnotes.com</AppLink>
@@ -323,17 +323,17 @@ export default function PrivacyPolicy() {
         <div className="bg-background/95 backdrop-blur-sm rounded-xl shadow-md p-6 sm:p-8">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold select-none">Privacy Policy</h2>
-              <p className="text-sm text-foreground/80 mt-1 select-none">Last updated: {lastUpdated}</p>
+              <h2 className="text-2xl sm:text-3xl font-bold select-none">Informativa sulla Privacy</h2>
+              <p className="text-sm text-foreground/80 mt-1 select-none">Ultimo aggiornamento: {lastUpdated}</p>
             </div>
             <Button 
               variant="default" 
               className="rounded-full flex items-center gap-2 !px-8 cursor-pointer select-none"
               onClick={() => setIsPrintModalOpen(true)}
-              aria-label="Print Terms of Service"
+              aria-label="Stampa Informativa sulla Privacy"
             >
               <PrinterIcon className="size-4" />
-              Print
+              Stampa
             </Button>
           </div>
           
@@ -343,7 +343,7 @@ export default function PrivacyPolicy() {
             <aside className="lg:w-1/5 xl:w-3/10">
               <div className="lg:sticky lg:top-8">
                 <nav className="bg-background/50 backdrop-blur-sm rounded-lg shadow-sm p-4 select-none">
-                  <h3 className="text-lg font-semibold mb-4 text-foreground">Navigation</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-foreground">Navigazione</h3>
                   <div className="space-y-1 custom-scrollbar">
                     {sections.map((section, index) => (
                       <div key={section.id}>

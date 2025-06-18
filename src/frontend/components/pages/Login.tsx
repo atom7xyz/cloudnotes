@@ -61,12 +61,12 @@ export default function Login() {
     <AuthPageLayout>
       <AuthCard 
         title="CloudNotes" 
-        description="Your virtual oasis of knowledge"
-        subtitle="Login to Your Account"
+        description="La tua oasi virtuale di conoscenza"
+        subtitle="Accedi al Tuo Account"
         footer={
           <p className="text-center text-sm text-muted-foreground w-full">
             <AppLink href="/register">
-              Don't have an account? Register
+              Non hai un account? Registrati
             </AppLink>
           </p>
         }
@@ -77,9 +77,9 @@ export default function Login() {
           onSubmit={onSubmit}
           bypassPaths={['/forgot-password']}
           isFormEmpty={isFormEmpty}
-          submitLabel="Login"
+          submitLabel="Accedi"
           loading={isLoading}
-          loadingText="Signing in..."
+          loadingText="Accesso in corso..."
         >
           {error && (
             <div className="text-destructive text-sm text-center p-3 bg-destructive/10 rounded-md">
@@ -106,7 +106,7 @@ export default function Login() {
                 href="/forgot-password" 
                 className="text-sm select-none"
               >
-                Forgot password?
+                Password dimenticata?
               </AppLink>
             </div>
             <PasswordInput

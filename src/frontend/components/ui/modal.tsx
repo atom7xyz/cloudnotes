@@ -1,7 +1,7 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "./button";
-import { XIcon, RefreshCwIcon, CheckCircleIcon } from "lucide-react";
+import { XIcon, RefreshCwIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Modal stack management for handling ESC key press

@@ -9,7 +9,7 @@ export default function ResetPasswordSuccess() {
     <AuthPageLayout>
       <AuthCard 
         title="CloudNotes"
-        description="Your virtual oasis of knowledge"
+        description="La tua oasi virtuale di conoscenza"
         className="rounded-3xl border-none shadow-2xl"
       >
         <div className="flex flex-col items-center justify-center space-y-6 p-4">
@@ -29,9 +29,9 @@ export default function ResetPasswordSuccess() {
           
           {/* Success message */}
           <div className="text-center space-y-3 max-w-[320px] mx-auto">
-            <h3 className="text-xl font-bold text-foreground select-none">Your password has been reset</h3>
+            <h3 className="text-xl font-bold text-foreground select-none">La tua password è stata reimpostata</h3>
             <p className="text-sm text-muted-foreground select-none">
-              You can now log in to your account with your new password.
+              Ora puoi accedere al tuo account con la nuova password.
             </p>
           </div>
           
@@ -45,7 +45,7 @@ export default function ResetPasswordSuccess() {
                 href="/login"
                 className="no-underline select-none flex items-center justify-center h-full"
               >
-                Back to Login
+                Torna al Login
               </AppLink>
             </Button>
           </div>

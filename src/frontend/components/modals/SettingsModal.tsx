@@ -175,14 +175,14 @@ const ActionItem: React.FC<ActionItemProps> = ({
           )}
           disabled={disabled}
         >
-          {typeof actionLabel === 'string' && actionLabel === 'Open' && <ExternalLinkIcon size={14} />}
-          {typeof actionLabel === 'string' && actionLabel === 'Report' && <AlertTriangleIcon size={14} />}
-          {typeof actionLabel === 'string' && actionLabel === 'View' && <EyeIcon size={14} />}
-          {typeof actionLabel === 'string' && actionLabel === 'Change' && <PencilIcon size={14} />}
-          {typeof actionLabel === 'string' && actionLabel === 'Export' && <DownloadIcon size={14} />}
-          {typeof actionLabel === 'string' && actionLabel === 'Delete' && <Trash2Icon size={14} />}
-          {typeof actionLabel === 'string' && actionLabel === 'Check' && <RefreshCwIcon size={14} />}
-          {typeof actionLabel === 'string' && actionLabel === 'Set Up' && <KeyIcon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Apri' && <ExternalLinkIcon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Segnala' && <AlertTriangleIcon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Visualizza' && <EyeIcon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Modifica' && <PencilIcon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Esporta' && <DownloadIcon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Elimina' && <Trash2Icon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Verifica' && <RefreshCwIcon size={14} />}
+          {typeof actionLabel === 'string' && actionLabel === 'Imposta' && <KeyIcon size={14} />}
           {actionLabel}
         </Button>
       )}
@@ -243,10 +243,10 @@ const DeviceItem: React.FC<DeviceItemProps> = ({
           <div className="flex items-center gap-2">
             <span className="font-medium">{name}</span>
             {isCurrent && (
-              <Badge variant="outline" className="bg-primary/10 text-primary text-xs">Current</Badge>
+              <Badge variant="outline" className="bg-primary/10 text-primary text-xs">Attuale</Badge>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">Last active: {lastActive}</p>
+          <p className="text-sm text-muted-foreground">Ultimo accesso: {lastActive}</p>
         </div>
       </div>
       <Button 
@@ -291,9 +291,9 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportInProgress, setExportInProgress] = useState(false);
   const [activeDevices, setActiveDevices] = useState([
-    { id: 1, icon: <LaptopIcon size={16} />, name: "Windows PC", lastActive: "Now", isCurrent: true },
-    { id: 2, icon: <SmartphoneIcon size={16} />, name: "iPhone 15 Max Pro", lastActive: "2 hours ago", isCurrent: false },
-    { id: 3, icon: <LaptopIcon size={16} />, name: "Linux PC", lastActive: "Yesterday", isCurrent: false }
+    { id: 1, icon: <LaptopIcon size={16} />, name: "PC Windows", lastActive: "Ora", isCurrent: true },
+    { id: 2, icon: <SmartphoneIcon size={16} />, name: "iPhone 15 Max Pro", lastActive: "2 ore fa", isCurrent: false },
+    { id: 3, icon: <LaptopIcon size={16} />, name: "PC Linux", lastActive: "Ieri", isCurrent: false }
   ]);
   
   // App lock context
@@ -321,12 +321,12 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const demonstrateSound = () => {
     if (soundEnabled) {
       playSound();
-      toast.success("Sound effect played", {
-        description: "This is how notifications will sound when enabled",
+      toast.success("Effetto sonoro riprodotto", {
+        description: "Così suoneranno le notifiche quando abilitate",
       });
     } else {
-      toast("Sound effects are disabled", {
-        description: "Enable sound effects to hear notification sounds",
+      toast("Gli effetti sonori sono disabilitati", {
+        description: "Abilita gli effetti sonori per sentire i suoni delle notifiche",
       });
     }
   };
@@ -357,7 +357,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
     // Simulate checking for updates with a 2 second delay
     setTimeout(() => {
       setUpdatesLoading(false);
-      setUpdateStatus("You are running the latest version.");
+      setUpdateStatus("Stai utilizzando l'ultima versione.");
       setUpdateSuccess(true);
     }, 2000);
   };
@@ -384,8 +384,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
       if (deviceToSignOut.id === -1) {
         // Sign out all other devices
         setActiveDevices(prevDevices => prevDevices.filter(device => device.isCurrent));
-        toast.success("Signed out successfully", {
-          description: "Signed out from all other devices",
+        toast.success("Disconnesso con successo", {
+          description: "Disconnesso da tutti gli altri dispositivi",
         });
       } else {
         // Sign out a single device
@@ -395,8 +395,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
             const result = await logout();
             if (result.success) {
               onClose();
-              toast.success("Signed out successfully", {
-                description: "You have been logged out",
+              toast.success("Disconnesso con successo", {
+                description: "Sei stato disconnesso",
               });
               // Navigate to login page after a short delay
               setTimeout(() => {
@@ -407,21 +407,21 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 }, 50);
               }, 300);
             } else {
-              toast.error("Logout failed", {
-                description: result.message || "An error occurred during logout",
+              toast.error("Disconnessione fallita", {
+                description: result.message || "Si è verificato un errore durante la disconnessione",
               });
             }
           } catch (error) {
             console.error('Logout error:', error);
-            toast.error("Logout failed", {
-              description: "An unexpected error occurred",
+            toast.error("Disconnessione fallita", {
+              description: "Si è verificato un errore imprevisto",
             });
           }
         } else {
           // Sign out another device (simulate)
           setActiveDevices(prevDevices => prevDevices.filter(device => device.id !== deviceToSignOut.id));
-          toast.success("Signed out successfully", {
-            description: `Signed out from ${deviceToSignOut.name}`,
+          toast.success("Disconnesso con successo", {
+            description: `Disconnesso da ${deviceToSignOut.name}`,
           });
         }
       }
@@ -442,8 +442,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
     if (pin !== null) {
       setPinCode(pin);
       
-      toast.success("PIN set successfully", {
-        description: "Your application is now protected with a PIN",
+      toast.success("PIN impostato con successo", {
+        description: "La tua applicazione è ora protetta con un PIN",
       });
       
       playSound();
@@ -476,14 +476,14 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const handleNotificationsToggle = (enabled: boolean) => {
     setNotificationsEnabled(enabled);
     if (enabled) {
-      toast.success("Notifications enabled", {
-        description: "You will now receive notifications from the application",
+      toast.success("Notifiche abilitate", {
+        description: "Riceverai ora le notifiche dall'applicazione",
       });
     } else {
       // Disable sound effects too if notifications are disabled
       setSoundEnabled(false);
-      toast.info("Notifications disabled", {
-        description: "You will no longer receive notifications from the application",
+      toast.info("Notifiche disabilitate", {
+        description: "Non riceverai più notifiche dall'applicazione",
       });
     }
   };
@@ -493,8 +493,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
     setGlobalSoundEnabled(enabled); // Update global sound manager
     setSoundEnabled(enabled); // Update local state for UI
     if (enabled && notificationsEnabled) {
-      toast.success("Sound effects enabled", {
-        description: "You will now hear sounds for notifications and actions",
+      toast.success("Effetti sonori abilitati", {
+        description: "Sentirai ora i suoni per notifiche e azioni",
       });
       // Play the sound to demonstrate
       playSound();
@@ -530,8 +530,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const handleExportComplete = () => {
     setExportInProgress(true);
     
-    toast.success("Data export initiated", {
-      description: "Your data will be sent to your email in 24-72 hours",
+    toast.success("Avvio esportazione dati", {
+      description: "I tuoi dati verranno inviati alla tua email in 24-72 ore",
       icon: <MailIcon size={16} />,
     });
   };
@@ -542,7 +542,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   }, [soundEnabled]);
 
   // Get user email for display
-  const userEmail = user?.email || "Not logged in";
+  const userEmail = user?.email || "Non connesso";
 
   return (
     <>
@@ -552,7 +552,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         title={
           <div className="flex items-center gap-2 text-lg font-medium">
             <SettingsIcon size={20} />
-            <span>Settings</span>
+            <span>Impostazioni</span>
           </div>
         }
         maxWidth="max-w-4xl"
@@ -586,7 +586,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <EyeIcon size={16} />
-                <span>Appearance</span>
+                <span>Aspetto</span>
               </TabsTrigger>
               
               <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
@@ -598,7 +598,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
                   >
                     <ShieldIcon size={16} />
-                    <span>Security</span>
+                    <span>Sicurezza</span>
                   </TabsTrigger>
                   
                   <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
@@ -608,7 +608,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
                   >
                     <BellIcon size={16} />
-                    <span>Notifications</span>
+                    <span>Notifiche</span>
                   </TabsTrigger>
                   
                   <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
@@ -620,7 +620,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <GlobeIcon size={16} />
-                <span>Language</span>
+                <span>Lingua</span>
               </TabsTrigger>
               
               <div className="h-6 w-px bg-muted-foreground/20 my-auto" />
@@ -630,7 +630,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                 className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary cursor-pointer mx-1"
               >
                 <InfoIcon size={16} />
-                <span>About</span>
+                <span>Info</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -639,42 +639,42 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
             {isAuthenticated && (
               <TabsContent value="account" className="space-y-6 mt-0 data-[state=active]:block">
                 <SettingsSection 
-                  title="Personal Information" 
-                  description="Manage your personal information"
+                  title="Informazioni Personali" 
+                  description="Gestisci le tue informazioni personali"
                 >
                   <ActionItem
                     icon={<AtSignIcon size={18} />}
-                    label="Email Address"
+                    label="Indirizzo Email"
                     description={userEmail}
-                    actionLabel="Change"
+                    actionLabel="Modifica"
                     onClick={() => {}}
                   />
                   <Separator />
                   <ActionItem
                     icon={<LockIcon size={18} />}
                     label="Password"
-                    description="Last changed 30 days ago"
-                    actionLabel="Change"
+                    description="Modificata l'ultima volta 30 giorni fa"
+                    actionLabel="Modifica"
                     onClick={() => {}}
                   />
                 </SettingsSection>
 
                 <SettingsSection 
-                  title="Account Management" 
-                  description="Manage your data and account"
+                  title="Gestione Account" 
+                  description="Gestisci i tuoi dati e il tuo account"
                 >
                   <div className="relative">
                     <ActionItem
                       icon={<DownloadIcon size={18} />}
-                      label="Export Data"
-                      description="Download all your files and personal data"
-                      actionLabel="Export"
+                      label="Esporta Dati"
+                      description="Scarica tutti i tuoi file e dati personali"
+                      actionLabel="Esporta"
                       onClick={handleExportData}
                       disabled={exportInProgress}
                     />
                     {exportInProgress && (
                       <div className="px-4 py-2 -mt-2 mb-1 rounded-b-md flex items-center justify-end">
-                        <p className="text-sm text-muted-foreground justify-end">The data will be sent to your email in 24-72 hours</p>
+                        <p className="text-sm text-muted-foreground justify-end">I dati verranno inviati alla tua email in 24-72 ore</p>
                       </div>
                     )}
                   </div>
@@ -683,8 +683,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     <div className="flex items-start gap-3 mb-3">
                       <LogOutIcon size={18} className="text-muted-foreground mt-1" />
                       <div>
-                        <div className="font-medium">Active Devices</div>
-                        <p className="text-sm text-muted-foreground">Manage devices logged into your account</p>
+                        <div className="font-medium">Dispositivi Collegati</div>
+                        <p className="text-sm text-muted-foreground">Gestisci i dispositivi collegati al tuo account</p>
                       </div>
                     </div>
                     <div className="ml-7 space-y-1.5">
@@ -699,7 +699,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                         />
                       ))}
                       {activeDevices.length === 1 && (
-                        <div className="text-sm text-muted-foreground mt-2">No other devices active</div>
+                        <div className="text-sm text-muted-foreground mt-2">Nessun altro dispositivo attivo</div>
                       )}
                     </div>
                     <div className="mt-3 ml-7">
@@ -711,7 +711,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                           onClick={handleSignOutAllDevices}
                         >
                           <LogOutIcon size={14} className="mr-2" />
-                          Sign out from all other devices
+                          Disconnetti da tutti gli altri dispositivi
                         </Button>
                       )}
                     </div>
@@ -719,9 +719,9 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                   <Separator />
                   <ActionItem
                     icon={<Trash2Icon size={18} className="text-destructive" />}
-                    label="Delete Account"
-                    description="Permanently delete your account and all associated data"
-                    actionLabel="Delete"
+                    label="Elimina Account"
+                    description="Elimina definitivamente il tuo account e tutti i dati associati"
+                    actionLabel="Elimina"
                     variant="destructive"
                     onClick={() => {}}
                   />
@@ -731,8 +731,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
 
             <TabsContent value="appearance" className="space-y-6 mt-0 data-[state=active]:block">
               <SettingsSection 
-                title="Theme" 
-                description="Customize the appearance of the application"
+                title="Tema" 
+                description="Personalizza l'aspetto dell'applicazione"
               >
                 <div className="py-3 px-4">
                   <div className="grid grid-cols-2 gap-2">
@@ -745,8 +745,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                       onClick={() => setTheme('light')}
                     >
                       <SunIcon size={24} />
-                      <span>Light</span>
-                      {theme !== 'dark' && <span className="text-xs italic font-normal">Selected</span>}
+                      <span>Chiaro</span>
+                      {theme !== 'dark' && <span className="text-xs italic font-normal">Selezionato</span>}
                     </Button>
                     <Button 
                       variant={theme === 'dark' ? "default" : "outline"}
@@ -757,8 +757,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                       onClick={() => setTheme('dark')}
                     >
                       <MoonIcon size={24} />
-                      <span>Dark</span>
-                      {theme === 'dark' && <span className="text-xs italic font-normal">Selected</span>}
+                      <span>Scuro</span>
+                      {theme === 'dark' && <span className="text-xs italic font-normal">Selezionato</span>}
                     </Button>
                   </div>
                 </div>
@@ -769,12 +769,12 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
               <>
                 <TabsContent value="security" className="space-y-6 mt-0 data-[state=active]:block">
                   <SettingsSection 
-                    title="Authentication" 
-                    description="Manage your login security"
+                    title="Autenticazione" 
+                    description="Gestisci la sicurezza del tuo accesso"
                   >
                     <ToggleItem
-                      label="Remember Login"
-                      description="Stay logged in between sessions"
+                      label="Ricorda Accesso"
+                      description="Rimani connesso tra le sessioni"
                       checked={rememberLogin}
                       onCheckedChange={setRememberLogin}
                       icon={<KeyIcon size={18} />}
@@ -786,11 +786,11 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                           <LockIcon size={18} />
                         </div>
                         <div className="flex-1">
-                          <div className="font-medium">PIN Lock</div>
+                          <div className="font-medium">Blocco PIN</div>
                           <p className="text-sm text-muted-foreground">
                             {isPinSet 
-                              ? "Secure access to the application with a PIN" 
-                              : "Add an extra layer of security by setting up a PIN"}
+                              ? "Proteggi l'accesso all'applicazione con un PIN" 
+                              : "Aggiungi un livello extra di sicurezza impostando un PIN"}
                           </p>
                         </div>
                       </div>
@@ -803,11 +803,11 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                         {isPinSet ? 
                           (<>
                             <PencilIcon size={14} />
-                            Change
+                            Modifica
                           </>) : 
                           (<>
                             <KeyIcon size={14} />
-                            Set Up
+                            Configura
                           </>)
                         }
                       </Button>
@@ -821,9 +821,9 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                               <ShieldIcon size={18} />
                             </div>
                             <div className="flex-1">
-                              <div className="font-medium">Lock Screen</div>
+                              <div className="font-medium">Blocca Schermo</div>
                               <p className="text-sm text-muted-foreground">
-                                Manually lock the application
+                                Blocca manualmente l'applicazione
                               </p>
                             </div>
                           </div>
@@ -841,7 +841,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                             className="whitespace-nowrap cursor-pointer min-w-24 flex items-center gap-1.5 justify-center"
                           >
                             <LockIcon size={14} />
-                            <span className="select-none">Lock Now</span>
+                            <span className="select-none">Blocca Ora</span>
                           </Button>
                         </div>
                       </>
@@ -851,14 +851,14 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
 
                 <TabsContent value="notifications" className="space-y-6 mt-0 data-[state=active]:block">
                   <SettingsSection 
-                    title="Notification Settings" 
-                    description="Control how you receive notifications"
+                    title="Impostazioni Notifiche" 
+                    description="Controlla come ricevi le notifiche"
                   >
                     {/* First container: Enable Notifications */}
                     <div className="rounded-md">
                       <ToggleItem
-                        label="In-App Notifications"
-                        description="Receive notifications from the application"
+                        label="Notifiche In-App"
+                        description="Ricevi notifiche dall'applicazione"
                         checked={notificationsEnabled}
                         onCheckedChange={handleNotificationsToggle}
                         icon={<BellIcon size={18} />}
@@ -868,8 +868,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                     {/* Second container: Sound Effects */}
                     <div className="rounded-md border-t">
                       <ToggleItem
-                        label="Sound Effects"
-                        description="Play sounds for notifications and actions"
+                        label="Effetti Sonori"
+                        description="Riproduci suoni per notifiche e azioni"
                         checked={soundEnabled}
                         onCheckedChange={handleSoundToggle}
                         disabled={!notificationsEnabled}
@@ -885,8 +885,8 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                                 <CircleHelp size={16} className="text-primary" />
                               </div>
                               <div>
-                                <span className="text-sm font-medium">Test the sound of notifications</span>
-                                <p className="text-xs text-muted-foreground">Hear notification sounds</p>
+                                <span className="text-sm font-medium">Testa il suono delle notifiche</span>
+                                <p className="text-xs text-muted-foreground">Ascolta i suoni delle notifiche</p>
                               </div>
                             </div>
                             <Button 
@@ -897,7 +897,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                               className="cursor-pointer min-w-24 flex items-center gap-1.5 justify-center hover-primary-effect"
                             >
                               <Volume2Icon size={14} />
-                              <span>Play</span>
+                              <span>Riproduci</span>
                             </Button>
                           </div>
                         </div>
@@ -906,28 +906,28 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
                   </SettingsSection>
 
                   <SettingsSection 
-                    title="Email Notifications" 
-                    description="Control which emails you receive"
+                    title="Notifiche Email" 
+                    description="Controlla quali email ricevi"
                   >
                     <ToggleItem
-                      label="Document Updates"
-                      description="Receive notifications about changes to your documents"
+                      label="Aggiornamenti Documenti"
+                      description="Ricevi notifiche sui cambiamenti ai tuoi documenti"
                       checked={documentUpdates}
                       onCheckedChange={setDocumentUpdates}
                       icon={<FileTextIcon size={18} />}
                     />
                     <Separator />
                     <ToggleItem
-                      label="Comments and Mentions"
-                      description="Receive notifications when someone mentions you or comments on your documents"
+                      label="Commenti e Menzioni"
+                      description="Ricevi notifiche quando qualcuno ti menziona o commenta i tuoi documenti"
                       checked={commentsAndMentions}
                       onCheckedChange={setCommentsAndMentions}
                       icon={<MessageSquareIcon size={18} />}
                     />
                     <Separator />
                     <ToggleItem
-                      label="Marketing Emails"
-                      description="Receive promotional emails and feature updates"
+                      label="Email di Marketing"
+                      description="Ricevi email promozionali e aggiornamenti sulle funzionalità"
                       checked={marketingEmails}
                       onCheckedChange={setMarketingEmails}
                       icon={<MailIcon size={18} />}
@@ -939,13 +939,13 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
 
             <TabsContent value="language" className="space-y-6 mt-0 data-[state=active]:block">
               <SettingsSection 
-                title="Language Settings" 
-                description="Choose your preferred language"
+                title="Impostazioni Lingua" 
+                description="Scegli la tua lingua preferita"
               >
                 <div>
                   <ToggleItem
-                    label="Use System Language"
-                    description="Follow your device's language settings"
+                    label="Usa Lingua del Sistema"
+                    description="Segui le impostazioni della lingua del tuo dispositivo"
                     checked={systemLanguage}
                     onCheckedChange={handleSystemLanguageToggle}
                     icon={<GlobeIcon size={18} />}
@@ -984,70 +984,70 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
               <div className="p-4 space-y-4 bg-card rounded-lg border shadow-sm">
                 <div className="flex flex-col items-center justify-center text-center py-4">
                   <h1 className="font-bigshot-one italic text-primary text-4xl tracking-tight pb-2 select-none">CloudNotes</h1>
-                  <p className="text-muted-foreground italic text-lg select-none">Your virtual oasis of knowledge</p>
-                  <Badge variant="outline" className="mt-2 select-none">Version 1.0.0</Badge>
+                  <p className="text-muted-foreground italic text-lg select-none">La tua oasi virtuale di conoscenza</p>
+                  <Badge variant="outline" className="mt-2 select-none">Versione 1.0.0</Badge>
                 </div>
                 <Separator />
                 <p className="text-sm text-center text-muted-foreground select-none">
-                  © 2024 CloudNotes LLC. All rights reserved.
+                  © 2024 CloudNotes LLC. Tutti i diritti riservati.
                 </p>
               </div>
 
               <SettingsSection 
-                title="Resources" 
-                description="Get help and support"
+                title="Risorse" 
+                description="Ottieni aiuto e supporto"
                 className="mt-8"
               >
                 <ActionItem
                   icon={<HelpCircleIcon size={18} />}
-                  label="Help Center"
-                  description="Visit our help center for tutorials and guides"
-                  actionLabel="Open"
+                  label="Centro Assistenza"
+                  description="Visita il nostro centro assistenza per tutorial e guide"
+                  actionLabel="Apri"
                   onClick={handleOpenHelp}
                 />
                 <Separator />
                 <ActionItem
                   icon={<AlertTriangleIcon size={18} />}
-                  label="Report an Issue"
-                  description="Let us know if something isn't working correctly"
-                  actionLabel="Report"
+                  label="Segnala un Problema"
+                  description="Facci sapere se qualcosa non funziona correttamente"
+                  actionLabel="Segnala"
                   onClick={handleReportIssue}
                 />
                 <Separator />
                 <ActionItem
                   icon={<FileIcon size={18} />}
-                  label="Terms of Service"
-                  description="Read our terms of service agreement"
-                  actionLabel="View"
+                  label="Termini di Servizio"
+                  description="Leggi il nostro accordo sui termini di servizio"
+                  actionLabel="Visualizza"
                   onClick={handleViewTermsOfService}
                 />
                 <Separator />
                 <ActionItem
                   icon={<ShieldIcon size={18} />}
-                  label="Privacy Policy"
-                  description="Learn how we handle your data"
-                  actionLabel="View"
+                  label="Informativa sulla Privacy"
+                  description="Scopri come gestiamo i tuoi dati"
+                  actionLabel="Visualizza"
                   onClick={handleViewPrivacyPolicy}
                 />
                 <Separator />
                 <ActionItem
                   icon={<RefreshCwIcon size={18} />}
-                  label="Check for Updates"
+                  label="Verifica Aggiornamenti"
                   description={
                     <p className={cn(
                       updateSuccess ? "text-green-500" : "text-muted-foreground"
                     )}>
-                      {updateStatus || "Make sure you're using the latest version"}
+                      {updateStatus || "Assicurati di utilizzare l'ultima versione"}
                     </p>
                   }
                   actionLabel={
                     updatesLoading ? (
                       <div className="flex items-center gap-1.5">
                         <RefreshCwIcon size={14} className="animate-spin" />
-                        Checking...
+                        Verifica...
                       </div>
                     ) : (
-                      "Check"
+                      "Verifica"
                     )
                   }
                   onClick={handleCheckForUpdates}

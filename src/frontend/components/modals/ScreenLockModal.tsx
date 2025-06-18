@@ -85,7 +85,7 @@ const ScreenLockModal: FC = () => {
       setAttempts(prev => prev + 1);
       form.setError("pin", {
         type: "manual",
-        message: "Incorrect PIN. Please try again.",
+        message: "PIN non corretto. Riprova.",
       });
       form.setValue('pin', '');
       
@@ -120,8 +120,8 @@ const ScreenLockModal: FC = () => {
                 <LockIcon size={36} className="text-primary" />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold select-none">Screen Locked</h2>
-                <p className="text-muted-foreground mt-1 select-none">Enter your PIN to unlock</p>
+                <h2 className="text-2xl font-semibold select-none">Schermo Bloccato</h2>
+                <p className="text-muted-foreground mt-1 select-none">Inserisci il tuo PIN per sbloccare</p>
               </div>
             </div>
 
@@ -149,7 +149,7 @@ const ScreenLockModal: FC = () => {
                     className="w-full rounded-full h-10 font-medium mt-2 cursor-pointer"
                     disabled={!isPinComplete}
                   >
-                    <span className="select-none">Unlock</span>
+                    <span className="select-none">Sblocca</span>
                   </Button>
                 </div>
               </Form>
@@ -165,7 +165,7 @@ const ScreenLockModal: FC = () => {
                   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer"
                 )}
               >
-                Forgot your PIN?
+                Hai dimenticato il PIN?
               </button>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { Modal } from "../ui/modal";
 import { LogOutIcon, CheckCircleIcon } from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 import { playSound } from "@/lib/utils/sound";
+
 interface SignOutConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -51,7 +52,7 @@ export default function SignOutConfirmationModal({
     title: (
       <div className="flex items-center gap-2 select-none">
         <CheckCircleIcon size={20} className="text-green-600" />
-        <span>Signed Out Successfully</span>
+        <span>Disconnesso con Successo</span>
       </div>
     ),
     content: (
@@ -59,8 +60,8 @@ export default function SignOutConfirmationModal({
         {/* Success message */}
         <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 rounded-lg">
           <p className="text-sm text-green-800">
-            You have been successfully signed out from <strong>{deviceName}</strong>. 
-            {isCurrent ? " Your session has been terminated." : " The remote session has been terminated."}
+            Sei stato disconnesso con successo da <strong>{deviceName}</strong>. 
+            {isCurrent ? " La tua sessione è stata terminata." : " La sessione remota è stata terminata."}
           </p>
         </div>
 
@@ -68,16 +69,16 @@ export default function SignOutConfirmationModal({
         <div className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <span>Details:</span>
+              <span>Dettagli:</span>
             </div>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>• {isCurrent ? "You'll need to log in again to continue" : "User will need to log in again on that device"}</p>
+              <p>• {isCurrent ? "Dovrai effettuare nuovamente il login per continuare" : "L'utente dovrà effettuare nuovamente il login su quel dispositivo"}</p>
             </div>
           </div>
         </div>
       </div>
     ),
-    closeButtonText: "Done",
+    closeButtonText: "Fatto",
     iconBgColor: "bg-green-100",
     iconColor: "text-green-600"
   }), [deviceName, isCurrent]);
@@ -89,20 +90,21 @@ export default function SignOutConfirmationModal({
       title={
         <div className="flex items-center gap-2">
           <LogOutIcon size={20} className="text-destructive" />
-          <span>Sign Out Confirmation</span>
+          <span>Conferma Disconnessione</span>
         </div>
       }
       maxWidth="max-w-md"
       cancelButton={{
-        text: "Cancel",
+        text: "Annulla",
         disabled: loading
       }}
       actionButton={{
-        text: "Sign Out",
+        text: "Disconnetti",
         onClick: handleConfirm,
         variant: "destructive",
         disabled: loading,
-        loadingText: "Signing out..."
+        loadingText: "Disconnessione...",
+        icon: <LogOutIcon size={16} />
       }}
       isLoading={loading}
       showSuccess={signOutSuccess}
@@ -114,7 +116,7 @@ export default function SignOutConfirmationModal({
           {/* Warning */}
           <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 rounded-lg">
             <p className="text-sm text-amber-800">
-              You are about to sign out from <strong>{deviceName}</strong>.
+              Stai per disconnetterti da <strong>{deviceName}</strong>.
             </p>
           </div>
 
@@ -122,12 +124,12 @@ export default function SignOutConfirmationModal({
           <div className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm font-medium">
-                <span>Details:</span>
+                <span>Dettagli:</span>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p>• Device: {deviceName}</p>
-                <p>• Session type: {isCurrent ? "Current device" : "Remote device"}</p>
-                <p>• Impact: {isCurrent ? "You'll be logged out immediately" : "Remote session will be terminated"}</p>
+                <p>• Dispositivo: {deviceName}</p>
+                <p>• Tipo di sessione: {isCurrent ? "Dispositivo corrente" : "Dispositivo remoto"}</p>
+                <p>• Impatto: {isCurrent ? "Sarai disconnesso immediatamente" : "La sessione remota sarà terminata"}</p>
               </div>
             </div>
           </div>

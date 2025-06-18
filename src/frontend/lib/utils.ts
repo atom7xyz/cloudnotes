@@ -135,10 +135,27 @@ export function formatRelativeDate(date: Date): string {
   const now = new Date();
   const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
   
-  if (diffInDays === 0) return 'Today';
-  if (diffInDays === 1) return 'Yesterday';
-  if (diffInDays < 7) return `${diffInDays} days ago`;
-  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
-  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
-  return `${Math.floor(diffInDays / 365)} years ago`;
+  if (diffInDays === 0) return 'Oggi';
+  if (diffInDays === 1) return 'Ieri';
+  
+  if (diffInDays < 7) {
+    const days = diffInDays;
+    return `${days} giorni fa`;
+  }
+
+  if (diffInDays < 30) {
+    const weeks = Math.floor(diffInDays / 7);
+    if (weeks === 1) return '1 settimana fa';
+    return `${weeks} settimane fa`;
+  }
+
+  if (diffInDays < 365) {
+    const months = Math.floor(diffInDays / 30);
+    if (months === 1) return '1 mese fa';
+    return `${months} mesi fa`;
+  }
+
+  const years = Math.floor(diffInDays / 365);
+  if (years === 1) return '1 anno fa';
+  return `${years} anni fa`;
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FileTextIcon, ClockIcon, BookmarkIcon, TrendingUpIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon, PlusIcon, HistoryIcon, ChevronUpIcon, CalendarIcon, ExternalLinkIcon, ThumbsUpIcon, ArrowUpIcon } from 'lucide-react';
+import { ClockIcon, BookmarkIcon, TrendingUpIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon, HistoryIcon, ChevronUpIcon, ExternalLinkIcon, ThumbsUpIcon, ArrowUpIcon } from 'lucide-react';
 import { 
   Card, 
   CardContent} from '../ui/card';
@@ -50,13 +50,13 @@ const Home = () => {
     // Format the relative time
     const diffInHours = Math.floor((now.getTime() - lastOpened.getTime()) / (1000 * 60 * 60));
     
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours === 1) return '1 hour ago';
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInHours < 1) return 'Adesso';
+    if (diffInHours === 1) return '1 ora fa';
+    if (diffInHours < 24) return `${diffInHours} ore fa`;
     
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return 'Yesterday';
-    return `${diffInDays} days ago`;
+    if (diffInDays === 1) return 'Ieri';
+    return `${diffInDays} giorni fa`;
   }, []);
 
   // Get hours since last opened (for sorting)
@@ -71,12 +71,29 @@ const Home = () => {
     const now = new Date();
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (diffInDays === 0) return 'Today';
-    if (diffInDays === 1) return 'Yesterday';
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
-    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
-    return `${Math.floor(diffInDays / 365)} years ago`;
+    if (diffInDays === 0) return 'Oggi';
+    if (diffInDays === 1) return 'Ieri';
+
+    if (diffInDays < 7) {
+      const days = diffInDays;
+      return `${days} giorni fa`;
+    }
+
+    if (diffInDays < 30) {
+      const weeks = Math.floor(diffInDays / 7);
+      if (weeks === 1) return '1 settimana fa';
+      return `${weeks} settimane fa`;
+    }
+
+    if (diffInDays < 365) {
+      const months = Math.floor(diffInDays / 30);
+      if (months === 1) return '1 mese fa';
+      return `${months} mesi fa`;
+    }
+
+    const years = Math.floor(diffInDays / 365);
+    if (years === 1) return '1 anno fa';
+    return `${years} anni fa`;
   }, []);
 
   // Calculate last edited time (in a real app this would come from edit history)
@@ -290,7 +307,7 @@ const Home = () => {
         <section className="mb-8 relative">
           <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <TrendingUpIcon size={24} className="text-primary" />
-            Trending Documents
+            Tendenze
           </h2>
           
           <div className="relative">
@@ -300,7 +317,7 @@ const Home = () => {
               <button 
                 onClick={previousSlide} 
                 className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-lg transition-colors cursor-pointer"
-                aria-label="Previous slide"
+                aria-label="Diapositiva precedente"
                 type="button"
               >
                 <ChevronLeftIcon size={24} />
@@ -344,12 +361,12 @@ const Home = () => {
                               <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                 <div className="flex items-center gap-1">
                                   <ClockIcon size={12} className="text-primary" />
-                                  <span>Published: {formatRelativeDate(doc.file.uploadedAt)}</span>
+                                  <span>Pubblicato: {formatRelativeDate(doc.file.uploadedAt)}</span>
                                 </div>
                                 
                                 <div className="flex items-center gap-1">
                                   <StarIcon size={12} className="text-yellow-500" />
-                                  <span className="font-medium">{doc.rating.rating.toFixed(1)} rating</span>
+                                  <span className="font-medium">{doc.rating.rating.toFixed(1)} valutazione</span>
                                 </div>
                               </div>
                               
@@ -385,7 +402,7 @@ const Home = () => {
               <button 
                 onClick={nextSlide} 
                 className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-lg transition-colors cursor-pointer"
-                aria-label="Next slide"
+                aria-label="Diapositiva successiva"
                 type="button"
               >
                 <ChevronRightIcon size={24} />
@@ -398,7 +415,7 @@ const Home = () => {
                 <button
                   key={`dot-${doc.id}`}
                   type="button"
-                  aria-label={`Go to slide ${index + 1}`}
+                  aria-label={`Vai alla diapositiva ${index + 1}`}
                   className={cn(
                     "h-2 rounded-full transition-all bg-muted-foreground/30 hover:bg-muted-foreground/50 cursor-pointer shadow-sm",
                     index === carouselIndex 
@@ -418,7 +435,7 @@ const Home = () => {
         <section className="mb-10">
           <h2 className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <ThumbsUpIcon size={24} className="text-primary" />
-            Recommendations
+            Raccomandazioni
           </h2>
           
           <div className="relative">
@@ -470,12 +487,12 @@ const Home = () => {
                             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <ClockIcon size={12} className="text-primary" />
-                                <span>Published: {formatRelativeDate(doc.file.uploadedAt)}</span>
+                                <span>Pubblicato: {formatRelativeDate(doc.file.uploadedAt)}</span>
                               </div>
                               
                               <div className="flex items-center gap-1">
                                 <StarIcon size={12} className="text-yellow-500" />
-                                <span className="font-medium">{doc.rating.rating.toFixed(1)} rating</span>
+                                <span className="font-medium">{doc.rating.rating.toFixed(1)} valutazione</span>
                               </div>
                             </div>
                             
@@ -554,7 +571,7 @@ const Home = () => {
         <section>
           <h2 ref={recentDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <ClockIcon size={24} className="text-primary" />
-            Recent Documents ({recentDocs.length})
+            Recenti ({recentDocs.length})
           </h2>
           <div className="space-y-4">
             {recentDocs.slice(0, showAllRecentDocs ? recentDocs.length : 3).map((doc) => (
@@ -604,7 +621,7 @@ const Home = () => {
                       <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1.5">
                           <HistoryIcon size={12} className="text-primary" />
-                          <span>Last opened: {getLastOpenedTime(doc)}</span>
+                          <span>Ultima lettura: {getLastOpenedTime(doc)}</span>
                         </div>
                       </div>
                       
@@ -643,12 +660,12 @@ const Home = () => {
               >
                 {showAllRecentDocs ? (
                   <>
-                    Show Less
+                    Mostra di meno
                     <ChevronUpIcon size={16} />
                   </>
                 ) : (
                   <>
-                    View All Documents
+                    Mostra di piú
                     <ChevronRightIcon size={16} />
                   </>
                 )}
@@ -659,7 +676,7 @@ const Home = () => {
                   size="sm" 
                   className="absolute right-0 hover-primary-effect shadow-sm"
                   onClick={scrollToRecentDocs}
-                  aria-label="Scroll to top of Recent Documents"
+                  aria-label="Scorri in cima ai Documenti Recenti"
                 >
                   <ArrowUpIcon size={16} />
                 </Button>
@@ -672,7 +689,7 @@ const Home = () => {
         <section>
           <h2 ref={savedDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
             <BookmarkIcon size={24} className="text-primary" />
-            Saved ({favoriteDocs.length})
+            Salvati ({favoriteDocs.length})
           </h2>
           {favoriteDocs.length > 0 ? (
             <div className="space-y-4">
@@ -720,7 +737,7 @@ const Home = () => {
                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             <HistoryIcon size={12} className="text-primary" />
-                            <span>Last opened: {getLastOpenedTime(doc)}</span>
+                            <span>Ultima lettura: {getLastOpenedTime(doc)}</span>
                           </div>
                         </div>
                         
@@ -753,7 +770,7 @@ const Home = () => {
             <Card className="bg-gradient-to-r from-muted/20 to-muted/40 shadow-md border-primary/10">
               <CardContent className="p-8 text-center">
                 <BookmarkIcon size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground font-medium">You haven't added any saved documents yet.</p>
+                <p className="text-muted-foreground font-medium">Non hai ancora aggiunto documenti salvati.</p>
               </CardContent>
             </Card>
           )}
@@ -765,17 +782,17 @@ const Home = () => {
                 className="gap-2 hover-primary-effect shadow-sm"
                 onClick={toggleShowAllBookmarkedDocs}
               >
-                {showAllBookmarkedDocs ? (
-                  <>
-                    Show Less
-                    <ChevronUpIcon size={16} />
-                  </>
-                ) : (
-                  <>
-                    View All Saved
-                    <ChevronRightIcon size={16} />
-                  </>
-                )}
+                                  {showAllBookmarkedDocs ? (
+                    <>
+                      Mostra di meno
+                      <ChevronUpIcon size={16} />
+                    </>
+                  ) : (
+                    <>
+                      Visualizza Tutti i Salvati
+                      <ChevronRightIcon size={16} />
+                    </>
+                  )}
               </Button>
               {showAllBookmarkedDocs && (
                 <Button 
@@ -783,7 +800,7 @@ const Home = () => {
                   size="sm" 
                   className="absolute right-0 hover-primary-effect shadow-sm"
                   onClick={scrollToSavedDocs}
-                  aria-label="Scroll to top of Saved Documents"
+                  aria-label="Scorri in cima ai Documenti Salvati"
                 >
                   <ArrowUpIcon size={16} />
                 </Button>
@@ -815,7 +832,7 @@ const Home = () => {
               onClick={handleViewProfileClick}
             >
               <ExternalLinkIcon size={16} />
-              View Profile
+              Visualizza Profilo
             </Button>
           </CardContent>
         </Card>

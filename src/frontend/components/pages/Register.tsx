@@ -110,8 +110,8 @@ export default function Register() {
       <div className="w-full max-w-lg">
         <AuthCard 
           title="CloudNotes" 
-          description="Your virtual oasis of knowledge"
-          subtitle="Register an Account"
+          description="La tua oasi virtuale di conoscenza"
+          subtitle="Registra un Account"
           footer={
             <p className="text-center text-sm text-muted-foreground w-full">
               <span 
@@ -125,7 +125,7 @@ export default function Register() {
                   }
                 }}
               >
-                Already have an account? Login
+                Hai già un account? Accedi
               </span>
             </p>
           }
@@ -136,10 +136,10 @@ export default function Register() {
             onSubmit={onSubmit}
             bypassPaths={['/tos']}
             isFormEmpty={isFormEmpty}
-            submitLabel="Register"
+            submitLabel="Registrati"
             disabled={!form.watch("acceptTerms")}
             loading={isLoading}
-            loadingText="Creating account..."
+            loadingText="Creazione account..."
           >
             {error && (
               <div className="text-destructive text-sm text-center p-3 bg-destructive/10 rounded-md">
@@ -151,14 +151,14 @@ export default function Register() {
               <FormInput
                 form={form}
                 name="firstName"
-                label="First Name"
+                label="Nome"
                 placeholder="Bart"
                 required
               />
               <FormInput
                 form={form}
                 name="lastName"
-                label="Last Name"
+                label="Cognome"
                 placeholder="Simpson"
                 required
               />
@@ -185,7 +185,7 @@ export default function Register() {
             <PasswordInput
               form={form}
               name="confirmPassword"
-              label="Repeat Password"
+              label="Ripeti Password"
               autoComplete="new-password"
               required
             />
@@ -195,7 +195,7 @@ export default function Register() {
               name="acceptTerms"
               label={
                 <>
-                  I've read and accept the{" "}
+                  Ho letto e accetto i{" "}
                   <span 
                     onClick={handleTosLinkClick}
                     className="font-medium text-primary underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 cursor-pointer"
@@ -207,7 +207,7 @@ export default function Register() {
                       }
                     }}
                   >
-                    Terms of Service
+                    Termini di Servizio
                   </span>
                 </>
               }
