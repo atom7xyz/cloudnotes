@@ -77,7 +77,7 @@ export default function VerifyOTP() {
           form={form}
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
-          submitLabel="Verifica Codice"
+          submitLabel="Verifica codice"
           loading={isLoading}
           loadingText="Verifica del codice..."
         >

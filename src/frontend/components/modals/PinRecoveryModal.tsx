@@ -49,8 +49,8 @@ const PinRecoveryModal = ({
       setShowSuccess(true);
       
       // Show a toast notification
-      toast.success('Recovery email sent', {
-        description: 'Please check your inbox for PIN reset instructions',
+      toast.success('Email di recupero inviata', {
+        description: 'Controlla la tua casella di posta per le istruzioni per reimpostare il tuo PIN',
       });
 
       playSound();
@@ -119,7 +119,7 @@ const PinRecoveryModal = ({
                   <span>Dettagli:</span>
                 </div>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                                      <p>• Segui le istruzioni nell'email per reimpostare il tuo PIN</p>
+                    <p>• Segui le istruzioni nell'email per reimpostare il tuo PIN</p>
                     <p>• Il link è valido per le prossime 24 ore</p>
                 </div>
               </div>

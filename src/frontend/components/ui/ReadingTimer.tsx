@@ -31,7 +31,7 @@ import {
   TooltipTrigger,
 } from './tooltip';
 
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 import { playSound } from '@/lib/utils/sound';
 
 interface ReadingTimerProps {
@@ -45,7 +45,7 @@ interface ReadingTimerProps {
   documentType?: 'technical' | 'literary' | 'general';
 }
 
-type TimerState = 'idle' | 'running' | 'paused' | 'completed' | 'warning';
+type TimerState = 'idle' | 'running' | 'paused' | 'completed';
 
 const ReadingTimer: React.FC<ReadingTimerProps> = ({
   isActive,
@@ -83,21 +83,43 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
   // Calculate progress percentage
   const progressPercentage = totalTime > 0 ? ((totalTime - timeRemaining) / totalTime) * 100 : 0;
 
-  // Get timer color based on remaining time
+  // Get timer color based on remaining time - keeping it consistent
   const getTimerColor = useCallback((): string => {
-    const percentage = (timeRemaining / totalTime) * 100;
-    if (percentage <= 10) return 'text-red-600';
-    if (percentage <= 25) return 'text-orange-600';
-    return 'text-primary';
-  }, [timeRemaining, totalTime]);
+    return 'text-primary'; // Always use primary color
+  }, []);
 
-  // Get timer badge variant
+  // Get timer badge variant - keeping it consistent  
   const getTimerBadgeVariant = useCallback(() => {
-    const percentage = (timeRemaining / totalTime) * 100;
-    if (percentage <= 10) return 'destructive';
-    if (percentage <= 25) return 'secondary';
-    return 'default';
-  }, [timeRemaining, totalTime]);
+    return 'default'; // Always use default variant
+  }, []);
+
+  // Shared timer tick logic
+  const createTimerInterval = useCallback(() => {
+    return setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          // Clear interval immediately to prevent multiple calls
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          
+          setTimerState('completed');
+          onTimerComplete?.();
+          
+          // Only show toast once when timer completes
+          toast.success("Tempo di lettura completato!", {
+            description: "E... fatto! Hai raggiunto il tuo obiettivo di lettura.",
+            icon: <CheckCircleIcon size={16} />
+          });
+          playSound();
+
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [onTimerComplete]);
 
   // Start timer
   const startTimer = useCallback(() => {
@@ -109,34 +131,8 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
     setTimerState('running');
     warningShownRef.current = false;
 
-    intervalRef.current = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          setTimerState('completed');
-          onTimerComplete?.();
-          toast.success("Reading time completed!", {
-            description: "And... Done! You've reached your reading goal.",
-            icon: <CheckCircleIcon size={16} />,
-          });
-          playSound();
-
-          return 0;
-        }
-
-        // Show warning at 2 minutes remaining
-        if (prev === 120 && !warningShownRef.current) {
-          setTimerState('warning');
-          warningShownRef.current = true;
-          toast.warning("2 minutes remaining", {
-            description: "",
-            icon: <AlertTriangleIcon size={16} />,
-          });
-        }
-
-        return prev - 1;
-      });
-    }, 1000);
-  }, [timerState, initialDuration, onTimerComplete]);
+    intervalRef.current = createTimerInterval();
+  }, [timerState, initialDuration, createTimerInterval]);
 
   // Pause timer
   const pauseTimer = useCallback(() => {
@@ -178,42 +174,13 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
     setTimerState('running');
     
     // Start the timer immediately
-    intervalRef.current = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          setTimerState('completed');
-          onTimerComplete?.();
-          toast.success("Reading time completed!", {
-            description: "And... Done! You've reached your reading goal.",
-            icon: <CheckCircleIcon size={16} />,
-          });
-          playSound();
-          return 0;
-        }
+    intervalRef.current = createTimerInterval();
 
-        // Show warning at 2 minutes remaining
-        if (prev === 120 && !warningShownRef.current) {
-          setTimerState('warning');
-          warningShownRef.current = true;
-          toast.warning("2 minutes remaining", {
-            description: "",
-            icon: <AlertTriangleIcon size={16} />,
-          });
-        }
-
-        return prev - 1;
-      });
-    }, 1000);
-
-    toast.success("Timer restarted!", {
-      description: `Timer reset to ${initialDuration} minutes and started`,
-      icon: <RotateCcwIcon size={16} />,
+    toast.success("Timer riavviato!", {
+      description: `Timer ripristinato a ${initialDuration} minuti e avviato`,
+      icon: <RotateCcwIcon size={16} />
     });
-  }, [initialDuration, onTimerComplete]);
-
-
-
-
+  }, [initialDuration, createTimerInterval]);
 
   // Clean up interval on unmount
   useEffect(() => {
@@ -255,11 +222,7 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
             <div className="w-20 h-1">
               <Progress 
                 value={progressPercentage} 
-                className={cn(
-                  "h-1",
-                  timerState === 'warning' && "bg-orange-200",
-                  timerState === 'completed' && "bg-green-200"
-                )}
+                className="h-1"
               />
             </div>
           )}
@@ -280,7 +243,7 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Start</p>
+                <p>Avvia</p>
               </TooltipContent>
             </Tooltip>
           )}
@@ -298,7 +261,7 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Pause</p>
+                <p>Pausa</p>
               </TooltipContent>
             </Tooltip>
           )}
@@ -316,12 +279,12 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Resume</p>
+                <p>Riprendi</p>
               </TooltipContent>
             </Tooltip>
           )}
 
-          {(timerState === 'running' || timerState === 'paused' || timerState === 'warning') && (
+          {(timerState === 'running' || timerState === 'paused') && (
             <DropdownMenu open={showStopConfirm} onOpenChange={setShowStopConfirm}>
               <DropdownMenuTrigger asChild>
                 <div>
@@ -342,16 +305,16 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>Stop Timer?</DropdownMenuLabel>
+                <DropdownMenuLabel>Fermare il timer?</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={stopTimer}
                   className="text-red-600 focus:text-red-600 hover-primary-effect"
                 >
-                  Confirm
+                  Conferma
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowStopConfirm(false)} className="hover-primary-effect">
-                  Cancel
+                  Annulla
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -370,14 +333,14 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Reset timer</p>
+                <p>Reimposta timer</p>
               </TooltipContent>
             </Tooltip>
           )}
         </div>
 
         {/* Timer Restart Button with Confirmation */}
-        {(timerState === 'running' || timerState === 'paused' || timerState === 'warning') && (
+        {(timerState === 'running' || timerState === 'paused') && (
           <DropdownMenu open={showRestartConfirm} onOpenChange={setShowRestartConfirm}>
             <DropdownMenuTrigger asChild>
               <div>
@@ -388,22 +351,22 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Restart timer</p>
+                    <p>Riavvia timer</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>Restart Timer?</DropdownMenuLabel>
+              <DropdownMenuLabel>Riavviare timer?</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={restartTimer}
                 className="text-red-600 focus:text-red-600 hover-primary-effect"
               >
-                Confirm
+                Conferma
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShowRestartConfirm(false)} className="hover-primary-effect">
-                Cancel
+                Annulla
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -111,7 +111,7 @@ export default function Register() {
         <AuthCard 
           title="CloudNotes" 
           description="La tua oasi virtuale di conoscenza"
-          subtitle="Registra un Account"
+          subtitle="Registra un account"
           footer={
             <p className="text-center text-sm text-muted-foreground w-full">
               <span 
@@ -185,7 +185,7 @@ export default function Register() {
             <PasswordInput
               form={form}
               name="confirmPassword"
-              label="Ripeti Password"
+              label="Ripeti password"
               autoComplete="new-password"
               required
             />
@@ -207,7 +207,7 @@ export default function Register() {
                       }
                     }}
                   >
-                    Termini di Servizio
+                    Termini di servizio
                   </span>
                 </>
               }

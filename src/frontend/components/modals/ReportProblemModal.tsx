@@ -84,7 +84,7 @@ const ReportProblemModal = ({
       title={
         <div className="flex items-center gap-2 text-lg font-medium select-none">
           <AlertTriangleIcon size={18} className="text-orange-500" />
-          <span>Segnala un Problema</span>
+          <span>Segnala un problema</span>
         </div>
       }
       maxWidth="max-w-2xl"
@@ -93,7 +93,7 @@ const ReportProblemModal = ({
         disabled: isLoading
       }}
       actionButton={{
-        text: "Invia Segnalazione",
+                  text: "Invia segnalazione",
         onClick: handleReportProblem,
         disabled: !reportMessage.trim() || isLoading,
         loadingText: "Invio segnalazione...",
@@ -106,7 +106,7 @@ const ReportProblemModal = ({
         title: (
           <div className="flex items-center gap-2 text-lg font-medium select-none">
             <CheckCircleIcon size={18} className="text-green-600" />
-            <span>Segnalazione Inviata con Successo</span>
+            <span>Segnalazione inviata con successo</span>
           </div>
         ),
         content: (

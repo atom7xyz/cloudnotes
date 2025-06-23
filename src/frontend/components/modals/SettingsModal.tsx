@@ -279,7 +279,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const [rememberLogin, setRememberLogin] = useState(true);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [systemLanguage, setSystemLanguage] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState("english");
+  const [selectedLanguage, setSelectedLanguage] = useState("italian");
   const [marketingEmails, setMarketingEmails] = useState(false);
   const [updatesLoading, setUpdatesLoading] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
@@ -344,7 +344,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
     setSystemLanguage(enabled);
     // If enabling system language, reset the selected language to the system default
     if (enabled) {
-      setSelectedLanguage("english"); // Assuming English is the system default
+      setSelectedLanguage("italian"); // Assuming Italian is the system default
     }
   };
 

@@ -193,7 +193,7 @@ const EditProfileModal = ({
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title="Modifica Profilo"
+      title="Modifica profilo"
       maxWidth={maxWidth}
       cancelButton={{
         text: "Annulla",
@@ -284,7 +284,7 @@ const EditProfileModal = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <TypeIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Nome Utente:</label>
+                <label className="font-medium text-sm">Nome utente:</label>
                 <span className="text-red-500">*</span>
               </div>
               <Input
@@ -322,7 +322,7 @@ const EditProfileModal = ({
         isOpen={showUnsavedChangesModal}
         onClose={() => setShowUnsavedChangesModal(false)}
         onConfirm={handleUnsavedChangesConfirm}
-        title="Scartare le Modifiche al Profilo?"
+        title="Scartare le modifiche al profilo?"
         actionType="close"
       />
     </Modal>

@@ -45,7 +45,7 @@ export default function ResetPasswordSuccess() {
                 href="/login"
                 className="no-underline select-none flex items-center justify-center h-full"
               >
-                Torna al Login
+                Torna al login
               </AppLink>
             </Button>
           </div>

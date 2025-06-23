@@ -128,7 +128,7 @@ const ScreenLockModal: FC = () => {
             {/* User avatar */}
             <div className="flex justify-center">
               <Avatar className="h-16 w-16">
-                <img src="https://github.com/shadcn.png" alt="User Avatar" />
+                <img src="https://github.com/shadcn.png" alt="Avatar utente" />
               </Avatar>
             </div>
 

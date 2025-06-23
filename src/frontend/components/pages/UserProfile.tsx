@@ -21,14 +21,15 @@ import { formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument } from '../../lib/mocking/mocked';
-import { toast } from 'sonner';
-import { useAppNavigate } from '@/lib/navigation';
+import { toast } from '@/lib/utils/toast';
+import { useAppNavigate, useScrollToTop } from '@/lib/navigation';
 import DocumentView from '../modals/DocumentView';
 import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 import { useParams } from 'react-router-dom';
 
 const UserProfile = () => {
   const appNavigate = useAppNavigate();
+  useScrollToTop(); // Automatically scroll to top when location changes
   const { username } = useParams<{ username: string }>();
   const [userDocuments, setUserDocuments] = useState<MockDocument[]>([]);
   const [favoriteDocuments, setFavoriteDocuments] = useState<MockDocument[]>([]);
@@ -56,10 +57,7 @@ const UserProfile = () => {
     };
   }, [username]);
 
-  // Scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+
 
   // Calculate last opened time (in a real app this would come from user session data)
   const getLastOpenedTime = useCallback((doc: MockDocument): string => {

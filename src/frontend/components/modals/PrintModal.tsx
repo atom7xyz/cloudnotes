@@ -34,7 +34,7 @@ export default function PrintModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Anteprima di Stampa"
+      title="Anteprima di stampa"
       maxWidth="max-w-4xl"
       maxHeight="max-h-[calc(90vh-10rem)]"
       cancelButton={{

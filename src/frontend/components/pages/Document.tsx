@@ -46,8 +46,8 @@ import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 import AdBanner from '../ui/AdBanner';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockComment, MockReport } from '../../lib/mocking/mocked';
-import { toast } from 'sonner';
-import { useAppNavigate } from '@/lib/navigation';
+import { toast } from '@/lib/utils/toast';
+import { useAppNavigate, useScrollToTop } from '@/lib/navigation';
 import { useTheme } from '../../lib/contexts/ThemeContext';
 import { useReadingSpeed } from '../../lib/contexts/ReadingSpeedContext';
 import ReportProblemModal from '../modals/ReportProblemModal';
@@ -58,6 +58,7 @@ import TimerWelcomeModal from '../modals/TimerWelcomeModal';
 const Document = () => {
   const { id } = useParams<{ id: string }>();
   const appNavigate = useAppNavigate();
+  useScrollToTop(); // Automatically scroll to top when location changes
   const { estimateReadingTime, getOptimalTimerDuration, hasValidReadingSpeed, readingSpeed, markTimerInteractionAfterFirstTest } = useReadingSpeed();
   const [document, setDocument] = useState<MockDocument | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -140,10 +141,7 @@ const Document = () => {
     }
   }, [id]);
 
-  // Scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+
 
   // Format date to relative time
   const relativeDateFormatted = useCallback((date: Date): string => {
@@ -851,14 +849,14 @@ const Document = () => {
                                     onClick={() => handleDeleteReport(report.id)}
                                     className="text-red-600 focus:text-red-600 hover-primary-effect cursor-pointer"
                                   >
-                                                                            Conferma Eliminazione
+                                    Conferma
                                   </DropdownMenuItem>
-                                                                        <DropdownMenuItem 
-                                        onClick={() => setShowDeleteReportConfirm(null)} 
-                                        className="hover-primary-effect cursor-pointer"
-                                      >
-                                        Annulla
-                                      </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                      onClick={() => setShowDeleteReportConfirm(null)} 
+                                      className="hover-primary-effect cursor-pointer"
+                                    >
+                                      Annulla
+                                  </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </TooltipTrigger>
@@ -996,14 +994,14 @@ const Document = () => {
                                       onClick={() => handleDeleteComment(comment.id)}
                                       className="text-red-600 focus:text-red-600 hover-primary-effect cursor-pointer"
                                     >
-                                      Conferma Eliminazione
+                                      Conferma
                                     </DropdownMenuItem>
-                                                                          <DropdownMenuItem 
-                                        onClick={() => setShowDeleteCommentConfirm(null)} 
-                                        className="hover-primary-effect cursor-pointer"
-                                      >
-                                        Annulla
-                                      </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                      onClick={() => setShowDeleteCommentConfirm(null)} 
+                                      className="hover-primary-effect cursor-pointer"
+                                    >
+                                      Annulla
+                                    </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
                               </TooltipTrigger>
@@ -1063,9 +1061,9 @@ const Document = () => {
         />
       </div>
 
-      {/* Floating Right Sidebar - Sticky Vertical Ad - Hidden for authors */}
+      {/* Floating Right Sidebar - Sticky Vertical Ad - Hidden for authors and on smaller screens */}
       {!isAuthor && (
-        <div className="fixed top-50 right-6 bottom-38 w-80 z-30 hidden xl:block">
+        <div className="fixed top-50 right-6 bottom-38 w-80 z-30 hidden 3xl:block">
           <AdBanner 
             type="vertical" 
             className="h-full"

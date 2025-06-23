@@ -224,7 +224,7 @@ const SearchBar = ({
           <div className="border-t pt-2 mt-1">
             <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
               <Clock className="h-3.5 w-3.5" />
-              Ricerche Recenti
+              Ricerche recenti
             </div>
             <div className="flex flex-wrap gap-1.5">
               {recentSearches.map((term) => (

@@ -181,7 +181,7 @@ const Notifications: React.FC<NotificationsProps> = ({
         >
           <div className="flex items-center gap-2 text-foreground w-full justify-center">
             <SettingsIcon size={14} />
-            <span>Impostazioni Notifiche</span>
+            <span>Impostazioni notifiche</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

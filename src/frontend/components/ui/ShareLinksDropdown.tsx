@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { Button } from './button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from './dropdown-menu';
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 
 interface ShareLinksDropdownProps {
   triggerText: string;
@@ -40,14 +40,14 @@ const ShareLinksDropdown: React.FC<ShareLinksDropdownProps> = ({
   const handleDefaultCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard", {
-        description: "You can now paste it anywhere",
+      toast.success("Link copiato negli appunti", {
+        description: "Ora puoi incollarlo ovunque",
         icon: <LinkIcon size={16} />,
       });
     } catch (err) {
       console.error('Failed to copy link:', err);
-      toast.error("Failed to copy link", {
-        description: "Please try again",
+      toast.error("Impossibile copiare il link", {
+        description: "Riprova di nuovo",
       });
     }
   };
@@ -82,14 +82,14 @@ const ShareLinksDropdown: React.FC<ShareLinksDropdownProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>Share via</DropdownMenuLabel>
+        <DropdownMenuLabel>Condividi tramite</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           className="cursor-pointer flex items-center hover-primary-effect"
           onClick={onCopyLink || handleDefaultCopyLink}
         >
           <LinkIcon className="mr-2 h-4 w-4 flex-shrink-0 text-muted-foreground" />
-          <span>Copy Link</span>
+          <span>Copia link</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 

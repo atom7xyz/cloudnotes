@@ -17,7 +17,7 @@ import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { cn } from '../../lib/utils';
 import type { MockDocument } from '../../lib/mocking/mocked';
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 import { playSound } from '@/lib/utils/sound';
 import UnsavedChangesModal from './UnsavedChangesModal';
 
@@ -162,15 +162,15 @@ const EditDocumentModal = ({
       
       playSound();
 
-      toast.success("Document updated successfully", {
-        description: "Your changes have been saved",
+      toast.success("Documento aggiornato con successo", {
+        description: "Le tue modifiche sono state salvate",
         icon: <SaveIcon size={16} />,
       });
       
       onClose();
     } catch (error) {
       toast.error("Failed to update document", {
-        description: "Please try again",
+        description: "Riprova di nuovo",
       });
     } finally {
       setIsSaving(false);
@@ -224,17 +224,17 @@ const EditDocumentModal = ({
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title="Edit Document"
+      title="Modifica documento"
       maxWidth={maxWidth}
       cancelButton={{
-        text: "Cancel",
+        text: "Annulla",
         disabled: isSaving
       }}
       actionButton={{
-        text: "Save",
+        text: "Salva",
         onClick: handleSave,
         disabled: isSaving,
-        loadingText: "Saving...",
+        loadingText: "Salvataggio...",
         icon: <SaveIcon size={16} />
       }}
       isLoading={isSaving}
@@ -250,7 +250,7 @@ const EditDocumentModal = ({
             <div className="w-full">
               <div className="flex items-center gap-2 mb-3">
                 <PaletteIcon size={16} className="text-primary" />
-                <span className="font-medium text-sm">Select color:</span>
+                <span className="font-medium text-sm">Seleziona colore:</span>
               </div>
               <div className="grid grid-cols-5 gap-2">
                 {thumbnailColors.map((color) => (
@@ -279,13 +279,13 @@ const EditDocumentModal = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <TypeIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Title:</label>
+                <label className="font-medium text-sm">Titolo:</label>
                 <span className="text-red-500">*</span>
               </div>
               <Input
                 value={formData.title}
                 onChange={(e) => handleFieldChange('title', e.target.value)}
-                placeholder="Enter document title..."
+                placeholder="Inserisci il titolo del documento..."
                 className={cn(
                   "text-base",
                   errors.title && "border-red-500 focus-visible:ring-red-500"
@@ -300,12 +300,12 @@ const EditDocumentModal = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <FileTextIcon size={16} className="text-primary" />
-                <label className="font-medium text-sm">Description:</label>
+                <label className="font-medium text-sm">Descrizione:</label>
               </div>
               <Textarea
                 value={formData.description}
                 onChange={(e) => handleFieldChange('description', e.target.value)}
-                placeholder="Enter document description..."
+                placeholder="Inserisci la descrizione del documento..."
                 className="min-h-[120px] resize-none text-sm"
               />
             </div>
@@ -338,7 +338,7 @@ const EditDocumentModal = ({
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={handleTagKeyPress}
-                  placeholder="Add tags..."
+                  placeholder="Aggiungi tag..."
                   className="text-sm"
                 />
                 <Button 
@@ -349,7 +349,7 @@ const EditDocumentModal = ({
                   className="gap-2 hover-primary-effect"
                 >
                   <PlusIcon size={16} />
-                  Add Tag
+                  Aggiungi tag
                 </Button>
               </div>
             </div>
@@ -360,7 +360,6 @@ const EditDocumentModal = ({
         isOpen={showUnsavedChangesModal}
         onClose={() => setShowUnsavedChangesModal(false)}
         onConfirm={handleUnsavedChangesConfirm}
-        title="Discard Document Changes?"
         actionType="close"
       />
     </Modal>

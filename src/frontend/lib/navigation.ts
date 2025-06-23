@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // Use the ElectronAPI interface from types.d.ts instead of redefining it here
 
@@ -64,12 +64,24 @@ export const useAppNavigate = () => {
       setTimeout(() => {
         const api = getElectronAPI();
         api?.requestNavigationStateUpdate();
-      }, 50);
+      }, 100);
     } else {
       // Handle external navigation
       window.open(to, '_blank', 'noopener,noreferrer');
     }
   }, [navigate]);
+};
+
+/**
+ * A hook that automatically scrolls to top when location changes
+ * This should be used in every page component that needs scroll-to-top behavior
+ */
+export const useScrollToTop = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 };
 
 /**

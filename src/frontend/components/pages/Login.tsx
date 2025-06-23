@@ -62,7 +62,7 @@ export default function Login() {
       <AuthCard 
         title="CloudNotes" 
         description="La tua oasi virtuale di conoscenza"
-        subtitle="Accedi al Tuo Account"
+        subtitle="Accedi al tuo account"
         footer={
           <p className="text-center text-sm text-muted-foreground w-full">
             <AppLink href="/register">

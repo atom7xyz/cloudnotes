@@ -18,7 +18,7 @@ export default function UnsavedChangesModal({
   isOpen, 
   onClose, 
   onConfirm,
-  title = "Modifiche Non Salvate",
+  title = "Modifiche non salvate",
   description,
   actionType = 'close'
 }: UnsavedChangesModalProps) {
@@ -27,15 +27,15 @@ export default function UnsavedChangesModal({
   const actionTexts = {
     close: {
       warning: "Hai modifiche non salvate. Se chiudi ora, le tue modifiche andranno perse.",
-      button: "Scarta Modifiche"
+      button: "Scarta modifiche"
     },
     navigate: {
       warning: "Hai modifiche non salvate. Se navighi via ora, le tue modifiche andranno perse.",
-      button: "Scarta Modifiche"
+      button: "Scarta modifiche"
     },
     reset: {
       warning: "Hai modifiche non salvate. Se resetti ora, le tue modifiche andranno perse.",
-      button: "Resetta Modulo"
+      button: "Resetta modulo"
     }
   };
 
@@ -64,7 +64,7 @@ export default function UnsavedChangesModal({
       title={title}
       maxWidth="max-w-md"
       cancelButton={{
-        text: "Continua a Modificare",
+        text: "Continua a modificare",
         disabled: loading
       }}
       actionButton={{

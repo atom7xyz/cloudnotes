@@ -191,7 +191,7 @@ export function Modal({
           disabled={cancelButton.disabled || isLoading}
           className="hover-primary-effect rounded-full cursor-pointer"
         >
-          {cancelButton.text || "Cancel"}
+          {cancelButton.text || "Annulla"}
         </Button>
       )}
       {actionButton && (
@@ -206,7 +206,7 @@ export function Modal({
               <span className="animate-spin">
                 <RefreshCwIcon size={14} />
               </span>
-              {actionButton.loadingText || "Processing..."}
+              {actionButton.loadingText || "Elaborazione..."}
             </>
           ) : (
             <>
@@ -281,7 +281,7 @@ export function Modal({
                 onClick={onSuccessClose || onClose}
                 className="rounded-full cursor-pointer"
               >
-                {successConfig.closeButtonText || "Close"}
+                {successConfig.closeButtonText || "Chiudi"}
               </Button>
             </div>
           </div>

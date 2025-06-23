@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { cn } from '../../lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 import { playSound } from '@/lib/utils/sound';
 import UnsavedChangesModal from './UnsavedChangesModal';
 
@@ -120,15 +120,15 @@ const UploadDocumentModal = ({
   // Handle file selection
   const handleFileSelect = useCallback((file: File) => {
     if (!allowedFileTypes.includes(file.type)) {
-      toast.error("Invalid file type", {
-        description: "Please upload a PDF, Word, PowerPoint, EPUB, or text file",
+      toast.error("Tipo di file non valido", {
+        description: "Carica un file PDF, Word, PowerPoint, EPUB o di testo",
       });
       return;
     }
 
     if (file.size > 50 * 1024 * 1024) { // 50MB limit
-      toast.error("File too large", {
-        description: "Please upload a file smaller than 50MB",
+      toast.error("File troppo grande", {
+        description: "Carica un file più piccolo di 50MB",
       });
       return;
     }
@@ -260,8 +260,8 @@ const UploadDocumentModal = ({
       
       playSound();
       
-      toast.success("Document uploaded successfully", {
-        description: "Your document has been uploaded and is now available",
+      toast.success("Documento caricato con successo", {
+        description: "Il tuo documento è stato caricato ed è ora disponibile",
         icon: <SaveIcon size={16} />,
       });
       
@@ -280,7 +280,7 @@ const UploadDocumentModal = ({
       onClose();
     } catch (error) {
       toast.error("Failed to upload document", {
-        description: "Please try again",
+        description: "Riprova di nuovo",
       });
     } finally {
       setIsUploading(false);
@@ -347,14 +347,14 @@ const UploadDocumentModal = ({
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose}
-      title="Carica Documento"
+              title="Carica documento"
       maxWidth={maxWidth}
       cancelButton={{
         text: "Annulla",
         disabled: isUploading
       }}
       actionButton={{
-        text: "Carica Documento",
+                  text: "Carica documento",
         onClick: handleUpload,
         disabled: isUploading || !selectedFile,
         loadingText: "Caricamento...",
@@ -583,7 +583,7 @@ const UploadDocumentModal = ({
         isOpen={showUnsavedChangesModal}
         onClose={() => setShowUnsavedChangesModal(false)}
         onConfirm={handleUnsavedChangesConfirm}
-        title="Discard Upload?"
+        title="Scarta caricamento?"
         actionType="close"
       />
     </Modal>

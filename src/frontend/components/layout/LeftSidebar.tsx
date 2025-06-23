@@ -253,11 +253,11 @@ const LeftSidebar: React.FC = () => {
         <div className="flex-grow flex flex-col items-center justify-center">
           {isAuthenticated && !isLoading ? (
             <>
-              <NavItem icon={<HomeIcon size={32} />} label="HOME" to="/home" active />
+              <NavItem icon={<HomeIcon size={32} />} label="Home" to="/home" active />
               <Separator className="w-full my-2" />
               <NavItem 
                 icon={<FileTextIcon size={32} />} 
-                label="RECENTI" 
+                label="Recenti" 
                 to="/reader" 
                 hasDropdown={true}
                 dropdownContent={readerDropdownContent}
@@ -265,7 +265,7 @@ const LeftSidebar: React.FC = () => {
               <Separator className="w-full my-2" />
               <NavItem 
                 icon={<BookmarkIcon size={32} />} 
-                label="SALVATI" 
+                label="Salvati" 
                 to="/saved" 
                 hasDropdown={true}
                 dropdownContent={savedDropdownContent}
@@ -274,13 +274,13 @@ const LeftSidebar: React.FC = () => {
               <NavItem 
                 icon={
                   <Avatar className="h-6 w-6 border-2 border-sidebar">
-                    <AvatarImage src="https://github.com/shadcn.png" alt="Avatar Utente" />
+                    <AvatarImage src="https://github.com/shadcn.png" alt="Avatar utente" />
                     <AvatarFallback>
                       <UserIcon size={14} />
                     </AvatarFallback>
                   </Avatar>
                 } 
-                label="PROFILO" 
+                label="Profilo" 
                 to="/profile" 
               />
             </>
@@ -291,7 +291,7 @@ const LeftSidebar: React.FC = () => {
         <div className="flex flex-col items-center">
           <NavItem 
             icon={<SettingsIcon size={32} />} 
-            label="IMPOSTAZ." 
+            label="Impostazioni" 
             to="/settings" 
             onClick={() => setIsSettingsOpen(true)} 
           />

@@ -313,7 +313,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
       case "confirm":
         return "Conferma il tuo PIN";
       default:
-        return "PIN Lock";
+        return "Blocco PIN";
     }
   };
 
@@ -364,7 +364,7 @@ const PINLockModal: React.FC<PINLockModalProps> = ({
       title={
         <div className="flex items-center gap-2 select-none">
           <LockIcon size={18} />
-          <span>PIN Lock</span>
+          <span>Blocco PIN</span>
         </div>
       }
       maxWidth="max-w-md"

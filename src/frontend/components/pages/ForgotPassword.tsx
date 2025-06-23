@@ -53,7 +53,7 @@ export default function ForgotPassword() {
       <AuthCard 
         title="CloudNotes"
         description="La tua oasi virtuale di conoscenza"
-        subtitle="Password Dimenticata"
+        subtitle="Password dimenticata"
         footer={
           <div className="flex justify-between w-full text-sm">
             <AppLink 
@@ -61,7 +61,7 @@ export default function ForgotPassword() {
               className="flex items-center gap-1 hover:text-primary transition-colors"
             >
               <ArrowLeftIcon size={16} />
-              Torna al Login
+              Torna al login
             </AppLink>
           </div>
         }
@@ -77,7 +77,7 @@ export default function ForgotPassword() {
           form={form}
           onSubmit={onSubmit}
           isFormEmpty={isFormEmpty}
-          submitLabel="Invia Codice di Reset"
+          submitLabel="Invia codice di reset"
           loading={isLoading}
           loadingText="Invio codice di reset..."
         >

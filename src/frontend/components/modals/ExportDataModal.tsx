@@ -56,7 +56,7 @@ export default function ExportDataModal({
       title={
         <div className="flex items-center gap-2">
           <DownloadIcon size={20} className="text-blue-500" />
-          <span>Esporta i Tuoi Dati</span>
+          <span>Esporta i tuoi dati</span>
         </div>
       }
       maxWidth="max-w-md"
@@ -77,7 +77,7 @@ export default function ExportDataModal({
         title: (
           <div className="flex items-center gap-2 select-none">
             <CheckCircleIcon size={20} className="text-green-600" />
-            <span>Richiesta di Esportazione Inviata</span>
+            <span>Richiesta di esportazione inviata</span>
           </div>
         ),
         content: (

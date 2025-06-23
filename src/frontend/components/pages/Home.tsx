@@ -10,10 +10,11 @@ import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument } from '../../lib/mocking/mocked';
 import { cn } from '../../lib/utils';
 import DocumentView from '../modals/DocumentView';
-import { useAppNavigate } from '@/lib/navigation';
+import { useAppNavigate, useScrollToTop } from '@/lib/navigation';
 
 const Home = () => {
   const appNavigate = useAppNavigate();
+  useScrollToTop(); // Automatically scroll to top when location changes
   const [recentDocs, setRecentDocs] = useState<MockDocument[]>([]);
   const [favoriteDocs, setFavoriteDocs] = useState<MockDocument[]>([]);
   const [trendingDocs, setTrendingDocs] = useState<MockDocument[]>([]);
@@ -32,10 +33,7 @@ const Home = () => {
   const recentDocsRef = useRef<HTMLHeadingElement>(null);
   const savedDocsRef = useRef<HTMLHeadingElement>(null);
   
-  // Scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+
 
   // Calculate last opened time (in a real app this would come from user session data)
   const getLastOpenedTime = useCallback((doc: MockDocument): string => {
@@ -443,7 +441,7 @@ const Home = () => {
             <button 
               onClick={previousRecommendationSlide} 
               className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-lg transition-colors cursor-pointer"
-              aria-label="Previous slide"
+              aria-label="Diapositiva precedente"
               type="button"
             >
               <ChevronLeftIcon size={24} />
@@ -528,7 +526,7 @@ const Home = () => {
             <button 
               onClick={nextRecommendationSlide} 
               className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-20 bg-muted/90 hover:bg-primary/90 hover:text-primary-foreground text-muted-foreground p-1.5 rounded-full shadow-lg transition-colors cursor-pointer"
-              aria-label="Next slide"
+              aria-label="Diapositiva successiva"
               type="button"
             >
               <ChevronRightIcon size={24} />

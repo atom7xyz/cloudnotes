@@ -41,8 +41,8 @@ import {
 import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 import { mockService } from '../../lib/mocking/mockedData';
 import type { MockDocument, MockUser } from '../../lib/mocking/mocked';
-import { toast } from 'sonner';
-import { useAppNavigate } from '@/lib/navigation';
+import { toast } from '@/lib/utils/toast';
+import { useAppNavigate, useScrollToTop } from '@/lib/navigation';
 import DocumentView from '../modals/DocumentView';
 import EditProfileModal from '../modals/EditProfileModal';
 import UploadDocumentModal from '../modals/UploadDocumentModal';
@@ -50,6 +50,7 @@ import { Switch } from '../ui/switch';
 
 const Profile = () => {
   const appNavigate = useAppNavigate();
+  useScrollToTop(); // Automatically scroll to top when location changes
   const [userDocuments, setUserDocuments] = useState<MockDocument[]>([]);
   const [favoriteDocuments, setFavoriteDocuments] = useState<MockDocument[]>([]);
   const [recentDocs, setRecentDocs] = useState<MockDocument[]>([]);
@@ -92,10 +93,7 @@ const Profile = () => {
   // Get the display user data (use currentUserState if available, fallback to currentUser)
   const displayUser = currentUserState || currentUser;
 
-  // Scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+
 
   // Calculate last opened time (in a real app this would come from user session data)
   const getLastOpenedTime = useCallback((doc: MockDocument): string => {
@@ -203,15 +201,15 @@ const Profile = () => {
     ));
     
     const visibilityLabels = {
-      'private': 'Private',
-      'public': 'Public', 
-      'link-only': 'Link Only'
+      'private': 'Privato',
+      'public': 'Pubblico', 
+      'link-only': 'Solo link'
     };
     
     const visibilityDescriptions = {
-      'private': 'Only visible to you',
-      'public': 'Visible to everyone',
-      'link-only': 'Only accessible via direct link'
+      'private': 'Visibile solo a te',
+      'public': 'Visibile a tutti',
+      'link-only': 'Accessibile solo tramite link diretto'
     };
     
     const visibilityIcons = {
@@ -225,15 +223,15 @@ const Profile = () => {
       const documentUrl = `${window.location.origin}/document/${docId}`;
       navigator.clipboard.writeText(documentUrl).then(() => {
         toast.success(
-          `Document set to ${visibilityLabels[visibility]}`,
+          `Documento impostato a ${visibilityLabels[visibility]}`,
           {
-            description: 'Link copied to clipboard',
+            description: 'Link copiato negli appunti',
             icon: visibilityIcons[visibility],
           }
         );
       }).catch(() => {
         toast.success(
-          `Document set to ${visibilityLabels[visibility]}`,
+          `Documento impostato a ${visibilityLabels[visibility]}`,
           {
             description: visibilityDescriptions[visibility],
             icon: visibilityIcons[visibility],
@@ -242,7 +240,7 @@ const Profile = () => {
       });
     } else {
       toast.success(
-        `Document set to ${visibilityLabels[visibility]}`,
+        `Documento impostato a ${visibilityLabels[visibility]}`,
         {
           description: visibilityDescriptions[visibility],
           icon: visibilityIcons[visibility],
@@ -265,16 +263,16 @@ const Profile = () => {
         setCopiedLinkId(null);
       }, 2000);
       
-      toast.success("Document link copied", {
-        description: "Link has been copied to clipboard",
+      toast.success("Link documento copiato", {
+        description: "Il link è stato copiato negli appunti",
         icon: <LinkIcon size={16} />,
       });
     } catch (err) {
       console.error('Failed to copy document link:', err);
-      toast.error("Failed to copy link", {
-        description: "Could not copy document link to clipboard",
+      toast.error("Impossibile copiare il link", {
+        description: "Non è stato possibile copiare il link del documento negli appunti",
         icon: <LinkIcon size={16} />,
-      });
+    });
     }
   }, []);
 
@@ -282,11 +280,11 @@ const Profile = () => {
   const getVisibilityInfo = useCallback((visibility: 'private' | 'public' | 'link-only') => {
     switch (visibility) {
       case 'private':
-        return { icon: LockIcon, color: 'text-primary', label: 'Private' };
+        return { icon: LockIcon, color: 'text-primary', label: 'Privato' };
       case 'public':
-        return { icon: GlobeIcon, color: 'text-primary', label: 'Public' };
+        return { icon: GlobeIcon, color: 'text-primary', label: 'Pubblico' };
       case 'link-only':
-        return { icon: Link2Icon, color: 'text-blue-500', label: 'Link Only' };
+        return { icon: Link2Icon, color: 'text-blue-500', label: 'Solo link' };
     }
   }, []);
 
@@ -1000,13 +998,13 @@ const Profile = () => {
                   onCopyLink={() => {
                     const donationUrl = `${window.location.origin}/donate/${displayUser.username}`;
                     navigator.clipboard.writeText(donationUrl).then(() => {
-                      toast.success("Donation link copied", {
-                        description: "Donation URL has been copied to clipboard",
+                      toast.success("Link donazioni copiato", {
+                        description: "L'URL delle donazioni è stato copiato negli appunti",
                         icon: <LinkIcon size={16} />,
                       });
                     }).catch(() => {
-                      toast.error("Failed to copy link", {
-                        description: "Could not copy donation URL to clipboard",
+                      toast.error("Impossibile copiare il link", {
+                        description: "Non è stato possibile copiare l'URL delle donazioni negli appunti",
                         icon: <LinkIcon size={16} />,
                       });
                     });

@@ -334,12 +334,12 @@ const ScrollModeSelector = memo(({
             {currentMode === ScrollMode.PAGE && <MonitorSmartphone className="h-4 w-4" />}
             {currentMode === ScrollMode.VERTICAL && <ScrollText className="h-4 w-4" />}
             {currentMode === ScrollMode.HORIZONTAL && <MoveHorizontal className="h-4 w-4" />}
-            <span className="text-xs">View Mode</span>
+            <span className="text-xs">Visualizzazione</span>
             <ChevronDown className="h-3 w-3 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel>Modalità Visualizzazione</DropdownMenuLabel>
+          <DropdownMenuLabel>Visualizzazione</DropdownMenuLabel>
           <DropdownMenuSeparator />
           
           <DropdownMenuItem 
@@ -799,7 +799,7 @@ const FileReaderTopNavbar = memo(({
           <div className="flex items-center pl-4" style={dragRegion}>
             <NavButton
               icon={<ArrowLeftIcon className="h-5 w-5" style={noDragRegion}/>}
-              title="Go back"
+              title="Torna indietro"
               onClick={handleGoBack}
             />
             
@@ -852,7 +852,7 @@ const FileReaderTopNavbar = memo(({
                       <div className="text-xs text-muted-foreground mr-1">
                         {searchMetadata.totalMatches > 0 
                           ? `${searchMetadata.currentMatch} of ${searchMetadata.totalMatches}` 
-                          : "No results"}
+                          : "Nessun risultato"}
                       </div>
                       <div className="search-navigation flex items-center gap-1">
                         <Button 
