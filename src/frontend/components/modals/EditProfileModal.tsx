@@ -10,9 +10,8 @@ import { Modal } from '../ui/modal';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Avatar } from '../ui/avatar';
-import { Separator } from '../ui/separator';
 import { cn } from '../../lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 import { playSound } from '@/lib/utils/sound';
 import UnsavedChangesModal from './UnsavedChangesModal';
 

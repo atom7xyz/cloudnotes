@@ -69,7 +69,7 @@ function createWindow() {
             preload: getPreloadPath(),
             nodeIntegration: false,
             contextIsolation: true,
-            devTools: true     // Always allow DevTools
+            devTools: false     // Always allow DevTools
         }
     });
 

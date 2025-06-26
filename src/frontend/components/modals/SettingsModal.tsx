@@ -41,7 +41,7 @@ import {
 import { Avatar } from '../ui/avatar';
 import { Modal } from '../ui/modal';
 import { AppLink } from '../ui/app-link';
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 import { Toaster } from '../ui/sonner';
 import { useAppNavigate } from '@/lib/navigation';
 import PINLockModal from './PINLockModal';

@@ -21,7 +21,7 @@ import { cn, formatRelativeDate } from '../../lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import ShareLinksDropdown from '../ui/ShareLinksDropdown';
 import type { MockDocument } from '../../lib/mocking/mocked';
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 import { useAppNavigate } from '@/lib/navigation';
 
 interface DocumentViewProps {

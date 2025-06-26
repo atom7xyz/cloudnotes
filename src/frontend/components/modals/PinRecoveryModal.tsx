@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { MailIcon, CheckCircleIcon } from 'lucide-react';
 import { Modal } from '../ui/modal';
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 import { playSound } from '@/lib/utils/sound';
 
 interface PinRecoveryModalProps {

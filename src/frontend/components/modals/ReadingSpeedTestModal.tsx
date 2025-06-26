@@ -16,7 +16,7 @@ import {
   XIcon
 } from 'lucide-react';
 import { Modal } from '../ui/modal';
-import { toast } from 'sonner';
+import { toast } from '@/lib/utils/toast';
 import { useReadingSpeed, type ReadingTestResult } from '@/lib/contexts/ReadingSpeedContext';
 
 interface ReadingSpeedTestModalProps {
