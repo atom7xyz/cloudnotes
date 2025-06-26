@@ -798,7 +798,7 @@ const SearchInput = memo(({
                   <ul className="space-y-1 text-xs">
                     <li className="flex items-start gap-2 text-primary">
                       <span className="text-muted-foreground">•</span>
-                      <span>Usa <span className="text-blue-600 font-medium">#tag</span> per filtrare per tag (es. #pdf #italian Commedia Dante)</span>
+                      <span>Usa <span className="text-blue-600 font-medium">#tag</span> per filtrare per tag (es. #pdf #italiano Commedia Dante)</span>
                     </li>
                     <li className="flex items-start gap-2 text-primary">
                       <span className="text-muted-foreground">•</span>
@@ -1648,7 +1648,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Trovati {documentResults.length} documento{documentResults.length !== 1 ? 'i' : ''}
+                      Trovat{documentResults.length !== 1 ? 'i' : 'o'} {documentResults.length} document{documentResults.length !== 1 ? 'i' : 'o'}
                     </div>
                   )}
                   {documentResults.map((doc) => (
@@ -1689,7 +1689,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Trovati {userResults.length} utente{userResults.length !== 1 ? 'i' : ''}
+                      Trovat{userResults.length !== 1 ? 'i' : 'o'} {userResults.length} utent{userResults.length !== 1 ? 'i' : 'e'}
                     </div>
                   )}
                   {userResults.map((user) => (
@@ -1745,7 +1745,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Trovati {bookmarkResults.length} documento{bookmarkResults.length !== 1 ? 'i' : ''} salvato{bookmarkResults.length !== 1 ? 'i' : ''}
+                      Trovat{bookmarkResults.length !== 1 ? 'i' : 'o'} {bookmarkResults.length} document{bookmarkResults.length !== 1 ? 'i' : 'o'} salvat{bookmarkResults.length !== 1 ? 'i' : 'o'}
                     </div>
                   )}
                   {bookmarkResults.map((doc) => (
@@ -1799,7 +1799,7 @@ const SearchModal: React.FC<SearchModalProps> = memo(({ isOpen, onClose }) => {
                 <>
                   {searchCompleted && (
                     <div className="mb-2 text-sm text-muted-foreground select-none">
-                      Trovati {userDocuments.length} documento{userDocuments.length !== 1 ? 'i' : ''} caricato{userDocuments.length !== 1 ? 'i' : ''} da te
+                      Trovat{userDocuments.length !== 1 ? 'i' : 'o'} {userDocuments.length} document{userDocuments.length !== 1 ? 'i' : 'o'} caricat{userDocuments.length !== 1 ? 'i' : 'o'} da te
                     </div>
                   )}
                   {userDocuments.map((doc) => (
