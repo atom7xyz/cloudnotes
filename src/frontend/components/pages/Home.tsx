@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { ClockIcon, BookmarkIcon, TrendingUpIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon, HistoryIcon, ChevronUpIcon, ExternalLinkIcon, ThumbsUpIcon, ArrowUpIcon } from 'lucide-react';
+import { ClockIcon, BookmarkIcon, TrendingUpIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon, HistoryIcon, ChevronUpIcon, ExternalLinkIcon, ThumbsUpIcon, ArrowUpIcon, CalendarIcon } from 'lucide-react';
 import { 
   Card, 
   CardContent} from '../ui/card';
@@ -11,6 +11,7 @@ import type { MockDocument } from '../../lib/mocking/mocked';
 import { cn } from '../../lib/utils';
 import DocumentView from '../modals/DocumentView';
 import { useAppNavigate, useScrollToTop } from '@/lib/navigation';
+import { Separator } from '../ui/separator';
 
 const Home = () => {
   const appNavigate = useAppNavigate();
@@ -358,7 +359,7 @@ const Home = () => {
                               
                               <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                 <div className="flex items-center gap-1">
-                                  <ClockIcon size={12} className="text-primary" />
+                                  <CalendarIcon size={12} className="text-primary" />
                                   <span>Pubblicato: {formatRelativeDate(doc.file.uploadedAt)}</span>
                                 </div>
                                 
@@ -484,7 +485,7 @@ const Home = () => {
                             
                             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1">
-                                <ClockIcon size={12} className="text-primary" />
+                                <CalendarIcon size={12} className="text-primary" />
                                 <span>Pubblicato: {formatRelativeDate(doc.file.uploadedAt)}</span>
                               </div>
                               
@@ -566,11 +567,12 @@ const Home = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
         {/* Recent Documents */}
-        <section>
-          <h2 ref={recentDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
+        <section className="mr-6">
+          <h2 ref={recentDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-4">
             <ClockIcon size={24} className="text-primary" />
             Recenti ({recentDocs.length})
           </h2>
+          <Separator className="mb-4 bg-primary/20" />
           <div className="space-y-4">
             {recentDocs.slice(0, showAllRecentDocs ? recentDocs.length : 3).map((doc) => (
               <Card 
@@ -684,11 +686,12 @@ const Home = () => {
         </section>
         
         {/* Favorite Documents */}
-        <section>
-          <h2 ref={savedDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
+        <section className="ml-6">
+          <h2 ref={savedDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-4">
             <BookmarkIcon size={24} className="text-primary" />
             Salvati ({favoriteDocs.length})
           </h2>
+          <Separator className="mb-4 bg-primary/20" />
           {favoriteDocs.length > 0 ? (
             <div className="space-y-4">
               {favoriteDocs.slice(0, showAllBookmarkedDocs ? favoriteDocs.length : 3).map((doc) => (

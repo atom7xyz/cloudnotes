@@ -47,6 +47,7 @@ import DocumentView from '../modals/DocumentView';
 import EditProfileModal from '../modals/EditProfileModal';
 import UploadDocumentModal from '../modals/UploadDocumentModal';
 import { Switch } from '../ui/switch';
+import { Separator } from '../ui/separator';
 
 const Profile = () => {
   const appNavigate = useAppNavigate();
@@ -552,12 +553,12 @@ const Profile = () => {
       {/* Documents Management Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
         {/* Your Documents */}
-        <div>
-          <h2 ref={yourDocsRef} className="text-2xl font-semibold mb-6 flex items-center gap-3">
+        <div className="mr-6">
+          <h2 ref={yourDocsRef} className="text-2xl font-semibold mb-4 flex items-center gap-3">
             <FileTextIcon size={24} className="text-primary" />
             I Tuoi Documenti ({userDocuments.length})
           </h2>
-
+          <Separator className="mb-4 bg-primary/20" />
           <div className="space-y-4">
             {userDocuments.length === 0 ? (
               <div className="text-center py-12">
@@ -750,11 +751,12 @@ const Profile = () => {
         </div>
 
         {/* Saved Documents */}
-        <div>
-          <h2 ref={savedDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-6">
+        <div className="ml-6">
+          <h2 ref={savedDocsRef} className="text-2xl font-semibold flex items-center gap-3 mb-4">
             <BookmarkIcon size={24} className="text-primary" />
             Salvati ({favoriteDocuments.length})
           </h2>
+          <Separator className="mb-4 bg-primary/20" />
           {favoriteDocuments.length > 0 ? (
             <div className="space-y-4">
               {favoriteDocuments.slice(0, showAllBookmarkedDocs ? favoriteDocuments.length : 3).map((doc) => (

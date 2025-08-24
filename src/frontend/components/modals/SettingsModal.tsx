@@ -292,8 +292,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   const [exportInProgress, setExportInProgress] = useState(false);
   const [activeDevices, setActiveDevices] = useState([
     { id: 1, icon: <LaptopIcon size={16} />, name: "PC Windows", lastActive: "Ora", isCurrent: true },
-    { id: 2, icon: <SmartphoneIcon size={16} />, name: "iPhone 15 Max Pro", lastActive: "2 ore fa", isCurrent: false },
-    { id: 3, icon: <LaptopIcon size={16} />, name: "PC Linux", lastActive: "Ieri", isCurrent: false }
+    { id: 2, icon: <LaptopIcon size={16} />, name: "PC Linux", lastActive: "Ieri", isCurrent: false }
   ]);
   
   // App lock context
@@ -325,7 +324,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
         description: "Così suoneranno le notifiche quando abilitate",
       });
     } else {
-      toast("Gli effetti sonori sono disabilitati", {
+      toast.success("Gli effetti sonori sono disabilitati", {
         description: "Abilita gli effetti sonori per sentire i suoni delle notifiche",
       });
     }
@@ -365,7 +364,7 @@ export default function SettingsModal({ isOpen, onClose, activeTab = "account" }
   // Handle sign out from other devices
   const handleSignOutAllDevices = () => {
     // Show confirmation modal for signing out all other devices
-    setDeviceToSignOut({ id: -1, name: "all other devices", isCurrent: false });
+    setDeviceToSignOut({ id: -1, name: "tutti gli altri dispositivi", isCurrent: false });
     setShowSignOutModal(true);
   };
 

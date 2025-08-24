@@ -603,7 +603,7 @@ const UserItem = memo(({
             <div className="flex items-center gap-3 text-xs">
               <div className="flex items-center gap-1 text-muted-foreground">
                 <CalendarIcon size={12} />
-                <span className="font-medium">Joined:</span>
+                <span className="font-medium">Registrato:</span>
                 <span className="text-muted-foreground">{joinDate}</span>
               </div>
               

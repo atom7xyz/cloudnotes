@@ -341,7 +341,7 @@ const UserProfile = () => {
                           
                           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                             <div className="flex items-center gap-1">
-                              <ClockIcon size={12} className="text-primary" />
+                              <CalendarIcon size={12} className="text-primary" />
                               <span>Pubblicato: {formatRelativeDate(doc.file.uploadedAt)}</span>
                             </div>
                             
