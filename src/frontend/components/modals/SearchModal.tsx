@@ -30,32 +30,6 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider, TooltipConten
 import DocumentView from './DocumentView';
 import { useAppNavigate } from '@/lib/navigation';
 
-// Import placeholder images
-import placeholder1 from '../../assets/placeholders/placeholder (1).png';
-import placeholder7 from '../../assets/placeholders/placeholder (7).png';
-import placeholder8 from '../../assets/placeholders/placeholder (8).png';
-import placeholder9 from '../../assets/placeholders/placeholder (9).png';
-import placeholder10 from '../../assets/placeholders/placeholder (10).png';
-import placeholder11 from '../../assets/placeholders/placeholder (11).png';
-import placeholder12 from '../../assets/placeholders/placeholder (12).png';
-import placeholder13 from '../../assets/placeholders/placeholder (13).png';
-import placeholder14 from '../../assets/placeholders/placeholder (14).png';
-import placeholder15 from '../../assets/placeholders/placeholder (15).png';
-import placeholder16 from '../../assets/placeholders/placeholder (16).png';
-import placeholder17 from '../../assets/placeholders/placeholder (17).png';
-import placeholder18 from '../../assets/placeholders/placeholder (18).png';
-import placeholder19 from '../../assets/placeholders/placeholder (19).png';
-import placeholder20 from '../../assets/placeholders/placeholder (20).png';
-import placeholder21 from '../../assets/placeholders/placeholder (21).png';
-
-// Pool placeholder images once rather than for each component
-const placeholderImages = [
-  placeholder1, placeholder7, placeholder8, placeholder9, placeholder10, 
-  placeholder11, placeholder12, placeholder13, placeholder14, placeholder15, 
-  placeholder16, placeholder17, placeholder18, placeholder19, placeholder20, 
-  placeholder21
-];
-
 // Moved to outside component to prevent recreation
 const fileTypeTags = ['pdf', 'word', 'txt', 'powerpoint', 'epub'];
 
@@ -219,19 +193,17 @@ const UserSkeleton = memo(() => (
 ));
 UserSkeleton.displayName = 'UserSkeleton';
 
-// Get document placeholder - optimized to be more efficient
-const getDocumentPlaceholder = (docId: string) => {
-  // Use the document ID to generate a consistent index
-  const charSum = docId.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  const index = charSum % placeholderImages.length;
-  return placeholderImages[index];
-};
-
 // Function to render thumbnail from color:text format
 const renderThumbnail = (thumbnailData: string, title: string) => {
   // Parse the thumbnail format "color:text"
   const [color, text] = thumbnailData.split(':');
   
+  if (thumbnailData.startsWith('https://')) {
+    return (
+      <img src={thumbnailData} alt={title} className="w-full h-full object-cover" />
+    );
+  }
+
   return (
     <div 
       style={{ backgroundColor: color }} 
@@ -284,12 +256,6 @@ const DocumentItem = memo(({ document, selectedTags, handleTagClick, navigateToD
   const isBookmarked = useMemo(() => 
     bookmarkResults.some(bookmark => bookmark.id === document.id), 
     [document.id, bookmarkResults]
-  );
-  
-  // Memoize expensive parts 
-  const documentPlaceholder = useMemo(() => 
-    getDocumentPlaceholder(document.id), 
-    [document.id]
   );
 
   const formattedDate = useMemo(() => 
@@ -591,7 +557,7 @@ const UserItem = memo(({
               </div>
               <Button variant="outline" size="sm" className="gap-2 hover-primary-effect cursor-pointer" onClick={() => navigateToUserProfile(user.username)}>
                 <User size={14} />
-                View Profile
+                Visualizza Profilo
               </Button>
             </div>
             

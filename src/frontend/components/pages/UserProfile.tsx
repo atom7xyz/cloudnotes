@@ -127,6 +127,12 @@ const UserProfile = () => {
   const renderThumbnail = useCallback((thumbnailData: string, title: string) => {
     const [color, text] = thumbnailData.split(':');
     
+    if (thumbnailData.startsWith('https://')) {
+      return (
+        <img src={thumbnailData} className="w-full h-full object-cover" />
+      );
+    }
+
     return (
       <div 
         style={{ backgroundColor: color }} 

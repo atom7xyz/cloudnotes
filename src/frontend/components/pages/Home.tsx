@@ -191,6 +191,12 @@ const Home = () => {
     // Parse the thumbnail format "color:text"
     const [color, text] = thumbnailData.split(':');
     
+    if (thumbnailData.startsWith('https://')) {
+      return (
+        <img src={thumbnailData} alt={title} className="w-full h-full object-cover" />
+      );
+    }
+
     return (
       <div 
         style={{ backgroundColor: color }} 

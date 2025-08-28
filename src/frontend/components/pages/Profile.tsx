@@ -48,6 +48,7 @@ import EditProfileModal from '../modals/EditProfileModal';
 import UploadDocumentModal from '../modals/UploadDocumentModal';
 import { Switch } from '../ui/switch';
 import { Separator } from '../ui/separator';
+import { playSound } from '@/lib/utils/sound';
 
 const Profile = () => {
   const appNavigate = useAppNavigate();
@@ -176,6 +177,12 @@ const Profile = () => {
   const renderThumbnail = useCallback((thumbnailData: string, title: string) => {
     const [color, text] = thumbnailData.split(':');
     
+    if (thumbnailData.startsWith('https://')) {
+      return (
+        <img src={thumbnailData} className="w-full h-full object-cover" />
+      );
+    }
+
     return (
       <div 
         style={{ backgroundColor: color }} 
@@ -404,11 +411,6 @@ const Profile = () => {
 
     // Add the new document to the beginning of the user documents list
     setUserDocuments(prev => [newDocument, ...prev]);
-
-    toast.success("Documento caricato con successo", {
-      description: `"${documentData.title}" è stato caricato nella tua collezione`,
-      icon: <FileTextIcon size={16} />,
-    });
   }, [currentUser]);
 
   // Scroll to section top functions

@@ -18,6 +18,7 @@ import {
 import { Modal } from '../ui/modal';
 import { toast } from '@/lib/utils/toast';
 import { useReadingSpeed, type ReadingTestResult } from '@/lib/contexts/ReadingSpeedContext';
+import { playSound } from '@/lib/utils/sound';
 
 interface ReadingSpeedTestModalProps {
   isOpen: boolean;
@@ -202,11 +203,7 @@ const ReadingSpeedTestModal: React.FC<ReadingSpeedTestModalProps> = ({ isOpen, o
     
     setTestState('results');
     setIsLoading(false);
-    
-    toast.success("Test di velocità di lettura completato!", {
-      description: `La tua velocità di lettura: ${finalWpm} PPM con ${accuracy}% di comprensione`,
-      icon: <CheckCircleIcon size={16} />,
-    });
+    playSound();
   }, [startTime, endTime, selectedTopic, questionsAnswered, questions, updateReadingSpeed]);
 
   // Cleanup on unmount

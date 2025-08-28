@@ -152,6 +152,12 @@ const Document = () => {
   const renderThumbnail = useCallback((thumbnailData: string) => {
     const [color, text] = thumbnailData.split(':');
     
+    if (thumbnailData.startsWith('https://')) {
+      return (
+        <img src={thumbnailData} className="w-full h-full object-cover" />
+      );
+    }
+
     return (
       <div 
         style={{ backgroundColor: color }} 
@@ -322,28 +328,7 @@ const Document = () => {
     if (readingSpeed.isFirstTestCompleted && !readingSpeed.hasInteractedWithTimerAfterFirstTest) {
       markTimerInteractionAfterFirstTest();
     }
-    
-    if (duration) {
-          toast.success("Durata timer impostata", {
-      description: `Timer di lettura impostato a ${duration} minuti`,
-      icon: <TimerIcon size={16} />,
-    });
-    } else {
-      toast.success("Timer disabilitato", {
-        description: "Il documento si aprirà senza timer",
-        icon: <TimerIcon size={16} />,
-      });
-    }
   }, [readingSpeed.isFirstTestCompleted, readingSpeed.hasInteractedWithTimerAfterFirstTest, markTimerInteractionAfterFirstTest]);
-
-  // Handle timer duration change from ReadingTimer component
-  const handleTimerDurationChange = useCallback((newDurationMinutes: number) => {
-    setSelectedTimerDuration(newDurationMinutes);
-    toast.success("Durata timer aggiornata", {
-      description: `Timer di lettura aggiornato a ${newDurationMinutes} minuti`,
-      icon: <TimerIcon size={16} />,
-    });
-  }, []);
 
   // Handle document opening with timer
   const handleOpenDocument = useCallback(() => {

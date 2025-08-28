@@ -175,11 +175,7 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({
     
     // Start the timer immediately
     intervalRef.current = createTimerInterval();
-
-    toast.success("Timer riavviato!", {
-      description: `Timer ripristinato a ${initialDuration} minuti e avviato`,
-      icon: <RotateCcwIcon size={16} />
-    });
+    playSound();
   }, [initialDuration, createTimerInterval]);
 
   // Clean up interval on unmount

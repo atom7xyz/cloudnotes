@@ -99,7 +99,8 @@ class MockDataStore {
       'Gilgamesh: Il Primo Eroe Epico del Mondo',
       'Il Principe di Machiavelli: Politica di Potere Ieri e Oggi',
       'Don Chisciotte: Cervantes e la Nascita del Romanzo Moderno',
-      'Beowulf: L\'Epica Inglese più Antica'
+      'Beowulf: L\'Epica Inglese più Antica',
+      'Enterprise Integration Patterns: Designing, Building, and Deploying Messaging Solutions'
     ];
     
     const documentDescriptions = [
@@ -114,7 +115,8 @@ class MockDataStore {
       'Analizzando l\'Epopea di Gilgamesh come la prima opera di grande letteratura sopravvissuta.',
       'Esaminando il controverso trattato politico di Niccolò Machiavelli sul potere e il governo.',
       'Uno studio approfondito del romanzo rivoluzionario di Miguel de Cervantes e il suo posto nella tradizione letteraria europea.',
-      'Un\'analisi approfondita del poema epico eroico inglese antico Beowulf e il suo significato culturale.'
+      'Un\'analisi approfondita del poema epico eroico inglese antico Beowulf e il suo significato culturale.',
+      'This is a book about enterprise integration using messaging. It does not document any particular technology or product. Rather, it is designed for developers and integrators using a variety of messaging products and technologies, such as ActiveMQ, IBM MQ, JMS, and others.'
     ];
     
     const tagsPool = [
@@ -129,23 +131,33 @@ class MockDataStore {
       ['mesopotamia', 'epico', 'poesia', 'antico'],
       ['machiavelli', 'politica', 'rinascimento'],
       ['spagnolo', 'letteratura', 'rinascimento', 'cervantes'],
-      ['medievale', 'inglese-antico', 'epico', 'poesia']
+      ['medievale', 'inglese-antico', 'epico', 'poesia'],
+      ['java', 'enterprise', 'integration', 'messaging', 'jms', 'activemq', 'ibm', 'mq']
     ];
     
     const fileTypes: ('pdf' | 'word' | 'powerpoint' | 'txt' | 'epub')[] = [
       'pdf', 'epub', 'pdf', 'pdf', 'epub', 'pdf', 
-      'pdf', 'epub', 'pdf', 'pdf', 'epub', 'pdf'
+      'pdf', 'epub', 'pdf', 'pdf', 'epub', 'pdf',
+      'pdf'
     ];
     
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 13; i++) {
       const userIndex = i % this.users.length;
       const author = this.users[userIndex];
+
+      let thumbnail;
+
+      if (i === 12) {
+        thumbnail = 'https://atom7.xyz/share/u/PIQppbz2.png';
+      } else {
+        thumbnail = `${faker.color.rgb({ format: 'hex', casing: 'lower' })}:${encodeURIComponent(documentTitles[i].split(':')[0])}`;
+      }
       
       // Create the file first
       const file: MockFile = {
         id: faker.string.uuid(),
         author: author,
-        thumbnail: `${faker.color.rgb({ format: 'hex', casing: 'lower' })}:${encodeURIComponent(documentTitles[i].split(':')[0])}`,
+        thumbnail: thumbnail,
         type: fileTypes[i],
         size: `${faker.number.float({ min: 1, max: 15, fractionDigits: 1 })} MB`,
         viewCount: i === 3 ? 15000 : faker.number.int({ min: 500, max: 5000 }),
