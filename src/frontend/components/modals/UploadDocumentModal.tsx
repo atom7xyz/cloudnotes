@@ -322,18 +322,43 @@ const UploadDocumentModal = ({
   // Render thumbnail preview
   const renderThumbnailPreview = useCallback(() => {
     const colorToUse = hoveredColor || formData.thumbnailColor;
-    const titleToShow = formData.title || selectedFile?.name || 'Document Preview';
-    
+    const titleToShow = formData.title || selectedFile?.name || 'Copertina';
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
-      <div 
-        style={{ backgroundColor: colorToUse }} 
-        className="w-full h-full flex items-center justify-center relative overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/20" />
-        <span className="text-white font-medium text-center px-2 text-sm relative z-10 drop-shadow-lg">
+        <div
+            style={{ backgroundColor: colorToUse }}
+            className="w-full h-full flex items-center justify-center relative overflow-hidden group cursor-pointer"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/20" />
+
+          <div className={cn(
+              "absolute inset-0 flex flex-col items-center justify-center bg-black/40 transition-opacity duration-200",
+              isHovered ? "opacity-100" : "opacity-0"
+          )}>
+            <PlusIcon className="text-white w-12 h-12 mb-2" />
+            <span className="text-white text-sm font-medium drop-shadow-lg">
+          Carica un'immagine
+        </span>
+          </div>
+
+          <div className={cn(
+              "inset-0 flex flex-col items-center justify-center text-center px-2 relative z-10 transition-opacity duration-200",
+              isHovered ? "opacity-0" : "opacity-100"
+          )}>
+            <span className="text-white font-medium text-sm drop-shadow-lg">
           {titleToShow.slice(0, 20)}{titleToShow.length > 20 ? '...' : ''}
         </span>
-      </div>
+
+            {titleToShow.includes("Copertina") && (
+                <span className="text-white font-light text-sm drop-shadow-lg mt-6">
+            Clicca per caricare un'immagine
+          </span>
+            )}
+          </div>
+        </div>
     );
   }, [formData.thumbnailColor, formData.title, selectedFile, hoveredColor]);
 
