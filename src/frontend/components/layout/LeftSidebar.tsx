@@ -116,7 +116,7 @@ const LeftSidebar: React.FC = () => {
     
     // Simulate recent documents by sorting all documents by a "last viewed" algorithm
     // In a real app, this would come from user's view history
-    const recentDocs = allDocuments
+    const recentDocs = allDocuments.filter((a => a.id !== "mock-file-react-for-beginners" && !a.title.includes("Enterprise")))
       .map(doc => {
         // Create a simulated "last viewed" timestamp based on document properties
         // Use document ID and current user ID to create consistent but varied timestamps

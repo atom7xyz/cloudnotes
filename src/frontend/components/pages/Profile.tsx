@@ -137,13 +137,15 @@ const Profile = () => {
     setUserDocuments(userDocs);
     
     // Sort for recent (by "last opened" rather than upload date) - same as Home
-    const recentDocuments = [...allDocuments].sort((a, b) => 
+    const recentDocuments = [...allDocuments]
+        .filter(doc => !doc.title.includes("Enterprise")) // Exclude "Enterprise" documents
+        .sort((a, b) =>
       getHoursSinceLastOpened(a) - getHoursSinceLastOpened(b)
     );
     setRecentDocs(recentDocuments);
     
     // Mock favorites (in a real app, this would come from user data)
-    const favorites = allDocuments.slice(0, 3);
+    const favorites = [...allDocuments.slice(0, 3), ...allDocuments.filter(a => a.id === "mock-file-react-for-beginners")];
     setFavoriteDocuments(favorites);
     
     // Initialize current user state if not already set

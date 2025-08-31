@@ -12,6 +12,7 @@ import { cn } from '../../lib/utils';
 import DocumentView from '../modals/DocumentView';
 import { useAppNavigate, useScrollToTop } from '@/lib/navigation';
 import { Separator } from '../ui/separator';
+import {faker} from "@faker-js/faker";
 
 const Home = () => {
   const appNavigate = useAppNavigate();
@@ -115,12 +116,16 @@ const Home = () => {
     const currentUsername = "bartsimpson"; // This would be dynamic in a real app
     
     // Sort for recent (by "last opened" rather than upload date)
-    const recentDocuments = [...allDocuments].sort((a, b) => 
+    const recentDocuments = [...allDocuments]
+        .filter((a => a.id !== "mock-file-react-for-beginners" && !a.title.includes("Enterprise"))) // Exclude specific document
+        .sort((a, b) =>
       getHoursSinceLastOpened(a) - getHoursSinceLastOpened(b)
     );
     
     // Sort for trending (by view count, download count, and recency)
-    const trendingDocuments = [...allDocuments].sort((a, b) => {
+    const trendingDocuments = [...allDocuments]
+        .filter((a => a.id !== "mock-file-react-for-beginners" && !a.title.includes("Enterprise"))) // Exclude specific document
+        .sort((a, b) => {
       // Score = (viewCount * 1) + (downloadCount * 2) + (recency factor * 4)
       // Recency factor = 1 / (days old + 1) to keep it between 0-1
       const daysA = Math.floor((new Date().getTime() - a.file.uploadedAt.getTime()) / (1000 * 60 * 60 * 24));
@@ -136,12 +141,14 @@ const Home = () => {
     
     // Simple recommendations (just use a different slice of trending documents)
     const recommendationDocuments = [...trendingDocuments]
+      .filter((a => a.id !== "mock-file-react-for-beginners" && !a.title.includes("Enterprise"))) // Exclude "Enterprise" documents)) // Exclude specific document
       .filter(doc => doc.author.username !== currentUsername) // Exclude user's own documents
       .slice(3, 13);
     
     // Initialize favorites (mock some documents similar to Profile.tsx)
-    const favorites = allDocuments.slice(0, 3);
-    
+    const favorites = [...allDocuments.slice(0, 3), ...allDocuments.filter(a => a.id === "mock-file-react-for-beginners")];
+
+
     // Get user documents and sort by last edited time (newest first)
     const userDocuments = allDocuments
       .filter(doc => doc.author.username === currentUsername)
@@ -167,14 +174,14 @@ const Home = () => {
       if (docExists) {
         return prev.filter(doc => doc.id !== docId);
       }
-      
-      const docToAdd = [...recentDocs, ...trendingDocs].find(doc => doc.id === docId);
+
+      const docToAdd = [...trendingDocs, ...recentDocs].find(doc => doc.id === docId);
       if (docToAdd) {
         return [...prev, docToAdd];
       }
       return prev;
     });
-  }, [recentDocs, trendingDocs]);
+  }, [trendingDocs, recentDocs]);
 
   // Format file size
   const formatFileSize = (size: string): string => {

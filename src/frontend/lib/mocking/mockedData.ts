@@ -100,7 +100,8 @@ class MockDataStore {
       'Il Principe di Machiavelli: Politica di Potere Ieri e Oggi',
       'Don Chisciotte: Cervantes e la Nascita del Romanzo Moderno',
       'Beowulf: L\'Epica Inglese più Antica',
-      'Enterprise Integration Patterns: Designing, Building, and Deploying Messaging Solutions'
+      'Enterprise Integration Patterns: Designing, Building, and Deploying Messaging Solutions',
+      'React per Principianti: Guida Completa allo Sviluppo di Interfacce Utente',
     ];
     
     const documentDescriptions = [
@@ -116,7 +117,8 @@ class MockDataStore {
       'Esaminando il controverso trattato politico di Niccolò Machiavelli sul potere e il governo.',
       'Uno studio approfondito del romanzo rivoluzionario di Miguel de Cervantes e il suo posto nella tradizione letteraria europea.',
       'Un\'analisi approfondita del poema epico eroico inglese antico Beowulf e il suo significato culturale.',
-      'This is a book about enterprise integration using messaging. It does not document any particular technology or product. Rather, it is designed for developers and integrators using a variety of messaging products and technologies, such as ActiveMQ, IBM MQ, JMS, and others.'
+      'This is a book about enterprise integration using messaging. It does not document any particular technology or product. Rather, it is designed for developers and integrators using a variety of messaging products and technologies, such as ActiveMQ, IBM MQ, JMS, and others.',
+      'Una guida completa per principianti su React, coprendo i concetti fondamentali, le migliori pratiche e lo sviluppo di interfacce utente moderne.'
     ];
     
     const tagsPool = [
@@ -132,16 +134,17 @@ class MockDataStore {
       ['machiavelli', 'politica', 'rinascimento'],
       ['spagnolo', 'letteratura', 'rinascimento', 'cervantes'],
       ['medievale', 'inglese-antico', 'epico', 'poesia'],
-      ['java', 'enterprise', 'integration', 'messaging', 'jms', 'activemq', 'ibm', 'mq']
+      ['java', 'enterprise', 'integration', 'messaging', 'jms', 'activemq', 'ibm', 'mq'],
+      ['javascript', 'react', 'frontend', 'ui', 'web']
     ];
     
     const fileTypes: ('pdf' | 'word' | 'powerpoint' | 'txt' | 'epub')[] = [
       'pdf', 'epub', 'pdf', 'pdf', 'epub', 'pdf', 
       'pdf', 'epub', 'pdf', 'pdf', 'epub', 'pdf',
-      'pdf'
+      'pdf', "pdf"
     ];
     
-    for (let i = 0; i < 13; i++) {
+    for (let i = 0; i < 14; i++) {
       const userIndex = i % this.users.length;
       const author = this.users[userIndex];
 
@@ -155,7 +158,7 @@ class MockDataStore {
       
       // Create the file first
       const file: MockFile = {
-        id: faker.string.uuid(),
+        id: i != 13 ? faker.string.uuid() : "mock-file-react-for-beginners",
         author: author,
         thumbnail: thumbnail,
         type: fileTypes[i],
@@ -177,7 +180,7 @@ class MockDataStore {
       // Then create the document with a placeholder rating (will be updated later)
       // We need to create a placeholder rating because document and rating have circular references
       const placeholderRating: MockRating = {
-        id: faker.string.uuid(),
+        id: i != 13 ? faker.string.uuid() : "mock-file-react-for-beginners",
         author: author,
         document: {} as MockDocument, // Will be updated
         rating: i === 3 ? 5 : 0,
@@ -185,7 +188,7 @@ class MockDataStore {
       };
       
       const document: MockDocument = {
-        id: faker.string.uuid(),
+        id: i != 13 ? faker.string.uuid() : "mock-file-react-for-beginners",
         title: documentTitles[i],
         description: documentDescriptions[i],
         rating: placeholderRating,
@@ -374,7 +377,7 @@ class MockDataStore {
   private generateBookmarks(): void {
     // Each user will have between 1 and 4 saved documents
     for (const user of this.users) {
-      const bookmarkCount = faker.number.int({ min: 1, max: 4 });
+      const bookmarkCount = 4;
       
       // Create an array of document indices and shuffle it
       const availableDocIndices = Array.from({ length: this.documents.length }, (_, i) => i);
@@ -384,14 +387,12 @@ class MockDataStore {
       }
       
       // Use the first bookmarkCount indices
-      for (let i = 0; i < bookmarkCount; i++) {
-        const documentIndex = availableDocIndices[i];
-        const document = this.documents[documentIndex];
+      for (const d of [...this.documents.slice(0,3), ...this.documents.filter(a => a.id === "mock-file-react-for-beginners")]) {
         
         const bookmark: MockBookmark = {
           id: faker.string.uuid(),
           user: user,
-          document: document,
+          document: d,
           timestamp: faker.date.recent({ days: 30 })
         };
         
