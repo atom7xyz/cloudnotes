@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   HomeIcon, 
   BookmarkIcon, 
@@ -33,8 +34,13 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, title, hasDropdown, dropdownContent }) => {
   const [isOpen, setIsOpen] = useState(false);
+    const location = useLocation();
 
-  const buttonContent = (
+
+    const isActive = location.pathname === to;
+
+
+    const buttonContent = (
     <Button
       variant="ghost"
       onClick={hasDropdown ? () => setIsOpen(!isOpen) : onClick}
@@ -42,6 +48,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, active, onClick, tit
       className={cn(
         "w-full flex flex-col items-center justify-center py-2 px-1 h-auto",
         "hover-primary-effect rounded-none transition-all duration-200",
+          isActive && "bg-primary/10",
       )}
     >
       <div className="mb-1">{icon}</div>
