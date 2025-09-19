@@ -1,50 +1,34 @@
-# React + TypeScript + Vite
+# CloudNotes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### - Che cos’è?
 
-Currently, two official plugins are available:
+**Accrescere la propria conoscenza**: questa applicazione nasce dall’idea di rendere più semplice la condivisione di materiale didattico e di approfondimento su svariate tematiche.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Incentrata sulla community**: la community è il fulcro dell’applicazione, al suo interno ogni elemento è studiato affinché ogni utente possa fornire e/o sfruttare i feedback di altri utenti per ciascun contenuto a cui è interessato.
 
-## Expanding the ESLint configuration
+**Un social impegnato**: su CloudNotes non si condividono immagini semplificative e accattivanti o video, di media o corta durata, che trattano sommariamente gli argomenti. CloudNotes consente solo la condivisione di documenti che richiedono dall’utente una fruizione dedita e concentrata.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+**Esclusiva Desktop**: in quanto applicazione che richiede impegno, CloudNotes è un’esclusiva desktop, un’app pensata per essere utilizzata non in momenti qualsiasi, ma in spazi dedicati della tua giornata.
 
-- Configure the top-level `parserOptions` property like this:
+### - A chi si rivolge?
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+**A tutti e per tutti**: questa applicazione ha il proposito di rendere accessibile a tutti la condivisione di materiale di qualità per qualsiasi ambito di studio.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+---
+## Media (preview e analisi dei test)
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+![media-1](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-1.png)
+![media-2](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-2.png)
+![media-3](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-3.png)
+![media-4](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-4.png)
+![media-5](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-5.png)
+![media-6](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-6.png)
+![media-7](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-7.png)
+![media-8](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-8.png)
+![media-9](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-9.png)
+![media-10](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-10.png)
+![media-11](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-11.png)
+![media-12](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-12.png)
+![media-13](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-13.png)
+![media-14](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-14.png)
+![media-15](https://github.com/atom7xyz/cloudnotes/blob/v2/media/media-15.png)
